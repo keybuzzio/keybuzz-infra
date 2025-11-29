@@ -7,9 +7,9 @@ prod	91.99.164.62	k8s-worker-02	10.0.0.111	worker2.keybuzz.io	root	k3s-workers	k
 prod	157.90.119.183	k8s-worker-03	10.0.0.112	worker3.keybuzz.io	root	k3s-workers	k3s	worker	k3s-worker-heavy	yes	Worker K3s (workloads IA plus lourds)	k8s-worker	k8s-worker-03
 prod	91.98.200.38	k8s-worker-04	10.0.0.113	worker4.keybuzz.io	root	k3s-workers	k3s	worker	k3s-worker-observability	yes	Worker K3s (monitoring, jobs batch, etc.)	k8s-worker	k8s-worker-04
 prod	188.245.45.242	k8s-worker-05	10.0.0.114	worker5.keybuzz.io	root	k3s-workers	k3s	worker	k3s-worker-extra	no	Worker K3s supplémentaire (scalabilité / réserve)	k8s-worker	k8s-worker-05
-prod	195.201.122.106	db-master-01	10.0.0.120	db-master.keybuzz.io	root	db-pool	db	postgres	patroni-node	yes	PostgreSQL 16 + Patroni (conteneur docker "patroni")	db-postgres	db-master
-prod	91.98.169.31	db-slave-01	10.0.0.121	db-slave1.keybuzz.io	root	db-pool	db	postgres	patroni-node	yes	PostgreSQL 16 + Patroni (réplica)	db-postgres	db-slave-01
-prod	65.21.251.198	db-slave-02	10.0.0.122	db-slave2.keybuzz.io	root	db-pool	db	postgres	patroni-node	yes	PostgreSQL 16 + Patroni (réplica)	db-postgres	db-slave-02
+prod	195.201.122.106	db-postgres-01	10.0.0.120	db-postgres-01.keybuzz.io	root	db-pool	db	postgres	patroni-node	yes	PostgreSQL 16 + Patroni (conteneur docker "patroni")	db-postgres	db-postgres-01
+prod	91.98.169.31	db-postgres-02	10.0.0.121	db-postgres-02.keybuzz.io	root	db-pool	db	postgres	patroni-node	yes	PostgreSQL 16 + Patroni (réplica)	db-postgres	db-postgres-02
+prod	65.21.251.198	db-postgres-03	10.0.0.122	db-postgres-03.keybuzz.io	root	db-pool	db	postgres	patroni-node	yes	PostgreSQL 16 + Patroni (réplica)	db-postgres	db-postgres-03
 prod	49.12.231.193	redis-01	10.0.0.123	redis1.keybuzz.io	root	redis-pool	redis	master	redis-ha-docker	yes	Redis HA master (cluster/sentinel, exposé via 10.0.0.10:6379)	redis	redis-01
 prod	23.88.48.163	redis-02	10.0.0.124	redis2.keybuzz.io	root	redis-pool	redis	replica	redis-ha-docker	yes	Redis HA replica	redis	redis-02
 prod	91.98.167.166	redis-03	10.0.0.125	redis3.keybuzz.io	root	redis-pool	redis	replica	redis-ha-docker	yes	Redis HA replica / Sentinel	redis	redis-03

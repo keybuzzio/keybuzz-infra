@@ -140,7 +140,7 @@
       "logical_name_v3": "k8s-worker-05"
     },
     {
-      "hostname": "db-master-01",
+      "hostname": "db-postgres-01",
       "ip_public": "195.201.122.106",
       "ip_private": "10.0.0.120",
       "role_v3": "db-postgres",
@@ -148,15 +148,15 @@
       "server_type": "",
       "volumes": [
         {
-          "name": "db-master-01-data",
+          "name": "db-postgres-01-data",
           "size_gb": 100,
           "type": "data"
         }
       ],
-      "logical_name_v3": "db-master"
+      "logical_name_v3": "db-postgres-01"
     },
     {
-      "hostname": "db-slave-01",
+      "hostname": "db-postgres-02",
       "ip_public": "91.98.169.31",
       "ip_private": "10.0.0.121",
       "role_v3": "db-postgres",
@@ -164,15 +164,15 @@
       "server_type": "",
       "volumes": [
         {
-          "name": "db-slave-01-data",
+          "name": "db-postgres-02-data",
           "size_gb": 100,
           "type": "data"
         }
       ],
-      "logical_name_v3": "db-slave-01"
+      "logical_name_v3": "db-postgres-02"
     },
     {
-      "hostname": "db-slave-02",
+      "hostname": "db-postgres-03",
       "ip_public": "65.21.251.198",
       "ip_private": "10.0.0.122",
       "role_v3": "db-postgres",
@@ -180,12 +180,12 @@
       "server_type": "",
       "volumes": [
         {
-          "name": "db-slave-02-data",
+          "name": "db-postgres-03-data",
           "size_gb": 100,
           "type": "data"
         }
       ],
-      "logical_name_v3": "db-slave-02"
+      "logical_name_v3": "db-postgres-03"
     },
     {
       "hostname": "redis-01",
@@ -763,14 +763,14 @@
         "k8s-worker-03",
         "k8s-worker-04",
         "k8s-worker-05",
-        "db-master-01",
-        "db-slave-01"
+        "db-postgres-01",
+        "db-postgres-02"
       ]
     },
     {
       "batch_number": 3,
       "servers": [
-        "db-slave-02",
+        "db-postgres-03",
         "redis-01",
         "redis-02",
         "redis-03",
