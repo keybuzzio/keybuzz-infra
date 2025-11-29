@@ -12,14 +12,22 @@
     servers_tsv: "{{ playbook_dir }}/../servers/servers_v3.tsv"
     rebuild_json: "{{ playbook_dir }}/../servers/rebuild_order_v3.json"
     batch_size: 5
-    hetzner_api_token: "{{ lookup('env', 'HETZNER_API_TOKEN') | default('', true) }}"
+    hcloud_env_file: "/opt/keybuzz/credentials/hcloud.env"
+    hetzner_api_token: "{{ lookup('env', 'HETZNER_API_TOKEN') | default(lookup('file', hcloud_env_file) | regex_search('HETZNER_API_TOKEN=\"(.*?)\"', '\\1') | first, true) }}"
     ubuntu_image: "ubuntu-24.04"
   
   tasks:
+    - name: Load Hetzner API token from credentials file if not in environment
+      set_fact:
+        hetzner_api_token: "{{ lookup('file', hcloud_env_file) | regex_search('HETZNER_API_TOKEN=\"(.*?)\"', '\\1') | first }}"
+      when: 
+        - hetzner_api_token == ""
+        - lookup('file', hcloud_env_file) is not failed
+    
     - name: Verify Hetzner API token is set
       fail:
-        msg: "HETZNER_API_TOKEN environment variable must be set"
-      when: hetzner_api_token == ""
+        msg: "HETZNER_API_TOKEN must be set in environment or in {{ hcloud_env_file }}"
+      when: hetzner_api_token == "" or hetzner_api_token is none
 
     - name: Read servers_v3.tsv
       slurp:
@@ -214,7 +222,12 @@
           Batches processed: {{ batches | length }}
           Batch size: {{ batch_size }}
           ========================================
+          IMPORTANT: install-01 and install-v3 were NOT touched
+          ========================================
           NEXT STEP: Deploy SSH keys (PHASE 2)
+          ========================================
+          To generate detailed report, run:
+          /opt/keybuzz/keybuzz-infra/scripts/phase1-report.sh
           ========================================
 
 # PHASE 3: Create and attach XFS volumes (AFTER SSH mesh deployment)
