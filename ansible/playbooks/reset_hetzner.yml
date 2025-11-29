@@ -252,15 +252,154 @@
         index_var: batch_index
         label: "Batch {{ batch_index + 1 }}"
 
-    - name: Summary
+    - name: Summary - PHASE 1 Complete
       debug:
         msg: |
           ========================================
-          Reset Hetzner Servers - Summary
+          Reset Hetzner Servers - Summary (PHASE 1)
           ========================================
           Total servers processed: {{ servers_enriched | length }}
           Batches processed: {{ batches | length }}
           Batch size: {{ batch_size }}
           ========================================
           NEXT STEP: Deploy SSH keys (PHASE 2)
+          ========================================
+
+# PHASE 3: Create and attach XFS volumes (AFTER SSH mesh deployment)
+- name: Create and Attach XFS Volumes
+  hosts: localhost
+  gather_facts: false
+  vars:
+    rebuild_json: "{{ playbook_dir }}/../servers/rebuild_order_v3.json"
+    hetzner_api_token: "{{ lookup('env', 'HETZNER_API_TOKEN') | default('', true) }}"
+    skip_volume_creation: "{{ lookup('env', 'SKIP_VOLUME_CREATION') | default('false', true) }}"
+  
+  tasks:
+    - name: Verify Hetzner API token is set
+      fail:
+        msg: "HETZNER_API_TOKEN environment variable must be set"
+      when: hetzner_api_token == ""
+
+    - name: Skip volume creation if flag set
+      debug:
+        msg: "Skipping volume creation (SKIP_VOLUME_CREATION=true)"
+      when: skip_volume_creation == "true"
+
+    - name: Read rebuild_order_v3.json
+      slurp:
+        src: "{{ rebuild_json }}"
+      register: json_content
+      delegate_to: localhost
+      when: skip_volume_creation != "true"
+
+    - name: Parse JSON rebuild order
+      set_fact:
+        rebuild_data: "{{ json_content.content | b64decode | from_json }}"
+      delegate_to: localhost
+      when: skip_volume_creation != "true"
+
+    - name: Process servers with volumes
+      block:
+        - name: "Create and attach volumes for {{ item.hostname }}"
+          block:
+            - name: "Find server ID for {{ item.hostname }}"
+              uri:
+                url: "https://api.hetzner.cloud/v1/servers"
+                method: GET
+                headers:
+                  Authorization: "Bearer {{ hetzner_api_token }}"
+                return_content: true
+              register: servers_list_api
+              delegate_to: localhost
+
+            - name: "Extract server ID"
+              set_fact:
+                server_id: "{{ servers_list_api.json.servers | selectattr('public_net.ipv4.ip', 'equalto', item.ip_public) | map(attribute='id') | first }}"
+              delegate_to: localhost
+
+            - name: "Create volume {{ volume.name }} for {{ item.hostname }}"
+              uri:
+                url: "https://api.hetzner.cloud/v1/volumes"
+                method: POST
+                headers:
+                  Authorization: "Bearer {{ hetzner_api_token }}"
+                  Content-Type: "application/json"
+                body_format: json
+                body:
+                  name: "{{ volume.name }}"
+                  size: "{{ volume.size_gb }}"
+                  location: "{{ item.region | default('nbg1') }}"
+                  format: "xfs"
+              register: volume_create_result
+              loop: "{{ item.volumes | default([]) }}"
+              loop_control:
+                loop_var: volume
+              delegate_to: localhost
+              when: item.volumes | length > 0
+
+            - name: "Wait for volume creation"
+              pause:
+                seconds: 3
+              when: item.volumes | length > 0
+
+            - name: "Attach volume {{ volume.name }} to {{ item.hostname }}"
+              uri:
+                url: "https://api.hetzner.cloud/v1/volumes/{{ volume_create_result.results[volume_create_result.results|length-1].json.volume.id }}/actions/attach"
+                method: POST
+                headers:
+                  Authorization: "Bearer {{ hetzner_api_token }}"
+                  Content-Type: "application/json"
+                body_format: json
+                body:
+                  server: "{{ server_id }}"
+              register: attach_result
+              loop: "{{ item.volumes | default([]) }}"
+              loop_control:
+                loop_var: volume
+              delegate_to: localhost
+              when: item.volumes | length > 0
+
+            - name: "Wait for volume attachment"
+              pause:
+                seconds: 5
+              when: item.volumes | length > 0
+
+            - name: "Apply XFS role to {{ item.hostname }}"
+              include_role:
+                name: xfs
+              vars:
+                role_v3: "{{ item.role }}"
+              when: 
+                - item.volumes | length > 0
+                - item.ip_private is defined
+
+            - name: "Verify XFS mount on {{ item.hostname }}"
+              command: ssh -i /root/.ssh/id_rsa_keybuzz_v3 -o StrictHostKeyChecking=no root@{{ item.ip_private }} "df -h | grep xfs"
+              register: xfs_verify
+              delegate_to: localhost
+              failed_when: false
+              when: item.ip_private is defined
+
+            - name: "Display XFS mount status for {{ item.hostname }}"
+              debug:
+                msg: "{{ xfs_verify.stdout if xfs_verify.rc == 0 else 'XFS mount verification failed' }}"
+              when: xfs_verify is defined
+
+          loop: "{{ rebuild_data.servers }}"
+          loop_control:
+            label: "{{ item.hostname }}"
+          when: item.volumes | length > 0
+
+      when: skip_volume_creation != "true"
+
+    - name: Summary - PHASE 3 Complete
+      debug:
+        msg: |
+          ========================================
+          XFS Volume Creation - Summary (PHASE 3)
+          ========================================
+          Volumes created and attached
+          XFS role applied to servers
+          ========================================
+          NEXT STEP: Verify all mounts and proceed with kubeadm
           ========================================

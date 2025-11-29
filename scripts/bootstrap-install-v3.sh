@@ -163,7 +163,9 @@ if ! ssh-add -l 2>/dev/null | grep -q "$SSH_KEY_PATH"; then
 fi
 
 # 10. Deploy SSH key to all servers (SSH mesh)
+# ⚠️ WARNING: Only deploy SSH keys AFTER servers have been rebuilt (PHASE 1)
 log_info "Deploying SSH key to all servers in servers_v3.tsv..."
+log_warn "⚠️  CRITICAL: Only run this AFTER all servers have been rebuilt (PHASE 1)"
 
 if [[ ! -f "$SERVERS_TSV" ]]; then
     log_warn "servers_v3.tsv not found at $SERVERS_TSV, skipping SSH deployment"
@@ -178,6 +180,20 @@ else
     if ! command -v sshpass &> /dev/null; then
         log_info "Installing sshpass for automated SSH key deployment..."
         apt-get install -y sshpass
+    fi
+    
+    # Check for Hetzner root password
+    HETZNER_ROOT_PASSWORD="${HETZNER_ROOT_PASSWORD:-}"
+    if [[ -z "$HETZNER_ROOT_PASSWORD" ]]; then
+        log_warn "HETZNER_ROOT_PASSWORD not set. Prompting for password..."
+        read -sp "Enter Hetzner root password (temporary, for rebuilt servers): " HETZNER_ROOT_PASSWORD
+        echo
+    fi
+    
+    if [[ -z "$HETZNER_ROOT_PASSWORD" ]]; then
+        log_error "Cannot deploy SSH keys without root password"
+        log_error "Set HETZNER_ROOT_PASSWORD environment variable or enter password when prompted"
+        exit 1
     fi
     
     # Read TSV file (skip header and empty lines)
@@ -200,23 +216,31 @@ else
         
         log_info "Deploying SSH key to $hostname ($ip_public)..."
         
-        # Try to copy key using sshpass (assuming password auth initially)
-        # In production, you might want to use a temporary password or pre-shared key
-        if sshpass -p "TEMPORARY_PASSWORD" ssh-copy-id -o StrictHostKeyChecking=no -i "${SSH_KEY_PATH}.pub" "${user_ssh}@${ip_public}" 2>/dev/null; then
+        # Deploy key using sshpass with Hetzner root password
+        if sshpass -p "$HETZNER_ROOT_PASSWORD" ssh-copy-id -o StrictHostKeyChecking=no -o ConnectTimeout=10 -i "${SSH_KEY_PATH}.pub" "${user_ssh}@${ip_public}" 2>/dev/null; then
             log_info "✓ SSH key deployed to $hostname"
             ((deployed++))
             
-            # Test connection via private IP
-            if [[ -n "$ip_private" ]]; then
-                log_info "  Testing connection via private IP $ip_private..."
-                if ssh -i "$SSH_KEY_PATH" -o StrictHostKeyChecking=no -o ConnectTimeout=5 "${user_ssh}@${ip_private}" "echo 'Connection successful'" 2>/dev/null; then
-                    log_info "  ✓ Private IP connection successful"
-                else
-                    log_warn "  ✗ Private IP connection failed (may need network setup)"
+            # Test connection via public IP first
+            log_info "  Testing connection via public IP $ip_public..."
+            if ssh -i "$SSH_KEY_PATH" -o StrictHostKeyChecking=no -o ConnectTimeout=5 "${user_ssh}@${ip_public}" "echo 'Connection successful'" 2>/dev/null; then
+                log_info "  ✓ Public IP connection successful"
+                
+                # Test connection via private IP
+                if [[ -n "$ip_private" ]]; then
+                    log_info "  Testing connection via private IP $ip_private..."
+                    if ssh -i "$SSH_KEY_PATH" -o StrictHostKeyChecking=no -o ConnectTimeout=5 "${user_ssh}@${ip_private}" "echo 'Connection successful'" 2>/dev/null; then
+                        log_info "  ✓ Private IP connection successful"
+                    else
+                        log_warn "  ✗ Private IP connection failed (may need network setup)"
+                    fi
                 fi
+            else
+                log_warn "  ✗ Public IP connection failed"
             fi
         else
-            log_warn "✗ Failed to deploy SSH key to $hostname (may need manual setup)"
+            log_warn "✗ Failed to deploy SSH key to $hostname"
+            log_warn "  Server may not be rebuilt yet, or password incorrect"
             ((failed++))
         fi
         
@@ -228,8 +252,17 @@ else
     log_info "  Skipped: $skipped"
     
     if [[ $failed -gt 0 ]]; then
-        log_warn "Some servers failed. You may need to deploy keys manually:"
-        log_warn "  ssh-copy-id -i ${SSH_KEY_PATH}.pub user@host"
+        log_warn "Some servers failed. Possible reasons:"
+        log_warn "  - Server not yet rebuilt (run PHASE 1 first)"
+        log_warn "  - Incorrect root password"
+        log_warn "  - Server not accessible"
+        log_warn "Manual deployment: ssh-copy-id -i ${SSH_KEY_PATH}.pub root@<IP>"
+    fi
+    
+    if [[ $deployed -gt 0 ]]; then
+        log_info "✓ SSH mesh deployment completed"
+        log_info "You can now use Ansible with private IPs:"
+        log_info "  ansible all -m ping -i $REPOS_DIR/keybuzz-infra/ansible/inventory/hosts.yml"
     fi
 fi
 
