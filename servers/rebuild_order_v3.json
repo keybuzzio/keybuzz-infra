@@ -3,15 +3,21 @@
     "created": "2025-11-29",
     "purpose": "Ordered list of servers to rebuild for KeyBuzz v3",
     "batch_size": 5,
-    "excluded_servers": ["install-01", "install-v3"]
+    "excluded_servers": [
+      "install-01",
+      "install-v3"
+    ],
+    "total_servers": 47,
+    "total_batches": 10
   },
   "servers": [
     {
       "hostname": "k8s-master-01",
       "ip_public": "91.98.124.228",
       "ip_private": "10.0.0.100",
-      "role": "k8s_master",
+      "role_v3": "k8s-master",
       "region": "nbg1",
+      "server_type": "",
       "volumes": [
         {
           "name": "k8s-master-01-data",
@@ -19,14 +25,15 @@
           "type": "data"
         }
       ],
-      "server_type": "cx41"
+      "logical_name_v3": "k8s-master-01"
     },
     {
       "hostname": "k8s-master-02",
       "ip_public": "91.98.117.26",
       "ip_private": "10.0.0.101",
-      "role": "k8s_master",
+      "role_v3": "k8s-master",
       "region": "nbg1",
+      "server_type": "",
       "volumes": [
         {
           "name": "k8s-master-02-data",
@@ -34,14 +41,15 @@
           "type": "data"
         }
       ],
-      "server_type": "cx41"
+      "logical_name_v3": "k8s-master-02"
     },
     {
       "hostname": "k8s-master-03",
       "ip_public": "91.98.165.238",
       "ip_private": "10.0.0.102",
-      "role": "k8s_master",
+      "role_v3": "k8s-master",
       "region": "nbg1",
+      "server_type": "",
       "volumes": [
         {
           "name": "k8s-master-03-data",
@@ -49,14 +57,15 @@
           "type": "data"
         }
       ],
-      "server_type": "cx41"
+      "logical_name_v3": "k8s-master-03"
     },
     {
       "hostname": "k8s-worker-01",
       "ip_public": "116.203.135.192",
       "ip_private": "10.0.0.110",
-      "role": "k8s_worker",
+      "role_v3": "k8s-worker",
       "region": "nbg1",
+      "server_type": "",
       "volumes": [
         {
           "name": "k8s-worker-01-data",
@@ -64,14 +73,15 @@
           "type": "data"
         }
       ],
-      "server_type": "cx41"
+      "logical_name_v3": "k8s-worker-01"
     },
     {
       "hostname": "k8s-worker-02",
       "ip_public": "91.99.164.62",
       "ip_private": "10.0.0.111",
-      "role": "k8s_worker",
+      "role_v3": "k8s-worker",
       "region": "nbg1",
+      "server_type": "",
       "volumes": [
         {
           "name": "k8s-worker-02-data",
@@ -79,14 +89,63 @@
           "type": "data"
         }
       ],
-      "server_type": "cx41"
+      "logical_name_v3": "k8s-worker-02"
+    },
+    {
+      "hostname": "k8s-worker-03",
+      "ip_public": "157.90.119.183",
+      "ip_private": "10.0.0.112",
+      "role_v3": "k8s-worker",
+      "region": "nbg1",
+      "server_type": "",
+      "volumes": [
+        {
+          "name": "k8s-worker-03-data",
+          "size_gb": 50,
+          "type": "data"
+        }
+      ],
+      "logical_name_v3": "k8s-worker-03"
+    },
+    {
+      "hostname": "k8s-worker-04",
+      "ip_public": "91.98.200.38",
+      "ip_private": "10.0.0.113",
+      "role_v3": "k8s-worker",
+      "region": "nbg1",
+      "server_type": "",
+      "volumes": [
+        {
+          "name": "k8s-worker-04-data",
+          "size_gb": 50,
+          "type": "data"
+        }
+      ],
+      "logical_name_v3": "k8s-worker-04"
+    },
+    {
+      "hostname": "k8s-worker-05",
+      "ip_public": "188.245.45.242",
+      "ip_private": "10.0.0.114",
+      "role_v3": "k8s-worker",
+      "region": "nbg1",
+      "server_type": "",
+      "volumes": [
+        {
+          "name": "k8s-worker-05-data",
+          "size_gb": 50,
+          "type": "data"
+        }
+      ],
+      "logical_name_v3": "k8s-worker-05"
     },
     {
       "hostname": "db-master-01",
       "ip_public": "195.201.122.106",
       "ip_private": "10.0.0.120",
-      "role": "db_postgres",
+      "role_v3": "db-postgres",
       "region": "nbg1",
+      "server_type": "",
       "volumes": [
         {
           "name": "db-master-01-data",
@@ -94,14 +153,15 @@
           "type": "data"
         }
       ],
-      "server_type": "cx41"
+      "logical_name_v3": "db-master"
     },
     {
       "hostname": "db-slave-01",
       "ip_public": "91.98.169.31",
       "ip_private": "10.0.0.121",
-      "role": "db_postgres",
+      "role_v3": "db-postgres",
       "region": "nbg1",
+      "server_type": "",
       "volumes": [
         {
           "name": "db-slave-01-data",
@@ -109,14 +169,15 @@
           "type": "data"
         }
       ],
-      "server_type": "cx41"
+      "logical_name_v3": "db-slave-01"
     },
     {
       "hostname": "db-slave-02",
       "ip_public": "65.21.251.198",
       "ip_private": "10.0.0.122",
-      "role": "db_postgres",
+      "role_v3": "db-postgres",
       "region": "nbg1",
+      "server_type": "",
       "volumes": [
         {
           "name": "db-slave-02-data",
@@ -124,14 +185,15 @@
           "type": "data"
         }
       ],
-      "server_type": "cx41"
+      "logical_name_v3": "db-slave-02"
     },
     {
       "hostname": "redis-01",
       "ip_public": "49.12.231.193",
       "ip_private": "10.0.0.123",
-      "role": "redis",
+      "role_v3": "redis",
       "region": "nbg1",
+      "server_type": "",
       "volumes": [
         {
           "name": "redis-01-data",
@@ -139,14 +201,15 @@
           "type": "data"
         }
       ],
-      "server_type": "cx31"
+      "logical_name_v3": "redis-01"
     },
     {
       "hostname": "redis-02",
       "ip_public": "23.88.48.163",
       "ip_private": "10.0.0.124",
-      "role": "redis",
+      "role_v3": "redis",
       "region": "nbg1",
+      "server_type": "",
       "volumes": [
         {
           "name": "redis-02-data",
@@ -154,14 +217,15 @@
           "type": "data"
         }
       ],
-      "server_type": "cx31"
+      "logical_name_v3": "redis-02"
     },
     {
       "hostname": "redis-03",
       "ip_public": "91.98.167.166",
       "ip_private": "10.0.0.125",
-      "role": "redis",
+      "role_v3": "redis",
       "region": "nbg1",
+      "server_type": "",
       "volumes": [
         {
           "name": "redis-03-data",
@@ -169,14 +233,15 @@
           "type": "data"
         }
       ],
-      "server_type": "cx31"
+      "logical_name_v3": "redis-03"
     },
     {
       "hostname": "queue-01",
       "ip_public": "23.88.105.16",
       "ip_private": "10.0.0.126",
-      "role": "rabbitmq",
+      "role_v3": "rabbitmq",
       "region": "nbg1",
+      "server_type": "",
       "volumes": [
         {
           "name": "queue-01-data",
@@ -184,14 +249,15 @@
           "type": "data"
         }
       ],
-      "server_type": "cx31"
+      "logical_name_v3": "queue-01"
     },
     {
       "hostname": "queue-02",
       "ip_public": "91.98.167.159",
       "ip_private": "10.0.0.127",
-      "role": "rabbitmq",
+      "role_v3": "rabbitmq",
       "region": "nbg1",
+      "server_type": "",
       "volumes": [
         {
           "name": "queue-02-data",
@@ -199,14 +265,15 @@
           "type": "data"
         }
       ],
-      "server_type": "cx31"
+      "logical_name_v3": "queue-02"
     },
     {
       "hostname": "queue-03",
       "ip_public": "91.98.68.35",
       "ip_private": "10.0.0.128",
-      "role": "rabbitmq",
+      "role_v3": "rabbitmq",
       "region": "nbg1",
+      "server_type": "",
       "volumes": [
         {
           "name": "queue-03-data",
@@ -214,14 +281,79 @@
           "type": "data"
         }
       ],
-      "server_type": "cx31"
+      "logical_name_v3": "queue-03"
+    },
+    {
+      "hostname": "temporal-db-01",
+      "ip_public": "88.99.227.128",
+      "ip_private": "10.0.0.129",
+      "role_v3": "db-temporal",
+      "region": "nbg1",
+      "server_type": "",
+      "volumes": [
+        {
+          "name": "temporal-db-01-data",
+          "size_gb": 50,
+          "type": "data"
+        }
+      ],
+      "logical_name_v3": "temporal-db"
+    },
+    {
+      "hostname": "temporal-01",
+      "ip_public": "91.98.197.70",
+      "ip_private": "10.0.0.138",
+      "role_v3": "app-temporal",
+      "region": "nbg1",
+      "server_type": "",
+      "volumes": [
+        {
+          "name": "temporal-01-data",
+          "size_gb": 30,
+          "type": "data"
+        }
+      ],
+      "logical_name_v3": "temporal"
+    },
+    {
+      "hostname": "analytics-db-01",
+      "ip_public": "91.98.134.176",
+      "ip_private": "10.0.0.130",
+      "role_v3": "db-analytics",
+      "region": "nbg1",
+      "server_type": "",
+      "volumes": [
+        {
+          "name": "analytics-db-01-data",
+          "size_gb": 50,
+          "type": "data"
+        }
+      ],
+      "logical_name_v3": "analytics-db"
+    },
+    {
+      "hostname": "analytics-01",
+      "ip_public": "91.99.237.167",
+      "ip_private": "10.0.0.139",
+      "role_v3": "app-analytics",
+      "region": "nbg1",
+      "server_type": "",
+      "volumes": [
+        {
+          "name": "analytics-01-data",
+          "size_gb": 30,
+          "type": "data"
+        }
+      ],
+      "logical_name_v3": "analytics"
     },
     {
       "hostname": "minio-01",
       "ip_public": "116.203.144.185",
       "ip_private": "10.0.0.134",
-      "role": "minio",
+      "role_v3": "minio",
       "region": "nbg1",
+      "server_type": "",
       "volumes": [
         {
           "name": "minio-01-data",
@@ -229,14 +361,15 @@
           "type": "data"
         }
       ],
-      "server_type": "cx41"
+      "logical_name_v3": "minio-01"
     },
     {
       "hostname": "minio-02",
       "ip_public": "91.99.199.183",
       "ip_private": "10.0.0.131",
-      "role": "minio",
+      "role_v3": "minio",
       "region": "nbg1",
+      "server_type": "",
       "volumes": [
         {
           "name": "minio-02-data",
@@ -244,14 +377,15 @@
           "type": "data"
         }
       ],
-      "server_type": "cx41"
+      "logical_name_v3": "minio-02"
     },
     {
       "hostname": "minio-03",
       "ip_public": "91.99.103.47",
       "ip_private": "10.0.0.132",
-      "role": "minio",
+      "role_v3": "minio",
       "region": "nbg1",
+      "server_type": "",
       "volumes": [
         {
           "name": "minio-03-data",
@@ -259,77 +393,137 @@
           "type": "data"
         }
       ],
-      "server_type": "cx41"
+      "logical_name_v3": "minio-03"
     },
     {
-      "hostname": "maria-01",
-      "ip_public": "91.98.35.206",
-      "ip_private": "10.0.0.170",
-      "role": "db_mariadb",
+      "hostname": "crm-01",
+      "ip_public": "78.47.43.10",
+      "ip_private": "10.0.0.133",
+      "role_v3": "app-crm",
       "region": "nbg1",
+      "server_type": "",
       "volumes": [
         {
-          "name": "maria-01-data",
-          "size_gb": 100,
+          "name": "crm-01-data",
+          "size_gb": 20,
           "type": "data"
         }
       ],
-      "server_type": "cx41"
+      "logical_name_v3": "crm"
     },
     {
-      "hostname": "maria-02",
-      "ip_public": "46.224.43.75",
-      "ip_private": "10.0.0.171",
-      "role": "db_mariadb",
+      "hostname": "api-gateway-01",
+      "ip_public": "23.88.107.251",
+      "ip_private": "10.0.0.135",
+      "role_v3": "lb-apigw",
       "region": "nbg1",
-      "volumes": [
-        {
-          "name": "maria-02-data",
-          "size_gb": 100,
-          "type": "data"
-        }
-      ],
-      "server_type": "cx41"
-    },
-    {
-      "hostname": "maria-03",
-      "ip_public": "49.13.66.233",
-      "ip_private": "10.0.0.172",
-      "role": "db_mariadb",
-      "region": "nbg1",
-      "volumes": [
-        {
-          "name": "maria-03-data",
-          "size_gb": 100,
-          "type": "data"
-        }
-      ],
-      "server_type": "cx41"
-    },
-    {
-      "hostname": "haproxy-01",
-      "ip_public": "159.69.159.32",
-      "ip_private": "10.0.0.11",
-      "role": "lb",
-      "region": "nbg1",
+      "server_type": "",
       "volumes": [],
-      "server_type": "cx21"
+      "logical_name_v3": "api-gateway"
     },
     {
-      "hostname": "haproxy-02",
-      "ip_public": "91.98.164.223",
-      "ip_private": "10.0.0.12",
-      "role": "lb",
+      "hostname": "vector-db-01",
+      "ip_public": "116.203.240.119",
+      "ip_private": "10.0.0.136",
+      "role_v3": "vector-db",
       "region": "nbg1",
-      "volumes": [],
-      "server_type": "cx21"
+      "server_type": "",
+      "volumes": [
+        {
+          "name": "vector-db-01-data",
+          "size_gb": 50,
+          "type": "data"
+        }
+      ],
+      "logical_name_v3": "qdrant"
+    },
+    {
+      "hostname": "litellm-01",
+      "ip_public": "91.98.200.40",
+      "ip_private": "10.0.0.137",
+      "role_v3": "llm-proxy",
+      "region": "nbg1",
+      "server_type": "",
+      "volumes": [
+        {
+          "name": "litellm-01-data",
+          "size_gb": 30,
+          "type": "data"
+        }
+      ],
+      "logical_name_v3": "litellm"
+    },
+    {
+      "hostname": "etl-01",
+      "ip_public": "195.201.225.134",
+      "ip_private": "10.0.0.140",
+      "role_v3": "app-etl",
+      "region": "nbg1",
+      "server_type": "",
+      "volumes": [
+        {
+          "name": "etl-01-data",
+          "size_gb": 30,
+          "type": "data"
+        }
+      ],
+      "logical_name_v3": "etl"
+    },
+    {
+      "hostname": "baserow-01",
+      "ip_public": "91.99.195.137",
+      "ip_private": "10.0.0.144",
+      "role_v3": "app-nocode",
+      "region": "nbg1",
+      "server_type": "",
+      "volumes": [
+        {
+          "name": "baserow-01-data",
+          "size_gb": 30,
+          "type": "data"
+        }
+      ],
+      "logical_name_v3": "baserow"
+    },
+    {
+      "hostname": "nocodb-01",
+      "ip_public": "78.46.170.170",
+      "ip_private": "10.0.0.142",
+      "role_v3": "app-nocode",
+      "region": "nbg1",
+      "server_type": "",
+      "volumes": [
+        {
+          "name": "nocodb-01-data",
+          "size_gb": 30,
+          "type": "data"
+        }
+      ],
+      "logical_name_v3": "nocodb"
+    },
+    {
+      "hostname": "ml-platform-01",
+      "ip_public": "157.90.236.10",
+      "ip_private": "10.0.0.143",
+      "role_v3": "ml-platform",
+      "region": "nbg1",
+      "server_type": "",
+      "volumes": [
+        {
+          "name": "ml-platform-01-data",
+          "size_gb": 50,
+          "type": "data"
+        }
+      ],
+      "logical_name_v3": "ml-platform"
     },
     {
       "hostname": "vault-01",
       "ip_public": "116.203.61.22",
       "ip_private": "10.0.0.150",
-      "role": "vault",
+      "role_v3": "vault",
       "region": "nbg1",
+      "server_type": "",
       "volumes": [
         {
           "name": "vault-01-data",
@@ -337,29 +531,31 @@
           "type": "data"
         }
       ],
-      "server_type": "cx31"
+      "logical_name_v3": "vault"
     },
     {
-      "hostname": "backup-01",
-      "ip_public": "91.98.139.56",
-      "ip_private": "10.0.0.153",
-      "role": "backup",
+      "hostname": "siem-01",
+      "ip_public": "91.99.58.179",
+      "ip_private": "10.0.0.151",
+      "role_v3": "siem",
       "region": "nbg1",
+      "server_type": "",
       "volumes": [
         {
-          "name": "backup-01-data",
-          "size_gb": 500,
+          "name": "siem-01-data",
+          "size_gb": 50,
           "type": "data"
         }
       ],
-      "server_type": "cx41"
+      "logical_name_v3": "siem"
     },
     {
       "hostname": "monitor-01",
       "ip_public": "23.88.105.216",
       "ip_private": "10.0.0.152",
-      "role": "monitoring",
+      "role_v3": "monitoring",
       "region": "nbg1",
+      "server_type": "",
       "volumes": [
         {
           "name": "monitor-01-data",
@@ -367,32 +563,79 @@
           "type": "data"
         }
       ],
-      "server_type": "cx31"
+      "logical_name_v3": "monitor"
     },
     {
-      "hostname": "proxysql-01",
-      "ip_public": "46.224.64.206",
-      "ip_private": "10.0.0.173",
-      "role": "db_proxysql",
+      "hostname": "backup-01",
+      "ip_public": "91.98.139.56",
+      "ip_private": "10.0.0.153",
+      "role_v3": "backup",
       "region": "nbg1",
-      "volumes": [],
-      "server_type": "cx21"
+      "server_type": "",
+      "volumes": [
+        {
+          "name": "backup-01-data",
+          "size_gb": 500,
+          "type": "data"
+        }
+      ],
+      "logical_name_v3": "backup"
     },
     {
-      "hostname": "proxysql-02",
-      "ip_public": "188.245.194.27",
-      "ip_private": "10.0.0.174",
-      "role": "db_proxysql",
+      "hostname": "mail-core-01",
+      "ip_public": "37.27.251.162",
+      "ip_private": "10.0.0.160",
+      "role_v3": "mail-core",
       "region": "nbg1",
-      "volumes": [],
-      "server_type": "cx21"
+      "server_type": "",
+      "volumes": [
+        {
+          "name": "mail-core-01-data",
+          "size_gb": 30,
+          "type": "data"
+        }
+      ],
+      "logical_name_v3": "mail"
+    },
+    {
+      "hostname": "mail-mx-01",
+      "ip_public": "91.99.66.6",
+      "ip_private": "10.0.0.161",
+      "role_v3": "mail-mx",
+      "region": "nbg1",
+      "server_type": "",
+      "volumes": [
+        {
+          "name": "mail-mx-01-data",
+          "size_gb": 20,
+          "type": "data"
+        }
+      ],
+      "logical_name_v3": "mail-mx-01"
+    },
+    {
+      "hostname": "mail-mx-02",
+      "ip_public": "91.99.87.76",
+      "ip_private": "10.0.0.162",
+      "role_v3": "mail-mx",
+      "region": "nbg1",
+      "server_type": "",
+      "volumes": [
+        {
+          "name": "mail-mx-02-data",
+          "size_gb": 20,
+          "type": "data"
+        }
+      ],
+      "logical_name_v3": "mail-mx-02"
     },
     {
       "hostname": "builder-01",
       "ip_public": "5.75.128.134",
       "ip_private": "10.0.0.200",
-      "role": "builder",
+      "role_v3": "builder",
       "region": "nbg1",
+      "server_type": "",
       "volumes": [
         {
           "name": "builder-01-data",
@@ -400,34 +643,206 @@
           "type": "data"
         }
       ],
-      "server_type": "cx41"
+      "logical_name_v3": "builder"
+    },
+    {
+      "hostname": "haproxy-01",
+      "ip_public": "159.69.159.32",
+      "ip_private": "10.0.0.11",
+      "role_v3": "lb-internal",
+      "region": "nbg1",
+      "server_type": "",
+      "volumes": [],
+      "logical_name_v3": "haproxy-01"
+    },
+    {
+      "hostname": "haproxy-02",
+      "ip_public": "91.98.164.223",
+      "ip_private": "10.0.0.12",
+      "role_v3": "lb-internal",
+      "region": "nbg1",
+      "server_type": "",
+      "volumes": [],
+      "logical_name_v3": "haproxy-02"
+    },
+    {
+      "hostname": "maria-01",
+      "ip_public": "91.98.35.206",
+      "ip_private": "10.0.0.170",
+      "role_v3": "db-mariadb",
+      "region": "nbg1",
+      "server_type": "",
+      "volumes": [
+        {
+          "name": "maria-01-data",
+          "size_gb": 100,
+          "type": "data"
+        }
+      ],
+      "logical_name_v3": "maria-01"
+    },
+    {
+      "hostname": "maria-02",
+      "ip_public": "46.224.43.75",
+      "ip_private": "10.0.0.171",
+      "role_v3": "db-mariadb",
+      "region": "nbg1",
+      "server_type": "",
+      "volumes": [
+        {
+          "name": "maria-02-data",
+          "size_gb": 100,
+          "type": "data"
+        }
+      ],
+      "logical_name_v3": "maria-02"
+    },
+    {
+      "hostname": "maria-03",
+      "ip_public": "49.13.66.233",
+      "ip_private": "10.0.0.172",
+      "role_v3": "db-mariadb",
+      "region": "nbg1",
+      "server_type": "",
+      "volumes": [
+        {
+          "name": "maria-03-data",
+          "size_gb": 100,
+          "type": "data"
+        }
+      ],
+      "logical_name_v3": "maria-03"
+    },
+    {
+      "hostname": "proxysql-01",
+      "ip_public": "46.224.64.206",
+      "ip_private": "10.0.0.173",
+      "role_v3": "db-proxysql",
+      "region": "nbg1",
+      "server_type": "",
+      "volumes": [
+        {
+          "name": "proxysql-01-data",
+          "size_gb": 20,
+          "type": "data"
+        }
+      ],
+      "logical_name_v3": "proxysql-01"
+    },
+    {
+      "hostname": "proxysql-02",
+      "ip_public": "188.245.194.27",
+      "ip_private": "10.0.0.174",
+      "role_v3": "db-proxysql",
+      "region": "nbg1",
+      "server_type": "",
+      "volumes": [
+        {
+          "name": "proxysql-02-data",
+          "size_gb": 20,
+          "type": "data"
+        }
+      ],
+      "logical_name_v3": "proxysql-02"
     }
   ],
   "batches": [
     {
       "batch_number": 1,
-      "servers": ["k8s-master-01", "k8s-master-02", "k8s-master-03", "k8s-worker-01", "k8s-worker-02"]
+      "servers": [
+        "k8s-master-01",
+        "k8s-master-02",
+        "k8s-master-03",
+        "k8s-worker-01",
+        "k8s-worker-02"
+      ]
     },
     {
       "batch_number": 2,
-      "servers": ["db-master-01", "db-slave-01", "db-slave-02", "redis-01", "redis-02"]
+      "servers": [
+        "k8s-worker-03",
+        "k8s-worker-04",
+        "k8s-worker-05",
+        "db-master-01",
+        "db-slave-01"
+      ]
     },
     {
       "batch_number": 3,
-      "servers": ["redis-03", "queue-01", "queue-02", "queue-03", "minio-01"]
+      "servers": [
+        "db-slave-02",
+        "redis-01",
+        "redis-02",
+        "redis-03",
+        "queue-01"
+      ]
     },
     {
       "batch_number": 4,
-      "servers": ["minio-02", "minio-03", "maria-01", "maria-02", "maria-03"]
+      "servers": [
+        "queue-02",
+        "queue-03",
+        "temporal-db-01",
+        "temporal-01",
+        "analytics-db-01"
+      ]
     },
     {
       "batch_number": 5,
-      "servers": ["haproxy-01", "haproxy-02", "vault-01", "backup-01", "monitor-01"]
+      "servers": [
+        "analytics-01",
+        "minio-01",
+        "minio-02",
+        "minio-03",
+        "crm-01"
+      ]
     },
     {
       "batch_number": 6,
-      "servers": ["proxysql-01", "proxysql-02", "builder-01"]
+      "servers": [
+        "api-gateway-01",
+        "vector-db-01",
+        "litellm-01",
+        "etl-01",
+        "baserow-01"
+      ]
+    },
+    {
+      "batch_number": 7,
+      "servers": [
+        "nocodb-01",
+        "ml-platform-01",
+        "vault-01",
+        "siem-01",
+        "monitor-01"
+      ]
+    },
+    {
+      "batch_number": 8,
+      "servers": [
+        "backup-01",
+        "mail-core-01",
+        "mail-mx-01",
+        "mail-mx-02",
+        "builder-01"
+      ]
+    },
+    {
+      "batch_number": 9,
+      "servers": [
+        "haproxy-01",
+        "haproxy-02",
+        "maria-01",
+        "maria-02",
+        "maria-03"
+      ]
+    },
+    {
+      "batch_number": 10,
+      "servers": [
+        "proxysql-01",
+        "proxysql-02"
+      ]
     }
   ]
 }
-
