@@ -1,0 +1,163 @@
+---
+# Reset Hetzner Servers - Batch Processing
+# This playbook reads servers_v3.tsv and processes servers in batches of 5
+# For each server: delete volumes, recreate with XFS, reattach, reboot, verify
+
+- name: Reset Hetzner Servers in Batches
+  hosts: localhost
+  gather_facts: false
+  vars:
+    servers_tsv: "{{ playbook_dir }}/../servers/servers_v3.tsv"
+    batch_size: 5
+    hetzner_api_token: "{{ lookup('env', 'HETZNER_API_TOKEN') | default('', true) }}"
+  
+  tasks:
+    - name: Read servers_v3.tsv
+      slurp:
+        src: "{{ servers_tsv }}"
+      register: tsv_content
+      delegate_to: localhost
+
+    - name: Parse TSV and extract server information
+      set_fact:
+        servers_list: "{{ tsv_content.content | b64decode | split('\n') | select('match', '^prod') | list | map('split', '\t') | list }}"
+      delegate_to: localhost
+
+    - name: Extract server details
+      set_fact:
+        servers: "{{ servers | default([]) + [{
+          'env': item[0],
+          'ip_public': item[1],
+          'hostname': item[2],
+          'ip_private': item[3],
+          'fqdn': item[4],
+          'user_ssh': item[5],
+          'role_v3': item[12] if item|length > 12 else 'unknown'
+        }] }}"
+      loop: "{{ servers_list }}"
+      when: item|length >= 4
+      delegate_to: localhost
+
+    - name: Filter out bastions (install-01, install-v3)
+      set_fact:
+        servers_to_reset: "{{ servers | selectattr('hostname', 'ne', 'install-01') | selectattr('hostname', 'ne', 'install-v3') | list }}"
+      delegate_to: localhost
+
+    - name: Create batches of servers
+      set_fact:
+        batches: "{{ batches | default([]) + [servers_to_reset[item:item+batch_size|int]] }}"
+      loop: "{{ range(0, servers_to_reset|length, batch_size|int) | list }}"
+      delegate_to: localhost
+
+    - name: Display batch information
+      debug:
+        msg: |
+          Total servers to reset: {{ servers_to_reset | length }}
+          Number of batches: {{ batches | length }}
+          Batch size: {{ batch_size }}
+
+    - name: Process each batch
+      block:
+        - name: Display current batch
+          debug:
+            msg: "Processing batch {{ batch_index }}: {{ batch | map(attribute='hostname') | list }}"
+
+        - name: Process each server in batch
+          block:
+            - name: "Reset server {{ item.hostname }}"
+              debug:
+                msg: |
+                  ========================================
+                  Processing: {{ item.hostname }}
+                  IP Public: {{ item.ip_public }}
+                  IP Private: {{ item.ip_private }}
+                  Role: {{ item.role_v3 }}
+                  ========================================
+
+            # NOTE: Hetzner Cloud API operations would go here
+            # This is a template - actual API calls need Hetzner Cloud API token
+            - name: "Delete volumes for {{ item.hostname }}"
+              debug:
+                msg: "Would delete volumes for {{ item.hostname }} via Hetzner Cloud API"
+              # Example API call (requires hcloud CLI or API):
+              # command: hcloud volume list --selector server={{ item.hostname }} --output json
+              # This is a placeholder - implement actual Hetzner API calls
+
+            - name: "Recreate volumes with XFS for {{ item.hostname }}"
+              debug:
+                msg: "Would recreate volumes with XFS for {{ item.hostname }}"
+              # Placeholder for Hetzner volume creation with XFS
+
+            - name: "Reattach volumes to {{ item.hostname }}"
+              debug:
+                msg: "Would reattach volumes to {{ item.hostname }}"
+              # Placeholder for volume attachment
+
+            - name: "Reboot {{ item.hostname }}"
+              debug:
+                msg: "Would reboot {{ item.hostname }}"
+              # Placeholder - actual reboot via Hetzner API or SSH
+
+            - name: "Wait for {{ item.hostname }} to be online"
+              wait_for:
+                host: "{{ item.ip_private }}"
+                port: 22
+                delay: 10
+                timeout: 300
+              delegate_to: localhost
+              when: item.ip_private is defined
+
+            - name: "Verify SSH connectivity to {{ item.hostname }}"
+              wait_for:
+                host: "{{ item.ip_private }}"
+                port: 22
+                delay: 5
+                timeout: 60
+              delegate_to: localhost
+              when: item.ip_private is defined
+
+            - name: "Test SSH connection to {{ item.hostname }}"
+              command: ssh -i /root/.ssh/id_rsa_keybuzz_v3 -o StrictHostKeyChecking=no root@{{ item.ip_private }} "echo 'SSH connection successful'"
+              register: ssh_test
+              delegate_to: localhost
+              failed_when: false
+              when: item.ip_private is defined
+
+            - name: "SSH test result for {{ item.hostname }}"
+              debug:
+                msg: "{{ 'SSH connection successful' if ssh_test.rc == 0 else 'SSH connection failed' }}"
+              when: ssh_test is defined
+
+            - name: "Apply XFS role to {{ item.hostname }}"
+              include_role:
+                name: xfs
+              vars:
+                role_v3: "{{ item.role_v3 }}"
+              when: item.ip_private is defined
+              # This would run the XFS role to format and mount disks
+
+          loop: "{{ batch }}"
+          loop_control:
+            label: "{{ item.hostname }}"
+
+        - name: "Batch {{ batch_index }} completed"
+          debug:
+            msg: "Completed processing batch {{ batch_index }}"
+
+      loop: "{{ batches }}"
+      loop_control:
+        loop_var: batch
+        index_var: batch_index
+        label: "Batch {{ batch_index + 1 }}"
+
+    - name: Summary
+      debug:
+        msg: |
+          ========================================
+          Reset Hetzner Servers - Summary
+          ========================================
+          Total servers processed: {{ servers_to_reset | length }}
+          Batches processed: {{ batches | length }}
+          Batch size: {{ batch_size }}
+          ========================================
+
