@@ -1,0 +1,140 @@
+---
+# XFS Role - Format and mount data disks
+# Idempotent role for XFS filesystem setup
+
+- name: Detect data disks (exclude root and swap)
+  shell: |
+    lsblk -dno NAME,TYPE,SIZE | grep -E '^[^/]+ disk' | awk '{print $1}' | grep -vE '^(sda|vda|nvme0n1)$'
+  register: detected_disks
+  changed_when: false
+  failed_when: false
+
+- name: Get list of data disks
+  set_fact:
+    data_disks: "{{ detected_disks.stdout_lines | default([]) }}"
+
+- name: Display detected data disks
+  debug:
+    msg: "Detected data disks: {{ data_disks }}"
+
+- name: Ensure data directory exists
+  file:
+    path: "/data/{{ role_v3 }}"
+    state: directory
+    mode: '0755'
+    owner: root
+    group: root
+  loop: "{{ data_disks }}"
+  loop_control:
+    loop_var: disk
+  when: data_disks | length > 0
+
+- name: Check if disk is already formatted with XFS
+  stat:
+    path: "/dev/{{ item }}"
+  register: disk_stat
+  loop: "{{ data_disks }}"
+  when: data_disks | length > 0
+
+- name: Get filesystem type for each disk
+  shell: |
+    if [ -b /dev/{{ item }} ]; then
+      blkid -s TYPE -o value /dev/{{ item }} || echo "none"
+    else
+      echo "none"
+    fi
+  register: fs_type_result
+  loop: "{{ data_disks }}"
+  when: data_disks | length > 0
+  changed_when: false
+
+- name: Format disk with XFS if not already formatted
+  filesystem:
+    fstype: xfs
+    dev: "/dev/{{ item.item }}"
+    force: no
+  loop: "{{ fs_type_result.results | default([]) }}"
+  when:
+    - data_disks | length > 0
+    - item.stdout != "xfs"
+    - item.stdout != "XFS"
+  register: format_result
+
+- name: Get disk UUID after formatting
+  shell: blkid -s UUID -o value /dev/{{ item }}
+  register: disk_uuid_result
+  loop: "{{ data_disks }}"
+  when: data_disks | length > 0
+  changed_when: false
+
+- name: Create mount point directory
+  file:
+    path: "/data/{{ role_v3 }}/{{ item.item }}"
+    state: directory
+    mode: '0755'
+    owner: root
+    group: root
+  loop: "{{ disk_uuid_result.results | default([]) }}"
+  when: data_disks | length > 0
+
+- name: Check current mount status
+  mount:
+    path: "/data/{{ role_v3 }}/{{ item.item }}"
+  register: mount_status
+  loop: "{{ disk_uuid_result.results | default([]) }}"
+  when: data_disks | length > 0
+  failed_when: false
+  changed_when: false
+
+- name: Mount disk
+  mount:
+    path: "/data/{{ role_v3 }}/{{ item.item }}"
+    src: "UUID={{ item.item.stdout }}"
+    fstype: xfs
+    state: mounted
+    opts: defaults,noatime
+  loop: "{{ disk_uuid_result.results | default([]) }}"
+  when:
+    - data_disks | length > 0
+    - item.item.stdout is defined
+    - item.item.stdout != ""
+
+- name: Add to /etc/fstab if not present
+  lineinfile:
+    path: /etc/fstab
+    line: "UUID={{ item.item.stdout }} /data/{{ role_v3 }}/{{ item.item.item }} xfs defaults,noatime 0 2"
+    regexp: "^UUID={{ item.item.stdout }}"
+    state: present
+  loop: "{{ disk_uuid_result.results | default([]) }}"
+  when:
+    - data_disks | length > 0
+    - item.item.stdout is defined
+    - item.item.stdout != ""
+
+- name: Test write to mounted disk
+  shell: |
+    test_file="/data/{{ role_v3 }}/{{ item.item.item }}/.xfs_test_$$"
+    echo "XFS test write $(date)" > "$test_file" && \
+    cat "$test_file" && \
+    rm -f "$test_file" && \
+    echo "Write test successful"
+  register: write_test
+  loop: "{{ disk_uuid_result.results | default([]) }}"
+  when:
+    - data_disks | length > 0
+    - item.item.stdout is defined
+    - item.item.stdout != ""
+
+- name: Display write test results
+  debug:
+    msg: "{{ item.stdout }}"
+  loop: "{{ write_test.results | default([]) }}"
+  when: write_test is defined
+
+- name: Summary
+  debug:
+    msg: |
+      XFS setup completed for {{ role_v3 }}
+      Disks processed: {{ data_disks | length }}
+      Mount points: /data/{{ role_v3 }}/*
+
