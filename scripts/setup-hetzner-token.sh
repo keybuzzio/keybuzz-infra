@@ -4,7 +4,14 @@
 
 set -euo pipefail
 
-HETZNER_TOKEN="${HETZNER_API_TOKEN:-PvaKOohQayiL8MpTsPpkzDMdWqRLauDErV4NTCwUKF333VeZ5wDDqFbKZb1q7HrE}"
+# Check if HETZNER_API_TOKEN is provided
+if [[ -z "${HETZNER_API_TOKEN:-}" ]]; then
+    echo "[ERROR] HETZNER_API_TOKEN is not set. Export it before running this script." >&2
+    echo "Example: export HETZNER_API_TOKEN=\"your-token-here\"" >&2
+    exit 1
+fi
+
+HETZNER_TOKEN="${HETZNER_API_TOKEN}"
 CREDENTIALS_DIR="/opt/keybuzz/credentials"
 ENV_FILE="${CREDENTIALS_DIR}/hcloud.env"
 HCLOUD_CONFIG_DIR="${HOME}/.config/hcloud"
@@ -21,7 +28,7 @@ chmod 700 "${CREDENTIALS_DIR}"
 # 2. Create hcloud.env file
 echo "Creating ${ENV_FILE}..."
 cat > "${ENV_FILE}" <<EOF
-HETZNER_API_TOKEN="${HETZNER_TOKEN}"
+export HETZNER_API_TOKEN="${HETZNER_TOKEN}"
 EOF
 chmod 600 "${ENV_FILE}"
 echo "✓ Token stored in ${ENV_FILE}"
@@ -31,14 +38,18 @@ echo "Configuring hcloud CLI..."
 mkdir -p "${HCLOUD_CONFIG_DIR}"
 
 # Create or update hcloud config
+# Note: hcloud CLI will read token from environment if not in config
 if [[ -f "${HCLOUD_CONFIG}" ]]; then
     echo "Updating existing hcloud config..."
-    # Update token in existing config
-    sed -i "s|^token = .*|token = \"${HETZNER_TOKEN}\"|" "${HCLOUD_CONFIG}" || true
+    # Remove any existing token line and add empty token (hcloud uses env var)
+    sed -i '/^token = /d' "${HCLOUD_CONFIG}" || true
+    if ! grep -q "^context" "${HCLOUD_CONFIG}"; then
+        echo 'context = "keybuzz-v3"' >> "${HCLOUD_CONFIG}"
+    fi
 else
     echo "Creating new hcloud config..."
     cat > "${HCLOUD_CONFIG}" <<EOF
-token = "${HETZNER_TOKEN}"
+token = ""
 context = "keybuzz-v3"
 EOF
 fi
@@ -72,9 +83,8 @@ if ! grep -q "hcloud.env" ~/.bashrc 2>/dev/null; then
     cat >> ~/.bashrc <<EOF
 
 # Load Hetzner Cloud token
-if [[ -f ${ENV_FILE} ]]; then
+if [ -f ${ENV_FILE} ]; then
     source ${ENV_FILE}
-    export HETZNER_API_TOKEN
 fi
 EOF
     echo "✓ Token auto-loading added to ~/.bashrc"
