@@ -2,7 +2,8 @@
 # Reset Hetzner Servers - Batch Processing
 # This playbook rebuilds Hetzner Cloud servers in batches of 5
 # PHASE 1: Rebuild servers (BEFORE SSH deployment)
-# For each server: detach volumes, delete volumes, rebuild server, wait for running, verify SSH with password
+# Uses Hetzner Cloud API (hcloud) ONLY - NO sshpass, NO root password
+# For each server: detach volumes, delete volumes, rebuild server, wait for running, verify port 22
 
 - name: Reset Hetzner Servers in Batches
   hosts: localhost
@@ -12,7 +13,6 @@
     rebuild_json: "{{ playbook_dir }}/../servers/rebuild_order_v3.json"
     batch_size: 5
     hetzner_api_token: "{{ lookup('env', 'HETZNER_API_TOKEN') | default('', true) }}"
-    hetzner_root_password: "{{ lookup('env', 'HETZNER_ROOT_PASSWORD') | default('', true) }}"
     ubuntu_image: "ubuntu-24.04"
   
   tasks:
@@ -101,33 +101,28 @@
                   Role: {{ item.role_v3 }}
                   ========================================
 
-            # Step 1: List and detach volumes
-            - name: "List volumes for {{ item.hostname }}"
-              uri:
-                url: "https://api.hetzner.cloud/v1/volumes"
-                method: GET
-                headers:
-                  Authorization: "Bearer {{ hetzner_api_token }}"
-                return_content: true
-              register: volumes_list
+            # Step 1: Get server info using hcloud
+            - name: "Get server info for {{ item.hostname }}"
+              community.general.hcloud_server_info:
+                name: "{{ item.hostname }}"
+                api_token: "{{ hetzner_api_token }}"
+              register: server_info
               delegate_to: localhost
 
-            - name: "Find volumes attached to {{ item.hostname }}"
+            - name: "Extract server ID and volumes"
               set_fact:
-                server_volumes: "{{ volumes_list.json.volumes | selectattr('server', 'defined') | selectattr('server', '==', item.hostname) | list }}"
-              when: volumes_list.json.volumes is defined
+                server_id: "{{ server_info.hcloud_server_info[0].id }}"
+                server_volumes: "{{ server_info.hcloud_server_info[0].volumes | default([]) }}"
               delegate_to: localhost
+              when: server_info.hcloud_server_info | length > 0
 
-            - name: "Detach volumes from {{ item.hostname }}"
-              uri:
-                url: "https://api.hetzner.cloud/v1/volumes/{{ volume.id }}/actions/detach"
-                method: POST
-                headers:
-                  Authorization: "Bearer {{ hetzner_api_token }}"
-                  Content-Type: "application/json"
-                body_format: json
-                body:
-                  server: "{{ item.hostname }}"
+            # Step 2: Detach volumes
+            - name: "Detach volume {{ volume.id }} from {{ item.hostname }}"
+              community.general.hcloud_volume:
+                name: "{{ volume.name }}"
+                server: "{{ item.hostname }}"
+                state: detached
+                api_token: "{{ hetzner_api_token }}"
               register: detach_result
               loop: "{{ server_volumes | default([]) }}"
               loop_control:
@@ -140,13 +135,12 @@
                 seconds: 5
               when: server_volumes | length > 0
 
-            # Step 2: Delete volumes
-            - name: "Delete volumes for {{ item.hostname }}"
-              uri:
-                url: "https://api.hetzner.cloud/v1/volumes/{{ volume.id }}"
-                method: DELETE
-                headers:
-                  Authorization: "Bearer {{ hetzner_api_token }}"
+            # Step 3: Delete volumes
+            - name: "Delete volume {{ volume.name }}"
+              community.general.hcloud_volume:
+                name: "{{ volume.name }}"
+                state: absent
+                api_token: "{{ hetzner_api_token }}"
               register: delete_result
               loop: "{{ server_volumes | default([]) }}"
               loop_control:
@@ -155,68 +149,31 @@
               when: server_volumes | length > 0
               failed_when: false
 
-            # Step 3: Find server ID by IP
-            - name: "Find server ID for {{ item.hostname }}"
-              uri:
-                url: "https://api.hetzner.cloud/v1/servers"
-                method: GET
-                headers:
-                  Authorization: "Bearer {{ hetzner_api_token }}"
-                return_content: true
-              register: servers_list_api
-              delegate_to: localhost
-
-            - name: "Extract server ID"
-              set_fact:
-                server_id: "{{ servers_list_api.json.servers | selectattr('public_net.ipv4.ip', 'equalto', item.ip_public) | map(attribute='id') | first }}"
-              delegate_to: localhost
-
             # Step 4: Rebuild server with Ubuntu 24.04
             - name: "Rebuild {{ item.hostname }} with {{ ubuntu_image }}"
-              uri:
-                url: "https://api.hetzner.cloud/v1/servers/{{ server_id }}/actions/rebuild"
-                method: POST
-                headers:
-                  Authorization: "Bearer {{ hetzner_api_token }}"
-                  Content-Type: "application/json"
-                body_format: json
-                body:
-                  image: "{{ ubuntu_image }}"
+              community.general.hcloud_server:
+                name: "{{ item.hostname }}"
+                image: "{{ ubuntu_image }}"
+                state: rebuilt
+                api_token: "{{ hetzner_api_token }}"
               register: rebuild_result
               delegate_to: localhost
               when: server_id is defined
 
-            - name: "Wait for rebuild action to complete"
-              uri:
-                url: "https://api.hetzner.cloud/v1/servers/{{ server_id }}/actions/{{ rebuild_result.json.action.id }}"
-                method: GET
-                headers:
-                  Authorization: "Bearer {{ hetzner_api_token }}"
-                return_content: true
-              register: action_status
-              until: action_status.json.action.status == "success"
-              retries: 30
-              delay: 10
-              delegate_to: localhost
-              when: rebuild_result.json.action.id is defined
-
             # Step 5: Wait for server to be running
             - name: "Wait for {{ item.hostname }} to be running"
-              uri:
-                url: "https://api.hetzner.cloud/v1/servers/{{ server_id }}"
-                method: GET
-                headers:
-                  Authorization: "Bearer {{ hetzner_api_token }}"
-                return_content: true
+              community.general.hcloud_server_info:
+                name: "{{ item.hostname }}"
+                api_token: "{{ hetzner_api_token }}"
               register: server_status
-              until: server_status.json.server.status == "running"
+              until: server_status.hcloud_server_info[0].status == "running"
               retries: 30
               delay: 10
               delegate_to: localhost
               when: server_id is defined
 
-            # Step 6: Wait for SSH to be available (public IP)
-            - name: "Wait for SSH on {{ item.hostname }} (public IP)"
+            # Step 6: Wait for SSH port 22 to be open (no connection, just port check)
+            - name: "Wait for SSH port 22 on {{ item.hostname }} (public IP)"
               wait_for:
                 host: "{{ item.ip_public }}"
                 port: 22
@@ -224,19 +181,14 @@
                 timeout: 300
               delegate_to: localhost
 
-            # Step 7: Test SSH with root password (temporary)
-            - name: "Test SSH connection to {{ item.hostname }} with password"
-              shell: |
-                sshpass -p "{{ hetzner_root_password }}" ssh -o StrictHostKeyChecking=no -o ConnectTimeout=10 root@{{ item.ip_public }} "echo 'SSH connection successful'"
-              register: ssh_test
-              delegate_to: localhost
-              failed_when: false
-              when: hetzner_root_password != ""
-
-            - name: "SSH test result for {{ item.hostname }}"
+            - name: "Server {{ item.hostname }} rebuild completed"
               debug:
-                msg: "{{ 'SSH connection successful' if ssh_test.rc == 0 else 'SSH connection failed - server may need more time' }}"
-              when: ssh_test is defined
+                msg: |
+                  ✓ Server {{ item.hostname }} rebuilt successfully
+                  IP Public: {{ item.ip_public }}
+                  IP Private: {{ item.ip_private }}
+                  Status: {{ server_status.hcloud_server_info[0].status if server_status.hcloud_server_info is defined else 'unknown' }}
+                  Volumes deleted: {{ server_volumes | length }}
 
           loop: "{{ batch }}"
           loop_control:
