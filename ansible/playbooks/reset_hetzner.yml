@@ -13,6 +13,7 @@
     hcloud_env_file: "/opt/keybuzz/credentials/hcloud.env"
     hetzner_api_token: "{{ lookup('env', 'HETZNER_API_TOKEN') | default(lookup('file', hcloud_env_file) | regex_search('HETZNER_API_TOKEN=\"(.*?)\"', '\\1') | first, true) }}"
     ubuntu_image: "ubuntu-24.04"
+    dry_run: "{{ dry_run | default(false) | bool }}"
   
   tasks:
     - name: Load Hetzner API token from credentials file if not in environment
@@ -50,13 +51,14 @@
           ========================================
           KeyBuzz v3 - PHASE 1: Mass Rebuild
           ========================================
+          MODE: {{ 'DRY-RUN (no destructive actions)' if dry_run else 'EXECUTION' }}
           Total servers to rebuild: {{ rebuild_data.metadata.total_servers }}
           Total batches: {{ rebuild_data.metadata.total_batches }}
           Batch size: {{ rebuild_data.metadata.batch_size }}
           Excluded servers: {{ rebuild_data.metadata.excluded_servers | join(', ') }}
           Hetzner API Token: {{ 'SET' if hetzner_api_token != '' else 'NOT SET' }}
           ========================================
-          READY FOR PARALLEL EXECUTION
+          {{ 'DRY-RUN MODE: No destructive actions will be performed' if dry_run else 'READY FOR PARALLEL EXECUTION' }}
           ========================================
 
     - name: Create logs directory
@@ -107,6 +109,19 @@
           delegate_to: localhost
 
         # Step 3: Detach all volumes in parallel
+        - name: "[DRY-RUN] Would detach volumes for batch {{ item.batch_number }}"
+          debug:
+            msg: |
+              DRY-RUN: Would detach volumes for batch {{ item.batch_number }}
+              Servers: {{ item.servers | join(', ') }}
+              Volumes to detach:
+              {% for vol in batch_volumes | default([]) %}
+              - {{ vol.volume_name }} from {{ vol.server_name }}
+              {% endfor %}
+          when: 
+            - dry_run
+            - batch_volumes | default([]) | length > 0
+
         - name: "Detach volumes for batch {{ item.batch_number }} (parallel)"
           community.general.hcloud_volume:
             name: "{{ vol.volume_name }}"
@@ -120,15 +135,31 @@
             label: "{{ vol.server_name }}:{{ vol.volume_name }}"
           throttle: 10
           delegate_to: localhost
-          when: batch_volumes | default([]) | length > 0
+          when: 
+            - not dry_run
+            - batch_volumes | default([]) | length > 0
           failed_when: false
 
         - name: "Wait for volume detachment to propagate (batch {{ item.batch_number }})"
           pause:
             seconds: 5
-          when: batch_volumes | default([]) | length > 0
+          when: 
+            - not dry_run
+            - batch_volumes | default([]) | length > 0
 
         # Step 4: Delete all volumes in parallel
+        - name: "[DRY-RUN] Would delete volumes for batch {{ item.batch_number }}"
+          debug:
+            msg: |
+              DRY-RUN: Would delete volumes for batch {{ item.batch_number }}
+              Volumes to delete:
+              {% for vol in batch_volumes | default([]) %}
+              - {{ vol.volume_name }} (from {{ vol.server_name }})
+              {% endfor %}
+          when: 
+            - dry_run
+            - batch_volumes | default([]) | length > 0
+
         - name: "Delete volumes for batch {{ item.batch_number }} (parallel)"
           community.general.hcloud_volume:
             name: "{{ vol.volume_name }}"
@@ -141,10 +172,22 @@
             label: "{{ vol.volume_name }}"
           throttle: 10
           delegate_to: localhost
-          when: batch_volumes | default([]) | length > 0
+          when: 
+            - not dry_run
+            - batch_volumes | default([]) | length > 0
           failed_when: false
 
         # Step 5: Rebuild all servers in batch (in parallel with throttle)
+        - name: "[DRY-RUN] Would rebuild servers for batch {{ item.batch_number }}"
+          debug:
+            msg: |
+              DRY-RUN: Would rebuild servers for batch {{ item.batch_number }}
+              Servers to rebuild with {{ ubuntu_image }}:
+              {% for server_name in item.servers %}
+              - {{ server_name }}
+              {% endfor %}
+          when: dry_run
+
         - name: "Rebuild servers for batch {{ item.batch_number }} (parallel)"
           community.general.hcloud_server:
             name: "{{ server_name }}"
@@ -158,8 +201,18 @@
             label: "{{ server_name }}"
           throttle: 10
           delegate_to: localhost
+          when: not dry_run
 
         # Step 6: Wait for all servers in batch to be running (parallel polling)
+        - name: "[DRY-RUN] Would wait for servers in batch {{ item.batch_number }} to be running"
+          debug:
+            msg: |
+              DRY-RUN: Would poll servers until status 'running':
+              {% for server_name in item.servers %}
+              - {{ server_name }}
+              {% endfor %}
+          when: dry_run
+
         - name: "Wait for all servers in batch {{ item.batch_number }} to be running"
           community.general.hcloud_server_info:
             name: "{{ server_name }}"
@@ -174,8 +227,18 @@
             label: "{{ server_name }}"
           throttle: 10
           delegate_to: localhost
+          when: not dry_run
 
         # Step 7: Wait for SSH port 22 on all servers (parallel check)
+        - name: "[DRY-RUN] Would wait for SSH port 22 on servers in batch {{ item.batch_number }}"
+          debug:
+            msg: |
+              DRY-RUN: Would check SSH port 22 on:
+              {% for server_name in item.servers %}
+              - {{ server_name }} ({{ server_lookup[server_name].ip_public }})
+              {% endfor %}
+          when: dry_run
+
         - name: "Wait for SSH port 22 on all servers in batch {{ item.batch_number }}"
           wait_for:
             host: "{{ server_lookup[server_name].ip_public }}"
@@ -188,6 +251,7 @@
             label: "{{ server_name }}"
           throttle: 10
           delegate_to: localhost
+          when: not dry_run
 
         # Step 8: Log batch completion
         - name: "Write batch {{ item.batch_number }} completion log"
@@ -223,15 +287,21 @@
       debug:
         msg: |
           ========================================
-          KeyBuzz v3 - PHASE 1: Mass Rebuild COMPLETE
+          KeyBuzz v3 - PHASE 1: Mass Rebuild {{ 'DRY-RUN' if dry_run else 'COMPLETE' }}
           ========================================
+          MODE: {{ 'DRY-RUN (no actions performed)' if dry_run else 'EXECUTION' }}
           Total servers processed: {{ rebuild_data.metadata.total_servers }}
           Batches processed: {{ rebuild_data.metadata.total_batches }}
           Excluded servers: {{ rebuild_data.metadata.excluded_servers | join(', ') }}
           ========================================
           IMPORTANT: install-01 and install-v3 were NOT touched
           ========================================
+          {% if dry_run %}
+          DRY-RUN completed successfully - No destructive actions were performed
+          Ready for real execution (PH1-09) when validated
+          {% else %}
           NEXT STEP: Deploy SSH keys (PHASE 2)
+          {% endif %}
           ========================================
           Logs available in: /opt/keybuzz/logs/phase1/
           ========================================
