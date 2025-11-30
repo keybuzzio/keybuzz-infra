@@ -41,29 +41,57 @@ echo ""
 # Step 2: Rename PostgreSQL servers
 echo "Step 2: Renaming PostgreSQL servers..."
 echo "----------------------------------------"
-bash "${SCRIPT_DIR}/rename-postgres-servers.sh"
-if [[ $? -ne 0 ]]; then
-    echo "ERROR: PostgreSQL server rename failed"
+# Use Python script with pagination support
+if [[ -f "${SCRIPT_DIR}/rename-postgres-api.py" ]]; then
+    python3 "${SCRIPT_DIR}/rename-postgres-api.py"
+    if [[ $? -ne 0 ]]; then
+        echo "ERROR: PostgreSQL server rename failed"
+        exit 1
+    fi
+else
+    echo "ERROR: rename-postgres-api.py not found"
     exit 1
 fi
 echo ""
 
-# Step 3: Verify inventory is up to date
-echo "Step 3: Verifying inventory..."
+# Step 3: Regenerate inventory and rebuild_order
+echo "Step 3: Regenerating inventory and rebuild_order..."
 echo "----------------------------------------"
 cd "${INFRA_DIR}"
 
-# Regenerate inventory if needed
+# Regenerate inventory
 if [[ -f scripts/generate_inventory.py ]]; then
     echo "Regenerating Ansible inventory..."
     python3 scripts/generate_inventory.py > ansible/inventory/hosts.yml
     echo "✓ Inventory regenerated"
+else
+    echo "ERROR: generate_inventory.py not found"
+    exit 1
 fi
 
+# Regenerate rebuild_order
 if [[ -f scripts/generate_rebuild_order.py ]]; then
     echo "Regenerating rebuild order..."
     python3 scripts/generate_rebuild_order.py
+    if [[ $? -ne 0 ]]; then
+        echo "ERROR: Failed to generate rebuild_order"
+        exit 1
+    fi
     echo "✓ Rebuild order regenerated"
+else
+    echo "ERROR: generate_rebuild_order.py not found"
+    exit 1
+fi
+
+# Verify inventory and rebuild_order coherence
+if [[ -f scripts/verify-inventory-rebuildorder.py ]]; then
+    echo "Verifying inventory and rebuild_order coherence..."
+    python3 scripts/verify-inventory-rebuildorder.py
+    if [[ $? -ne 0 ]]; then
+        echo "ERROR: Inventory/rebuild_order verification failed"
+        exit 1
+    fi
+    echo "✓ Verification passed"
 fi
 echo ""
 
