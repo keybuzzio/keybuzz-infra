@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "created": "2025-11-29",
+    "created": "2025-11-30",
     "purpose": "Ordered list of servers to rebuild for KeyBuzz v3",
     "batch_size": 5,
     "excluded_servers": [
