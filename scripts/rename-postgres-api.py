@@ -29,6 +29,8 @@ if not HETZNER_API_TOKEN:
 
 HETZNER_API_BASE = 'https://api.hetzner.cloud/v1'
 
+# Rename mappings: (old_name, new_name, expected_ip)
+# NOTE: Excludes install-01 and install-v3 (not in this list)
 renames = [
     ('db-master-01', 'db-postgres-01', '195.201.122.106'),
     ('db-slave-01', 'db-postgres-02', '91.98.169.31'),
@@ -40,25 +42,47 @@ headers = {
     'Content-Type': 'application/json'
 }
 
-def get_server_by_name(name):
-    """Get server by name"""
+def get_all_servers():
+    """Get all servers with pagination"""
+    all_servers = []
     url = f'{HETZNER_API_BASE}/servers'
-    response = requests.get(url, headers=headers)
-    response.raise_for_status()
+    page = 1
+    per_page = 50
     
-    servers = response.json().get('servers', [])
+    while True:
+        params = {'page': page, 'per_page': per_page}
+        response = requests.get(url, headers=headers, params=params)
+        response.raise_for_status()
+        
+        data = response.json()
+        servers = data.get('servers', [])
+        
+        if not servers:
+            break
+        
+        all_servers.extend(servers)
+        
+        # Check if there's a next page
+        meta = data.get('meta', {})
+        pagination = meta.get('pagination', {})
+        if pagination.get('next_page') is None:
+            break
+        
+        page += 1
+    
+    return all_servers
+
+def get_server_by_name(name):
+    """Get server by name (with pagination)"""
+    servers = get_all_servers()
     for server in servers:
         if server['name'] == name:
             return server
     return None
 
 def get_server_by_ip(ip):
-    """Get server by IP"""
-    url = f'{HETZNER_API_BASE}/servers'
-    response = requests.get(url, headers=headers)
-    response.raise_for_status()
-    
-    servers = response.json().get('servers', [])
+    """Get server by IP (with pagination)"""
+    servers = get_all_servers()
     for server in servers:
         if server.get('public_net', {}).get('ipv4', {}).get('ip') == ip:
             return server
@@ -129,17 +153,13 @@ def main():
         time.sleep(2)
         print("")
     
-    # Verify final state
+    # Verify final state (with pagination)
     print("=" * 60)
     print("Verification - PostgreSQL servers:")
     print("=" * 60)
     
-    url = f'{HETZNER_API_BASE}/servers'
-    response = requests.get(url, headers=headers)
-    response.raise_for_status()
-    
-    servers = response.json().get('servers', [])
-    postgres_servers = [s for s in servers if 'postgres' in s['name'] or s['name'] in ['db-postgres-01', 'db-postgres-02', 'db-postgres-03']]
+    servers = get_all_servers()
+    postgres_servers = [s for s in servers if 'postgres' in s['name'].lower() or s['name'] in ['db-postgres-01', 'db-postgres-02', 'db-postgres-03']]
     
     print(f"\nFound {len(postgres_servers)} PostgreSQL servers:")
     for server in sorted(postgres_servers, key=lambda x: x['name']):
