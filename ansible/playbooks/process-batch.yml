@@ -1,0 +1,217 @@
+---
+# Process a single batch of servers
+# This file is included with loop: "{{ rebuild_data.batches }}"
+# Variables passed: dry_run, ubuntu_image, hetzner_api_token, server_lookup
+
+- name: "Display batch {{ item.batch_number }} information"
+  debug:
+    msg: |
+      ========================================
+      Processing BATCH {{ item.batch_number }}
+      Servers: {{ item.servers | join(', ') }}
+      ========================================
+
+# Step 1: Get server info for all servers in batch (in parallel with throttle)
+- name: "Get server info for batch {{ item.batch_number }} servers"
+  command: hcloud server describe {{ server_name }} --output json
+  register: batch_server_info
+  loop: "{{ item.servers }}"
+  loop_control:
+    loop_var: server_name
+    label: "{{ server_name }}"
+  throttle: 10
+  delegate_to: localhost
+  environment:
+    HCLOUD_TOKEN: "{{ _hetzner_token }}"
+  changed_when: false
+
+# Step 2: Build volumes list for all servers in batch
+- name: "Build volumes list for batch {{ item.batch_number }}"
+  set_fact:
+    batch_volumes: "{{ batch_volumes | default([]) + [{
+      'server_name': server_name,
+              'volume_id': vol.id | default(vol.id | string),
+              'volume_name': vol.name
+    }] }}"
+  loop: "{{ item.servers }}"
+  loop_control:
+    loop_var: server_name
+  vars:
+    server_json: "{{ batch_server_info.results | selectattr('item', 'equalto', server_name) | map(attribute='stdout') | first | default('{}') | from_json }}"
+    volumes_list: "{{ server_json.volumes | default([]) }}"
+  when: 
+    - volumes_list | length > 0
+  delegate_to: localhost
+
+# Step 3: Detach all volumes in parallel
+- name: "[DRY-RUN] Would detach volumes for batch {{ item.batch_number }}"
+  debug:
+    msg: |
+      DRY-RUN: Would detach volumes for batch {{ item.batch_number }}
+      Servers: {{ item.servers | join(', ') }}
+      Volumes to detach:
+      {% for vol in batch_volumes | default([]) %}
+      - {{ vol.volume_name }} from {{ vol.server_name }}
+      {% endfor %}
+  when: 
+    - dry_run
+    - batch_volumes | default([]) | length > 0
+
+- name: "Detach volumes for batch {{ item.batch_number }} (parallel)"
+  command: hcloud volume detach {{ vol.volume_name }}
+  environment:
+    HCLOUD_TOKEN: "{{ _hetzner_token }}"
+  register: detach_results
+  loop: "{{ batch_volumes | default([]) }}"
+  loop_control:
+    loop_var: vol
+    label: "{{ vol.server_name }}:{{ vol.volume_name }}"
+  throttle: 10
+  delegate_to: localhost
+  when: 
+    - not (dry_run | default(false) | bool)
+    - batch_volumes | default([]) | length > 0
+  failed_when: false
+
+- name: "Wait for volume detachment to propagate (batch {{ item.batch_number }})"
+  pause:
+    seconds: 5
+  when: 
+    - not (dry_run | default(false) | bool)
+    - batch_volumes | default([]) | length > 0
+
+# Step 4: Delete all volumes in parallel
+- name: "[DRY-RUN] Would delete volumes for batch {{ item.batch_number }}"
+  debug:
+    msg: |
+      DRY-RUN: Would delete volumes for batch {{ item.batch_number }}
+      Volumes to delete:
+      {% for vol in batch_volumes | default([]) %}
+      - {{ vol.volume_name }} (from {{ vol.server_name }})
+      {% endfor %}
+  when: 
+    - dry_run
+    - batch_volumes | default([]) | length > 0
+
+- name: "Delete volumes for batch {{ item.batch_number }} (parallel)"
+  command: hcloud volume delete {{ vol.volume_name }}
+  environment:
+    HCLOUD_TOKEN: "{{ _hetzner_token }}"
+  register: delete_results
+  loop: "{{ batch_volumes | default([]) }}"
+  loop_control:
+    loop_var: vol
+    label: "{{ vol.volume_name }}"
+  throttle: 10
+  delegate_to: localhost
+  when: 
+    - not (dry_run | default(false) | bool)
+    - batch_volumes | default([]) | length > 0
+  failed_when: false
+
+# Step 5: Rebuild all servers in batch (in parallel with throttle)
+- name: "[DRY-RUN] Would rebuild servers for batch {{ item.batch_number }}"
+  debug:
+    msg: |
+      DRY-RUN: Would rebuild servers for batch {{ item.batch_number }}
+      Servers to rebuild with {{ _ubuntu_image }}:
+      {% for server_name in item.servers %}
+      - {{ server_name }}
+      {% endfor %}
+  when: dry_run | default(false) | bool
+
+- name: "Rebuild servers for batch {{ item.batch_number }} (parallel)"
+  command: hcloud server rebuild {{ server_name }} --image {{ _ubuntu_image }}
+  environment:
+    HCLOUD_TOKEN: "{{ _hetzner_token }}"
+  register: rebuild_results
+  loop: "{{ item.servers }}"
+  loop_control:
+    loop_var: server_name
+    label: "{{ server_name }}"
+  throttle: 10
+  delegate_to: localhost
+  when: not (dry_run | default(false) | bool)
+
+# Step 6: Wait for all servers in batch to be running (parallel polling)
+- name: "[DRY-RUN] Would wait for servers in batch {{ item.batch_number }} to be running"
+  debug:
+    msg: |
+      DRY-RUN: Would poll servers until status 'running':
+      {% for server_name in item.servers %}
+      - {{ server_name }}
+      {% endfor %}
+  when: dry_run | default(false) | bool
+
+- name: "Wait for all servers in batch {{ item.batch_number }} to be running"
+  command: hcloud server describe {{ server_name }} --output json
+  register: server_status_result
+  until: "server_status_result.stdout | from_json | json_query('status') == 'running'"
+  environment:
+    HCLOUD_TOKEN: "{{ _hetzner_token }}"
+  changed_when: false
+  retries: 60
+  delay: 10
+  loop: "{{ item.servers }}"
+  loop_control:
+    loop_var: server_name
+    label: "{{ server_name }}"
+  throttle: 10
+  delegate_to: localhost
+  when: not (dry_run | default(false) | bool)
+
+# Step 7: Wait for SSH port 22 on all servers (parallel check)
+- name: "[DRY-RUN] Would wait for SSH port 22 on servers in batch {{ item.batch_number }}"
+  debug:
+    msg: |
+      DRY-RUN: Would check SSH port 22 on:
+      {% for server_name in item.servers %}
+      - {{ server_name }} ({{ server_lookup[server_name].ip_public }})
+      {% endfor %}
+  when: dry_run | default(false) | bool
+
+- name: "Wait for SSH port 22 on all servers in batch {{ item.batch_number }}"
+  wait_for:
+    host: "{{ _server_lookup[server_name].ip_public }}"
+    port: 22
+    delay: 10
+    timeout: 300
+  loop: "{{ item.servers }}"
+  loop_control:
+    loop_var: server_name
+    label: "{{ server_name }}"
+  throttle: 10
+  delegate_to: localhost
+  when: not (dry_run | default(false) | bool)
+
+# Step 8: Log batch completion
+- name: "Get current timestamp"
+  command: date -Iseconds
+  register: batch_timestamp
+  changed_when: false
+  delegate_to: localhost
+
+- name: "Write batch {{ item.batch_number }} completion log"
+  copy:
+    dest: "/opt/keybuzz/logs/phase1/batch-{{ item.batch_number }}-complete.log"
+    content: |
+      Batch {{ item.batch_number }} - COMPLETED
+      ========================================
+      Timestamp: {{ batch_timestamp.stdout }}
+      Servers: {{ item.servers | to_nice_json }}
+      Status: All servers rebuilt and SSH port 22 open
+      ========================================
+  delegate_to: localhost
+
+- name: "Batch {{ item.batch_number }} completed successfully"
+  debug:
+    msg: |
+      ✓✓✓ Batch {{ item.batch_number }} COMPLETED ✓✓✓
+      Servers: {{ item.servers | join(', ') }}
+      All servers rebuilt and ready
+      ========================================
+
+- name: "Reset batch volumes fact for next iteration"
+  set_fact:
+    batch_volumes: []
+

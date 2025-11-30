@@ -19,12 +19,12 @@ echo ""
 # Load Hetzner token if available
 if [[ -f /opt/keybuzz/credentials/hcloud.env ]]; then
     source /opt/keybuzz/credentials/hcloud.env
-    export HETZNER_API_TOKEN
+    export HCLOUD_TOKEN
 fi
 
 # Function to get all servers with pagination
 get_all_servers_json() {
-    if command -v hcloud &> /dev/null && [[ -n "${HETZNER_API_TOKEN:-}" ]]; then
+    if command -v hcloud &> /dev/null && [[ -n "${HCLOUD_TOKEN:-}" ]]; then
         # Use hcloud if available
         hcloud server list --output json
     else
@@ -34,13 +34,16 @@ import os
 import requests
 import json
 
-token = os.environ.get('HETZNER_API_TOKEN')
+token = os.environ.get('HCLOUD_TOKEN') or os.environ.get('HETZNER_API_TOKEN')
 if not token:
     env_file = '/opt/keybuzz/credentials/hcloud.env'
     if os.path.exists(env_file):
         with open(env_file, 'r') as f:
             for line in f:
-                if 'HETZNER_API_TOKEN=' in line:
+                if 'HCLOUD_TOKEN=' in line:
+                    token = line.split("'")[1]
+                    break
+                elif 'HETZNER_API_TOKEN=' in line:
                     token = line.split('"')[1]
                     break
 

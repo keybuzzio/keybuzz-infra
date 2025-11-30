@@ -4,14 +4,16 @@
 
 set -euo pipefail
 
-# Check if HETZNER_API_TOKEN is provided
-if [[ -z "${HETZNER_API_TOKEN:-}" ]]; then
-    echo "[ERROR] HETZNER_API_TOKEN is not set. Export it before running this script." >&2
-    echo "Example: export HETZNER_API_TOKEN=\"your-token-here\"" >&2
+# Check if HCLOUD_TOKEN is provided (accept both for backward compatibility)
+if [[ -n "${HCLOUD_TOKEN:-}" ]]; then
+    HETZNER_TOKEN="${HCLOUD_TOKEN}"
+elif [[ -n "${HETZNER_API_TOKEN:-}" ]]; then
+    HETZNER_TOKEN="${HETZNER_API_TOKEN}"
+else
+    echo "[ERROR] HCLOUD_TOKEN (or HETZNER_API_TOKEN) is not set. Export it before running this script." >&2
+    echo "Example: export HCLOUD_TOKEN='your-token-here'" >&2
     exit 1
 fi
-
-HETZNER_TOKEN="${HETZNER_API_TOKEN}"
 CREDENTIALS_DIR="/opt/keybuzz/credentials"
 ENV_FILE="${CREDENTIALS_DIR}/hcloud.env"
 HCLOUD_CONFIG_DIR="${HOME}/.config/hcloud"
@@ -28,7 +30,7 @@ chmod 700 "${CREDENTIALS_DIR}"
 # 2. Create hcloud.env file
 echo "Creating ${ENV_FILE}..."
 cat > "${ENV_FILE}" <<EOF
-export HETZNER_API_TOKEN="${HETZNER_TOKEN}"
+export HCLOUD_TOKEN="${HETZNER_TOKEN}"
 EOF
 chmod 600 "${ENV_FILE}"
 echo "✓ Token stored in ${ENV_FILE}"
@@ -98,7 +100,7 @@ echo "✓ Hetzner Cloud token setup complete!"
 echo ""
 echo "To use the token in current session:"
 echo "  source ${ENV_FILE}"
-echo "  export HETZNER_API_TOKEN"
+echo "  export HCLOUD_TOKEN"
 echo ""
 echo "Token is stored in:"
 echo "  - ${ENV_FILE} (chmod 600)"
