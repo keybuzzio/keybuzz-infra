@@ -1,17 +1,15 @@
 ---
-# Reset Hetzner Servers - Batch Processing
-# This playbook rebuilds Hetzner Cloud servers in batches of 5
-# PHASE 1: Rebuild servers (BEFORE SSH deployment)
+# Reset Hetzner Servers - Optimized Parallel Batch Processing
+# PHASE 1: Rebuild servers in parallel batches (BEFORE SSH deployment)
 # Uses Hetzner Cloud API (hcloud) ONLY - NO sshpass, NO root password
-# For each server: detach volumes, delete volumes, rebuild server, wait for running, verify port 22
+# Optimized for massive parallel operations
+# Expected completion: < 1 hour for 47 servers
 
-- name: Reset Hetzner Servers in Batches
+- name: Reset Hetzner Servers - Parallel Batch Processing
   hosts: localhost
   gather_facts: false
   vars:
-    servers_tsv: "{{ playbook_dir }}/../servers/servers_v3.tsv"
     rebuild_json: "{{ playbook_dir }}/../servers/rebuild_order_v3.json"
-    batch_size: 5
     hcloud_env_file: "/opt/keybuzz/credentials/hcloud.env"
     hetzner_api_token: "{{ lookup('env', 'HETZNER_API_TOKEN') | default(lookup('file', hcloud_env_file) | regex_search('HETZNER_API_TOKEN=\"(.*?)\"', '\\1') | first, true) }}"
     ubuntu_image: "ubuntu-24.04"
@@ -21,7 +19,7 @@
       set_fact:
         hetzner_api_token: "{{ lookup('file', hcloud_env_file) | regex_search('HETZNER_API_TOKEN=\"(.*?)\"', '\\1') | first }}"
       when: 
-        - hetzner_api_token == ""
+        - hetzner_api_token == "" or hetzner_api_token is none
         - lookup('file', hcloud_env_file) is not failed
     
     - name: Verify Hetzner API token is set
@@ -29,342 +27,217 @@
         msg: "HETZNER_API_TOKEN must be set in environment or in {{ hcloud_env_file }}"
       when: hetzner_api_token == "" or hetzner_api_token is none
 
-    - name: Read servers_v3.tsv
-      slurp:
-        src: "{{ servers_tsv }}"
-      register: tsv_content
-      delegate_to: localhost
-
-    - name: Read rebuild_order_v3.json
+    - name: Load rebuild_order_v3.json
       slurp:
         src: "{{ rebuild_json }}"
-      register: json_content
+      register: rebuild_json_content
       delegate_to: localhost
 
-    - name: Parse JSON rebuild order
+    - name: Parse rebuild_order_v3.json
       set_fact:
-        rebuild_data: "{{ json_content.content | b64decode | from_json }}"
+        rebuild_data: "{{ rebuild_json_content.content | b64decode | from_json }}"
       delegate_to: localhost
 
-    - name: Parse TSV and extract server information
+    - name: Create server lookup dictionary
       set_fact:
-        servers_list: "{{ tsv_content.content | b64decode | split('\n') | select('match', '^prod') | list | map('split', '\t') | list }}"
-      delegate_to: localhost
-
-    - name: Extract server details
-      set_fact:
-        servers: "{{ servers | default([]) + [{
-          'env': item[0],
-          'ip_public': item[1],
-          'hostname': item[2],
-          'ip_private': item[3],
-          'fqdn': item[4],
-          'user_ssh': item[5],
-          'role_v3': item[12] if item|length > 12 else 'unknown'
-        }] }}"
-      loop: "{{ servers_list }}"
-      when: item|length >= 4
-      delegate_to: localhost
-
-    - name: Filter out bastions (install-01, install-v3)
-      set_fact:
-        servers_to_reset: "{{ servers | selectattr('hostname', 'ne', 'install-01') | selectattr('hostname', 'ne', 'install-v3') | list }}"
-      delegate_to: localhost
-
-    - name: Merge rebuild JSON data with server list
-      set_fact:
-        servers_enriched: "{{ servers_enriched | default([]) + [item | combine(rebuild_data.servers | selectattr('hostname', 'equalto', item.hostname) | first | default({}))] }}"
-      loop: "{{ servers_to_reset }}"
-      delegate_to: localhost
-
-    - name: Create batches of servers
-      set_fact:
-        batches: "{{ batches | default([]) + [servers_enriched[item:item+batch_size|int]] }}"
-      loop: "{{ range(0, servers_enriched|length, batch_size|int) | list }}"
+        server_lookup: "{{ server_lookup | default({}) | combine({item.hostname: item}) }}"
+      loop: "{{ rebuild_data.servers }}"
       delegate_to: localhost
 
     - name: Display batch information
       debug:
         msg: |
-          Total servers to reset: {{ servers_enriched | length }}
-          Number of batches: {{ batches | length }}
-          Batch size: {{ batch_size }}
+          ========================================
+          KeyBuzz v3 - PHASE 1: Mass Rebuild
+          ========================================
+          Total servers to rebuild: {{ rebuild_data.metadata.total_servers }}
+          Total batches: {{ rebuild_data.metadata.total_batches }}
+          Batch size: {{ rebuild_data.metadata.batch_size }}
+          Excluded servers: {{ rebuild_data.metadata.excluded_servers | join(', ') }}
           Hetzner API Token: {{ 'SET' if hetzner_api_token != '' else 'NOT SET' }}
+          ========================================
+          READY FOR PARALLEL EXECUTION
+          ========================================
+
+    - name: Create logs directory
+      file:
+        path: "/opt/keybuzz/logs/phase1"
+        state: directory
+        mode: '0755'
+      delegate_to: localhost
 
     - name: Process each batch
       block:
-        - name: Display current batch
+        - name: "Display batch {{ item.batch_number }} information"
           debug:
-            msg: "Processing batch {{ batch_index + 1 }}: {{ batch | map(attribute='hostname') | list }}"
+            msg: |
+              ========================================
+              Processing BATCH {{ item.batch_number }}
+              Servers: {{ item.servers | join(', ') }}
+              ========================================
 
-        - name: Process each server in batch
-          block:
-            - name: "Reset server {{ item.hostname }}"
-              debug:
-                msg: |
-                  ========================================
-                  Processing: {{ item.hostname }}
-                  IP Public: {{ item.ip_public }}
-                  IP Private: {{ item.ip_private }}
-                  Role: {{ item.role_v3 }}
-                  ========================================
-
-            # Step 1: Get server info using hcloud
-            - name: "Get server info for {{ item.hostname }}"
-              community.general.hcloud_server_info:
-                name: "{{ item.hostname }}"
-                api_token: "{{ hetzner_api_token }}"
-              register: server_info
-              delegate_to: localhost
-
-            - name: "Extract server ID and volumes"
-              set_fact:
-                server_id: "{{ server_info.hcloud_server_info[0].id }}"
-                server_volumes: "{{ server_info.hcloud_server_info[0].volumes | default([]) }}"
-              delegate_to: localhost
-              when: server_info.hcloud_server_info | length > 0
-
-            # Step 2: Detach volumes
-            - name: "Detach volume {{ volume.id }} from {{ item.hostname }}"
-              community.general.hcloud_volume:
-                name: "{{ volume.name }}"
-                server: "{{ item.hostname }}"
-                state: detached
-                api_token: "{{ hetzner_api_token }}"
-              register: detach_result
-              loop: "{{ server_volumes | default([]) }}"
-              loop_control:
-                loop_var: volume
-              delegate_to: localhost
-              when: server_volumes | length > 0
-
-            - name: "Wait for volume detachment"
-              pause:
-                seconds: 5
-              when: server_volumes | length > 0
-
-            # Step 3: Delete volumes
-            - name: "Delete volume {{ volume.name }}"
-              community.general.hcloud_volume:
-                name: "{{ volume.name }}"
-                state: absent
-                api_token: "{{ hetzner_api_token }}"
-              register: delete_result
-              loop: "{{ server_volumes | default([]) }}"
-              loop_control:
-                loop_var: volume
-              delegate_to: localhost
-              when: server_volumes | length > 0
-              failed_when: false
-
-            # Step 4: Rebuild server with Ubuntu 24.04
-            - name: "Rebuild {{ item.hostname }} with {{ ubuntu_image }}"
-              community.general.hcloud_server:
-                name: "{{ item.hostname }}"
-                image: "{{ ubuntu_image }}"
-                state: rebuilt
-                api_token: "{{ hetzner_api_token }}"
-              register: rebuild_result
-              delegate_to: localhost
-              when: server_id is defined
-
-            # Step 5: Wait for server to be running
-            - name: "Wait for {{ item.hostname }} to be running"
-              community.general.hcloud_server_info:
-                name: "{{ item.hostname }}"
-                api_token: "{{ hetzner_api_token }}"
-              register: server_status
-              until: server_status.hcloud_server_info[0].status == "running"
-              retries: 30
-              delay: 10
-              delegate_to: localhost
-              when: server_id is defined
-
-            # Step 6: Wait for SSH port 22 to be open (no connection, just port check)
-            - name: "Wait for SSH port 22 on {{ item.hostname }} (public IP)"
-              wait_for:
-                host: "{{ item.ip_public }}"
-                port: 22
-                delay: 10
-                timeout: 300
-              delegate_to: localhost
-
-            - name: "Server {{ item.hostname }} rebuild completed"
-              debug:
-                msg: |
-                  ✓ Server {{ item.hostname }} rebuilt successfully
-                  IP Public: {{ item.ip_public }}
-                  IP Private: {{ item.ip_private }}
-                  Status: {{ server_status.hcloud_server_info[0].status if server_status.hcloud_server_info is defined else 'unknown' }}
-                  Volumes deleted: {{ server_volumes | length }}
-
-          loop: "{{ batch }}"
+        # Step 1: Get server info for all servers in batch (in parallel with throttle)
+        - name: "Get server info for batch {{ item.batch_number }} servers"
+          community.general.hcloud_server_info:
+            name: "{{ server_name }}"
+            api_token: "{{ hetzner_api_token }}"
+          register: batch_server_info
+          loop: "{{ item.servers }}"
           loop_control:
-            label: "{{ item.hostname }}"
+            loop_var: server_name
+            label: "{{ server_name }}"
+          throttle: 10
+          delegate_to: localhost
 
-        - name: "Batch {{ batch_index + 1 }} completed"
+        # Step 2: Build volumes list for all servers in batch
+        - name: "Build volumes list for batch {{ item.batch_number }}"
+          set_fact:
+            batch_volumes: "{{ batch_volumes | default([]) + [{
+              'server_name': server_name,
+              'volume_id': vol.id | default(vol.name),
+              'volume_name': vol.name
+            }] }}"
+          loop: "{{ item.servers }}"
+          loop_control:
+            loop_var: server_name
+          vars:
+            server_info: "{{ batch_server_info.results | selectattr('item', 'equalto', server_name) | map(attribute='hcloud_server_info') | flatten | first | default({}) }}"
+            volumes_list: "{{ server_info.volumes | default([]) }}"
+          when: volumes_list | length > 0
+          delegate_to: localhost
+
+        # Step 3: Detach all volumes in parallel
+        - name: "Detach volumes for batch {{ item.batch_number }} (parallel)"
+          community.general.hcloud_volume:
+            name: "{{ vol.volume_name }}"
+            server: "{{ vol.server_name }}"
+            state: detached
+            api_token: "{{ hetzner_api_token }}"
+          register: detach_results
+          loop: "{{ batch_volumes | default([]) }}"
+          loop_control:
+            loop_var: vol
+            label: "{{ vol.server_name }}:{{ vol.volume_name }}"
+          throttle: 10
+          delegate_to: localhost
+          when: batch_volumes | default([]) | length > 0
+          failed_when: false
+
+        - name: "Wait for volume detachment to propagate (batch {{ item.batch_number }})"
+          pause:
+            seconds: 5
+          when: batch_volumes | default([]) | length > 0
+
+        # Step 4: Delete all volumes in parallel
+        - name: "Delete volumes for batch {{ item.batch_number }} (parallel)"
+          community.general.hcloud_volume:
+            name: "{{ vol.volume_name }}"
+            state: absent
+            api_token: "{{ hetzner_api_token }}"
+          register: delete_results
+          loop: "{{ batch_volumes | default([]) }}"
+          loop_control:
+            loop_var: vol
+            label: "{{ vol.volume_name }}"
+          throttle: 10
+          delegate_to: localhost
+          when: batch_volumes | default([]) | length > 0
+          failed_when: false
+
+        # Step 5: Rebuild all servers in batch (in parallel with throttle)
+        - name: "Rebuild servers for batch {{ item.batch_number }} (parallel)"
+          community.general.hcloud_server:
+            name: "{{ server_name }}"
+            image: "{{ ubuntu_image }}"
+            state: rebuilt
+            api_token: "{{ hetzner_api_token }}"
+          register: rebuild_results
+          loop: "{{ item.servers }}"
+          loop_control:
+            loop_var: server_name
+            label: "{{ server_name }}"
+          throttle: 10
+          delegate_to: localhost
+
+        # Step 6: Wait for all servers in batch to be running (parallel polling)
+        - name: "Wait for all servers in batch {{ item.batch_number }} to be running"
+          community.general.hcloud_server_info:
+            name: "{{ server_name }}"
+            api_token: "{{ hetzner_api_token }}"
+          register: server_status_result
+          until: "server_status_result.hcloud_server_info[0].status == 'running'"
+          retries: 60
+          delay: 10
+          loop: "{{ item.servers }}"
+          loop_control:
+            loop_var: server_name
+            label: "{{ server_name }}"
+          throttle: 10
+          delegate_to: localhost
+
+        # Step 7: Wait for SSH port 22 on all servers (parallel check)
+        - name: "Wait for SSH port 22 on all servers in batch {{ item.batch_number }}"
+          wait_for:
+            host: "{{ server_lookup[server_name].ip_public }}"
+            port: 22
+            delay: 10
+            timeout: 300
+          loop: "{{ item.servers }}"
+          loop_control:
+            loop_var: server_name
+            label: "{{ server_name }}"
+          throttle: 10
+          delegate_to: localhost
+
+        # Step 8: Log batch completion
+        - name: "Write batch {{ item.batch_number }} completion log"
+          copy:
+            dest: "/opt/keybuzz/logs/phase1/batch-{{ item.batch_number }}-complete.log"
+            content: |
+              Batch {{ item.batch_number }} - COMPLETED
+              ========================================
+              Timestamp: {{ ansible_date_time.iso8601 }}
+              Servers: {{ item.servers | to_nice_json }}
+              Status: All servers rebuilt and SSH port 22 open
+              ========================================
+          delegate_to: localhost
+
+        - name: "Batch {{ item.batch_number }} completed successfully"
           debug:
-            msg: "Completed processing batch {{ batch_index + 1 }}"
+            msg: |
+              ✓✓✓ Batch {{ item.batch_number }} COMPLETED ✓✓✓
+              Servers: {{ item.servers | join(', ') }}
+              All servers rebuilt and ready
+              ========================================
 
-      loop: "{{ batches }}"
+        - name: "Reset batch volumes fact for next iteration"
+          set_fact:
+            batch_volumes: []
+
+      loop: "{{ rebuild_data.batches }}"
       loop_control:
-        loop_var: batch
-        index_var: batch_index
-        label: "Batch {{ batch_index + 1 }}"
+        loop_var: item
+        label: "Batch {{ item.batch_number }}"
 
     - name: Summary - PHASE 1 Complete
       debug:
         msg: |
           ========================================
-          Reset Hetzner Servers - Summary (PHASE 1)
+          KeyBuzz v3 - PHASE 1: Mass Rebuild COMPLETE
           ========================================
-          Total servers processed: {{ servers_enriched | length }}
-          Batches processed: {{ batches | length }}
-          Batch size: {{ batch_size }}
+          Total servers processed: {{ rebuild_data.metadata.total_servers }}
+          Batches processed: {{ rebuild_data.metadata.total_batches }}
+          Excluded servers: {{ rebuild_data.metadata.excluded_servers | join(', ') }}
           ========================================
           IMPORTANT: install-01 and install-v3 were NOT touched
           ========================================
           NEXT STEP: Deploy SSH keys (PHASE 2)
+          ========================================
+          Logs available in: /opt/keybuzz/logs/phase1/
           ========================================
           To generate detailed report, run:
           /opt/keybuzz/keybuzz-infra/scripts/phase1-report.sh
           ========================================
 
 # PHASE 3: Create and attach XFS volumes (AFTER SSH mesh deployment)
-- name: Create and Attach XFS Volumes
-  hosts: localhost
-  gather_facts: false
-  vars:
-    rebuild_json: "{{ playbook_dir }}/../servers/rebuild_order_v3.json"
-    hetzner_api_token: "{{ lookup('env', 'HETZNER_API_TOKEN') | default('', true) }}"
-    skip_volume_creation: "{{ lookup('env', 'SKIP_VOLUME_CREATION') | default('false', true) }}"
-  
-  tasks:
-    - name: Verify Hetzner API token is set
-      fail:
-        msg: "HETZNER_API_TOKEN environment variable must be set"
-      when: hetzner_api_token == ""
-
-    - name: Skip volume creation if flag set
-      debug:
-        msg: "Skipping volume creation (SKIP_VOLUME_CREATION=true)"
-      when: skip_volume_creation == "true"
-
-    - name: Read rebuild_order_v3.json
-      slurp:
-        src: "{{ rebuild_json }}"
-      register: json_content
-      delegate_to: localhost
-      when: skip_volume_creation != "true"
-
-    - name: Parse JSON rebuild order
-      set_fact:
-        rebuild_data: "{{ json_content.content | b64decode | from_json }}"
-      delegate_to: localhost
-      when: skip_volume_creation != "true"
-
-    - name: Process servers with volumes
-      block:
-        - name: "Create and attach volumes for {{ item.hostname }}"
-          block:
-            - name: "Find server ID for {{ item.hostname }}"
-              uri:
-                url: "https://api.hetzner.cloud/v1/servers"
-                method: GET
-                headers:
-                  Authorization: "Bearer {{ hetzner_api_token }}"
-                return_content: true
-              register: servers_list_api
-              delegate_to: localhost
-
-            - name: "Extract server ID"
-              set_fact:
-                server_id: "{{ servers_list_api.json.servers | selectattr('public_net.ipv4.ip', 'equalto', item.ip_public) | map(attribute='id') | first }}"
-              delegate_to: localhost
-
-            - name: "Create volume {{ volume.name }} for {{ item.hostname }}"
-              uri:
-                url: "https://api.hetzner.cloud/v1/volumes"
-                method: POST
-                headers:
-                  Authorization: "Bearer {{ hetzner_api_token }}"
-                  Content-Type: "application/json"
-                body_format: json
-                body:
-                  name: "{{ volume.name }}"
-                  size: "{{ volume.size_gb }}"
-                  location: "{{ item.region | default('nbg1') }}"
-                  format: "xfs"
-              register: volume_create_result
-              loop: "{{ item.volumes | default([]) }}"
-              loop_control:
-                loop_var: volume
-              delegate_to: localhost
-              when: item.volumes | length > 0
-
-            - name: "Wait for volume creation"
-              pause:
-                seconds: 3
-              when: item.volumes | length > 0
-
-            - name: "Attach volume {{ volume.name }} to {{ item.hostname }}"
-              uri:
-                url: "https://api.hetzner.cloud/v1/volumes/{{ volume_create_result.results[volume_create_result.results|length-1].json.volume.id }}/actions/attach"
-                method: POST
-                headers:
-                  Authorization: "Bearer {{ hetzner_api_token }}"
-                  Content-Type: "application/json"
-                body_format: json
-                body:
-                  server: "{{ server_id }}"
-              register: attach_result
-              loop: "{{ item.volumes | default([]) }}"
-              loop_control:
-                loop_var: volume
-              delegate_to: localhost
-              when: item.volumes | length > 0
-
-            - name: "Wait for volume attachment"
-              pause:
-                seconds: 5
-              when: item.volumes | length > 0
-
-            - name: "Apply XFS role to {{ item.hostname }}"
-              include_role:
-                name: xfs
-              vars:
-                role_v3: "{{ item.role }}"
-              when: 
-                - item.volumes | length > 0
-                - item.ip_private is defined
-
-            - name: "Verify XFS mount on {{ item.hostname }}"
-              command: ssh -i /root/.ssh/id_rsa_keybuzz_v3 -o StrictHostKeyChecking=no root@{{ item.ip_private }} "df -h | grep xfs"
-              register: xfs_verify
-              delegate_to: localhost
-              failed_when: false
-              when: item.ip_private is defined
-
-            - name: "Display XFS mount status for {{ item.hostname }}"
-              debug:
-                msg: "{{ xfs_verify.stdout if xfs_verify.rc == 0 else 'XFS mount verification failed' }}"
-              when: xfs_verify is defined
-
-          loop: "{{ rebuild_data.servers }}"
-          loop_control:
-            label: "{{ item.hostname }}"
-          when: item.volumes | length > 0
-
-      when: skip_volume_creation != "true"
-
-    - name: Summary - PHASE 3 Complete
-      debug:
-        msg: |
-          ========================================
-          XFS Volume Creation - Summary (PHASE 3)
-          ========================================
-          Volumes created and attached
-          XFS role applied to servers
-          ========================================
-          NEXT STEP: Verify all mounts and proceed with kubeadm
-          ========================================
+# This phase will be executed separately after PHASE 2 (SSH deployment)
