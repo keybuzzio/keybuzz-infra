@@ -294,6 +294,21 @@ Pour chaque batch de 5 serveurs :
   - `scripts/dryrun-validator.py`
   - `PH1-08-dryrun-report.md`
 
+## Simulation du dry-run
+
+### Script de simulation
+
+**Fichier:** `scripts/dryrun-simulate.sh`
+
+Ce script simule l'exécution du dry-run et montre exactement ce qui serait fait pour chaque batch sans nécessiter Ansible.
+
+**Commande:**
+```bash
+bash scripts/dryrun-simulate.sh
+```
+
+**Sortie:** Liste détaillée de toutes les actions qui seraient simulées pour chaque batch.
+
 ## Confirmation de non-destruction
 
 ### ✅ Garanties
@@ -302,6 +317,17 @@ Pour chaque batch de 5 serveurs :
 2. **Toutes les actions destructives** : Protégées par `when: not dry_run`
 3. **Validation effectuée** : Script de validation passé
 4. **État vérifié** : Serveurs intacts
+
+### ✅ Validation effectuée
+
+```
+✓✓✓ ALL VALIDATIONS PASSED ✓✓✓
+
+Dry-run mode is properly protected:
+  - All destructive actions have when: not dry_run
+  - DRY-RUN debug tasks are present
+  - dry_run variable is defined
+```
 
 ### ✅ Prêt pour PH1-09
 
