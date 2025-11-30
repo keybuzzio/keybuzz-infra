@@ -2,20 +2,20 @@
 
 **Ticket:** KEY-11 (PH1-03)  
 **Date:** 2024-11-30  
-**Statut:** ✅ Renommage effectué (2/3 serveurs)
+**Statut:** ✅ Renommage effectué (3/3 serveurs)
 
 ## Résumé technique
 
 ### Ce qui a été fait
 
 1. **Identification des serveurs PostgreSQL** ✅
-   - Serveurs identifiés via API Hetzner par IP publique
-   - 2 serveurs trouvés et renommés avec succès
+   - Serveurs identifiés via API Hetzner avec pagination complète
+   - 3 serveurs trouvés et renommés avec succès
 
 2. **Renommage effectué** ✅
    - `db-master-01` → `db-postgres-01` ✅
    - `db-slave-01` → `db-postgres-02` ✅
-   - `db-slave-02` → `db-postgres-03` ⚠️ (serveur non trouvé dans Hetzner)
+   - `db-slave-02` → `db-postgres-03` ✅ (trouvé via recherche exhaustive)
 
 ### Détails des renommages
 
@@ -45,13 +45,19 @@
   hcloud server update 109783838 --name db-postgres-02
   ```
 
-#### Serveur 3: db-slave-02 → db-postgres-03 ⚠️
+#### Serveur 3: db-slave-02 → db-postgres-03 ✅
 
-- **IP Publique attendue:** 65.21.251.198
-- **IP Privée attendue:** 10.0.0.122
-- **Statut:** ⚠️ Serveur non trouvé dans Hetzner Cloud
-- **Raison:** Le serveur avec l'IP 65.21.251.198 n'existe pas dans le compte Hetzner
-- **Action:** Le serveur n'a pas pu être renommé car il n'existe pas
+- **Server ID:** 109884801
+- **IP Publique:** 65.21.251.198
+- **IP Privée:** 10.0.0.122
+- **Ancien nom:** db-slave-02
+- **Nouveau nom:** db-postgres-03
+- **Statut:** ✅ Renommé avec succès
+- **Note:** Serveur trouvé via recherche exhaustive avec pagination (49 serveurs au total)
+- **Commande exécutée:**
+  ```bash
+  hcloud server update 109884801 --name db-postgres-03
+  ```
 
 ### Commandes exécutées
 
@@ -67,9 +73,9 @@ python3 /tmp/rename-postgres-api.py
 **Serveurs PostgreSQL dans Hetzner après renommage:**
 - ✅ `db-postgres-01` (ID: 109781629, IP: 195.201.122.106, Status: running)
 - ✅ `db-postgres-02` (ID: 109783838, IP: 91.98.169.31, Status: running)
-- ⚠️ `db-postgres-03` (non trouvé dans Hetzner)
+- ✅ `db-postgres-03` (ID: 109884801, IP: 65.21.251.198, Status: running)
 
-**Total serveurs PostgreSQL dans Hetzner:** 2/3
+**Total serveurs PostgreSQL dans Hetzner:** 3/3 ✅
 
 ### Fichiers GitHub - Vérification de cohérence
 
@@ -103,32 +109,30 @@ Aucun commit nécessaire - Les fichiers étaient déjà à jour.
 ```
 ✓ db-master-01 → db-postgres-01 (ID: 109781629, IP: 195.201.122.106)
 ✓ db-slave-01 → db-postgres-02 (ID: 109783838, IP: 91.98.169.31)
-⚠ db-slave-02 (65.21.251.198) not found in Hetzner Cloud
+✓ db-slave-02 → db-postgres-03 (ID: 109884801, IP: 65.21.251.198)
 ```
+
+**Note importante:** Le serveur db-slave-02 était sur une page suivante de l'API Hetzner. Une recherche exhaustive avec pagination a été nécessaire pour trouver les 49 serveurs au total.
 
 ### Observations
 
-1. **2 serveurs renommés avec succès** ✅
-2. **1 serveur non trouvé** - L'IP 65.21.251.198 n'existe pas dans Hetzner Cloud
+1. **3 serveurs renommés avec succès** ✅
+2. **Recherche exhaustive nécessaire** - L'API Hetzner retourne les serveurs par pagination (49 serveurs au total)
 3. **Cohérence des fichiers** - Tous les fichiers GitHub sont alignés sur les nouveaux noms
-4. **Prêt pour PHASE 1** - Les 2 serveurs existants sont correctement nommés
+4. **Prêt pour PHASE 1** - Tous les serveurs PostgreSQL sont correctement nommés
 
 ### Conclusion
 
-- ✅ **2/3 serveurs PostgreSQL renommés** avec succès dans Hetzner
+- ✅ **3/3 serveurs PostgreSQL renommés** avec succès dans Hetzner
 - ✅ **Fichiers GitHub cohérents** avec les nouveaux noms
-- ⚠️ **db-postgres-03 non créé** - Le serveur défini dans servers_v3.tsv n'existe pas encore dans Hetzner
-- ✅ **Prêt pour PHASE 1** - Les serveurs existants sont correctement configurés
-
-### Recommandation
-
-Le serveur `db-postgres-03` sera créé lors de PHASE 1 rebuild si nécessaire, ou doit être créé manuellement dans Hetzner Cloud avec l'IP 65.21.251.198.
+- ✅ **Tous les serveurs existent** et sont correctement nommés
+- ✅ **Prêt pour PHASE 1** - Tous les serveurs PostgreSQL sont correctement configurés
 
 ## Statut final
 
-- ✅ **Ticket partiellement résolu:** 2/3 serveurs renommés
+- ✅ **Ticket complètement résolu:** 3/3 serveurs renommés
 - ✅ **Fichiers GitHub cohérents**
-- ⚠️ **Note:** db-postgres-03 n'existe pas dans Hetzner (sera créé en PHASE 1)
+- ✅ **Tous les serveurs PostgreSQL renommés avec succès**
 
 ### Prochaine étape
 
