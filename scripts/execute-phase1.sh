@@ -9,24 +9,36 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 INFRA_DIR="$(dirname "${SCRIPT_DIR}")"
+ENV_FILE="/opt/keybuzz/credentials/hcloud.env"
 
 echo "=========================================="
 echo "KeyBuzz v3 - PHASE 1 Execution"
 echo "=========================================="
 echo ""
 
-# Step 1: Setup Hetzner token
-echo "Step 1: Setting up Hetzner Cloud token..."
-echo "----------------------------------------"
-bash "${SCRIPT_DIR}/setup-hetzner-token.sh"
-if [[ $? -ne 0 ]]; then
-    echo "ERROR: Token setup failed"
+# Step 0: Load token from hcloud.env automatically (NO INTERACTION REQUIRED)
+if [[ -f "${ENV_FILE}" ]]; then
+    echo "Loading Hetzner token from ${ENV_FILE}..."
+    source "${ENV_FILE}"
+    export HCLOUD_TOKEN
+    echo "✓ Token loaded"
+else
+    echo "ERROR: Token file not found: ${ENV_FILE}"
     exit 1
 fi
 
-# Load token
-source /opt/keybuzz/credentials/hcloud.env
-export HETZNER_API_TOKEN
+# Step 1: Verify token and hcloud connection (skip setup-hetzner-token.sh if token works)
+echo ""
+echo "Step 1: Verifying Hetzner Cloud connection..."
+echo "----------------------------------------"
+if hcloud server list &> /dev/null; then
+    echo "✓ hcloud connection verified (token already working)"
+    SERVER_COUNT=$(hcloud server list --output json | jq 'length' 2>/dev/null || echo "0")
+    echo "✓ Found ${SERVER_COUNT} servers in Hetzner"
+else
+    echo "⚠ hcloud connection failed, attempting token setup..."
+    bash "${SCRIPT_DIR}/setup-hetzner-token.sh" || exit 1
+fi
 
 # Verify hcloud works
 echo ""

@@ -10,23 +10,6 @@ import sys
 import requests
 import time
 
-# Load token from environment or file
-HETZNER_API_TOKEN = os.environ.get('HETZNER_API_TOKEN')
-
-if not HETZNER_API_TOKEN:
-    # Try to load from hcloud.env
-    env_file = '/opt/keybuzz/credentials/hcloud.env'
-    if os.path.exists(env_file):
-        with open(env_file, 'r') as f:
-            for line in f:
-                if line.startswith('export HETZNER_API_TOKEN='):
-                    HETZNER_API_TOKEN = line.split('"')[1]
-                    break
-
-if not HETZNER_API_TOKEN:
-    print("ERROR: HETZNER_API_TOKEN not found")
-    sys.exit(1)
-
 HETZNER_API_BASE = 'https://api.hetzner.cloud/v1'
 
 # Rename mappings: (old_name, new_name, expected_ip)
@@ -37,8 +20,29 @@ renames = [
     ('db-slave-02', 'db-postgres-03', '65.21.251.198'),
 ]
 
+def get_token():
+    """Get token from environment or file."""
+    token = os.environ.get('HCLOUD_TOKEN') or os.environ.get('HETZNER_API_TOKEN')
+    if not token:
+        env_file = '/opt/keybuzz/credentials/hcloud.env'
+        if os.path.exists(env_file):
+            with open(env_file, 'r') as f:
+                for line in f:
+                    if line.startswith("export HCLOUD_TOKEN='"):
+                        token = line.split("'")[1]
+                        break
+                    elif line.startswith('export HETZNER_API_TOKEN="'):
+                        token = line.split('"')[1]
+                        break
+    return token
+
+HCLOUD_TOKEN = get_token()
+if not HCLOUD_TOKEN:
+    print("ERROR: HCLOUD_TOKEN not found. Please set it in environment or /opt/keybuzz/credentials/hcloud.env")
+    sys.exit(1)
+
 headers = {
-    'Authorization': f'Bearer {HETZNER_API_TOKEN}',
+    'Authorization': f'Bearer {HCLOUD_TOKEN}',
     'Content-Type': 'application/json'
 }
 
