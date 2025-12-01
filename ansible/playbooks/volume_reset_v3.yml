@@ -1,0 +1,231 @@
+---
+# Volume Reset v3 - Delete & Create Volumes
+# PH3-02: Delete existing volumes and create new ones according to volume_plan_v3.json
+# Uses Hetzner Cloud API (hcloud) CLI - Batch processing (throttle: 10)
+# Expected completion: ~10-15 minutes for 87 volume operations (40 delete + 47 create + 47 attach)
+
+- name: Volume Reset v3 - Delete & Create Volumes
+  hosts: localhost
+  gather_facts: false
+  vars:
+    volume_diff_json: "{{ playbook_dir }}/../../servers/volume_diff_v3.json"
+    volume_plan_json: "{{ playbook_dir }}/../../servers/volume_plan_v3.json"
+    hcloud_env_file: "/opt/keybuzz/credentials/hcloud.env"
+    batch_size: 10
+  
+  tasks:
+    - name: Load Hetzner API token from environment or file
+      set_fact:
+        hcloud_token: "{{ lookup('env', 'HCLOUD_TOKEN') | default(lookup('file', hcloud_env_file) | regex_search('HCLOUD_TOKEN=''(.*?)''', '\\1') | first, true) }}"
+      delegate_to: localhost
+    
+    - name: Verify Hetzner API token is set
+      fail:
+        msg: "HCLOUD_TOKEN must be set in environment or in {{ hcloud_env_file }}"
+      when: hcloud_token == "" or hcloud_token is none
+      delegate_to: localhost
+    
+    - name: Verify hcloud CLI is installed
+      command: which hcloud
+      register: hcloud_check
+      changed_when: false
+      failed_when: false
+      delegate_to: localhost
+    
+    - name: Fail if hcloud CLI is not available
+      fail:
+        msg: "hcloud CLI is not installed. Please install it first."
+      when: hcloud_check.rc != 0
+      delegate_to: localhost
+    
+    - name: Load volume_diff_v3.json
+      slurp:
+        src: "{{ volume_diff_json }}"
+      register: diff_json_content
+      delegate_to: localhost
+    
+    - name: Parse volume_diff_v3.json
+      set_fact:
+        diff_data: "{{ diff_json_content.content | b64decode | from_json }}"
+      delegate_to: localhost
+    
+    - name: Load volume_plan_v3.json
+      slurp:
+        src: "{{ volume_plan_json }}"
+      register: plan_json_content
+      delegate_to: localhost
+    
+    - name: Parse volume_plan_v3.json
+      set_fact:
+        plan_data: "{{ plan_json_content.content | b64decode | from_json }}"
+      delegate_to: localhost
+    
+    - name: Display volume reset summary
+      debug:
+        msg:
+          - "=========================================="
+          - "PH3-02 - Volume Reset v3"
+          - "=========================================="
+          - "Volumes to delete: {{ diff_data.volumes_to_delete | length }}"
+          - "Volumes to create: {{ diff_data.volumes_to_create | length }}"
+          - "Batch size: {{ batch_size }}"
+          - "=========================================="
+    
+    # ========================================
+    # STEP A: DETACH existing volumes (batch)
+    # ========================================
+    - name: Detach existing volumes (batch mode)
+      shell: |
+        hcloud volume detach {{ item.id }}
+      environment:
+        HCLOUD_TOKEN: "{{ hcloud_token }}"
+      loop: "{{ diff_data.volumes_to_delete }}"
+      register: detach_results
+      async: 60
+      poll: 2
+      throttle: "{{ batch_size }}"
+      retries: 6
+      delay: 5
+      ignore_errors: true
+      delegate_to: localhost
+      changed_when: item.rc == 0
+    
+    - name: Display detach results summary
+      debug:
+        msg:
+          - "=========================================="
+          - "Detach completed: {{ detach_results.results | selectattr('rc', 'equalto', 0) | list | length }} / {{ detach_results.results | length }}"
+          - "=========================================="
+      delegate_to: localhost
+    
+    # ========================================
+    # STEP B: DELETE existing volumes (batch)
+    # ========================================
+    - name: Delete existing volumes (batch mode)
+      shell: |
+        hcloud volume delete {{ item.id }}
+      environment:
+        HCLOUD_TOKEN: "{{ hcloud_token }}"
+      loop: "{{ diff_data.volumes_to_delete }}"
+      register: delete_results
+      async: 60
+      poll: 2
+      throttle: "{{ batch_size }}"
+      retries: 6
+      delay: 5
+      ignore_errors: true
+      delegate_to: localhost
+      changed_when: delete_results.rc == 0
+    
+    - name: Display delete results summary
+      debug:
+        msg:
+          - "=========================================="
+          - "Delete completed: {{ delete_results.results | selectattr('rc', 'equalto', 0) | list | length }} / {{ delete_results.results | length }}"
+          - "=========================================="
+      delegate_to: localhost
+    
+    # ========================================
+    # STEP C: Get server locations for CREATE
+    # ========================================
+    - name: Get server location for volume creation
+      shell: |
+        hcloud server describe {{ item.hostname }} -o json | jq -r '.datacenter.location.name'
+      environment:
+        HCLOUD_TOKEN: "{{ hcloud_token }}"
+      loop: "{{ diff_data.volumes_to_create }}"
+      register: server_locations
+      changed_when: false
+      delegate_to: localhost
+    
+    - name: Create server location lookup
+      set_fact:
+        server_location_map: "{{ server_location_map | default({}) | combine({item.item.hostname: (item.stdout | default('nbg1')) | trim}) }}"
+      loop: "{{ server_locations.results }}"
+      loop_control:
+        label: "{{ item.item.hostname }}"
+      delegate_to: localhost
+    
+    # ========================================
+    # STEP D: CREATE new volumes (batch)
+    # ========================================
+    - name: Create new volumes (batch mode)
+      shell: |
+        hcloud volume create \
+          --name {{ item.volume_name }} \
+          --size {{ item.size_gb }} \
+          --location {{ server_location_map[item.hostname] | default('nbg1') }}
+      environment:
+        HCLOUD_TOKEN: "{{ hcloud_token }}"
+      loop: "{{ diff_data.volumes_to_create }}"
+      register: create_results
+      async: 60
+      poll: 2
+      throttle: "{{ batch_size }}"
+      retries: 6
+      delay: 5
+      ignore_errors: true
+      delegate_to: localhost
+      changed_when: create_results.rc == 0
+    
+    - name: Display create results summary
+      debug:
+        msg:
+          - "=========================================="
+          - "Create completed: {{ create_results.results | selectattr('rc', 'equalto', 0) | list | length }} / {{ create_results.results | length }}"
+          - "=========================================="
+      delegate_to: localhost
+    
+    # ========================================
+    # STEP E: ATTACH volumes to servers (batch)
+    # ========================================
+    - name: Attach volumes to servers (batch mode)
+      shell: |
+        hcloud volume attach --server {{ item.hostname }} {{ item.volume_name }}
+      environment:
+        HCLOUD_TOKEN: "{{ hcloud_token }}"
+      loop: "{{ diff_data.volumes_to_create }}"
+      register: attach_results
+      async: 60
+      poll: 2
+      throttle: "{{ batch_size }}"
+      retries: 6
+      delay: 5
+      ignore_errors: true
+      delegate_to: localhost
+      changed_when: attach_results.rc == 0
+    
+    - name: Display attach results summary
+      debug:
+        msg:
+          - "=========================================="
+          - "Attach completed: {{ attach_results.results | selectattr('rc', 'equalto', 0) | list | length }} / {{ attach_results.results | length }}"
+          - "=========================================="
+      delegate_to: localhost
+    
+    # ========================================
+    # STEP F: Verify final state
+    # ========================================
+    - name: Verify volumes are created and attached
+      shell: |
+        hcloud volume list -o json | jq '[.[] | select(.name | startswith("kbv3-"))] | length'
+      environment:
+        HCLOUD_TOKEN: "{{ hcloud_token }}"
+      register: volume_count
+      changed_when: false
+      delegate_to: localhost
+    
+    - name: Display verification summary
+      debug:
+        msg:
+          - "=========================================="
+          - "PH3-02 - Volume Reset v3 - COMPLETED"
+          - "=========================================="
+          - "Volumes with kbv3- prefix: {{ volume_count.stdout | trim }}"
+          - "Expected: {{ diff_data.volumes_to_create | length }}"
+          - "=========================================="
+          - "To verify manually, run:"
+          - "  hcloud volume list | sort -k2"
+          - "=========================================="
+      delegate_to: localhost
+
