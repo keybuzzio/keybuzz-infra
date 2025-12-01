@@ -28,7 +28,7 @@ dbfilename dump.rdb
 dir {{ redis_dir }}
 
 # Replication
-{% if inventory_hostname != redis_master_host %}
+{% if redis_enable_replication | default(false) | bool and inventory_hostname != redis_master_host %}
 replicaof {{ redis_master_host }} {{ redis_master_port }}
 replica-read-only yes
 replica-serve-stale-data yes

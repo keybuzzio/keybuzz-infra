@@ -134,11 +134,12 @@
 - name: Configure replica on non-master nodes
   shell: |
     redis-cli -a "{{ redis_auth_password }}" REPLICAOF 10.0.0.123 {{ redis_master_port }}
-  when: inventory_hostname != redis_master_host
+  when: redis_enable_replication | default(false) | bool and inventory_hostname != redis_master_host
   failed_when: false
   register: replica_config
   changed_when: "'OK' in replica_config.stdout"
 
+  when: redis_enable_sentinel | default(false) | bool
 - name: Start and enable Redis Sentinel
   systemd:
     name: redis-sentinel
@@ -146,6 +147,7 @@
     enabled: yes
     daemon_reload: yes
 
+  when: redis_enable_sentinel | default(false) | bool
 - name: Wait for Sentinel to be ready
   wait_for:
     port: "{{ sentinel_port }}"
