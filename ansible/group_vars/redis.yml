@@ -1,0 +1,35 @@
+---
+# Redis HA Configuration Variables
+# TODO PH6-Vault: déplacer redis_auth_password dans Vault et le lire via External Secrets
+
+# Redis Authentication Password
+redis_auth_password: " OsxjNY98GOeflY8uDxhjNThlN_xWE3LaRVCnhm1UpO4\
+
+# Redis Configuration
+redis_bind: \0.0.0.0\
+redis_port: 6379
+redis_dir: \/data/redis\
+redis_protected_mode: \yes\
+
+# Sentinel Configuration
+sentinel_port: 26379
+sentinel_master_name: \keybuzz-master\
+sentinel_quorum: 2
+sentinel_down_after_milliseconds: 5000
+sentinel_failover_timeout: 60000
+sentinel_parallel_syncs: 1
+
+# Master node
+redis_master_host: \redis-01\
+redis_master_port: 6379
+redis_master_ip: \10.0.0.123\
+
+# Replica nodes
+redis_replica_hosts:
+ - \redis-02\
+ - \redis-03\
+
+# Feature flags for progressive deployment
+# PH4-01A: standalone mode on redis-01 only
+redis_enable_replication: false
+redis_enable_sentinel: false
