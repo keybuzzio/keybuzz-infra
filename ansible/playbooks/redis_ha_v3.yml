@@ -1,0 +1,25 @@
+---
+# Redis HA v3 Deployment Playbook
+# Deploys Redis HA cluster with Sentinel on redis-01, redis-02, redis-03
+
+- name: Deploy Redis HA Cluster
+  hosts: redis
+  become: yes
+  gather_facts: yes
+  vars_files:
+    - "{{ playbook_dir }}/../group_vars/redis.yml"
+
+  roles:
+    - redis_ha_v3
+
+  post_tasks:
+    - name: Display completion message
+      debug:
+        msg:
+          - "=========================================="
+          - "PH4-01 - Redis HA Deployment - COMPLETED"
+          - "=========================================="
+          - "Host: {{ inventory_hostname }}"
+          - "Redis HA cluster deployed with Sentinel"
+          - "=========================================="
+
