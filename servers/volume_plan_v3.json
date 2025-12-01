@@ -1,0 +1,389 @@
+{
+  "metadata": {
+    "created": "2025-12-01",
+    "purpose": "Volume plan for KeyBuzz v3 infrastructure - PHASE 3",
+    "total_servers": 47,
+    "excluded_servers": [
+      "install-v3",
+      "install-01"
+    ]
+  },
+  "servers": [
+    {
+      "hostname": "analytics-01",
+      "role_v3": "app-analytics",
+      "ip_private": "10.0.0.139",
+      "volume_name": "kbv3-analytics-01-data",
+      "mountpoint": "/data/apps_misc",
+      "size_gb": 20
+    },
+    {
+      "hostname": "analytics-db-01",
+      "role_v3": "db-analytics",
+      "ip_private": "10.0.0.130",
+      "volume_name": "kbv3-analytics-db-01-data",
+      "mountpoint": "/data/db_analytics",
+      "size_gb": 50
+    },
+    {
+      "hostname": "api-gateway-01",
+      "role_v3": "lb-apigw",
+      "ip_private": "10.0.0.135",
+      "volume_name": "kbv3-api-gateway-01-data",
+      "mountpoint": "/data/apps_misc",
+      "size_gb": 20
+    },
+    {
+      "hostname": "backup-01",
+      "role_v3": "backup",
+      "ip_private": "10.0.0.153",
+      "volume_name": "kbv3-backup-01-data",
+      "mountpoint": "/data/backup",
+      "size_gb": 500
+    },
+    {
+      "hostname": "baserow-01",
+      "role_v3": "app-nocode",
+      "ip_private": "10.0.0.144",
+      "volume_name": "kbv3-baserow-01-data",
+      "mountpoint": "/data/apps_misc",
+      "size_gb": 20
+    },
+    {
+      "hostname": "builder-01",
+      "role_v3": "builder",
+      "ip_private": "10.0.0.200",
+      "volume_name": "kbv3-builder-01-data",
+      "mountpoint": "/data/builder",
+      "size_gb": 20
+    },
+    {
+      "hostname": "crm-01",
+      "role_v3": "app-crm",
+      "ip_private": "10.0.0.133",
+      "volume_name": "kbv3-crm-01-data",
+      "mountpoint": "/data/apps_misc",
+      "size_gb": 20
+    },
+    {
+      "hostname": "db-postgres-01",
+      "role_v3": "db-postgres",
+      "ip_private": "10.0.0.120",
+      "volume_name": "kbv3-db-postgres-01-data",
+      "mountpoint": "/data/db_postgres",
+      "size_gb": 100
+    },
+    {
+      "hostname": "db-postgres-02",
+      "role_v3": "db-postgres",
+      "ip_private": "10.0.0.121",
+      "volume_name": "kbv3-db-postgres-02-data",
+      "mountpoint": "/data/db_postgres",
+      "size_gb": 100
+    },
+    {
+      "hostname": "db-postgres-03",
+      "role_v3": "db-postgres",
+      "ip_private": "10.0.0.122",
+      "volume_name": "kbv3-db-postgres-03-data",
+      "mountpoint": "/data/db_postgres",
+      "size_gb": 100
+    },
+    {
+      "hostname": "etl-01",
+      "role_v3": "app-etl",
+      "ip_private": "10.0.0.140",
+      "volume_name": "kbv3-etl-01-data",
+      "mountpoint": "/data/apps_misc",
+      "size_gb": 20
+    },
+    {
+      "hostname": "haproxy-01",
+      "role_v3": "lb-internal",
+      "ip_private": "10.0.0.11",
+      "volume_name": "kbv3-haproxy-01-data",
+      "mountpoint": "/data/lb_internal",
+      "size_gb": 10
+    },
+    {
+      "hostname": "haproxy-02",
+      "role_v3": "lb-internal",
+      "ip_private": "10.0.0.12",
+      "volume_name": "kbv3-haproxy-02-data",
+      "mountpoint": "/data/lb_internal",
+      "size_gb": 10
+    },
+    {
+      "hostname": "k8s-master-01",
+      "role_v3": "k8s-master",
+      "ip_private": "10.0.0.100",
+      "volume_name": "kbv3-k8s-master-01-data",
+      "mountpoint": "/data/k8s_master",
+      "size_gb": 20
+    },
+    {
+      "hostname": "k8s-master-02",
+      "role_v3": "k8s-master",
+      "ip_private": "10.0.0.101",
+      "volume_name": "kbv3-k8s-master-02-data",
+      "mountpoint": "/data/k8s_master",
+      "size_gb": 20
+    },
+    {
+      "hostname": "k8s-master-03",
+      "role_v3": "k8s-master",
+      "ip_private": "10.0.0.102",
+      "volume_name": "kbv3-k8s-master-03-data",
+      "mountpoint": "/data/k8s_master",
+      "size_gb": 20
+    },
+    {
+      "hostname": "k8s-worker-01",
+      "role_v3": "k8s-worker",
+      "ip_private": "10.0.0.110",
+      "volume_name": "kbv3-k8s-worker-01-data",
+      "mountpoint": "/data/k8s_worker",
+      "size_gb": 50
+    },
+    {
+      "hostname": "k8s-worker-02",
+      "role_v3": "k8s-worker",
+      "ip_private": "10.0.0.111",
+      "volume_name": "kbv3-k8s-worker-02-data",
+      "mountpoint": "/data/k8s_worker",
+      "size_gb": 50
+    },
+    {
+      "hostname": "k8s-worker-03",
+      "role_v3": "k8s-worker",
+      "ip_private": "10.0.0.112",
+      "volume_name": "kbv3-k8s-worker-03-data",
+      "mountpoint": "/data/k8s_worker",
+      "size_gb": 50
+    },
+    {
+      "hostname": "k8s-worker-04",
+      "role_v3": "k8s-worker",
+      "ip_private": "10.0.0.113",
+      "volume_name": "kbv3-k8s-worker-04-data",
+      "mountpoint": "/data/k8s_worker",
+      "size_gb": 50
+    },
+    {
+      "hostname": "k8s-worker-05",
+      "role_v3": "k8s-worker",
+      "ip_private": "10.0.0.114",
+      "volume_name": "kbv3-k8s-worker-05-data",
+      "mountpoint": "/data/k8s_worker",
+      "size_gb": 50
+    },
+    {
+      "hostname": "litellm-01",
+      "role_v3": "llm-proxy",
+      "ip_private": "10.0.0.137",
+      "volume_name": "kbv3-litellm-01-data",
+      "mountpoint": "/data/apps_misc",
+      "size_gb": 20
+    },
+    {
+      "hostname": "mail-core-01",
+      "role_v3": "mail-core",
+      "ip_private": "10.0.0.160",
+      "volume_name": "kbv3-mail-core-01-data",
+      "mountpoint": "/data/mail_core",
+      "size_gb": 50
+    },
+    {
+      "hostname": "mail-mx-01",
+      "role_v3": "mail-mx",
+      "ip_private": "10.0.0.161",
+      "volume_name": "kbv3-mail-mx-01-data",
+      "mountpoint": "/data/mail_mx",
+      "size_gb": 30
+    },
+    {
+      "hostname": "mail-mx-02",
+      "role_v3": "mail-mx",
+      "ip_private": "10.0.0.162",
+      "volume_name": "kbv3-mail-mx-02-data",
+      "mountpoint": "/data/mail_mx",
+      "size_gb": 30
+    },
+    {
+      "hostname": "maria-01",
+      "role_v3": "db-mariadb",
+      "ip_private": "10.0.0.170",
+      "volume_name": "kbv3-maria-01-data",
+      "mountpoint": "/data/db_mariadb",
+      "size_gb": 100
+    },
+    {
+      "hostname": "maria-02",
+      "role_v3": "db-mariadb",
+      "ip_private": "10.0.0.171",
+      "volume_name": "kbv3-maria-02-data",
+      "mountpoint": "/data/db_mariadb",
+      "size_gb": 100
+    },
+    {
+      "hostname": "maria-03",
+      "role_v3": "db-mariadb",
+      "ip_private": "10.0.0.172",
+      "volume_name": "kbv3-maria-03-data",
+      "mountpoint": "/data/db_mariadb",
+      "size_gb": 100
+    },
+    {
+      "hostname": "minio-01",
+      "role_v3": "minio",
+      "ip_private": "10.0.0.134",
+      "volume_name": "kbv3-minio-01-data",
+      "mountpoint": "/data/minio",
+      "size_gb": 200
+    },
+    {
+      "hostname": "minio-02",
+      "role_v3": "minio",
+      "ip_private": "10.0.0.131",
+      "volume_name": "kbv3-minio-02-data",
+      "mountpoint": "/data/minio",
+      "size_gb": 200
+    },
+    {
+      "hostname": "minio-03",
+      "role_v3": "minio",
+      "ip_private": "10.0.0.132",
+      "volume_name": "kbv3-minio-03-data",
+      "mountpoint": "/data/minio",
+      "size_gb": 200
+    },
+    {
+      "hostname": "ml-platform-01",
+      "role_v3": "ml-platform",
+      "ip_private": "10.0.0.143",
+      "volume_name": "kbv3-ml-platform-01-data",
+      "mountpoint": "/data/apps_misc",
+      "size_gb": 20
+    },
+    {
+      "hostname": "monitor-01",
+      "role_v3": "monitoring",
+      "ip_private": "10.0.0.152",
+      "volume_name": "kbv3-monitor-01-data",
+      "mountpoint": "/data/monitoring",
+      "size_gb": 50
+    },
+    {
+      "hostname": "nocodb-01",
+      "role_v3": "app-nocode",
+      "ip_private": "10.0.0.142",
+      "volume_name": "kbv3-nocodb-01-data",
+      "mountpoint": "/data/apps_misc",
+      "size_gb": 20
+    },
+    {
+      "hostname": "proxysql-01",
+      "role_v3": "db-proxysql",
+      "ip_private": "10.0.0.173",
+      "volume_name": "kbv3-proxysql-01-data",
+      "mountpoint": "/data/db_proxysql",
+      "size_gb": 20
+    },
+    {
+      "hostname": "proxysql-02",
+      "role_v3": "db-proxysql",
+      "ip_private": "10.0.0.174",
+      "volume_name": "kbv3-proxysql-02-data",
+      "mountpoint": "/data/db_proxysql",
+      "size_gb": 20
+    },
+    {
+      "hostname": "queue-01",
+      "role_v3": "rabbitmq",
+      "ip_private": "10.0.0.126",
+      "volume_name": "kbv3-queue-01-data",
+      "mountpoint": "/data/rabbitmq",
+      "size_gb": 30
+    },
+    {
+      "hostname": "queue-02",
+      "role_v3": "rabbitmq",
+      "ip_private": "10.0.0.127",
+      "volume_name": "kbv3-queue-02-data",
+      "mountpoint": "/data/rabbitmq",
+      "size_gb": 30
+    },
+    {
+      "hostname": "queue-03",
+      "role_v3": "rabbitmq",
+      "ip_private": "10.0.0.128",
+      "volume_name": "kbv3-queue-03-data",
+      "mountpoint": "/data/rabbitmq",
+      "size_gb": 30
+    },
+    {
+      "hostname": "redis-01",
+      "role_v3": "redis",
+      "ip_private": "10.0.0.123",
+      "volume_name": "kbv3-redis-01-data",
+      "mountpoint": "/data/redis",
+      "size_gb": 20
+    },
+    {
+      "hostname": "redis-02",
+      "role_v3": "redis",
+      "ip_private": "10.0.0.124",
+      "volume_name": "kbv3-redis-02-data",
+      "mountpoint": "/data/redis",
+      "size_gb": 20
+    },
+    {
+      "hostname": "redis-03",
+      "role_v3": "redis",
+      "ip_private": "10.0.0.125",
+      "volume_name": "kbv3-redis-03-data",
+      "mountpoint": "/data/redis",
+      "size_gb": 20
+    },
+    {
+      "hostname": "siem-01",
+      "role_v3": "siem",
+      "ip_private": "10.0.0.151",
+      "volume_name": "kbv3-siem-01-data",
+      "mountpoint": "/data/siem",
+      "size_gb": 50
+    },
+    {
+      "hostname": "temporal-01",
+      "role_v3": "app-temporal",
+      "ip_private": "10.0.0.138",
+      "volume_name": "kbv3-temporal-01-data",
+      "mountpoint": "/data/apps_misc",
+      "size_gb": 20
+    },
+    {
+      "hostname": "temporal-db-01",
+      "role_v3": "db-temporal",
+      "ip_private": "10.0.0.129",
+      "volume_name": "kbv3-temporal-db-01-data",
+      "mountpoint": "/data/db_temporal",
+      "size_gb": 50
+    },
+    {
+      "hostname": "vault-01",
+      "role_v3": "vault",
+      "ip_private": "10.0.0.150",
+      "volume_name": "kbv3-vault-01-data",
+      "mountpoint": "/data/vault",
+      "size_gb": 20
+    },
+    {
+      "hostname": "vector-db-01",
+      "role_v3": "vector-db",
+      "ip_private": "10.0.0.136",
+      "volume_name": "kbv3-vector-db-01-data",
+      "mountpoint": "/data/vector_db",
+      "size_gb": 50
+    }
+  ]
+}

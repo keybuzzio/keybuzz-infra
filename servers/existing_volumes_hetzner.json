@@ -1,0 +1,409 @@
+{
+  "metadata": {
+    "created": "2025-12-01T07:20:36",
+    "purpose": "Existing Hetzner volumes snapshot - PH3-01",
+    "total_volumes": 40
+  },
+  "volumes": [
+    {
+      "id": 104011399,
+      "name": "vol-analytics-01",
+      "size_gb": 20,
+      "zone": "nbg1",
+      "server": {
+        "id": 109784894,
+        "name": "analytics-01"
+      }
+    },
+    {
+      "id": 104011433,
+      "name": "vol-analytics-db-01",
+      "size_gb": 100,
+      "zone": "nbg1",
+      "server": {
+        "id": 109784916,
+        "name": "analytics-db-01"
+      }
+    },
+    {
+      "id": 104011410,
+      "name": "vol-api-gateway-01",
+      "size_gb": 10,
+      "zone": "nbg1",
+      "server": {
+        "id": 109784201,
+        "name": "api-gateway-01"
+      }
+    },
+    {
+      "id": 104011395,
+      "name": "vol-backup-01",
+      "size_gb": 200,
+      "zone": "nbg1",
+      "server": {
+        "id": 109784108,
+        "name": "backup-01"
+      }
+    },
+    {
+      "id": 104011426,
+      "name": "vol-baserow-01",
+      "size_gb": 20,
+      "zone": "nbg1",
+      "server": {
+        "id": 110237162,
+        "name": "baserow-01"
+      }
+    },
+    {
+      "id": 104011414,
+      "name": "vol-db-master-01",
+      "size_gb": 100,
+      "zone": "nbg1",
+      "server": {
+        "id": 109781629,
+        "name": "db-postgres-01"
+      }
+    },
+    {
+      "id": 104011413,
+      "name": "vol-db-slave-01",
+      "size_gb": 50,
+      "zone": "nbg1",
+      "server": {
+        "id": 109783838,
+        "name": "db-postgres-02"
+      }
+    },
+    {
+      "id": 104011411,
+      "name": "vol-db-slave-02",
+      "size_gb": 50,
+      "zone": "hel1",
+      "server": {
+        "id": 109884801,
+        "name": "db-postgres-03"
+      }
+    },
+    {
+      "id": 104011438,
+      "name": "vol-etl-01",
+      "size_gb": 50,
+      "zone": "nbg1",
+      "server": {
+        "id": 109784945,
+        "name": "etl-01"
+      }
+    },
+    {
+      "id": 104011394,
+      "name": "vol-haproxy-01",
+      "size_gb": 10,
+      "zone": "nbg1",
+      "server": {
+        "id": 110171270,
+        "name": "haproxy-01"
+      }
+    },
+    {
+      "id": 104011393,
+      "name": "vol-haproxy-02",
+      "size_gb": 10,
+      "zone": "nbg1",
+      "server": {
+        "id": 110171338,
+        "name": "haproxy-02"
+      }
+    },
+    {
+      "id": 104049907,
+      "name": "vol-k8s-worker-01",
+      "size_gb": 50,
+      "zone": "nbg1",
+      "server": {
+        "id": 109782191,
+        "name": "k8s-worker-01"
+      }
+    },
+    {
+      "id": 104049905,
+      "name": "vol-k8s-worker-02",
+      "size_gb": 50,
+      "zone": "nbg1",
+      "server": {
+        "id": 109783643,
+        "name": "k8s-worker-02"
+      }
+    },
+    {
+      "id": 104049906,
+      "name": "vol-k8s-worker-03",
+      "size_gb": 50,
+      "zone": "nbg1",
+      "server": {
+        "id": 109784494,
+        "name": "k8s-worker-03"
+      }
+    },
+    {
+      "id": 104049908,
+      "name": "vol-k8s-worker-04",
+      "size_gb": 50,
+      "zone": "nbg1",
+      "server": {
+        "id": 109785006,
+        "name": "k8s-worker-04"
+      }
+    },
+    {
+      "id": 104049910,
+      "name": "vol-k8s-worker-05",
+      "size_gb": 50,
+      "zone": "nbg1",
+      "server": {
+        "id": 109884534,
+        "name": "k8s-worker-05"
+      }
+    },
+    {
+      "id": 104011435,
+      "name": "vol-litellm-01",
+      "size_gb": 20,
+      "zone": "nbg1",
+      "server": {
+        "id": 109784396,
+        "name": "litellm-01"
+      }
+    },
+    {
+      "id": 104011428,
+      "name": "vol-mail-core-01",
+      "size_gb": 50,
+      "zone": "hel1",
+      "server": {
+        "id": 109784583,
+        "name": "mail-core-01"
+      }
+    },
+    {
+      "id": 104011440,
+      "name": "vol-maria-01",
+      "size_gb": 50,
+      "zone": "fsn1",
+      "server": {
+        "id": 112572482,
+        "name": "maria-01"
+      }
+    },
+    {
+      "id": 104011432,
+      "name": "vol-maria-02",
+      "size_gb": 50,
+      "zone": "fsn1",
+      "server": {
+        "id": 112572478,
+        "name": "maria-02"
+      }
+    },
+    {
+      "id": 104011434,
+      "name": "vol-maria-03",
+      "size_gb": 50,
+      "zone": "fsn1",
+      "server": {
+        "id": 112572479,
+        "name": "maria-03"
+      }
+    },
+    {
+      "id": 104011392,
+      "name": "vol-minio-01",
+      "size_gb": 100,
+      "zone": "nbg1",
+      "server": {
+        "id": 109784414,
+        "name": "minio-01"
+      }
+    },
+    {
+      "id": 104052152,
+      "name": "vol-minio-02",
+      "size_gb": 100,
+      "zone": "nbg1",
+      "server": {
+        "id": 109784158,
+        "name": "minio-02"
+      }
+    },
+    {
+      "id": 104052153,
+      "name": "vol-minio-03",
+      "size_gb": 100,
+      "zone": "nbg1",
+      "server": {
+        "id": 109884423,
+        "name": "minio-03"
+      }
+    },
+    {
+      "id": 104011415,
+      "name": "vol-ml-platform-01",
+      "size_gb": 50,
+      "zone": "nbg1",
+      "server": {
+        "id": 109784981,
+        "name": "ml-platform-01"
+      }
+    },
+    {
+      "id": 104011437,
+      "name": "vol-monitor-01",
+      "size_gb": 100,
+      "zone": "nbg1",
+      "server": {
+        "id": 109784447,
+        "name": "monitor-01"
+      }
+    },
+    {
+      "id": 104011427,
+      "name": "vol-nocodb-01",
+      "size_gb": 20,
+      "zone": "nbg1",
+      "server": {
+        "id": 109884364,
+        "name": "nocodb-01"
+      }
+    },
+    {
+      "id": 104011418,
+      "name": "vol-proxysql-01",
+      "size_gb": 10,
+      "zone": "fsn1",
+      "server": {
+        "id": 112572480,
+        "name": "proxysql-01"
+      }
+    },
+    {
+      "id": 104011417,
+      "name": "vol-proxysql-02",
+      "size_gb": 10,
+      "zone": "fsn1",
+      "server": {
+        "id": 112572481,
+        "name": "proxysql-02"
+      }
+    },
+    {
+      "id": 104011412,
+      "name": "vol-queue-01",
+      "size_gb": 40,
+      "zone": "nbg1",
+      "server": {
+        "id": 109783713,
+        "name": "queue-01"
+      }
+    },
+    {
+      "id": 104011416,
+      "name": "vol-queue-02",
+      "size_gb": 40,
+      "zone": "nbg1",
+      "server": {
+        "id": 109784070,
+        "name": "queue-02"
+      }
+    },
+    {
+      "id": 104011409,
+      "name": "vol-queue-03",
+      "size_gb": 40,
+      "zone": "nbg1",
+      "server": {
+        "id": 109784080,
+        "name": "queue-03"
+      }
+    },
+    {
+      "id": 104011425,
+      "name": "vol-redis-01",
+      "size_gb": 20,
+      "zone": "nbg1",
+      "server": {
+        "id": 109781695,
+        "name": "redis-01"
+      }
+    },
+    {
+      "id": 104011430,
+      "name": "vol-redis-02",
+      "size_gb": 20,
+      "zone": "nbg1",
+      "server": {
+        "id": 109784003,
+        "name": "redis-02"
+      }
+    },
+    {
+      "id": 104011429,
+      "name": "vol-redis-03",
+      "size_gb": 20,
+      "zone": "nbg1",
+      "server": {
+        "id": 109784037,
+        "name": "redis-03"
+      }
+    },
+    {
+      "id": 104011439,
+      "name": "vol-siem-01",
+      "size_gb": 200,
+      "zone": "nbg1",
+      "server": {
+        "id": 109883991,
+        "name": "siem-01"
+      }
+    },
+    {
+      "id": 104011424,
+      "name": "vol-temporal-01",
+      "size_gb": 20,
+      "zone": "nbg1",
+      "server": {
+        "id": 109784816,
+        "name": "temporal-01"
+      }
+    },
+    {
+      "id": 104011436,
+      "name": "vol-temporal-db-01",
+      "size_gb": 50,
+      "zone": "nbg1",
+      "server": {
+        "id": 109784838,
+        "name": "temporal-db-01"
+      }
+    },
+    {
+      "id": 104011423,
+      "name": "vol-vault-01",
+      "size_gb": 20,
+      "zone": "nbg1",
+      "server": {
+        "id": 109883784,
+        "name": "vault-01"
+      }
+    },
+    {
+      "id": 104011431,
+      "name": "vol-vector-db-01",
+      "size_gb": 50,
+      "zone": "nbg1",
+      "server": {
+        "id": 109784364,
+        "name": "vector-db-01"
+      }
+    }
+  ]
+}
