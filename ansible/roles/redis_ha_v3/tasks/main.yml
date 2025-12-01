@@ -1,0 +1,175 @@
+---
+# Redis HA v3 Role - Tasks
+# Deploys Redis HA cluster with Sentinel on 3 nodes
+
+- name: Install Redis server
+  apt:
+    name: redis-server
+    state: present
+    update_cache: yes
+
+- name: Install Redis Sentinel (usually included with redis-server)
+  apt:
+    name: redis-sentinel
+    state: present
+  failed_when: false
+  changed_when: false
+
+- name: Ensure Redis data directory exists
+  file:
+    path: "{{ redis_dir }}"
+    state: directory
+    owner: redis
+    group: redis
+    mode: '0755'
+
+- name: Ensure Redis appendonlydir exists
+  file:
+    path: "{{ redis_dir }}/appendonlydir"
+    state: directory
+    owner: redis
+    group: redis
+    mode: '0755'
+
+- name: Stop Redis service if running (before config change)
+  systemd:
+    name: redis-server
+    state: stopped
+  failed_when: false
+  changed_when: false
+
+- name: Kill any remaining Redis processes
+  shell: |
+    pkill -9 redis-server || true
+    sleep 2
+  failed_when: false
+  changed_when: false
+
+- name: Stop Redis Sentinel service if running (before config change)
+  systemd:
+    name: redis-sentinel
+    state: stopped
+  failed_when: false
+  changed_when: false
+
+- name: Kill any remaining Sentinel processes
+  shell: |
+    pkill -9 redis-sentinel || true
+    sleep 2
+  failed_when: false
+  changed_when: false
+
+- name: Clean existing AOF and RDB files completely
+  shell: |
+    find {{ redis_dir }} -type f \( -name "*.aof*" -o -name "*.rdb" -o -name "appendonly*" -o -name "dump*" \) -delete 2>/dev/null || true
+    rm -rf {{ redis_dir }}/appendonlydir/* 2>/dev/null || true
+    chown -R redis:redis {{ redis_dir }}/appendonlydir 2>/dev/null || true
+  failed_when: false
+  changed_when: false
+
+- name: Deploy Redis configuration
+  template:
+    src: redis.conf.j2
+    dest: /etc/redis/redis.conf
+    owner: redis
+    group: redis
+    mode: '0644'
+  notify: restart redis
+
+- name: Deploy Sentinel configuration
+  template:
+    src: sentinel.conf.j2
+    dest: /etc/redis/sentinel.conf
+    owner: redis
+    group: redis
+    mode: '0644'
+  notify: restart sentinel
+
+- name: Deploy Sentinel systemd unit file
+  copy:
+    dest: /etc/systemd/system/redis-sentinel.service
+    content: |
+      [Unit]
+      Description=Redis Sentinel
+      After=network.target redis-server.service
+      Wants=network.target
+
+      [Service]
+      ExecStart=/usr/bin/redis-sentinel /etc/redis/sentinel.conf
+      ExecStop=/bin/kill -s TERM $MAINPID
+      User=redis
+      Group=redis
+      RuntimeDirectory=redis
+      RuntimeDirectoryMode=0755
+      Restart=always
+      RestartSec=5
+
+      [Install]
+      WantedBy=multi-user.target
+    mode: '0644'
+  notify: reload systemd and restart sentinel
+
+- name: Ensure Redis runtime directory exists
+  file:
+    path: /var/run/redis
+    state: directory
+    owner: redis
+    group: redis
+    mode: '0755'
+
+- name: Start and enable Redis server
+  systemd:
+    name: redis-server
+    state: started
+    enabled: yes
+    daemon_reload: yes
+
+- name: Wait for Redis to be ready
+  wait_for:
+    port: "{{ redis_port }}"
+    host: "{{ ansible_host }}"
+    delay: 2
+    timeout: 30
+
+- name: Configure replica on non-master nodes
+  shell: |
+    redis-cli -a "{{ redis_auth_password }}" REPLICAOF 10.0.0.123 {{ redis_master_port }}
+  when: inventory_hostname != redis_master_host
+  failed_when: false
+  register: replica_config
+  changed_when: "'OK' in replica_config.stdout"
+
+- name: Start and enable Redis Sentinel
+  systemd:
+    name: redis-sentinel
+    state: started
+    enabled: yes
+    daemon_reload: yes
+
+- name: Wait for Sentinel to be ready
+  wait_for:
+    port: "{{ sentinel_port }}"
+    host: "{{ ansible_host }}"
+    delay: 2
+    timeout: 30
+
+- name: Verify Redis replication status
+  shell: |
+    redis-cli -a "{{ redis_auth_password }}" INFO replication | grep -E "role|master_host|master_port|connected_slaves"
+  register: redis_info
+  changed_when: false
+
+- name: Display Redis replication info
+  debug:
+    var: redis_info.stdout_lines
+
+- name: Verify Sentinel status
+  shell: |
+    redis-cli -p {{ sentinel_port }} SENTINEL master {{ sentinel_master_name }}
+  register: sentinel_info
+  changed_when: false
+
+- name: Display Sentinel info
+  debug:
+    var: sentinel_info.stdout_lines
+
