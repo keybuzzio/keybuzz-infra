@@ -1,0 +1,14 @@
+---
+# Redis Standalone deployment for KeyBuzz v3
+# PH4-01A - Redis standalone on redis-01 only
+
+- hosts: redis-01
+  become: yes
+  gather_facts: yes
+  vars_files:
+    - ../group_vars/redis.yml
+  vars:
+    redis_enable_replication: false
+    redis_enable_sentinel: false
+  roles:
+    - redis_ha_v3
