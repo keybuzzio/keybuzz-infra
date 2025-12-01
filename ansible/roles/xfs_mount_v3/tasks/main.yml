@@ -1,0 +1,254 @@
+---
+# XFS Mount v3 Role - Format and mount volumes according to volume_plan_v3.json
+# Uses Hetzner volume IDs and stable device paths
+
+- name: Load volume plan
+  slurp:
+    src: "{{ playbook_dir }}/../../servers/volume_plan_v3.json"
+  register: volume_plan_content
+  delegate_to: localhost
+  changed_when: false
+
+- name: Parse volume plan
+  set_fact:
+    volume_plan: "{{ volume_plan_content.content | b64decode | from_json }}"
+  delegate_to: localhost
+  changed_when: false
+
+- name: Find volume info for this host
+  set_fact:
+    volume_info: "{{ volume_plan.servers | selectattr('hostname', 'equalto', inventory_hostname) | list | first }}"
+  delegate_to: localhost
+  changed_when: false
+
+- name: Fail if volume info not found
+  fail:
+    msg: "No volume info found for {{ inventory_hostname }} in volume_plan_v3.json"
+  when: volume_info is not defined or volume_info == ""
+  delegate_to: localhost
+
+- name: Get Hetzner volume ID from volume name
+  shell: |
+    hcloud volume describe {{ volume_info.volume_name }} -o json | jq -r '.id'
+  register: volume_id_result
+  delegate_to: localhost
+  environment:
+    HCLOUD_TOKEN: "{{ lookup('env', 'HCLOUD_TOKEN') }}"
+  changed_when: false
+
+- name: Set volume ID fact
+  set_fact:
+    volume_id: "{{ volume_id_result.stdout | trim }}"
+  delegate_to: localhost
+  changed_when: false
+
+- name: Set volume device path
+  set_fact:
+    volume_device: "/dev/disk/by-id/scsi-0HC_Volume_{{ volume_id }}"
+  delegate_to: localhost
+  changed_when: false
+
+- name: Set mountpoint fact
+  set_fact:
+    mountpoint: "{{ volume_info.mountpoint }}"
+  delegate_to: localhost
+  changed_when: false
+
+- name: Display volume configuration
+  debug:
+    msg:
+      - "Hostname: {{ inventory_hostname }}"
+      - "Volume name: {{ volume_info.volume_name }}"
+      - "Volume ID: {{ volume_id }}"
+      - "Device path: {{ volume_device }}"
+      - "Mountpoint: {{ mountpoint }}"
+      - "Size: {{ volume_info.size_gb }} GB"
+  delegate_to: localhost
+  changed_when: false
+
+# ========================================
+# Wait for volume device to be available
+# ========================================
+- name: Wait for volume device to appear
+  wait_for:
+    path: "{{ volume_device }}"
+    state: present
+    timeout: 60
+  delegate_to: "{{ inventory_hostname }}"
+  register: wait_result
+  retries: 5
+  delay: 2
+  failed_when: false
+
+- name: Check if device exists
+  stat:
+    path: "{{ volume_device }}"
+  register: device_stat
+  delegate_to: "{{ inventory_hostname }}"
+
+- name: Fail if device not found
+  fail:
+    msg: "Volume device {{ volume_device }} not found on {{ inventory_hostname }}. Volume may not be attached."
+  when: not device_stat.stat.exists
+
+# ========================================
+# Check if already formatted with XFS
+# ========================================
+- name: Check filesystem type
+  command: blkid {{ volume_device }}
+  register: blkid_result
+  delegate_to: "{{ inventory_hostname }}"
+  changed_when: false
+  failed_when: false
+
+- name: Check if XFS formatted
+  set_fact:
+    is_xfs_formatted: "{{ 'TYPE=\"xfs\"' in blkid_result.stdout | default('') }}"
+  delegate_to: "{{ inventory_hostname }}"
+
+# ========================================
+# Format volume in XFS if needed
+# ========================================
+- name: Format volume in XFS
+  command: mkfs.xfs -f {{ volume_device }}
+  delegate_to: "{{ inventory_hostname }}"
+  when: not is_xfs_formatted
+  register: format_result
+
+- name: Display format result
+  debug:
+    msg: "{{ 'Volume already formatted' if is_xfs_formatted else 'Volume formatted in XFS' }}"
+  delegate_to: "{{ inventory_hostname }}"
+
+# ========================================
+# Get UUID after formatting
+# ========================================
+- name: Get volume UUID
+  command: blkid -s UUID -o value {{ volume_device }}
+  register: uuid_result
+  delegate_to: "{{ inventory_hostname }}"
+  changed_when: false
+
+- name: Set UUID fact
+  set_fact:
+    volume_uuid: "{{ uuid_result.stdout | trim }}"
+  delegate_to: "{{ inventory_hostname }}"
+
+- name: Verify UUID is set
+  fail:
+    msg: "Could not retrieve UUID for volume {{ volume_device }}"
+  when: volume_uuid == "" or volume_uuid is not defined
+  delegate_to: "{{ inventory_hostname }}"
+
+# ========================================
+# Create mount point directory
+# ========================================
+- name: Create mount point directory
+  file:
+    path: "{{ mountpoint }}"
+    state: directory
+    mode: '0755'
+    owner: root
+    group: root
+  delegate_to: "{{ inventory_hostname }}"
+
+# ========================================
+# Mount volume
+# ========================================
+- name: Mount volume
+  mount:
+    path: "{{ mountpoint }}"
+    src: "UUID={{ volume_uuid }}"
+    fstype: xfs
+    state: mounted
+    opts: defaults,noatime,nofail
+  delegate_to: "{{ inventory_hostname }}"
+  register: mount_result
+
+# ========================================
+# Add to /etc/fstab
+# ========================================
+- name: Check if fstab entry already exists
+  lineinfile:
+    path: /etc/fstab
+    regexp: "^UUID={{ volume_uuid }}"
+    state: absent
+  delegate_to: "{{ inventory_hostname }}"
+  check_mode: true
+  register: fstab_check
+  changed_when: false
+
+- name: Add entry to /etc/fstab
+  lineinfile:
+    path: /etc/fstab
+    line: "UUID={{ volume_uuid }}    {{ mountpoint }}   xfs   defaults,noatime,nofail   0   2"
+    state: present
+    regexp: "^UUID={{ volume_uuid }}"
+    insertafter: EOF
+  delegate_to: "{{ inventory_hostname }}"
+  when: fstab_check.changed or fstab_check is failed
+
+# ========================================
+# Verify mount
+# ========================================
+- name: Verify mount is active
+  command: mountpoint -q {{ mountpoint }}
+  delegate_to: "{{ inventory_hostname }}"
+  register: mountpoint_check
+  changed_when: false
+  failed_when: false
+
+- name: Display mount status
+  debug:
+    msg: "{{ 'Mount successful' if mountpoint_check.rc == 0 else 'Mount failed' }}"
+  delegate_to: "{{ inventory_hostname }}"
+
+- name: Get disk usage
+  command: df -h {{ mountpoint }}
+  register: df_result
+  delegate_to: "{{ inventory_hostname }}"
+  changed_when: false
+
+- name: Display disk usage
+  debug:
+    msg: "{{ df_result.stdout_lines }}"
+  delegate_to: "{{ inventory_hostname }}"
+
+# ========================================
+# Test write access
+# ========================================
+- name: Test write access to mount point
+  shell: |
+    TEST_FILE="{{ mountpoint }}/.xfs_test_$$"
+    echo "XFS test write $(date)" > "$TEST_FILE" && \
+    cat "$TEST_FILE" && \
+    rm -f "$TEST_FILE" && \
+    echo "Write test successful"
+  delegate_to: "{{ inventory_hostname }}"
+  register: write_test
+  changed_when: false
+
+- name: Display write test result
+  debug:
+    msg: "{{ write_test.stdout_lines | last }}"
+  delegate_to: "{{ inventory_hostname }}"
+
+# ========================================
+# Summary
+# ========================================
+- name: Display summary
+  debug:
+    msg:
+      - "=========================================="
+      - "XFS Mount v3 - {{ inventory_hostname }}"
+      - "=========================================="
+      - "Volume: {{ volume_info.volume_name }}"
+      - "Device: {{ volume_device }}"
+      - "UUID: {{ volume_uuid }}"
+      - "Mountpoint: {{ mountpoint }}"
+      - "Formatted: {{ 'Yes' if is_xfs_formatted else 'Yes (just now)' }}"
+      - "Mounted: {{ 'Yes' if mountpoint_check.rc == 0 else 'No' }}"
+      - "fstab: {{ 'Configured' if fstab_check.changed or fstab_check is failed else 'Already present' }}"
+      - "=========================================="
+  delegate_to: "{{ inventory_hostname }}"
+

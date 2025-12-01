@@ -1,0 +1,53 @@
+---
+# XFS Format and Mount v3 - PH3-03
+# Format volumes in XFS, create mount points, mount volumes, and configure /etc/fstab
+# Uses volume_plan_v3.json for configuration
+
+- name: XFS Format and Mount v3
+  hosts: all,!bastions
+  become: yes
+  gather_facts: no
+  vars:
+    hcloud_env_file: "/opt/keybuzz/credentials/hcloud.env"
+    ansible_role_paths:
+      - "{{ playbook_dir }}/../roles"
+  
+  pre_tasks:
+    - name: Load Hetzner API token from environment or file
+      set_fact:
+        hcloud_token: "{{ lookup('env', 'HCLOUD_TOKEN') | default(lookup('file', hcloud_env_file) | regex_search('HCLOUD_TOKEN=''(.*?)''', '\\1') | first, true) }}"
+      delegate_to: localhost
+      run_once: true
+    
+    - name: Verify Hetzner API token is set
+      fail:
+        msg: "HCLOUD_TOKEN must be set in environment or in {{ hcloud_env_file }}"
+      when: hcloud_token == "" or hcloud_token is none
+      delegate_to: localhost
+      run_once: true
+    
+    - name: Set HCLOUD_TOKEN environment variable
+      set_fact:
+        ansible_env: "{{ ansible_env | default({}) | combine({'HCLOUD_TOKEN': hcloud_token}) }}"
+      delegate_to: localhost
+      run_once: true
+
+  tasks:
+    - name: Include xfs_mount_v3 role
+      include_role:
+        name: xfs_mount_v3
+      vars:
+        roles_path: "{{ playbook_dir }}/../roles"
+
+  post_tasks:
+    - name: Display completion message
+      debug:
+        msg:
+          - "=========================================="
+          - "PH3-03 - XFS Format and Mount - COMPLETED"
+          - "=========================================="
+          - "Host: {{ inventory_hostname }}"
+          - "All volumes formatted, mounted, and configured in /etc/fstab"
+          - "=========================================="
+      delegate_to: "{{ inventory_hostname }}"
+
