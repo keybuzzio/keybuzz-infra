@@ -2,6 +2,22 @@
 # Redis HA v3 Role - Tasks
 # Deploys Redis HA cluster with Sentinel on 3 nodes
 
+- name: Ensure /data/redis exists with correct ownership
+  file:
+    path: /data/redis
+    state: directory
+    owner: redis
+    group: redis
+    mode: '0755'
+
+- name: Ensure appendonlydir exists with correct ownership
+  file:
+    path: /data/redis/appendonlydir
+    state: directory
+    owner: redis
+    group: redis
+    mode: '0755'
+
 - name: Install Redis server
   apt:
     name: redis-server
@@ -12,38 +28,6 @@
   apt:
     name: redis-sentinel
     state: present
-  failed_when: false
-  changed_when: false
-
-- name: Ensure Redis data directory exists
-  file:
-    path: "{{ redis_dir }}"
-    state: directory
-    owner: redis
-    group: redis
-    mode: '0755'
-
-- name: Ensure Redis appendonlydir exists
-  file:
-    path: "{{ redis_dir }}/appendonlydir"
-    state: directory
-    owner: redis
-    group: redis
-    mode: '0755'
-
-
-- name: Kill any remaining Redis processes
-  shell: |
-    pkill -9 redis-server || true
-    sleep 2
-  failed_when: false
-  changed_when: false
-
-
-- name: Kill any remaining Sentinel processes
-  shell: |
-    pkill -9 redis-sentinel || true
-    sleep 2
   failed_when: false
   changed_when: false
 
@@ -71,6 +55,7 @@
     owner: redis
     group: redis
     mode: '0644'
+  when: redis_enable_sentinel | default(false) | bool
   notify: restart sentinel
 
 - name: Deploy Sentinel systemd unit file
@@ -95,6 +80,7 @@
       [Install]
       WantedBy=multi-user.target
     mode: '0644'
+  when: redis_enable_sentinel | default(false) | bool
   notify: reload systemd and restart sentinel
 
 - name: Ensure Redis runtime directory exists
@@ -105,10 +91,38 @@
     group: redis
     mode: '0755'
 
+- name: Create systemd override for Redis to allow /data/redis writes
+  file:
+    path: /etc/systemd/system/redis-server.service.d
+    state: directory
+    mode: '0755'
+
+- name: Configure systemd override to allow writes to /data/redis
+  copy:
+    dest: /etc/systemd/system/redis-server.service.d/override.conf
+    content: |
+      [Service]
+      # Allow writes to /data/redis for replication temp files
+      ReadWritePaths=/data/redis
+      # Set TMPDIR to /data/redis for Redis temp files during replication
+      Environment="TMPDIR=/data/redis"
+    mode: '0644'
+  notify: reload systemd
+
+- name: Force kill any existing redis-server before start
+  command: pkill -9 redis-server || true
+  failed_when: false
+  changed_when: false
+
+- name: Reset systemd state for redis-server before start
+  command: systemctl reset-failed redis-server.service || true
+  failed_when: false
+  changed_when: false
+
 - name: Start and enable Redis server
   systemd:
     name: redis-server
-    state: started
+    state: restarted
     enabled: yes
     daemon_reload: yes
 
@@ -122,27 +136,29 @@
 - name: Configure replica on non-master nodes
   shell: |
     redis-cli -a "{{ redis_auth_password }}" REPLICAOF 10.0.0.123 {{ redis_master_port }}
-  when: redis_enable_replication | default(false) | bool and inventory_hostname != redis_master_host
+  when: inventory_hostname != redis_master_host
   failed_when: false
   register: replica_config
   changed_when: "'OK' in replica_config.stdout"
 
-  when: redis_enable_sentinel | default(false) | bool
+- name: Force kill any existing redis-sentinel before start
+  command: pkill -9 redis-sentinel || true
+  failed_when: false
+  changed_when: false
+
+- name: Reset systemd state for redis-sentinel before start
+  command: systemctl reset-failed redis-sentinel.service || true
+  failed_when: false
+  changed_when: false
+
 - name: Start and enable Redis Sentinel
   systemd:
     name: redis-sentinel
-    state: started
+    state: restarted
     enabled: yes
     daemon_reload: yes
 
-  when: redis_enable_sentinel | default(false) | bool
 - name: Wait for Sentinel to be ready
-  wait_for:
-    port: "{{ sentinel_port }}"
-    host: "{{ ansible_host }}"
-    delay: 2
-    timeout: 30
-  when: redis_enable_sentinel | default(false) | bool
   wait_for:
     port: "{{ sentinel_port }}"
     host: "{{ ansible_host }}"
@@ -165,12 +181,9 @@
   register: sentinel_info
   changed_when: false
   when: redis_enable_sentinel | default(false) | bool
-  shell: |
-    redis-cli -p {{ sentinel_port }} SENTINEL master {{ sentinel_master_name }}
-  register: sentinel_info
-  changed_when: false
 
 - name: Display Sentinel info
   debug:
     var: sentinel_info.stdout_lines
+  when: redis_enable_sentinel | default(false) | bool
 
