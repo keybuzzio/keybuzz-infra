@@ -1,29 +1,42 @@
-# group_vars/redis.yml
-# Redis HA configuration for KeyBuzz v3
+---
+# Redis HA Configuration Variables
+# TODO PH6-Vault: déplacer redis_auth_password dans Vault et le lire via External Secrets
 
-# Réseau & bind
-redis_bind: "0.0.0.0"
-redis_port: 6379
-redis_protected_mode: "yes"
-
-# Répertoire data Redis (XFS, monté sur /data/redis)
-redis_dir: "/data/redis"
-
-# Hôte master initial
-redis_master_host: "redis-01"
-redis_master_port: 6379
-
-# Mode (pour l’instant : standalone)
-redis_enable_replication: false
-redis_enable_sentinel: false
-
-# Auth Redis (à déplacer dans Vault en PH6)
+# Redis Authentication Password
+# Generated once for the entire cluster
+# This password is used for:
+# - requirepass (Redis authentication)
+# - masterauth (replica authentication)
+# - sentinel auth-pass
 redis_auth_password: "OsxjNY98GOeflY8uDxhjNThlN_xWE3LaRVCnhm1UpO4"
 
-# Sentinel (pour plus tard)
-sentinel_master_name: "keybuzz-master"
+# Redis Configuration
+redis_bind: "0.0.0.0"  # Bind to all interfaces (or use specific IPs)
+redis_port: 6379
+redis_dir: "/data/redis"
+redis_protected_mode: "yes"
+
+# Sentinel Configuration
 sentinel_port: 26379
+sentinel_master_name: "keybuzz-master"
 sentinel_quorum: 2
 sentinel_down_after_milliseconds: 5000
 sentinel_failover_timeout: 60000
 sentinel_parallel_syncs: 1
+
+# Master node (initial)
+redis_master_host: "redis-01"
+redis_master_ip: "10.0.0.123"
+redis_master_port: 6379
+
+# Replica nodes
+redis_replica_hosts:
+  - "redis-02"
+  - "redis-03"
+
+# Feature flags for progressive deployment
+# PH4-01A: standalone mode on redis-01 only
+# PH4-01B: replication enabled on redis-02/03
+redis_enable_replication: true
+redis_enable_sentinel: false
+
