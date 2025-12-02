@@ -1,0 +1,49 @@
+---
+# Redis Replication v3 Deployment Playbook
+# Deploys Redis replication on redis-02 and redis-03 (PH4-01B)
+# Replicates from redis-01 (master)
+
+- name: Deploy Redis Replication on redis-02 and redis-03
+  hosts: redis-02,redis-03
+  become: yes
+  gather_facts: yes
+  vars_files:
+    - "{{ playbook_dir }}/../group_vars/redis.yml"
+
+  vars:
+    redis_enable_replication: true
+    redis_enable_sentinel: false
+
+  pre_tasks:
+    - name: Cleanup Redis processes
+      shell: pkill -9 redis-server || true
+      ignore_errors: yes
+
+    - name: Cleanup Sentinel processes
+      shell: pkill -9 redis-sentinel || true
+      ignore_errors: yes
+
+    - name: Reset systemd state for redis-server
+      shell: systemctl reset-failed redis-server.service || true
+      ignore_errors: yes
+
+    - name: Reset systemd state for redis-sentinel
+      shell: systemctl reset-failed redis-sentinel.service || true
+      ignore_errors: yes
+
+  roles:
+    - redis_ha_v3
+
+  post_tasks:
+    - name: Display completion message
+      debug:
+        msg:
+          - "=========================================="
+          - "PH4-01B - Redis Replication Deployment - COMPLETED"
+          - "=========================================="
+          - "Host: {{ inventory_hostname }}"
+          - "Redis replica deployed successfully"
+          - "Replication: ENABLED"
+          - "Sentinel: DISABLED"
+          - "=========================================="
+
