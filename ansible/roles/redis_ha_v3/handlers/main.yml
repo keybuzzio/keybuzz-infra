@@ -1,0 +1,28 @@
+---
+# Redis HA v3 Role - Handlers
+
+- name: reload systemd
+  command: systemctl daemon-reload
+
+- name: restart redis
+  systemd:
+    name: redis-server
+    state: restarted
+    enabled: yes
+
+- name: restart sentinel
+  systemd:
+    name: redis-sentinel
+    state: restarted
+    enabled: yes
+
+- name: reload systemd and restart sentinel
+  command: systemctl daemon-reload
+  listen: reload systemd and restart sentinel
+
+- name: restart sentinel after reload
+  systemd:
+    name: redis-sentinel
+    state: restarted
+    enabled: yes
+  listen: reload systemd and restart sentinel

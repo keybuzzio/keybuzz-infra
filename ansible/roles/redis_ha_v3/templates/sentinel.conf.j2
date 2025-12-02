@@ -6,7 +6,7 @@ dir {{ redis_dir }}
 
 # Sentinel monitor configuration
 # Use IP address instead of hostname for better reliability
-sentinel monitor {{ sentinel_master_name }} 10.0.0.123 {{ redis_master_port }} {{ sentinel_quorum }}
+sentinel monitor {{ sentinel_master_name }} {{ redis_master_ip }} {{ redis_master_port }} {{ sentinel_quorum }}
 
 # Sentinel authentication
 sentinel auth-pass {{ sentinel_master_name }} {{ redis_auth_password }}
@@ -16,12 +16,18 @@ sentinel down-after-milliseconds {{ sentinel_master_name }} {{ sentinel_down_aft
 sentinel failover-timeout {{ sentinel_master_name }} {{ sentinel_failover_timeout }}
 sentinel parallel-syncs {{ sentinel_master_name }} {{ sentinel_parallel_syncs }}
 
+# Sentinel notification (optional - uncomment if needed)
+# sentinel notification-script {{ sentinel_master_name }} /path/to/notification.sh
+# sentinel client-reconfig-script {{ sentinel_master_name }} /path/to/reconfig.sh
+
 # Sentinel logging
 loglevel notice
-logfile " 
+logfile ""
+
 # Sentinel daemonization
 daemonize no
 pidfile /var/run/redis/redis-sentinel.pid
 
 # Sentinel protected mode
 protected-mode yes
+
