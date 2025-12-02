@@ -1,0 +1,25 @@
+# HAProxy frontend/backend pour Redis HA (KeyBuzz v3)
+# Généré par Ansible - NE PAS MODIFIER À LA MAIN
+
+listen redis
+    mode tcp
+    bind *:6379
+    # On peut ajuster le bind plus tard à 127.0.0.1:6379 si lb-haproxy pointe déjà ici
+    option tcp-check
+    timeout client  1m
+    timeout server  1m
+    timeout connect 5s
+
+    # Health check Redis : PING/PONG (simple TCP check)
+    # Note: Redis avec AUTH répondra -NOAUTH, mais la connexion TCP fonctionne
+    # Pour un check plus précis, on peut utiliser option redis-check mais PING simple suffit
+    tcp-check connect port 6379
+    option tcp-check
+
+    # Serveur maître Redis
+    server redis-01 {{ redis_master_ip }}:{{ redis_master_port }} check inter 2000 fall 2 rise 2
+
+    # Réplicas en backup
+    server redis-02 {{ redis_replica_ips[0] }}:{{ redis_master_port }} check inter 2000 fall 2 rise 2 backup
+    server redis-03 {{ redis_replica_ips[1] }}:{{ redis_master_port }} check inter 2000 fall 2 rise 2 backup
+
