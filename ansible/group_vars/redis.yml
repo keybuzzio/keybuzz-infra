@@ -37,6 +37,7 @@ redis_replica_hosts:
 # Feature flags for progressive deployment
 # PH4-01A: standalone mode on redis-01 only
 # PH4-01B: replication enabled on redis-02/03
+# PH4-01C: Sentinel enabled on all 3 nodes
 redis_enable_replication: true
-redis_enable_sentinel: false
+redis_enable_sentinel: true
 

@@ -1,0 +1,41 @@
+---
+# Redis Sentinel v3 Deployment Playbook
+# PH4-01C - Sentinel deployment for Redis HA
+# Deploys Redis Sentinel on all 3 Redis nodes (redis-01, redis-02, redis-03)
+
+- name: Deploy Redis Sentinel on all Redis nodes
+  hosts: redis
+  become: yes
+  gather_facts: yes
+  vars_files:
+    - "{{ playbook_dir }}/../group_vars/redis.yml"
+
+  vars:
+    redis_enable_replication: true
+    redis_enable_sentinel: true
+
+  pre_tasks:
+    - name: Cleanup old sentinel processes
+      shell: pkill -9 redis-sentinel || true
+      ignore_errors: yes
+
+    - name: Reset systemd state for sentinel
+      shell: systemctl reset-failed redis-sentinel.service || true
+      ignore_errors: yes
+
+  roles:
+    - redis_ha_v3
+
+  post_tasks:
+    - name: Display completion message
+      debug:
+        msg:
+          - "=========================================="
+          - "PH4-01C - Redis Sentinel Deployment - COMPLETED"
+          - "=========================================="
+          - "Host: {{ inventory_hostname }}"
+          - "Redis Sentinel deployed successfully"
+          - "Replication: ENABLED"
+          - "Sentinel: ENABLED"
+          - "=========================================="
+
