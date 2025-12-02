@@ -21,11 +21,11 @@
         update_cache: yes
 
     - name: Cleanup old sentinel processes
-      command: pkill -9 redis-sentinel || true
+      shell: pkill -9 redis-sentinel || true
       ignore_errors: yes
 
     - name: Reset systemd state for redis-sentinel
-      command: systemctl reset-failed redis-sentinel.service || true
+      shell: systemctl reset-failed redis-sentinel.service || true
       ignore_errors: yes
 
     - name: Ensure sentinel directory exists
