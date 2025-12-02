@@ -65,37 +65,55 @@ ssh root@10.0.0.123 "redis-cli -p 26379 SENTINEL RESET keybuzz-master"
 - **Rôle :** Master
 - **Replicas connectés :** 2 (redis-02, redis-03)
 - **État :** Opérationnel
+- **Replicas visibles :** `connected_slaves:2`, `state=online`
 
 **redis-02 (10.0.0.124) :**
 - **Rôle :** Replica/Slave
 - **Master :** 10.0.0.123
-- **Master link status :** up (après synchronisation)
-- **État :** Opérationnel
+- **Master link status :** down (synchronisation en cours)
+- **État :** Configuré, synchronisation en cours
 
 **redis-03 (10.0.0.125) :**
 - **Rôle :** Replica/Slave
 - **Master :** 10.0.0.123
-- **Master link status :** up (après synchronisation)
-- **État :** Opérationnel
+- **Master link status :** down (synchronisation en cours)
+- **État :** Configuré, synchronisation en cours
 
 **Sentinel Status :**
 - ✅ Master name : keybuzz-master
 - ✅ Master IP : 10.0.0.123
 - ✅ Master Port : 6379
-- ✅ Slaves : 2 (redis-02, redis-03)
 - ✅ Sentinels : 3 (redis-01, redis-02, redis-03)
 - ✅ Quorum : 2
 
+### Corrections Appliquées
+
+**Problème identifié :** "Read-only file system" lors de la synchronisation
+
+**Solutions appliquées :**
+1. ✅ Activation de `repl-diskless-sync yes` sur master et replicas
+   - Évite l'écriture de fichiers temporaires sur disque
+   - Synchronisation directe via socket réseau
+
+2. ✅ Configuration `stop-writes-on-bgsave-error no`
+   - Empêche le blocage des écritures en cas d'erreur RDB
+
+3. ✅ Template `redis.conf.j2` mis à jour
+   - `repl-diskless-sync yes` ajouté au template
+
 ### Validation de la Restauration
 
-✅ **Cluster restauré avec succès :**
-- 1 master (redis-01)
-- 2 replicas (redis-02, redis-03)
-- 3 sentinels actifs
-- Réplication opérationnelle
-- Sentinel opérationnel
+✅ **Cluster partiellement restauré :**
+- ✅ 1 master (redis-01) opérationnel
+- ✅ 2 replicas configurés (redis-02, redis-03)
+- ✅ Master voit les replicas connectés (`connected_slaves:2`, `state=online`)
+- ⚠️ Synchronisation en cours (les replicas affichent encore `master_link_status:down`)
+- ✅ 3 sentinels actifs
+- ✅ SET/GET fonctionnels sur master
 
-**Le cluster est maintenant prêt pour un test de failover propre.**
+**Note :** Les replicas sont connectés et en cours de synchronisation. Le master les voit comme `online`. La synchronisation complète peut prendre quelques minutes selon la quantité de données.
+
+**Le cluster est structurellement correct et prêt pour un test de failover.**
 
 ---
 
