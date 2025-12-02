@@ -31,12 +31,6 @@
     group: redis
     mode: '0755'
 
-- name: Stop Redis service if running (before config change)
-  systemd:
-    name: redis-server
-    state: stopped
-  failed_when: false
-  changed_when: false
 
 - name: Kill any remaining Redis processes
   shell: |
@@ -45,12 +39,6 @@
   failed_when: false
   changed_when: false
 
-- name: Stop Redis Sentinel service if running (before config change)
-  systemd:
-    name: redis-sentinel
-    state: stopped
-  failed_when: false
-  changed_when: false
 
 - name: Kill any remaining Sentinel processes
   shell: |
@@ -154,6 +142,12 @@
     host: "{{ ansible_host }}"
     delay: 2
     timeout: 30
+  when: redis_enable_sentinel | default(false) | bool
+  wait_for:
+    port: "{{ sentinel_port }}"
+    host: "{{ ansible_host }}"
+    delay: 2
+    timeout: 30
 
 - name: Verify Redis replication status
   shell: |
@@ -166,6 +160,11 @@
     var: redis_info.stdout_lines
 
 - name: Verify Sentinel status
+  shell: |
+    redis-cli -p {{ sentinel_port }} SENTINEL master {{ sentinel_master_name }}
+  register: sentinel_info
+  changed_when: false
+  when: redis_enable_sentinel | default(false) | bool
   shell: |
     redis-cli -p {{ sentinel_port }} SENTINEL master {{ sentinel_master_name }}
   register: sentinel_info
