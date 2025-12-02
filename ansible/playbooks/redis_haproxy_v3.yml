@@ -1,0 +1,25 @@
+---
+# Redis HAProxy v3 Deployment Playbook
+# Deploys HAProxy configuration for Redis HA cluster on haproxy-01 and haproxy-02
+
+- name: Deploy Redis HAProxy Configuration
+  hosts: lb_internal
+  become: yes
+  gather_facts: yes
+  vars_files:
+    - "{{ playbook_dir }}/../group_vars/redis.yml"
+
+  roles:
+    - redis_haproxy_v3
+
+  post_tasks:
+    - name: Display completion message
+      debug:
+        msg:
+          - "=========================================="
+          - "PH4-03 - Redis HAProxy Deployment - COMPLETED"
+          - "=========================================="
+          - "Host: {{ inventory_hostname }}"
+          - "HAProxy configured for Redis HA cluster"
+          - "=========================================="
+
