@@ -18,15 +18,16 @@ logfile ""
 databases 16
 
 # Snapshotting
-# Temporarily disabled to allow startup, will be re-enabled after cluster is stable
+# RDB désactivé (save "" empêche toute sauvegarde automatique)
 save ""
 stop-writes-on-bgsave-error no
 # Disable RDB save on shutdown to avoid read-only filesystem issues
 shutdown-on-sigterm nosave
 shutdown-on-sigint nosave
-# Use diskless replication to avoid filesystem issues during sync
-repl-diskless-sync yes
-dbfilename ""
+# Note: dbfilename doit avoir une valeur pour la réplication diskless
+# même si RDB est désactivé, Redis en a besoin pour renommer les fichiers temporaires
+dbfilename "temp-sync.rdb"
+# Répertoire de travail
 dir {{ redis_dir }}
 
 # Replication
