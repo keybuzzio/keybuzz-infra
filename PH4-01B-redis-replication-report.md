@@ -345,12 +345,70 @@ Même avec `repl-diskless-sync yes`, Redis essaie encore d'ouvrir des fichiers t
 - ⚠️ **Réplication partielle** : Master voit les replicas (`connected_slaves:2`, `state=online`)
 - ❌ **Synchronisation incomplète** : `master_link_status:down` persiste, données non répliquées
 
-### Prochaines actions
+### Solution finale : Systemd override + dbfilename
 
-Pour stabiliser complètement la réplication :
-1. Investiguer pourquoi Redis essaie encore d'écrire des fichiers temporaires malgré `repl-diskless-sync yes`
-2. Vérifier si le problème vient du master ou des replicas
-3. Considérer des alternatives : utiliser un répertoire temporaire accessible en écriture, ou investiguer la configuration Redis 7 diskless sync
+**Problème identifié :**
+1. Le service systemd Redis utilise `PrivateTmp=true` et `ProtectSystem=strict` avec des `ReadWritePaths` qui n'incluaient pas `/data/redis`
+2. Même avec `repl-diskless-sync yes`, Redis a besoin d'écrire des fichiers temporaires dans le répertoire de travail
+3. `dbfilename ""` empêchait Redis de renommer le fichier temporaire après la synchronisation diskless
+
+**Correctifs appliqués :**
+
+1. **Override systemd pour permettre l'écriture dans `/data/redis` :**
+   - Création de `/etc/systemd/system/redis-server.service.d/override.conf`
+   - Ajout de `ReadWritePaths=/data/redis`
+   - Définition de `Environment="TMPDIR=/data/redis"`
+
+2. **Définition d'un dbfilename pour la réplication :**
+   - Changement de `dbfilename ""` vers `dbfilename "temp-sync.rdb"`
+   - Même si RDB est désactivé (`save ""`), Redis a besoin d'un nom de fichier valide pour renommer les fichiers temporaires lors de la synchronisation diskless
+
+**Résultats après correction :**
+
+**redis-02 :**
+```
+role:slave
+master_host:10.0.0.123
+master_link_status:up ✅
+master_last_io_seconds_ago:1
+slave_read_repl_offset:798590
+```
+
+**redis-03 :**
+```
+role:slave
+master_host:10.0.0.123
+master_link_status:up ✅
+master_last_io_seconds_ago:2
+slave_read_repl_offset:799013
+```
+
+**Master (redis-01) :**
+```
+role:master
+connected_slaves:2 ✅
+slave0:ip=10.0.0.125,port=6379,state=online,offset=799436,lag=1 ✅
+slave1:ip=10.0.0.124,port=6379,state=online,offset=799436,lag=1 ✅
+```
+
+**Tests SET/GET :**
+- SET sur master : `OK`
+- GET sur redis-02 : `OK-FINAL` ✅
+- GET sur redis-03 : `OK-FINAL` ✅
+
+**Logs de synchronisation :**
+```
+Successful partial resynchronization with master
+MASTER <-> REPLICA sync: Master accepted a Partial Resynchronization
+```
+
+### État final
+
+- ✅ **Réplication stable** : `master_link_status:up` sur les deux replicas
+- ✅ **Synchronisation diskless** : Fonctionne correctement
+- ✅ **SET/GET opérationnel** : Les données sont répliquées en temps réel
+- ✅ **Master voit les replicas** : `connected_slaves:2`, `state=online`
+- ✅ **Prêt pour failover** : La réplication est stable pour les tests Sentinel
 
 ---
 
