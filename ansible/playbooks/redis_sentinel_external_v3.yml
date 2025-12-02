@@ -1,0 +1,55 @@
+---
+# PH4-01D - Sentinel externe sur monitor-01
+# Deploys Redis Sentinel on monitor-01 without Redis server
+
+- hosts: monitor-01
+  become: yes
+  gather_facts: yes
+  vars_files:
+    - "{{ playbook_dir }}/../group_vars/redis.yml"
+
+  vars:
+    redis_enable_replication: false        # pas de redis-server HA sur ce noeud
+    redis_enable_sentinel: true
+    sentinel_dir: "/var/lib/redis-sentinel"
+
+  pre_tasks:
+    - name: Install Redis server package (for redis-sentinel binary)
+      apt:
+        name: redis-server
+        state: present
+        update_cache: yes
+
+    - name: Cleanup old sentinel processes
+      command: pkill -9 redis-sentinel || true
+      ignore_errors: yes
+
+    - name: Reset systemd state for redis-sentinel
+      command: systemctl reset-failed redis-sentinel.service || true
+      ignore_errors: yes
+
+    - name: Ensure sentinel directory exists
+      file:
+        path: "{{ sentinel_dir }}"
+        state: directory
+        owner: redis
+        group: redis
+        mode: '0755'
+
+  roles:
+    - redis_ha_v3
+
+  post_tasks:
+    - name: Display completion message
+      debug:
+        msg:
+          - "=========================================="
+          - "PH4-01D - External Redis Sentinel Deployment - COMPLETED"
+          - "=========================================="
+          - "Host: {{ inventory_hostname }}"
+          - "Redis Sentinel deployed successfully"
+          - "Sentinel directory: {{ sentinel_dir }}"
+          - "Replication: DISABLED (external sentinel only)"
+          - "Sentinel: ENABLED"
+          - "=========================================="
+
