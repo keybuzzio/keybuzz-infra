@@ -263,6 +263,97 @@ Le master voit les 2 replicas en `state=online`, indiquant que la réplication e
 
 ---
 
+## 🔄 Synchronisation finale forcée
+
+### Tentatives de stabilisation
+
+Après la correction RDB/AOF, la réplication restait instable avec `master_link_status:down` sur les replicas. Des tentatives de resynchronisation forcée ont été effectuées.
+
+#### Commande utilisée
+
+**redis-02 :**
+```bash
+redis-cli -a "<password>" REPLICAOF NO ONE
+sleep 2
+redis-cli -a "<password>" REPLICAOF 10.0.0.123 6379
+```
+
+**redis-03 :**
+```bash
+redis-cli -a "<password>" REPLICAOF NO ONE
+sleep 2
+redis-cli -a "<password>" REPLICAOF 10.0.0.123 6379
+```
+
+#### Résultats observés
+
+**Master (redis-01) :**
+```
+role:master
+connected_slaves:2
+slave0:ip=10.0.0.124,port=6379,state=online,offset=0,lag=3
+slave1:ip=10.0.0.125,port=6379,state=online,offset=0,lag=2
+master_repl_offset:105095
+repl_backlog_active:1
+```
+
+**Replicas (redis-02/03) :**
+```
+role:slave
+master_host:10.0.0.123
+master_port:6379
+master_link_status:down
+master_last_io_seconds_ago:-1
+```
+
+#### Logs du master
+
+Les logs montrent des synchronisations diskless réussies :
+```
+Dec 02 16:07:30 redis-01 redis-server[44749]: * Streamed RDB transfer with replica 10.0.0.124:6379 succeeded (socket)
+Dec 02 16:07:30 redis-01 redis-server[44749]: * Synchronization with replica 10.0.0.124:6379 succeeded
+```
+
+Mais suivies de déconnexions :
+```
+Dec 02 16:07:30 redis-01 redis-server[44749]: # Connection with replica client id #130 lost
+```
+
+#### Logs des replicas
+
+Les logs montrent encore des tentatives d'écriture de fichiers temporaires :
+```
+Dec 02 16:07:29 redis-02 redis-server[27236]: # Opening the temp file needed for MASTER <-> REPLICA synchronization: Read-only file system
+```
+
+### Analyse
+
+**Observation :**
+- Le master voit les replicas connectés (`state=online`)
+- Les synchronisations diskless réussissent initialement
+- Les connexions se perdent après la synchronisation
+- Les replicas affichent toujours `master_link_status:down`
+- Les données écrites sur le master ne sont pas répliquées
+
+**Problème identifié :**
+Même avec `repl-diskless-sync yes`, Redis essaie encore d'ouvrir des fichiers temporaires pendant certaines phases de la synchronisation, ce qui échoue avec "Read-only file system" et cause la perte de connexion.
+
+### État actuel
+
+- ✅ **RDB/AOF désactivés** : Plus d'erreur MISCONF, SET fonctionne sur le master
+- ✅ **Diskless sync activé** : `repl-diskless-sync yes` configuré partout
+- ⚠️ **Réplication partielle** : Master voit les replicas (`connected_slaves:2`, `state=online`)
+- ❌ **Synchronisation incomplète** : `master_link_status:down` persiste, données non répliquées
+
+### Prochaines actions
+
+Pour stabiliser complètement la réplication :
+1. Investiguer pourquoi Redis essaie encore d'écrire des fichiers temporaires malgré `repl-diskless-sync yes`
+2. Vérifier si le problème vient du master ou des replicas
+3. Considérer des alternatives : utiliser un répertoire temporaire accessible en écriture, ou investiguer la configuration Redis 7 diskless sync
+
+---
+
 ## 🔄 Prochaines étapes
 
 ### PH4-01C - Activer Sentinel
