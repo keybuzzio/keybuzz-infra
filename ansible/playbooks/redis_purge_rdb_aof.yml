@@ -1,0 +1,4 @@
+---
+# PH4-01B/RDB Purge
+- hosts: redis
+  become: yes

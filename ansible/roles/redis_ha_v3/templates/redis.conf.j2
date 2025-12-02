@@ -20,30 +20,27 @@ databases 16
 # Snapshotting
 # Temporarily disabled to allow startup, will be re-enabled after cluster is stable
 save ""
-# save 900 1
-# save 300 10
-# save 60 10000
 stop-writes-on-bgsave-error no
 # Disable RDB save on shutdown to avoid read-only filesystem issues
 shutdown-on-sigterm nosave
 shutdown-on-sigint nosave
 # Use diskless replication to avoid filesystem issues during sync
 repl-diskless-sync yes
-rdbcompression yes
-rdbchecksum yes
-dbfilename dump.rdb
+dbfilename ""
 dir {{ redis_dir }}
 
 # Replication
 {% if redis_enable_replication and inventory_hostname != redis_master_host %}
-replicaof 10.0.0.123 {{ redis_master_port }}
+replicaof {{ redis_master_ip }} {{ redis_master_port }}
 replica-read-only yes
 replica-serve-stale-data yes
 {% endif %}
+
+# Diskless replication (Redis 7)
 repl-diskless-sync yes
-repl-diskless-sync-delay 5
+repl-diskless-sync-delay 0
 repl-disable-tcp-nodelay no
-repl-backlog-size 1mb
+repl-backlog-size 16mb
 repl-backlog-ttl 3600
 
 # Security
