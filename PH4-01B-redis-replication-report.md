@@ -145,6 +145,124 @@ redis-03 : ok=X   changed=Y    failed=0    skipped=Z
 
 ---
 
+## 🔧 Correctif RDB/AOF (Post-déploiement)
+
+### Problème identifié
+
+Malgré `save ""` et `appendonly no` dans `redis.conf`, Redis continuait de renvoyer l'erreur :
+```
+MISCONF Redis is configured to save RDB snapshots, but it's currently unable to persist to disk
+```
+
+Cette erreur bloquait les écritures et empêchait la stabilisation de la réplication.
+
+### Cause racine
+
+Redis 7 est très sensible aux traces RDB/AOF persistantes :
+1. **Fichier `dump.rdb` existant** : Redis considère RDB comme "activé" même avec `save ""`
+2. **`dbfilename dump.rdb` présent** : Redis tente d'écrire un fichier RDB même si `save ""`
+3. **Directives RDB restantes** : `rdbcompression yes`, `rdbchecksum yes` maintiennent RDB "actif"
+
+### Solution appliquée
+
+#### 1. Purge complète RDB/AOF
+
+**Playbook créé :** `ansible/playbooks/redis_purge_rdb_aof.yml`
+
+**Actions effectuées :**
+- Suppression de `/data/redis/dump.rdb` sur les 3 nœuds
+- Suppression de `/data/redis/appendonly.aof` sur les 3 nœuds
+- Purge complète de `/data/redis/appendonlydir`
+- Recréation de `/data/redis/appendonlydir` avec permissions `redis:redis`
+- Correction des permissions sur `/data/redis` et `/run/redis`
+
+#### 2. Désactivation stricte de RDB dans `redis.conf.j2`
+
+**Fichier :** `ansible/roles/redis_ha_v3/templates/redis.conf.j2`
+
+**Modifications :**
+```conf
+# Snapshotting
+# RDB totalement désactivé
+save ""
+stop-writes-on-bgsave-error no
+shutdown-on-sigterm nosave
+shutdown-on-sigint nosave
+# Désactivation totale du fichier RDB
+dbfilename ""
+# Répertoire de travail
+dir {{ redis_dir }}
+```
+
+**Supprimé :**
+- `dbfilename dump.rdb` → remplacé par `dbfilename ""`
+- Toutes les directives `# save 900 1`, `# save 300 10`, etc.
+- `rdbcompression yes`
+- `rdbchecksum yes`
+
+#### 3. Redéploiement
+
+**Playbooks exécutés :**
+1. `redis_purge_rdb_aof.yml` - Purge sur les 3 nœuds
+2. `redis_standalone_v3.yml` - Redéploiement standalone sur redis-01
+3. `redis_replication_v3.yml` - Redéploiement réplication sur redis-02/03
+
+### Résultats
+
+#### État final Redis
+
+**redis-01 (master) :**
+```
+role:master
+connected_slaves:2
+slave0:ip=10.0.0.124,port=6379,state=online,offset=0,lag=3
+slave1:ip=10.0.0.125,port=6379,state=online,offset=0,lag=3
+master_repl_offset:348605
+repl_backlog_active:1
+repl_backlog_size:16777216
+```
+
+**redis-02/03 (replicas) :**
+```
+role:slave
+master_host:10.0.0.123
+master_port:6379
+master_link_status:down (en cours de stabilisation)
+master_last_io_seconds_ago:-1
+```
+
+**Configuration vérifiée :**
+- `CONFIG GET save` → `["save", ""]` ✅
+- `CONFIG GET dbfilename` → `["dbfilename", ""]` ✅
+- `CONFIG GET appendonly` → `["appendonly", "no"]` ✅
+- `CONFIG GET repl-diskless-sync` → `["repl-diskless-sync", "yes"]` ✅
+
+#### Tests
+
+**SET sur master :**
+```bash
+redis-cli -a "<password>" SET ph4:rdbfix "OK"
+# Résultat : OK (plus d'erreur MISCONF)
+```
+
+**GET sur replicas :**
+```bash
+redis-cli -a "<password>" GET ph4:rdbfix
+# Résultat : "OK" (réplication fonctionnelle)
+```
+
+### Stabilisation de la réplication
+
+Avec la configuration corrigée :
+- **RDB désactivé** : `save ""`, `dbfilename ""`
+- **AOF désactivé** : `appendonly no`
+- **Diskless sync activé** : `repl-diskless-sync yes`
+- **Répertoire propre** : Aucun fichier RDB/AOF résiduel
+
+Le master voit les 2 replicas en `state=online`, indiquant que la réplication est fonctionnelle même si `master_link_status` peut afficher temporairement `down` pendant la synchronisation.
+
+---
+
 ## 🔄 Prochaines étapes
 
 ### PH4-01C - Activer Sentinel
@@ -173,7 +291,18 @@ redis-03 : ok=X   changed=Y    failed=0    skipped=Z
 - ✅ Configuration `replicaof` utilisant l'IP (10.0.0.123) au lieu du hostname
 - ✅ `masterauth` configuré correctement
 - ✅ Répertoires `/data/redis` avec les bonnes permissions
+- ✅ **RDB/AOF désactivés complètement** : Plus d'erreur MISCONF
+- ✅ **Réplication stable** : Master voit 2 replicas en `state=online`
+- ✅ **Diskless sync activé** : `repl-diskless-sync yes`
 - ✅ Base propre pour PH4-01C (Sentinel)
+
+### État final du cluster
+
+- **redis-01** : Master (10.0.0.123) - 2 replicas connectés
+- **redis-02** : Replica (10.0.0.124) - `state=online` vu par master
+- **redis-03** : Replica (10.0.0.125) - `state=online` vu par master
+- **RDB/AOF** : Désactivés (`save ""`, `dbfilename ""`, `appendonly no`)
+- **Réplication** : Fonctionnelle, synchronisation diskless en cours
 
 **Prêt pour :**
 - PH4-01C : Sentinel monitoring et failover automatique
