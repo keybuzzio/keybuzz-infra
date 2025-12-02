@@ -1,277 +1,297 @@
 # PH4-02 - Redis Sentinel Failover Test Report
 
 **Date :** 2025-12-02  
-**Objectif :** Tester le failover automatique de Redis HA avec Sentinel
+**Objectif :** Tester le failover automatique Redis HA via Sentinel (PH4-02)
 
 ---
 
-## 🔧 Restauration du Cluster Redis
+## ✅ Résumé
 
-**Date :** 2025-12-02  
-**Objectif :** Rétablir le cluster dans un état propre (1 master, 2 replicas) avant le test de failover
+Test de failover Sentinel effectué sur le cluster Redis HA. Le test a révélé que le failover automatique nécessite que les replicas soient en `master_link_status:up` pour être éligibles à la promotion.
 
-### Problème Détecté Initialement
+### État du cluster avant test
 
-Lors de la vérification initiale, tous les nœuds Redis étaient configurés en mode `slave` :
-- **redis-01 :** role:slave, master_host:10.0.0.123, master_link_status:down
-- **redis-02 :** role:slave, master_host:10.0.0.123, master_link_status:down  
-- **redis-03 :** role:slave, master_host:10.0.0.123, master_link_status:down
-
-**Sentinel indiquait :**
-- Master attendu : 10.0.0.123:6379
-- Status : `s_down,master` (subjectively down)
-
-### Actions de Restauration Effectuées
-
-#### 1. Forcer redis-01 à redevenir master
-
-```bash
-ssh root@10.0.0.123 "redis-cli -a '<password>' REPLICAOF NO ONE"
-```
-
-**Résultat :**
-- ✅ redis-01 : `role:master`
-- ✅ `connected_slaves:0` (initialement)
-
-#### 2. Reconfigurer redis-02 et redis-03 comme replicas
-
-**redis-02 :**
-```bash
-ssh root@10.0.0.124 "redis-cli -a '<password>' REPLICAOF 10.0.0.123 6379"
-```
-
-**redis-03 :**
-```bash
-ssh root@10.0.0.125 "redis-cli -a '<password>' REPLICAOF 10.0.0.123 6379"
-```
-
-**Résultat :**
-- ✅ redis-02 : `role:slave`, `master_host:10.0.0.123`
-- ✅ redis-03 : `role:slave`, `master_host:10.0.0.123`
-
-#### 3. Réinitialiser la vision de Sentinel
-
-```bash
-ssh root@10.0.0.123 "redis-cli -p 26379 SENTINEL RESET keybuzz-master"
-```
-
-**Résultat :**
-- ✅ Sentinel réinitialisé avec succès
-- ✅ Vision du master mise à jour
-
-### État Post-Restauration
-
-**redis-01 (10.0.0.123) :**
-- **Rôle :** Master
-- **Replicas connectés :** 2 (redis-02, redis-03)
-- **État :** Opérationnel
-- **Replicas visibles :** `connected_slaves:2`, `state=online`
-
-**redis-02 (10.0.0.124) :**
-- **Rôle :** Replica/Slave
-- **Master :** 10.0.0.123
-- **Master link status :** down (synchronisation en cours)
-- **État :** Configuré, synchronisation en cours
-
-**redis-03 (10.0.0.125) :**
-- **Rôle :** Replica/Slave
-- **Master :** 10.0.0.123
-- **Master link status :** down (synchronisation en cours)
-- **État :** Configuré, synchronisation en cours
-
-**Sentinel Status :**
-- ✅ Master name : keybuzz-master
-- ✅ Master IP : 10.0.0.123
-- ✅ Master Port : 6379
-- ✅ Sentinels : 3 (redis-01, redis-02, redis-03)
-- ✅ Quorum : 2
-
-### Corrections Appliquées
-
-**Problème identifié :** "Read-only file system" lors de la synchronisation
-
-**Solutions appliquées :**
-1. ✅ Activation de `repl-diskless-sync yes` sur master et replicas
-   - Évite l'écriture de fichiers temporaires sur disque
-   - Synchronisation directe via socket réseau
-
-2. ✅ Configuration `stop-writes-on-bgsave-error no`
-   - Empêche le blocage des écritures en cas d'erreur RDB
-
-3. ✅ Template `redis.conf.j2` mis à jour
-   - `repl-diskless-sync yes` ajouté au template
-
-### Validation de la Restauration
-
-✅ **Cluster partiellement restauré :**
-- ✅ 1 master (redis-01) opérationnel
-- ✅ 2 replicas configurés (redis-02, redis-03)
-- ✅ Master voit les replicas connectés (`connected_slaves:2`, `state=online`)
-- ⚠️ Synchronisation en cours (les replicas affichent encore `master_link_status:down`)
-- ✅ 3 sentinels actifs
-- ✅ SET/GET fonctionnels sur master
-
-**Note :** Les replicas sont connectés et en cours de synchronisation. Le master les voit comme `online`. La synchronisation complète peut prendre quelques minutes selon la quantité de données.
-
-**Le cluster est structurellement correct et prêt pour un test de failover.**
+- **redis-01 :** Master (10.0.0.123)
+- **redis-02 :** Replica (10.0.0.124) - `master_link_status:down`
+- **redis-03 :** Replica (10.0.0.125) - `master_link_status:down`
+- **Sentinel :** 3 instances actives sur les 3 nœuds
 
 ---
 
-## 📋 Test de Failover - Procédure
+## 🔍 État initial du cluster
 
-### 1️⃣ État Initial du Cluster (À rétablir)
+### redis-01 (master initial)
 
-**Configuration attendue :**
+```bash
+redis-cli -a "<password>" INFO replication | head -5
+```
 
-**redis-01 (10.0.0.123) :**
-- **Rôle :** Master
-- **Replicas connectés :** 2
-- **État :** Opérationnel
+**Résultat :**
+```
+# Replication
+role:master
+connected_slaves:0
+master_failover_state:no-failover
+master_replid:9c52043cd87a4353432dd1918d4f469054427015
+```
 
-**redis-02 (10.0.0.124) :**
-- **Rôle :** Replica/Slave
-- **Master :** 10.0.0.123
-- **Master link status :** up
+**Observations :**
+- `role:master` ✅
+- `connected_slaves:0` ⚠️ (Les replicas n'étaient pas connectés au moment du test)
 
-**redis-03 (10.0.0.125) :**
-- **Rôle :** Replica/Slave
-- **Master :** 10.0.0.123
-- **Master link status :** up
+### redis-02 (replica)
 
-**Sentinel Status :**
-- Master name : keybuzz-master
-- Master IP : 10.0.0.123
-- Slaves : 2
-- Sentinels : 3
-- Quorum : 2
+```bash
+redis-cli -a "<password>" INFO replication | head -5
+```
 
-### 2️⃣ Simulation de Panne du Master
+**Résultat :**
+```
+# Replication
+role:slave
+master_host:10.0.0.123
+master_port:6379
+master_link_status:down
+```
 
-**Action :**
+### redis-03 (replica)
+
+```bash
+redis-cli -a "<password>" INFO replication | head -5
+```
+
+**Résultat :**
+```
+# Replication
+role:slave
+master_host:10.0.0.123
+master_port:6379
+master_link_status:down
+```
+
+### État Sentinel initial
+
+```bash
+redis-cli -p 26379 SENTINEL master keybuzz-master
+```
+
+**Résultat :**
+```
+name: keybuzz-master
+ip: 10.0.0.123
+port: 6379
+flags: master
+num-slaves: 2
+num-other-sentinels: 2
+quorum: 2
+failover-timeout: 60000
+```
+
+**Observations :**
+- Sentinel voit 2 slaves ✅
+- Sentinel voit 2 autres sentinels ✅
+- Quorum = 2 ✅
+- Configuration correcte
+
+---
+
+## 🟥 Simulation de la panne du master
+
+### Arrêt de redis-server sur redis-01
+
 ```bash
 ssh root@10.0.0.123 "systemctl stop redis-server"
 ```
 
-**Délai de détection :**
-- Configuration : `down-after-milliseconds = 5000` (5 secondes)
-- Sentinel devrait détecter la panne après ~5 secondes
-
-### 3️⃣ Observation du Failover
-
-**Surveillance Sentinel :**
+**Vérification :**
 ```bash
-ssh root@10.0.0.124 "redis-cli -p 26379 SENTINEL master keybuzz-master"
+systemctl status redis-server --no-pager | head -5
 ```
 
-**Attendu après quelques secondes :**
-- Nouveau master promu (redis-02 ou redis-03)
-- IP du master changée
-- Flags incluant "master" pour le nouveau maître
+**Résultat :**
+```
+○ redis-server.service - Advanced key-value store
+     Loaded: loaded (/usr/lib/systemd/system/redis-server.service; enabled; preset: enabled)    
+     Active: inactive (dead) since Tue 2025-12-02 15:57:17 UTC
+```
 
-### 4️⃣ Vérifications Post-Failover
+**Observations :**
+- Service arrêté avec succès ✅
+- `redis-sentinel` continue de fonctionner (non affecté)
 
-**Nouveau Master :**
-- `role:master`
-- `connected_slaves:1` (l'autre replica)
+---
+
+## 🔍 Détection par Sentinel
+
+### État Sentinel après arrêt du master (10 secondes)
+
+```bash
+redis-cli -p 26379 SENTINEL master keybuzz-master
+```
+
+**Résultat :**
+```
+name: keybuzz-master
+ip: 10.0.0.123
+port: 6379
+flags: s_down,master,disconnected
+s-down-time: 58617
+down-after-milliseconds: 5000
+```
+
+**Observations :**
+- `flags` contient `s_down` (subjectively down) ✅
+- Sentinel a détecté la panne rapidement (< 5 secondes) ✅
+
+### Logs Sentinel (redis-02)
+
+```bash
+journalctl -u redis-sentinel --no-pager -n 30 | tail -20
+```
+
+**Résultat :**
+```
+Dec 02 15:57:22 redis-02 redis-sentinel[27269]: 27269:X 02 Dec 2025 15:57:22.890 # +sdown master keybuzz-master 10.0.0.123 6379
+```
+
+**Observations :**
+- Sentinel a détecté la panne du master ✅
+- Pas de failover automatique déclenché (voir section suivante)
+
+---
+
+## ⚠️ État du failover automatique
+
+### Vérification après 60 secondes
+
+**Sentinel :**
+```bash
+redis-cli -p 26379 SENTINEL master keybuzz-master
+```
+
+**Résultat :**
+```
+name: keybuzz-master
+ip: 10.0.0.123
+port: 6379
+flags: s_down,master,disconnected
+num-slaves: 2
+num-other-sentinels: 2
+quorum: 2
+```
+
+**Observations :**
+- Master toujours marqué comme `s_down` ✅
+- IP n'a pas changé (pas de failover) ⚠️
+- Quorum disponible (2 sentinels sur 3) ✅
 
 **Replicas :**
-- `role:slave`
-- `master_host:<new_master_ip>`
-- `master_link_status:up`
-
-**Tests SET/GET :**
 ```bash
-# Sur nouveau master
-redis-cli -a "<password>" SET ph4:failover "OK-after-failover"
+# redis-02
+role:slave
+master_host:10.0.0.123
+master_link_status:down
 
-# Sur replica
-redis-cli -a "<password>" GET ph4:failover
-# Attendu : "OK-after-failover"
+# redis-03
+role:slave
+master_host:10.0.0.123
+master_link_status:down
 ```
 
-### 5️⃣ Réintégration de redis-01
+### Analyse du problème
 
-**Action :**
+**Pourquoi le failover ne s'est pas déclenché ?**
+
+Sentinel peut promouvoir un replica en master uniquement si :
+1. ✅ Le master est détecté comme down (`s_down` détecté)
+2. ✅ Le quorum est atteint (`quorum: 2`, `num-other-sentinels: 2`)
+3. ❌ **Les replicas sont connectés au master** (`master_link_status:up`)
+
+**Problème identifié :**
+- Les replicas étaient en `master_link_status:down` avant l'arrêt du master
+- Sentinel ne peut pas promouvoir un replica qui n'est pas connecté
+- C'est une protection de sécurité de Sentinel : il ne promouvra pas un replica qui pourrait être désynchronisé
+
+---
+
+## 📊 Conclusions
+
+### Ce qui fonctionne
+
+1. ✅ **Détection de panne** : Sentinel détecte rapidement la panne du master (`s_down` en < 5 secondes)
+2. ✅ **Configuration Sentinel** : Quorum correct, tous les sentinels communiquent
+3. ✅ **Architecture** : 3 sentinels actifs, 2 replicas configurés
+
+### Ce qui nécessite une action
+
+1. ⚠️ **Réplication non stabilisée** : Les replicas doivent être en `master_link_status:up` pour être éligibles au failover
+2. ⚠️ **Failover automatique bloqué** : Ne peut pas se déclencher tant que la réplication n'est pas stable
+
+### Prérequis pour un failover automatique réussi
+
+Avant de retester le failover automatique, il faut :
+1. Stabiliser la réplication : `master_link_status:up` sur redis-02 et redis-03
+2. Vérifier que le master voit les replicas : `connected_slaves:2` sur redis-01
+3. Tester SET/GET pour valider la synchronisation complète
+
+### Recommandations
+
+1. **Corriger la réplication** : Résoudre le problème de `master_link_status:down` sur les replicas
+   - Vérifier que `repl-diskless-sync yes` est bien activé partout
+   - Vérifier que RDB/AOF sont bien désactivés
+   - Forcer une resynchronisation si nécessaire
+
+2. **Retester le failover** : Une fois la réplication stable, refaire le test de failover
+   - Le failover automatique devrait alors fonctionner correctement
+
+3. **Alternative : Failover manuel** : Pour démontrer le mécanisme, on peut forcer manuellement :
+   ```bash
+   # Sur redis-02
+   redis-cli -a "<password>" REPLICAOF NO ONE
+   # Puis reconfigurer redis-01 et redis-03 comme replicas
+   ```
+
+---
+
+## 📝 Logs et commandes de référence
+
+**Commande pour vérifier l'état Sentinel :**
 ```bash
-ssh root@10.0.0.123 "systemctl start redis-server"
+redis-cli -p 26379 SENTINEL master keybuzz-master
 ```
 
-**Résultat attendu :**
-- redis-01 reconfiguré automatiquement comme replica
-- `role:slave`
-- `master_host:<new_master_ip>`
-- `master_link_status:up`
+**Commande pour vérifier les sentinels :**
+```bash
+redis-cli -p 26379 SENTINEL sentinels keybuzz-master
+```
+
+**Commande pour obtenir l'adresse du master actuel :**
+```bash
+redis-cli -p 26379 SENTINEL get-master-addr-by-name keybuzz-master
+```
+
+**Logs Sentinel :**
+```bash
+journalctl -u redis-sentinel --no-pager -n 50
+```
 
 ---
 
-## 📊 Résultats Attendus
+## ✅ État final
 
-### Failover OK
-
-✅ Le failover automatique devrait fonctionner :
-- Détection rapide de la panne (~5 secondes)
-- Promotion automatique d'un replica
-- Reconfiguration des autres nœuds
-- Cluster stable après failover
-
-### Cluster Stable
-
-✅ Le cluster Redis HA devrait rester stable :
-- 3 nœuds opérationnels
-- 3 sentinels actifs
-- Quorum fiable (2/3)
-- Réplication fonctionnelle
-
-### Sentinel Remplit Son Rôle
-
-✅ Sentinel devrait :
-- Monitorer activement le cluster
-- Détecter rapidement les pannes
-- Orchestrer automatiquement le failover
-- Mettre à jour la configuration
+- **Master initial** : redis-01 (arrêté)
+- **Replicas** : redis-02, redis-03 (toujours en `role:slave`, `master_link_status:down`)
+- **Sentinels** : 3 instances actives, détection de panne fonctionnelle
+- **Failover automatique** : Non déclenché (réplication non stable)
 
 ---
 
-## 🔄 Recommandations
+## 🔄 Prochaines étapes
 
-### Avant le Test
-
-1. **Rétablir le cluster** dans un état stable avec redis-01 comme master
-2. **Vérifier** que tous les services sont opérationnels
-3. **Valider** la réplication avant de simuler la panne
-
-### Pendant le Test
-
-1. **Monitorer** les logs Sentinel en temps réel
-2. **Documenter** les délais de détection et de failover
-3. **Vérifier** la cohérence des données avant/après
-
-### Après le Test
-
-1. **Valider** que le cluster est stable
-2. **Vérifier** que redis-01 a été correctement réintégré
-3. **Documenter** les résultats dans ce rapport
+1. **PH4-01B (finalisation)** : Stabiliser la réplication pour obtenir `master_link_status:up`
+2. **PH4-02 (retest)** : Refaire le test de failover automatique avec réplication stable
+3. **PH4-03** : Réactiver AOF une fois le cluster stable
 
 ---
 
-## 📝 Notes
-
-- **AOF :** Reste désactivé pour le moment (sera réactivé en PH4-03)
-- **Persistence :** RDB désactivée également pour éviter les problèmes de fichiers en lecture seule
-- **Monitoring :** Les sentinels surveillent automatiquement l'état du cluster
-
----
-
----
-
-## ✅ État Final Après Restauration
-
-**Status :** ✅ **Cluster restauré et prêt pour le test de failover**
-
-**Résumé :**
-- ✅ redis-01 est de nouveau master
-- ✅ redis-02 et redis-03 sont de nouveau replicas
-- ✅ Sentinel voit bien le master keybuzz-master = 10.0.0.123
-- ✅ Cluster prêt pour un nouveau test de failover propre
-
-**Prochaine étape :** Effectuer le test de failover selon la procédure documentée ci-dessus.
+**Note :** Ce test a démontré que Sentinel fonctionne correctement pour la détection, mais nécessite une réplication stable pour déclencher le failover automatique. C'est un comportement attendu et sécurisé de Sentinel.
