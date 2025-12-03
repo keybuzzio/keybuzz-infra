@@ -1,0 +1,49 @@
+# KeyBuzz Apps Helm Values
+# Secrets are managed via Vault and injected via k8s/templates/apps/keybuzz-*-secret.yaml.j2
+
+keybuzz:
+  namespace: keybuzz
+  
+  api:
+    image:
+      repository: keybuzz/api
+      tag: latest
+    replicas: 2
+    
+    # Secrets are retrieved from Vault via AppRole
+    # See k8s/templates/apps/keybuzz-api-secret.yaml.j2
+    vault:
+      address: "https://vault.keybuzz.io:8200"
+      verify: false
+      approle:
+        role_id_file: "/vault/keybuzz-api-role-id"
+        secret_id_file: "/vault/keybuzz-api-secret-id"
+    
+    # Placeholder values - actual values come from Vault
+    secrets:
+      postgres_url: "{{ vault_lookup('kv/keybuzz/apps/keybuzz-api:postgres-url') }}"
+      redis_url: "{{ vault_lookup('kv/keybuzz/apps/keybuzz-api:redis-url') }}"
+      rabbitmq_url: "{{ vault_lookup('kv/keybuzz/apps/keybuzz-api:rabbitmq-url') }}"
+      jwt_secret: "{{ vault_lookup('kv/keybuzz/apps/keybuzz-api:jwt-secret') }}"
+  
+  workers:
+    image:
+      repository: keybuzz/workers
+      tag: latest
+    replicas: 3
+    
+    # Secrets are retrieved from Vault via AppRole
+    # See k8s/templates/apps/keybuzz-workers-secret.yaml.j2
+    vault:
+      address: "https://vault.keybuzz.io:8200"
+      verify: false
+      approle:
+        role_id_file: "/vault/keybuzz-workers-role-id"
+        secret_id_file: "/vault/keybuzz-workers-secret-id"
+    
+    # Placeholder values - actual values come from Vault
+    secrets:
+      api_token: "{{ vault_lookup('kv/keybuzz/apps/keybuzz-workers:api-token') }}"
+      rabbitmq_url: "{{ vault_lookup('kv/keybuzz/apps/keybuzz-workers:rabbitmq-url') }}"
+      redis_url: "{{ vault_lookup('kv/keybuzz/apps/keybuzz-workers:redis-url') }}"
+

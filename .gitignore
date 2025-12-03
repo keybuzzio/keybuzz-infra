@@ -1,0 +1,24 @@
+# Vault credentials - NEVER commit
+/root/ansible_role_id.txt
+/root/ansible_secret_id.txt
+roles/
+**/roles/*.json
+**/roles/*-role.json
+**/roles/*-secret.json
+
+# Vault init files
+**/vault_init.txt
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+*.tmp
+*.bak
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
