@@ -1,0 +1,46 @@
+---
+# Vault v3 Configuration Variables
+
+# Vault Installation
+vault_version: "1.18.0"
+vault_package: "vault_{{ vault_version }}_linux_amd64.zip"
+
+# Vault Network Configuration
+vault_api_address: "0.0.0.0:8200"
+vault_cluster_address: "0.0.0.0:8201"
+
+# Vault Data Directory
+vault_data_dir: "/data/vault"
+
+# Vault TLS Configuration (self-signed for now)
+vault_tls_enabled: true
+vault_tls_cert_file: "/etc/vault.d/tls/vault.crt"
+vault_tls_key_file: "/etc/vault.d/tls/vault.key"
+vault_tls_ca_file: "/etc/vault.d/tls/ca.crt"
+
+# Vault Configuration Directory
+vault_config_dir: "/etc/vault.d"
+
+# Vault Log Directory
+vault_log_dir: "/var/log/vault"
+
+# Vault User
+vault_user: "vault"
+vault_group: "vault"
+
+# Vault Storage Backend (file for single node, consul/raft for HA later)
+vault_storage_backend: "file"
+vault_storage_path: "{{ vault_data_dir }}/storage"
+
+# Vault UI
+vault_ui_enabled: true
+
+# Vault API Address (for clients)
+vault_api_addr: "https://vault.keybuzz.io:8200"
+
+# Vault Cluster Address
+vault_cluster_addr: "https://vault.keybuzz.io:8201"
+
+# Vault mlock (disabled for cloud VMs)
+vault_mlock: false
+
