@@ -1,0 +1,199 @@
+---
+# PostgreSQL HA v3 Role - Tasks
+# Deploys PostgreSQL 17 HA cluster with Patroni (RAFT mode)
+
+- name: Install PostgreSQL APT repository prerequisites
+  apt:
+    name:
+      - ca-certificates
+      - gnupg
+      - lsb-release
+    state: present
+    update_cache: yes
+
+- name: Add PostgreSQL APT repository key
+  apt_key:
+    url: https://www.postgresql.org/media/keys/ACCC4CF8.asc
+    state: present
+
+- name: Add PostgreSQL APT repository
+  apt_repository:
+    repo: "deb http://apt.postgresql.org/pub/repos/apt {{ ansible_distribution_release }}-pgdg main"
+    state: present
+    filename: postgresql
+
+- name: Install PostgreSQL 17 prerequisites
+  apt:
+    name:
+      - postgresql-{{ postgres_version }}
+      - postgresql-client-{{ postgres_version }}
+      - python3-psycopg2
+      - python3-pip
+      - curl
+      - jq
+    state: present
+    update_cache: yes
+
+- name: Install etcd3 for RAFT mode (download from GitHub)
+  block:
+    - name: Download etcd binary
+      get_url:
+        url: "https://github.com/etcd-io/etcd/releases/download/v3.5.13/etcd-v3.5.13-linux-amd64.tar.gz"
+        dest: /tmp/etcd-v3.5.13-linux-amd64.tar.gz
+        mode: '0644'
+    
+    - name: Extract etcd binary
+      unarchive:
+        src: /tmp/etcd-v3.5.13-linux-amd64.tar.gz
+        dest: /tmp
+        remote_src: yes
+    
+    - name: Copy etcd binaries to /usr/local/bin
+      copy:
+        src: "/tmp/etcd-v3.5.13-linux-amd64/{{ item }}"
+        dest: "/usr/local/bin/{{ item }}"
+        mode: '0755'
+        remote_src: yes
+      loop:
+        - etcd
+        - etcdctl
+    
+    - name: Cleanup temporary files
+      file:
+        path: "{{ item }}"
+        state: absent
+      loop:
+        - /tmp/etcd-v3.5.13-linux-amd64.tar.gz
+        - /tmp/etcd-v3.5.13-linux-amd64
+
+- name: Install Patroni via pip (with --break-system-packages for Ubuntu 24.04)
+  pip:
+    name:
+      - patroni[etcd]
+      - psycopg2-binary
+    state: present
+    extra_args: --break-system-packages
+
+- name: Ensure PostgreSQL data directory exists
+  file:
+    path: "{{ postgres_data_dir }}/data"
+    state: directory
+    owner: postgres
+    group: postgres
+    mode: '0700'
+
+- name: Create etcd group
+  group:
+    name: etcd
+    system: yes
+
+- name: Create etcd user
+  user:
+    name: etcd
+    group: etcd
+    system: yes
+    shell: /bin/false
+    home: /var/lib/etcd
+    create_home: no
+
+- name: Ensure etcd data directory exists
+  file:
+    path: "{{ postgres_data_dir }}/etcd"
+    state: directory
+    owner: etcd
+    group: etcd
+    mode: '0700'
+
+- name: Deploy etcd configuration
+  template:
+    src: etcd.conf.j2
+    dest: /etc/default/etcd
+    owner: root
+    group: root
+    mode: '0644'
+  notify: restart etcd
+
+- name: Deploy etcd systemd service
+  template:
+    src: etcd.service.j2
+    dest: /etc/systemd/system/etcd.service
+    owner: root
+    group: root
+    mode: '0644'
+  notify: reload systemd and restart etcd
+
+- name: Enable and start etcd service
+  systemd:
+    name: etcd
+    state: started
+    enabled: yes
+    daemon_reload: yes
+
+- name: Stop PostgreSQL service if running (will be managed by Patroni)
+  systemd:
+    name: postgresql
+    state: stopped
+    enabled: no
+  ignore_errors: yes
+
+- name: Deploy Patroni configuration
+  template:
+    src: patroni.yml.j2
+    dest: /etc/patroni.yml
+    owner: root
+    group: root
+    mode: '0644'
+  notify: restart patroni
+
+- name: Deploy PostgreSQL configuration
+  template:
+    src: postgresql.conf.j2
+    dest: "{{ postgres_data_dir }}/data/postgresql.conf"
+    owner: postgres
+    group: postgres
+    mode: '0644'
+  notify: restart patroni
+
+- name: Deploy pg_hba.conf
+  template:
+    src: pg_hba.conf.j2
+    dest: "{{ postgres_data_dir }}/data/pg_hba.conf"
+    owner: postgres
+    group: postgres
+    mode: '0640'
+  notify: restart patroni
+
+- name: Deploy Patroni systemd service
+  template:
+    src: patroni.service.j2
+    dest: /etc/systemd/system/patroni.service
+    owner: root
+    group: root
+    mode: '0644'
+  notify: reload systemd and restart patroni
+
+- name: Enable and start Patroni service
+  systemd:
+    name: patroni
+    state: started
+    enabled: yes
+    daemon_reload: yes
+
+- name: Wait for Patroni REST API to be ready
+  uri:
+    url: "http://{{ ansible_host }}:{{ patroni_rest_api_port }}/health"
+    method: GET
+    status_code: [200, 503]
+  register: patroni_health
+  until: patroni_health.status in [200, 503]
+  retries: 30
+  delay: 5
+  ignore_errors: yes
+
+- name: Display Patroni status
+  debug:
+    msg:
+      - "Patroni installed and configured"
+      - "REST API: http://{{ ansible_host }}:{{ patroni_rest_api_port }}"
+      - "Status: {{ patroni_health.status | default('unknown') }}"
+

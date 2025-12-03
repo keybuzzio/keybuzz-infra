@@ -1,0 +1,33 @@
+---
+# PostgreSQL HAProxy v3 Deployment Playbook
+# Deploys HAProxy configuration for PostgreSQL HA cluster on haproxy-01 and haproxy-02
+
+- name: Deploy PostgreSQL HAProxy Configuration
+  hosts: lb_internal
+  become: yes
+  gather_facts: yes
+  vars_files:
+    - "{{ playbook_dir }}/../group_vars/postgres.yml"
+
+  vars:
+    postgres_nodes:
+      - ansible_host: "10.0.0.120"
+      - ansible_host: "10.0.0.121"
+      - ansible_host: "10.0.0.122"
+
+  roles:
+    - ../roles/postgres_haproxy_v3
+
+  post_tasks:
+    - name: Display completion message
+      debug:
+        msg:
+          - "=========================================="
+          - "PH7-02 - PostgreSQL HAProxy Deployment - COMPLETED"
+          - "=========================================="
+          - "Host: {{ inventory_hostname }}"
+          - "HAProxy configured for PostgreSQL HA cluster"
+          - "Writer port: {{ haproxy_postgres_write_port }}"
+          - "Reader port: {{ haproxy_postgres_read_port }}"
+          - "=========================================="
+
