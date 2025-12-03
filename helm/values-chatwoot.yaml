@@ -1,0 +1,26 @@
+# Chatwoot Helm Values
+# Secrets are managed via Vault and injected via k8s/templates/apps/chatwoot-secret.yaml.j2
+
+chatwoot:
+  namespace: keybuzz
+  image:
+    repository: chatwoot/chatwoot
+    tag: latest
+  replicas: 2
+  
+  # Secrets are retrieved from Vault via AppRole
+  # See k8s/templates/apps/chatwoot-secret.yaml.j2
+  vault:
+    address: "https://vault.keybuzz.io:8200"
+    verify: false
+    approle:
+      role_id_file: "/vault/chatwoot-role-id"
+      secret_id_file: "/vault/chatwoot-secret-id"
+  
+  # Placeholder values - actual values come from Vault
+  secrets:
+    database_url: "{{ vault_lookup('kv/keybuzz/apps/chatwoot:database-url') }}"
+    redis_url: "{{ vault_lookup('kv/keybuzz/apps/chatwoot:redis-url') }}"
+    rabbitmq_url: "{{ vault_lookup('kv/keybuzz/apps/chatwoot:rabbitmq-url') }}"
+    smtp_password: "{{ vault_lookup('kv/keybuzz/apps/chatwoot:smtp-password') }}"
+
