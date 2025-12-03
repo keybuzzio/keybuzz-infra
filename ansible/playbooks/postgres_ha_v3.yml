@@ -1,0 +1,27 @@
+---
+# PostgreSQL HA v3 Deployment Playbook
+# Deploys PostgreSQL 17 HA cluster with Patroni (RAFT mode) on db-postgres-01/02/03
+
+- name: Deploy PostgreSQL HA Cluster
+  hosts: db_postgres
+  become: yes
+  gather_facts: yes
+  vars_files:
+    - "{{ playbook_dir }}/../group_vars/postgres.yml"
+
+  roles:
+    - ../roles/postgres_ha_v3
+
+  post_tasks:
+    - name: Display completion message
+      debug:
+        msg:
+          - "=========================================="
+          - "PH7-01 - PostgreSQL HA Installation - COMPLETED"
+          - "=========================================="
+          - "Host: {{ inventory_hostname }}"
+          - "Patroni REST API: http://{{ ansible_host }}:{{ patroni_rest_api_port }}"
+          - "PostgreSQL Port: {{ postgres_listen_port }}"
+          - "Next step: Verify cluster status with 'patronictl -c /etc/patroni.yml list'"
+          - "=========================================="
+

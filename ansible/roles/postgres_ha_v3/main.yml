@@ -1,0 +1,40 @@
+---
+# PostgreSQL HA v3 Role - Handlers
+
+- name: reload systemd
+  command: systemctl daemon-reload
+
+- name: restart patroni
+  systemd:
+    name: patroni
+    state: restarted
+    enabled: yes
+
+- name: reload systemd and restart patroni
+  command: systemctl daemon-reload
+  listen: reload systemd and restart patroni
+
+- name: restart patroni after reload
+  systemd:
+    name: patroni
+    state: restarted
+    enabled: yes
+  listen: reload systemd and restart patroni
+
+- name: reload systemd and restart etcd
+  command: systemctl daemon-reload
+  listen: reload systemd and restart etcd
+
+- name: restart etcd after reload
+  systemd:
+    name: etcd
+    state: restarted
+    enabled: yes
+  listen: reload systemd and restart etcd
+
+- name: restart etcd
+  systemd:
+    name: etcd
+    state: restarted
+    enabled: yes
+

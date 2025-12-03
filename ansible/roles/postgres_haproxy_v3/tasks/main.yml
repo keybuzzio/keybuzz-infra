@@ -1,0 +1,60 @@
+---
+# PostgreSQL HAProxy v3 Role - Tasks
+# Deploys HAProxy configuration for PostgreSQL HA cluster
+
+- name: Ensure HAProxy config directory exists
+  file:
+    path: /etc/haproxy/conf.d
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Add PostgreSQL HAProxy configuration to haproxy.cfg
+  blockinfile:
+    path: /etc/haproxy/haproxy.cfg
+    block: |
+      # PostgreSQL Writer (Master) - Port 5432
+      listen postgres_write
+          mode tcp
+          bind *:{{ haproxy_postgres_write_port }}
+          balance first
+          option tcp-check
+          tcp-check connect port {{ postgres_listen_port }}
+          timeout client  1m
+          timeout server  1m
+          timeout connect 5s
+          server db-postgres-01 {{ postgres_nodes[0].ansible_host }}:{{ postgres_listen_port }} check inter 2000 fall 2 rise 2
+          server db-postgres-02 {{ postgres_nodes[1].ansible_host }}:{{ postgres_listen_port }} check inter 2000 fall 2 rise 2 backup
+          server db-postgres-03 {{ postgres_nodes[2].ansible_host }}:{{ postgres_listen_port }} check inter 2000 fall 2 rise 2 backup
+
+      # PostgreSQL Readers (Replicas) - Port 5433 (optional)
+      listen postgres_read
+          mode tcp
+          bind *:{{ haproxy_postgres_read_port }}
+          balance roundrobin
+          option tcp-check
+          tcp-check connect port {{ postgres_listen_port }}
+          timeout client  1m
+          timeout server  1m
+          timeout connect 5s
+          server db-postgres-01 {{ postgres_nodes[0].ansible_host }}:{{ postgres_listen_port }} check inter 2000 fall 2 rise 2
+          server db-postgres-02 {{ postgres_nodes[1].ansible_host }}:{{ postgres_listen_port }} check inter 2000 fall 2 rise 2
+          server db-postgres-03 {{ postgres_nodes[2].ansible_host }}:{{ postgres_listen_port }} check inter 2000 fall 2 rise 2
+    marker: "# {mark} ANSIBLE MANAGED BLOCK FOR POSTGRESQL HA"
+    insertafter: EOF
+  notify: restart haproxy
+
+- name: Validate HAProxy configuration
+  command: haproxy -c -f /etc/haproxy/haproxy.cfg
+  register: haproxy_check
+  changed_when: false
+  failed_when: haproxy_check.rc != 0
+
+- name: Ensure HAProxy service is running
+  systemd:
+    name: haproxy
+    state: restarted
+    enabled: yes
+    daemon_reload: yes
+

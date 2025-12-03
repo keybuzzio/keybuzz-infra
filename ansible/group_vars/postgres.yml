@@ -1,0 +1,39 @@
+---
+# PostgreSQL 17 HA Configuration Variables (Patroni RAFT)
+# TODO PH7.x: Migrer les secrets vers Vault
+
+# PostgreSQL Version
+postgres_version: 17
+
+# Data Directory
+postgres_data_dir: "/data/db_postgres"
+
+# Patroni Configuration
+patroni_cluster_name: "keybuzz-pg17"
+patroni_scope: "keybuzz-pg17"
+patroni_user: "postgres"
+patroni_rest_api_port: 8008
+patroni_raft_port: 5000
+
+# PostgreSQL Configuration
+postgres_listen_port: 5432
+postgres_max_connections: 200
+postgres_shared_buffers: "512MB"
+postgres_wal_level: "replica"
+postgres_hot_standby: "on"
+
+# Authentication (Placeholders - à migrer vers Vault)
+postgres_superuser_password: "CHANGE_ME_LATER_VIA_VAULT"
+postgres_replication_user: "replicator"
+postgres_replication_password: "CHANGE_ME_LATER_VIA_VAULT"
+
+# Application Users (à définir plus tard)
+postgres_app_users: []
+
+# Network Configuration
+postgres_listen_addresses: "0.0.0.0"
+
+# HAProxy Configuration
+haproxy_postgres_write_port: 5432
+haproxy_postgres_read_port: 5433
+
