@@ -145,7 +145,12 @@
     mode: '0644'
   notify: restart patroni
 
-- name: Deploy PostgreSQL configuration
+- name: Check if PostgreSQL data directory is empty
+  stat:
+    path: "{{ postgres_data_dir }}/data"
+  register: pg_data_dir_stat
+
+- name: Deploy PostgreSQL configuration (only if directory is not empty or after init)
   template:
     src: postgresql.conf.j2
     dest: "{{ postgres_data_dir }}/data/postgresql.conf"
@@ -153,8 +158,9 @@
     group: postgres
     mode: '0644'
   notify: restart patroni
+  when: pg_data_dir_stat.stat.exists and (pg_data_dir_stat.stat.isdir is defined and pg_data_dir_stat.stat.isdir)
 
-- name: Deploy pg_hba.conf
+- name: Deploy pg_hba.conf (only if directory is not empty or after init)
   template:
     src: pg_hba.conf.j2
     dest: "{{ postgres_data_dir }}/data/pg_hba.conf"
@@ -162,6 +168,7 @@
     group: postgres
     mode: '0640'
   notify: restart patroni
+  when: pg_data_dir_stat.stat.exists and (pg_data_dir_stat.stat.isdir is defined and pg_data_dir_stat.stat.isdir)
 
 - name: Deploy Patroni systemd service
   template:

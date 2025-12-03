@@ -24,18 +24,35 @@ L'initialisation a été effectuée via l'API REST Patroni sur le premier nœud 
 
 ## Résultats de l'Initialisation
 
-### État du Cluster
+### État Actuel du Cluster
 
-**Leader détecté :**
-- **Nom** : `db-postgres-01`
-- **IP** : `10.0.0.120`
-- **Port** : `5432`
-- **État** : `running`
-- **Rôle** : `leader`
+**⚠️ IMPORTANT :** Le cluster Patroni est formé mais PostgreSQL n'est pas encore initialisé.
 
-**Followers détectés :**
-- **db-postgres-02** (`10.0.0.121:5432`) : `replica` / `running`
-- **db-postgres-03** (`10.0.0.122:5432`) : `replica` / `running`
+**État des nœuds (après nettoyage complet) :**
+- **db-postgres-01** (`10.0.0.120:5432`) : `replica` / `stopped` / `uninitialized`
+- **db-postgres-02** (`10.0.0.121:5432`) : `replica` / `stopped` / `uninitialized`
+- **db-postgres-03** (`10.0.0.122:5432`) : `replica` / `stopped` / `uninitialized`
+
+**Logs Patroni :**
+- Tous les nœuds affichent : `INFO: waiting for leader to bootstrap`
+- Aucun nœud ne prend l'initiative d'initialiser le cluster
+- Le lock owner est `None` dans etcd
+
+**Problèmes identifiés :**
+1. Les fichiers `postgresql.conf` et `pg_hba.conf` étaient présents dans `/data/db_postgres/data/` (résolu)
+2. L'API REST `/initialize` n'est pas supportée (erreur 501)
+3. Patroni attend qu'un leader bootstrap le cluster, mais aucun nœud ne prend l'initiative
+4. Le répertoire de données est maintenant complètement vide, mais Patroni ne s'initialise pas automatiquement
+
+**Solutions appliquées :**
+- Script `postgres_ha_init_auto.sh` créé pour vider complètement les répertoires de données
+- Rôle Ansible modifié pour ne pas déployer les fichiers de config avant l'initialisation
+- Le répertoire de données est maintenant vide sur tous les nœuds
+
+**Action requise :**
+- Vérifier la configuration Patroni pour l'initialisation automatique
+- Possiblement utiliser `patronictl` pour forcer l'initialisation
+- Ou modifier la configuration Patroni pour permettre l'auto-bootstrap
 
 ### Vérifications Effectuées
 
@@ -52,45 +69,61 @@ L'initialisation a été effectuée via l'API REST Patroni sur le premier nœud 
 
 #### 3. État Final du Cluster (JSON)
 
+**État actuel (après nettoyage) :**
 ```json
 {
   "members": [
     {
       "name": "db-postgres-01",
-      "role": "leader",
-      "state": "running",
+      "role": "replica",
+      "state": "stopped",
       "api_url": "http://10.0.0.120:8008/patroni",
       "host": "10.0.0.120",
       "port": 5432,
-      "lsn": "0/3000148",
-      "lag": 0
+      "receive_lsn": "unknown",
+      "receive_lag": "unknown",
+      "replay_lsn": "unknown",
+      "replay_lag": "unknown",
+      "lsn": "unknown",
+      "lag": "unknown"
     },
     {
       "name": "db-postgres-02",
       "role": "replica",
-      "state": "running",
+      "state": "stopped",
       "api_url": "http://10.0.0.121:8008/patroni",
       "host": "10.0.0.121",
       "port": 5432,
-      "receive_lsn": "0/3000148",
-      "replay_lsn": "0/3000148",
-      "lag": 0
+      "receive_lsn": "unknown",
+      "receive_lag": "unknown",
+      "replay_lsn": "unknown",
+      "replay_lag": "unknown",
+      "lsn": "unknown",
+      "lag": "unknown"
     },
     {
       "name": "db-postgres-03",
       "role": "replica",
-      "state": "running",
+      "state": "stopped",
       "api_url": "http://10.0.0.122:8008/patroni",
       "host": "10.0.0.122",
       "port": 5432,
-      "receive_lsn": "0/3000148",
-      "replay_lsn": "0/3000148",
-      "lag": 0
+      "receive_lsn": "unknown",
+      "receive_lag": "unknown",
+      "replay_lsn": "unknown",
+      "replay_lag": "unknown",
+      "lsn": "unknown",
+      "lag": "unknown"
     }
   ],
   "scope": "keybuzz-pg17"
 }
 ```
+
+**Note :** Une fois le cluster initialisé, l'état attendu sera :
+- 1 leader avec `state: "running"` et `role: "leader"`
+- 2 replicas avec `state: "running"` et `role: "replica"`
+- LSN et lag seront synchronisés
 
 ## Diagramme Final du Cluster
 
@@ -321,13 +354,30 @@ PGPASSWORD="CHANGE_ME_LATER_VIA_VAULT" psql -h 10.0.0.121 -p 5432 -U postgres -d
 
 ## Conclusion
 
-✅ **Cluster PostgreSQL HA initialisé avec succès :**
-- Leader élu : db-postgres-01
-- 2 Followers actifs : db-postgres-02, db-postgres-03
-- PostgreSQL écoute sur port 5432 sur tous les nœuds
-- Réplication streaming active et synchronisée
-- Patroni REST API fonctionnelle
-- Cluster stable et opérationnel
+⚠️ **État actuel :** Le cluster Patroni est formé et fonctionnel, mais PostgreSQL n'est pas encore initialisé.
 
-Le cluster est maintenant prêt pour les tests de failover et l'intégration avec HAProxy.
+**Infrastructure déployée :**
+- ✅ Patroni 4.1.0 installé et fonctionnel sur les 3 nœuds
+- ✅ etcd3 3.5.13 en mode RAFT embarqué fonctionnel
+- ✅ Cluster Patroni formé et connecté
+- ✅ REST API accessible sur tous les nœuds (port 8008)
+- ✅ Répertoires de données PostgreSQL complètement vidés
+- ⚠️  PostgreSQL non initialisé (état "stopped", "uninitialized")
+- ⚠️  Tous les nœuds attendent qu'un leader bootstrap le cluster
+
+**Problèmes identifiés :**
+1. ✅ **Résolu** : Les fichiers de configuration PostgreSQL (`postgresql.conf`, `pg_hba.conf`) étaient déployés avant l'initialisation
+   - Solution : Le rôle Ansible a été modifié pour ne pas déployer ces fichiers avant l'initialisation
+2. ⚠️ **En cours** : Patroni attend qu'un leader bootstrap le cluster (`waiting for leader to bootstrap`)
+   - Aucun nœud ne prend l'initiative d'acquérir le lock et d'initialiser PostgreSQL
+   - Le lock owner dans etcd est `None`
+   - Le répertoire de données est maintenant complètement vide sur tous les nœuds
+
+**Actions requises :**
+1. Vérifier la configuration Patroni pour l'auto-bootstrap
+2. Possiblement utiliser `patronictl` pour forcer l'initialisation
+3. Ou modifier la configuration Patroni pour permettre l'auto-bootstrap avec un répertoire vide
+
+**Prochaines étapes :**
+- Une fois initialisé, le cluster sera prêt pour les tests de failover et l'intégration avec HAProxy
 
