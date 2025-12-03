@@ -24,9 +24,9 @@
           timeout client  1m
           timeout server  1m
           timeout connect 5s
-          server db-postgres-01 {{ postgres_nodes[0].ansible_host }}:{{ postgres_listen_port }} check inter 2000 fall 2 rise 2
-          server db-postgres-02 {{ postgres_nodes[1].ansible_host }}:{{ postgres_listen_port }} check inter 2000 fall 2 rise 2 backup
-          server db-postgres-03 {{ postgres_nodes[2].ansible_host }}:{{ postgres_listen_port }} check inter 2000 fall 2 rise 2 backup
+          server db-postgres-01 10.0.0.120:{{ postgres_listen_port }} check inter 2000 fall 2 rise 2
+          server db-postgres-02 10.0.0.121:{{ postgres_listen_port }} check inter 2000 fall 2 rise 2 backup
+          server db-postgres-03 10.0.0.122:{{ postgres_listen_port }} check inter 2000 fall 2 rise 2 backup
 
       # PostgreSQL Readers (Replicas) - Port 5433 (optional)
       listen postgres_read
