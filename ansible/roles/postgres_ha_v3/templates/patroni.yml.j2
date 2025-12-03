@@ -16,6 +16,28 @@ raft:
     - {{ hostvars[host].ansible_host }}:5010
 {% endfor %}
 
+bootstrap:
+  dcs:
+    postgresql:
+      parameters:
+        max_connections: {{ postgres_max_connections }}
+        shared_buffers: {{ postgres_shared_buffers }}
+        wal_level: {{ postgres_wal_level }}
+        hot_standby: "{{ postgres_hot_standby }}"
+  initdb:
+    - encoding: UTF8
+    - data-checksums
+  users:
+    replication:
+      password: {{ postgres_replication_password }}
+      options:
+        - replication
+    admin:
+      password: {{ postgres_superuser_password }}
+      options:
+        - createrole
+        - createdb
+
 postgresql:
   listen: {{ postgres_listen_addresses }}:{{ postgres_listen_port }}
   connect_address: {{ ansible_host }}:{{ postgres_listen_port }}
