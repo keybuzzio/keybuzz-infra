@@ -1,0 +1,41 @@
+---
+# RabbitMQ HA v3 Deployment Playbook
+# Deploys RabbitMQ Quorum Cluster on queue-01, queue-02, queue-03
+
+- name: Deploy RabbitMQ HA Cluster
+  hosts: rabbitmq
+  become: yes
+  gather_facts: yes
+  vars_files:
+    - "{{ playbook_dir }}/../group_vars/rabbitmq.yml"
+
+  pre_tasks:
+    - name: Stop RabbitMQ service if running
+      systemd:
+        name: rabbitmq-server
+        state: stopped
+      ignore_errors: yes
+
+    - name: Clean RabbitMQ data directory (optional, for clean start)
+      file:
+        path: /data/rabbitmq
+        state: directory
+        owner: rabbitmq
+        group: rabbitmq
+        mode: '0755'
+      when: rabbitmq_clean_start | default(false) | bool
+
+  roles:
+    - rabbitmq_ha_v3
+
+  post_tasks:
+    - name: Display completion message
+      debug:
+        msg:
+          - "=========================================="
+          - "PH5 - RabbitMQ HA Deployment - COMPLETED"
+          - "=========================================="
+          - "Host: {{ inventory_hostname }}"
+          - "RabbitMQ Quorum Cluster deployed"
+          - "=========================================="
+

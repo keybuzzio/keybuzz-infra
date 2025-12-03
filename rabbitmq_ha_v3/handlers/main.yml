@@ -1,0 +1,9 @@
+---
+# RabbitMQ HA v3 Role - Handlers
+
+- name: restart rabbitmq
+  systemd:
+    name: rabbitmq-server
+    state: restarted
+    enabled: yes
+
