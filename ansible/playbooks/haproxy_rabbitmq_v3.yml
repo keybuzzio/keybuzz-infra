@@ -1,0 +1,25 @@
+---
+# RabbitMQ HAProxy v3 Deployment Playbook
+# Deploys HAProxy configuration for RabbitMQ HA cluster on haproxy-01 and haproxy-02
+
+- name: Deploy RabbitMQ HAProxy Configuration
+  hosts: lb_internal
+  become: yes
+  gather_facts: yes
+  vars_files:
+    - "{{ playbook_dir }}/../group_vars/rabbitmq.yml"
+
+  roles:
+    - rabbitmq_haproxy_v3
+
+  post_tasks:
+    - name: Display completion message
+      debug:
+        msg:
+          - "=========================================="
+          - "PH5-05 - RabbitMQ HAProxy Deployment - COMPLETED"
+          - "=========================================="
+          - "Host: {{ inventory_hostname }}"
+          - "HAProxy configured for RabbitMQ HA cluster"
+          - "=========================================="
+
