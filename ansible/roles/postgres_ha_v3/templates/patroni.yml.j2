@@ -8,13 +8,13 @@ restapi:
   listen: 0.0.0.0:{{ patroni_rest_api_port }}
   connect_address: {{ ansible_host }}:{{ patroni_rest_api_port }}
 
-etcd3:
-  protocol: http
-  host: 127.0.0.1:2379
-  allow_reconnect: true
-  use_proxies: false
-  request_timeout: 10
-  lock_ttl: 30
+raft:
+  data_dir: {{ postgres_data_dir }}/raft
+  self_addr: {{ ansible_host }}:5010
+  partner_addrs:
+{% for host in groups['db_postgres'] if host != inventory_hostname %}
+    - {{ hostvars[host].ansible_host }}:5010
+{% endfor %}
 
 postgresql:
   listen: {{ postgres_listen_addresses }}:{{ postgres_listen_port }}
