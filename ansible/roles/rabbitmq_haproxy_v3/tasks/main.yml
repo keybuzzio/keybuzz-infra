@@ -1,0 +1,51 @@
+---
+# RabbitMQ HAProxy v3 Role - Tasks
+# Deploys HAProxy configuration for RabbitMQ HA cluster
+
+- name: Install HAProxy package
+  apt:
+    name: haproxy
+    state: present
+    update_cache: yes
+
+- name: Ensure HAProxy config directory exists
+  file:
+    path: /etc/haproxy/conf.d
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Deploy RabbitMQ HAProxy configuration directly into haproxy.cfg
+  blockinfile:
+    path: /etc/haproxy/haproxy.cfg
+    block: |
+      listen rabbitmq
+          mode tcp
+          bind *:5672
+          balance roundrobin
+          option tcp-check
+          timeout client  1m
+          timeout server  1m
+          timeout connect 5s
+          tcp-check connect port 5672
+          server queue-01 10.0.0.126:5672 check inter 2000 fall 2 rise 2
+          server queue-02 10.0.0.127:5672 check inter 2000 fall 2 rise 2 backup
+          server queue-03 10.0.0.128:5672 check inter 2000 fall 2 rise 2 backup
+    marker: "# {mark} ANSIBLE MANAGED BLOCK FOR RABBITMQ HA"
+    insertafter: EOF
+  notify: restart haproxy
+
+- name: Validate HAProxy configuration
+  command: haproxy -c -f /etc/haproxy/haproxy.cfg
+  register: haproxy_check
+  changed_when: false
+  failed_when: haproxy_check.rc != 0
+
+- name: Ensure HAProxy service is running
+  systemd:
+    name: haproxy
+    state: restarted
+    enabled: yes
+    daemon_reload: yes
+

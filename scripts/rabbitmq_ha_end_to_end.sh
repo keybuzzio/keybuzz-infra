@@ -22,8 +22,15 @@ echo ""
 # Vérifier que rabbitmqadmin est disponible
 if ! command -v rabbitmqadmin &> /dev/null; then
     echo "Installation de rabbitmqadmin..."
-    wget -q http://${QUEUE_HOST}:15672/cli/rabbitmqadmin -O /usr/local/bin/rabbitmqadmin
-    chmod +x /usr/local/bin/rabbitmqadmin
+    if wget -q http://${QUEUE_HOST}:15672/cli/rabbitmqadmin -O /usr/local/bin/rabbitmqadmin 2>&1; then
+        chmod +x /usr/local/bin/rabbitmqadmin
+        echo "   ✅ rabbitmqadmin installé"
+    else
+        echo "   ⚠️  Échec téléchargement rabbitmqadmin, utilisation de /tmp/rabbitmqadmin"
+        wget -q http://${QUEUE_HOST}:15672/cli/rabbitmqadmin -O /tmp/rabbitmqadmin 2>&1 || true
+        chmod +x /tmp/rabbitmqadmin 2>&1 || true
+        export PATH="/tmp:$PATH"
+    fi
 fi
 
 # Test 1: Vérifier la connexion
