@@ -12,10 +12,13 @@ host    all             all             127.0.0.1/32            scram-sha-256
 # IPv6 local connections:
 host    all             all             ::1/128                 scram-sha-256
 
-# Replication connections from Patroni nodes
-{% for host in groups['db_postgres'] %}
-host    replication     {{ postgres_replication_user }}  {{ hostvars[host].ansible_host }}/32  scram-sha-256
-{% endfor %}
+# Réplication entre nœuds Patroni
+host    replication     {{ postgres_replication_user }}  10.0.0.120/32  md5
+host    replication     {{ postgres_replication_user }}  10.0.0.121/32  md5
+host    replication     {{ postgres_replication_user }}  10.0.0.122/32  md5
+
+# Accès local (à ajuster plus tard si besoin)
+host    all             all             10.0.0.0/16      md5
 
 # Allow connections from HAProxy
 host    all             all             10.0.0.11/32            scram-sha-256
