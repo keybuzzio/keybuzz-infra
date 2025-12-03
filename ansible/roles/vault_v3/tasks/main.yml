@@ -1,0 +1,157 @@
+---
+# Vault v3 Role - Tasks
+# Installs and configures HashiCorp Vault on vault-01
+
+- name: Create vault group
+  group:
+    name: "{{ vault_group }}"
+    system: yes
+
+- name: Create vault user
+  user:
+    name: "{{ vault_user }}"
+    group: "{{ vault_group }}"
+    system: yes
+    shell: /bin/false
+    home: "{{ vault_data_dir }}"
+    create_home: no
+
+- name: Ensure Vault data directory exists
+  file:
+    path: "{{ vault_data_dir }}"
+    state: directory
+    owner: "{{ vault_user }}"
+    group: "{{ vault_group }}"
+    mode: '0755'
+
+- name: Ensure Vault config directory exists
+  file:
+    path: "{{ vault_config_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Ensure Vault log directory exists
+  file:
+    path: "{{ vault_log_dir }}"
+    state: directory
+    owner: "{{ vault_user }}"
+    group: "{{ vault_group }}"
+    mode: '0755'
+
+- name: Ensure Vault TLS directory exists
+  file:
+    path: "{{ vault_config_dir }}/tls"
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Install required packages
+  apt:
+    name:
+      - curl
+      - unzip
+      - jq
+      - openssl
+    state: present
+    update_cache: yes
+
+- name: Download HashiCorp GPG key
+  get_url:
+    url: https://apt.releases.hashicorp.com/gpg
+    dest: /tmp/hashicorp-gpg.key
+    mode: '0644'
+
+- name: Add HashiCorp GPG key to apt
+  apt_key:
+    file: /tmp/hashicorp-gpg.key
+    state: present
+
+- name: Add HashiCorp repository
+  apt_repository:
+    repo: "deb [arch=amd64] https://apt.releases.hashicorp.com {{ ansible_distribution_release }} main"
+    state: present
+    filename: hashicorp
+
+- name: Install Vault
+  apt:
+    name: vault
+    state: present
+    update_cache: yes
+
+- name: Generate self-signed TLS certificate private key
+  openssl_privatekey:
+    path: "{{ vault_tls_key_file }}"
+    size: 2048
+    type: RSA
+
+- name: Generate self-signed TLS certificate
+  openssl_certificate:
+    path: "{{ vault_tls_cert_file }}"
+    privatekey_path: "{{ vault_tls_key_file }}"
+    provider: selfsigned
+    selfsigned_version: 3
+    selfsigned_digest: sha256
+    selfsigned_not_before: "+0s"
+    selfsigned_not_after: "+365d"
+  notify: restart vault
+
+- name: Set correct permissions on TLS certificate
+  file:
+    path: "{{ vault_tls_cert_file }}"
+    owner: "{{ vault_user }}"
+    group: "{{ vault_group }}"
+    mode: '0644'
+
+- name: Set correct permissions on TLS key
+  file:
+    path: "{{ vault_tls_key_file }}"
+    owner: "{{ vault_user }}"
+    group: "{{ vault_group }}"
+    mode: '0600'
+
+- name: Deploy Vault configuration
+  template:
+    src: vault.hcl.j2
+    dest: "{{ vault_config_dir }}/vault.hcl"
+    owner: root
+    group: root
+    mode: '0644'
+  notify: restart vault
+
+- name: Deploy Vault systemd service
+  template:
+    src: vault.service.j2
+    dest: /etc/systemd/system/vault.service
+    owner: root
+    group: root
+    mode: '0644'
+  notify: reload systemd and restart vault
+
+- name: Enable and start Vault service
+  systemd:
+    name: vault
+    state: started
+    enabled: yes
+    daemon_reload: yes
+
+- name: Wait for Vault API to be ready
+  uri:
+    url: "http://{{ ansible_host }}:8200/v1/sys/health"
+    method: GET
+    status_code: [200, 429, 472, 473]
+  register: vault_health
+  until: vault_health.status in [200, 429, 472, 473]
+  retries: 30
+  delay: 2
+  ignore_errors: yes
+
+- name: Display Vault status
+  debug:
+    msg:
+      - "Vault installed and configured"
+      - "API Address: {{ vault_api_addr }}"
+      - "Status: {{ vault_health.status | default('unknown') }}"
+

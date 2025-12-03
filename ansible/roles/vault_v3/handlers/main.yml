@@ -1,0 +1,23 @@
+---
+# Vault v3 Role - Handlers
+
+- name: reload systemd
+  command: systemctl daemon-reload
+
+- name: restart vault
+  systemd:
+    name: vault
+    state: restarted
+    enabled: yes
+
+- name: reload systemd and restart vault
+  command: systemctl daemon-reload
+  listen: reload systemd and restart vault
+
+- name: restart vault after reload
+  systemd:
+    name: vault
+    state: restarted
+    enabled: yes
+  listen: reload systemd and restart vault
+

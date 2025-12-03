@@ -1,0 +1,26 @@
+---
+# Vault v3 Deployment Playbook
+# Installs and configures HashiCorp Vault on vault-01
+
+- name: Deploy Vault on vault-01
+  hosts: vault
+  become: yes
+  gather_facts: yes
+  vars_files:
+    - "{{ playbook_dir }}/../group_vars/vault.yml"
+
+  roles:
+    - ../roles/vault_v3
+
+  post_tasks:
+    - name: Display completion message
+      debug:
+        msg:
+          - "=========================================="
+          - "PH6-01 - Vault Installation - COMPLETED"
+          - "=========================================="
+          - "Host: {{ inventory_hostname }}"
+          - "Vault API: {{ vault_api_addr }}"
+          - "Next step: Initialize Vault with 'vault operator init'"
+          - "=========================================="
+
