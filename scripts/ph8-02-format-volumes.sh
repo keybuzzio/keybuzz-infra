@@ -18,25 +18,45 @@ setup_volume() {
     ssh root@$SERVER_IP bash <<EOF
 set -e
 
-# Find volume device
-VOLUME_DEVICE=\$(lsblk -o NAME,TYPE | grep disk | grep -v vda | awk '{print \$1}' | head -1)
-if [ -z "\$VOLUME_DEVICE" ]; then
-    VOLUME_DEVICE=\$(ls -la /dev/disk/by-id/ | grep hetzner-volume | grep -v part | tail -1 | awk '{print \$NF}' | xargs -I {} readlink -f {})
-fi
+    # Find volume device (non-mounted disk)
+    VOLUME_DEVICE=""
+    
+    # Try via /dev/disk/by-id (Hetzner volumes)
+    for vol in /dev/disk/by-id/scsi-*; do
+        [ -L "\$vol" ] || continue
+        device=\$(readlink -f "\$vol")
+        [ -b "\$device" ] || continue
+        if ! mount | grep -q "\$device"; then
+            VOLUME_DEVICE="\$device"
+            break
+        fi
+    done
+    
+    # If not found, try /dev/sd* and /dev/vd*
+    if [ -z "\$VOLUME_DEVICE" ]; then
+        for dev in /dev/sd{b..z} /dev/vd{b..z}; do
+            [ -b "\$dev" ] || continue
+            if ! mount | grep -q "\$dev"; then
+                VOLUME_DEVICE="\$dev"
+                break
+            fi
+        done
+    fi
 
-if [ -z "\$VOLUME_DEVICE" ]; then
-    echo "❌ Could not find volume device"
-    exit 1
-fi
+    if [ -z "\$VOLUME_DEVICE" ] || [ ! -b "\$VOLUME_DEVICE" ]; then
+        echo "❌ Could not find volume device"
+        lsblk
+        exit 1
+    fi
 
-echo "Volume device: \$VOLUME_DEVICE"
+    echo "Volume device: \$VOLUME_DEVICE"
 
 # Check if already formatted
-if blkid \$VOLUME_DEVICE | grep -q xfs; then
+if blkid "$VOLUME_DEVICE" | grep -q xfs; then
     echo "Volume already formatted with XFS"
 else
     echo "Formatting volume with XFS..."
-    mkfs.xfs -f \$VOLUME_DEVICE || {
+    mkfs.xfs -f "$VOLUME_DEVICE" || {
         echo "❌ Failed to format volume"
         exit 1
     }
@@ -46,18 +66,18 @@ fi
 mkdir -p ${MOUNT_POINT}
 
 # Get UUID
-UUID=\$(blkid \$VOLUME_DEVICE -s UUID -o value)
-echo "UUID: \$UUID"
+UUID=$(blkid "$VOLUME_DEVICE" -s UUID -o value)
+echo "UUID: $UUID"
 
 # Mount volume
-mount \$VOLUME_DEVICE ${MOUNT_POINT} || {
+mount "$VOLUME_DEVICE" ${MOUNT_POINT} || {
     echo "❌ Failed to mount volume"
     exit 1
 }
 
 # Add to fstab if not already present
 if ! grep -q "${MOUNT_POINT}" /etc/fstab; then
-    echo "UUID=\$UUID ${MOUNT_POINT} xfs defaults,noatime 0 2" >> /etc/fstab
+    echo "UUID=$UUID ${MOUNT_POINT} xfs defaults,noatime 0 2" >> /etc/fstab
     echo "Added to fstab"
 fi
 
@@ -66,7 +86,7 @@ chown -R root:root ${MOUNT_POINT}
 chmod 755 ${MOUNT_POINT}
 
 echo "✅ Volume mounted at ${MOUNT_POINT}"
-EOF
+VOLUME_SCRIPT
 
     echo "✅ $SERVICE_NAME volume setup completed"
     echo ""
