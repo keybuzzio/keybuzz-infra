@@ -1,0 +1,315 @@
+---
+# MariaDB Galera HA v3 Role - Tasks
+# Deploys MariaDB 10.11 Galera HA cluster
+
+- name: Install MariaDB APT repository prerequisites
+  apt:
+    name:
+      - ca-certificates
+      - gnupg
+      - lsb-release
+      - curl
+      - wget
+    state: present
+    update_cache: yes
+
+- name: Add MariaDB APT repository key (primary)
+  apt_key:
+    url: https://mirror.mariadb.org/repo/10.11/ubuntu/mariadb_pubkey.asc
+    state: present
+  register: mariadb_key_result
+  ignore_errors: yes
+
+- name: Add MariaDB APT repository key (fallback)
+  apt_key:
+    url: https://mariadb.org/mariadb_release_signing_key.asc
+    state: present
+  when: mariadb_key_result is failed
+  ignore_errors: yes
+
+- name: Add MariaDB repo (mirror officiel)
+  apt_repository:
+    repo: "deb [arch=amd64] https://mirror.mariadb.org/repo/10.11/ubuntu {{ ansible_distribution_release }} main"
+    state: present
+    filename: mariadb
+  register: mariadb_repo_result
+  ignore_errors: yes
+
+- name: Add MariaDB repo (fallback archive)
+  apt_repository:
+    repo: "deb [arch=amd64] https://archive.mariadb.org/mariadb-10.11.6/repo/ubuntu {{ ansible_distribution_release }} main"
+    state: present
+    filename: mariadb
+  when: mariadb_repo_result is failed
+  ignore_errors: yes
+
+- name: Update apt cache
+  apt:
+    update_cache: yes
+  retries: 3
+  delay: 5
+
+- name: Install MariaDB Galera
+  apt:
+    name:
+      - mariadb-server
+      - mariadb-client
+      - galera-4
+      - mariadb-backup
+      - rsync
+      - socat
+    state: present
+    update_cache: yes
+  retries: 3
+  delay: 10
+  register: mariadb_install_result
+  until: mariadb_install_result is succeeded
+
+- name: Stop MariaDB if running
+  systemd:
+    name: mariadb
+    state: stopped
+    enabled: no
+  ignore_errors: yes
+
+- name: Ensure MariaDB data directory exists
+  file:
+    path: "{{ mariadb_data_dir }}/data"
+    state: directory
+    owner: mysql
+    group: mysql
+    mode: '0755'
+
+- name: Ensure MariaDB log directory exists
+  file:
+    path: "{{ mariadb_data_dir }}/logs"
+    state: directory
+    owner: mysql
+    group: mysql
+    mode: '0755'
+
+- name: Deploy MariaDB my.cnf configuration
+  template:
+    src: my.cnf.j2
+    dest: /etc/mysql/my.cnf
+    owner: root
+    group: root
+    mode: '0644'
+  notify: restart mariadb
+
+- name: Deploy Galera configuration
+  template:
+    src: galera.cnf.j2
+    dest: /etc/mysql/conf.d/galera.cnf
+    owner: root
+    group: root
+    mode: '0644'
+  notify: restart mariadb
+
+- name: Check if this is the first node (maria-01) or if maria-01 is unreachable
+  set_fact:
+    is_first_node: "{{ inventory_hostname == galera_nodes[0] }}"
+  
+- name: Check if maria-01 is reachable
+  wait_for:
+    host: "{{ hostvars[galera_nodes[0]].ansible_host }}"
+    port: 22
+    timeout: 5
+  ignore_errors: yes
+  register: maria01_reachable
+  delegate_to: localhost
+
+- name: Override first node if maria-01 is unreachable and this is maria-02
+  set_fact:
+    is_first_node: "{{ (maria01_reachable is failed or not maria01_reachable) and inventory_hostname == galera_nodes[1] }}"
+
+- name: Check if cluster is already initialized
+  stat:
+    path: "{{ mariadb_data_dir }}/data/mysql"
+  register: cluster_initialized
+
+- name: Bootstrap cluster on first node if not initialized
+  block:
+    - name: Stop MariaDB
+      systemd:
+        name: mariadb
+        state: stopped
+        enabled: no
+      ignore_errors: yes
+
+    - name: Clean MariaDB data directory
+      shell: |
+        cd {{ mariadb_data_dir }}/data
+        rm -rf mysql* ib* aria* *.log *.pid 2>/dev/null || true
+      args:
+        creates: "{{ mariadb_data_dir }}/data/.cleaned"
+      become: yes
+      ignore_errors: yes
+
+    - name: Create data directory
+      file:
+        path: "{{ mariadb_data_dir }}/data"
+        state: directory
+        owner: mysql
+        group: mysql
+        mode: '0755'
+
+    - name: Initialize MariaDB database
+      command: >
+        mysqld --initialize-insecure
+        --datadir={{ mariadb_data_dir }}/data
+        --user=mysql
+      args:
+        creates: "{{ mariadb_data_dir }}/data/mysql"
+      become: yes
+      become_user: mysql
+
+    - name: Set data directory permissions
+      file:
+        path: "{{ mariadb_data_dir }}/data"
+        owner: mysql
+        group: mysql
+        recurse: yes
+
+    - name: Temporarily modify galera.cnf for bootstrap (gcomm://)
+      lineinfile:
+        path: /etc/mysql/conf.d/galera.cnf
+        regexp: '^wsrep_cluster_address = '
+        line: 'wsrep_cluster_address = gcomm://'
+        backup: yes
+
+    - name: Start MariaDB for bootstrap
+      systemd:
+        name: mariadb
+        state: started
+        enabled: yes
+
+    - name: Wait for MariaDB to be ready
+      wait_for:
+        port: "{{ mariadb_port }}"
+        host: "{{ ansible_host }}"
+        delay: 10
+        timeout: 120
+
+    - name: Restore galera.cnf with full cluster address
+      lineinfile:
+        path: /etc/mysql/conf.d/galera.cnf
+        regexp: '^wsrep_cluster_address = '
+        line: 'wsrep_cluster_address = gcomm://10.0.0.170,10.0.0.171,10.0.0.172'
+
+    - name: Restart MariaDB to apply cluster configuration
+      systemd:
+        name: mariadb
+        state: restarted
+
+    - name: Wait for MariaDB to be ready
+      wait_for:
+        port: "{{ mariadb_port }}"
+        host: "{{ ansible_host }}"
+        delay: 5
+        timeout: 60
+
+    - name: Set root password
+      mysql_user:
+        login_user: root
+        login_password: ""
+        name: root
+        password: "{{ mariadb_root_password }}"
+        host: "{{ item }}"
+        priv: "*.*:ALL,GRANT"
+      loop:
+        - "localhost"
+        - "127.0.0.1"
+        - "{{ ansible_host }}"
+        - "%"
+      ignore_errors: yes
+
+    - name: Create SST user for cluster replication
+      mysql_user:
+        login_user: root
+        login_password: "{{ mariadb_root_password }}"
+        name: "{{ mariadb_cluster_user }}"
+        password: "{{ mariadb_cluster_password }}"
+        host: "%"
+        priv: "*.*:RELOAD,PROCESS,LOCK TABLES,REPLICATION CLIENT"
+      ignore_errors: yes
+
+    - name: Flush privileges
+      mysql_user:
+        login_user: root
+        login_password: "{{ mariadb_root_password }}"
+        state: present
+      ignore_errors: yes
+
+  when:
+    - is_first_node
+    - not cluster_initialized.stat.exists
+
+- name: Join cluster on non-first nodes
+  block:
+    - name: Stop MariaDB if running
+      systemd:
+        name: mariadb
+        state: stopped
+        enabled: no
+      ignore_errors: yes
+
+    - name: Remove existing data if present
+      file:
+        path: "{{ mariadb_data_dir }}/data"
+        state: absent
+      when: cluster_initialized.stat.exists
+
+    - name: Create data directory
+      file:
+        path: "{{ mariadb_data_dir }}/data"
+        state: directory
+        owner: mysql
+        group: mysql
+        mode: '0755'
+
+    - name: Start MariaDB to join cluster
+      systemd:
+        name: mariadb
+        state: started
+        enabled: yes
+
+    - name: Wait for MariaDB to join cluster
+      wait_for:
+        port: "{{ mariadb_port }}"
+        host: "{{ ansible_host }}"
+        delay: 10
+        timeout: 120
+
+  when:
+    - not is_first_node
+    - not cluster_initialized.stat.exists
+
+- name: Start and enable MariaDB service
+  systemd:
+    name: mariadb
+    state: started
+    enabled: yes
+
+- name: Wait for cluster to be ready
+  wait_for:
+    port: "{{ mariadb_port }}"
+    host: "{{ ansible_host }}"
+    delay: 5
+    timeout: 60
+
+- name: Verify cluster size
+  mysql_query:
+    login_user: root
+    login_password: "{{ mariadb_root_password }}"
+    query: "SHOW STATUS LIKE 'wsrep_cluster_size';"
+  register: cluster_size_result
+  retries: 5
+  delay: 10
+  until: cluster_size_result.stdout | selectattr('Variable_name', 'equalto', 'wsrep_cluster_size') | map(attribute='Value') | first | int >= 1
+  ignore_errors: yes
+
+- name: Display cluster status
+  debug:
+    msg: "MariaDB Galera cluster node {{ inventory_hostname }} is ready"
+

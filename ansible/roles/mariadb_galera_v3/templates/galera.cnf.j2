@@ -1,0 +1,29 @@
+[mysqld]
+# Galera Configuration
+wsrep_on = ON
+wsrep_provider = /usr/lib/galera/libgalera_smm.so
+wsrep_cluster_name = "{{ galera_cluster_name }}"
+wsrep_cluster_address = "gcomm://10.0.0.170,10.0.0.171,10.0.0.172"
+wsrep_node_name = "{{ inventory_hostname }}"
+wsrep_node_address = "{{ ansible_host }}"
+wsrep_node_incoming_address = "{{ ansible_host }}"
+
+# SST (State Snapshot Transfer) Configuration
+wsrep_sst_method = {{ galera_sst_method }}
+wsrep_sst_auth = "{{ mariadb_cluster_user }}:{{ mariadb_cluster_password }}"
+wsrep_sst_receive_address = "{{ ansible_host }}:4444"
+
+# Galera Cache
+wsrep_provider_options = "gcache.size={{ galera_gcache_size }}"
+
+# Galera Settings
+wsrep_slave_threads = 4
+wsrep_load_data_splitting = ON
+wsrep_replicate_myisam = OFF
+
+# PXC Strict Mode (for compatibility)
+pxc_strict_mode = PERMISSIVE
+
+# Galera Logging
+wsrep_log_conflicts = ON
+
