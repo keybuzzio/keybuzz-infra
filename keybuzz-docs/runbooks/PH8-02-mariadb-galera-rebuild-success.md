@@ -1,7 +1,7 @@
 # PH8-02 - MariaDB Galera Rebuild Status
 
 **Date**: 2025-12-04  
-**Statut**: 🚧 En cours - Scripts créés, problèmes de connectivité et bootstrap  
+**Statut**: 🚧 En attente - Scripts prêts, nécessite configuration SSH sur serveurs rebuilds  
 **Objectif**: Rebuild complet des serveurs MariaDB et ProxySQL
 
 ## Résumé
@@ -63,18 +63,47 @@ Tous les scripts nécessaires ont été créés et sont prêts à être exécut�
 
 Rapport créé avec état actuel et procédures.
 
+## État Actuel
+
+### Serveurs Rebuilds ✅
+- Les 5 serveurs ont été rebuilds manuellement
+- Serveurs accessibles mais nécessitent configuration SSH
+
+### Problème Identifié ⚠️
+- Les serveurs rebuilds n'ont pas les clés SSH configurées
+- Impossible de se connecter sans clés SSH ou mot de passe
+- Les scripts sont prêts mais nécessitent SSH fonctionnel
+
 ## Prochaines Étapes
 
-### 1. Résoudre Connectivité
+### 1. Configurer les Clés SSH
 
+**Option A - Via cloud-init lors du rebuild** (recommandé) :
+- Configurer cloud-init avec la clé SSH publique lors du rebuild
+- La clé sera automatiquement déployée
+
+**Option B - Déploiement manuel depuis install-v3** :
 ```bash
-# Vérifier état des serveurs via hcloud (si token disponible)
-hcloud server list --output columns=id,name,ipv4,status | grep -E "(maria-|proxysql-)"
+cd /opt/keybuzz/keybuzz-infra
+# Si les serveurs acceptent les mots de passe temporairement
+bash scripts/ph8-02-deploy-ssh-keys-manual.sh
+```
 
-# Ou vérifier directement
-for ip in 10.0.0.170 10.0.0.171; do
-    ping -c 1 $ip && echo "$ip is reachable" || echo "$ip is NOT reachable"
-done
+**Option C - Via Hetzner Cloud Console** :
+- Ajouter la clé SSH publique dans les paramètres du serveur
+- Ou utiliser cloud-init avec user-data
+
+### 2. Une fois SSH Configuré
+
+Exécuter le script complet :
+```bash
+cd /opt/keybuzz/keybuzz-infra
+bash scripts/ph8-02-complete-deployment.sh
+```
+
+Ou utiliser le script avec attente automatique :
+```bash
+bash scripts/ph8-02-wait-and-deploy.sh
 ```
 
 ### 2. Rebuild via hcloud (si token configuré)
