@@ -1,0 +1,20 @@
+---
+- name: Deploy HAProxy for MariaDB Galera HA
+  hosts: db_haproxy
+  become: yes
+  gather_facts: yes
+  roles:
+    - mariadb_haproxy_v3
+  post_tasks:
+    - name: Display HAProxy deployment summary
+      debug:
+        msg: "HAProxy MariaDB deployment completed for {{ inventory_hostname }}"
+    - name: Verify HAProxy is listening on port 3306
+      command: ss -ntlp | grep 3306 || netstat -plant | grep 3306
+      register: haproxy_port_check
+      changed_when: false
+      failed_when: false
+    - name: Display port check result
+      debug:
+        var: haproxy_port_check.stdout_lines
+
