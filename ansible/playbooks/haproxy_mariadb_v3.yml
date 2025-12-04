@@ -1,6 +1,6 @@
 ---
 - name: Deploy HAProxy for MariaDB Galera HA
-  hosts: db_haproxy
+  hosts: lb_internal
   become: yes
   gather_facts: yes
   roles:
