@@ -21,7 +21,7 @@ echo ""
 echo "[INFO] Step 1: Checking MariaDB Galera cluster status..."
 CLUSTER_OK=false
 if ssh root@10.0.0.171 "systemctl is-active --quiet mariadb"; then
-    CLUSTER_SIZE=$(ssh root@10.0.0.171 "mysql -u root -p'${MARIADB_ROOT_PASSWORD}' -e \"SHOW STATUS LIKE 'wsrep_cluster_size';\" 2>&1" | grep -E 'Value' | awk '{print $2}' || echo "0")
+    CLUSTER_SIZE=$(ssh root@10.0.0.171 "mysql -u root -p'${MARIADB_ROOT_PASSWORD}' -e \"SHOW STATUS LIKE 'wsrep_cluster_size';\" 2>&1" | grep -E '^wsrep_cluster_size' | awk '{print $2}' || echo "0")
     if [ "$CLUSTER_SIZE" = "3" ]; then
         echo "[INFO]   ✅ Cluster is operational (size: ${CLUSTER_SIZE})"
         CLUSTER_OK=true
