@@ -19,8 +19,8 @@ for ip in 10.0.0.170 10.0.0.171 10.0.0.172; do
     rm -rf /data/mariadb/data/*
     rm -rf /data/mariadb/data/.* 2>/dev/null || true
     
-    # Initialize database
-    mysqld --initialize-insecure --datadir=/data/mariadb/data --user=mysql
+    # Initialize database with mariadb-install-db
+    mariadb-install-db --user=mysql --datadir=/data/mariadb/data --skip-test-db
     
     # Fix permissions
     chown -R mysql:mysql /data/mariadb/data
