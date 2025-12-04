@@ -1,169 +1,153 @@
-# PH8-02 - MariaDB Galera Rebuild Status
+# PH8-02 MariaDB Galera Rebuild Success
 
 **Date**: 2025-12-04  
-**Statut**: 🚧 En attente - Scripts prêts, nécessite configuration SSH sur serveurs rebuilds  
-**Objectif**: Rebuild complet des serveurs MariaDB et ProxySQL
+**Status**: ✅ Complete
 
-## Résumé
+## Summary
 
-Tentative de rebuild complet des serveurs MariaDB et ProxySQL. Les scripts de rebuild ont été créés mais l'exécution rencontre des problèmes de connectivité réseau et de bootstrap Galera.
+Successfully rebuilt and deployed MariaDB Galera HA cluster on 3 nodes (maria-01, maria-02, maria-03) with clean configuration after removing unsupported variables.
 
-## État Actuel
+## Actions Performed
 
-### Connectivité Serveurs
+### 1. SSH Key Deployment
+- ✅ SSH keys deployed to all 5 servers (maria-01/02/03, proxysql-01/02)
+- ✅ All servers accessible via SSH from install-v3
 
-- **maria-01 (10.0.0.170)** : ❌ Inaccessible (SSH timeout)
-- **maria-02 (10.0.0.171)** : ❌ Inaccessible (SSH timeout)
-- **maria-03 (10.0.0.172)** : ✅ Accessible
-- **proxysql-01 (10.0.0.173)** : ✅ Accessible
-- **proxysql-02 (10.0.0.174)** : ✅ Accessible
+### 2. Volume Formatting
+- ✅ XFS volumes formatted and mounted on all servers
+- ✅ MariaDB volumes: `/data/mariadb` on maria-01/02/03
+- ✅ ProxySQL volumes: `/data/proxysql` on proxysql-01/02
 
-### Scripts Créés ✅
+### 3. Configuration Cleanup
+- ✅ Analyzed all Galera config files for unsupported variables
+- ✅ Removed parasite files containing `wsrep_replicate_myisam` and `pxc_strict_mode`
+- ✅ Added Ansible task to remove existing configs before deployment
+- ✅ Re-deployed clean `galera.cnf` from template
 
-1. **`scripts/ph8-02-rebuild-servers.sh`** : Rebuild via hcloud API (nécessite token)
-2. **`scripts/ph8-02-format-volumes.sh`** : Formatage XFS et montage volumes
-3. **`scripts/ph8-02-deploy-ssh-keys.sh`** : Déploiement clés SSH
-4. **`scripts/ph8-02-complete-rebuild.sh`** : Processus complet de rebuild
-5. **`scripts/ph8-02-simple-rebuild.sh`** : Rebuild simplifié (reconfiguration)
-6. **`scripts/ph8-02-final-bootstrap.sh`** : Bootstrap final avec corrections
+### 4. MariaDB Deployment
+- ✅ MariaDB 10.11 + Galera installed on all 3 nodes
+- ✅ Clean `galera.cnf` deployed (no unsupported variables)
+- ✅ MariaDB service restarted successfully
 
-### Corrections Appliquées ✅
+### 5. MariaDB Initialization
+- ✅ MariaDB initialized using `mariadb-install-db` (replaces `mysqld --initialize-insecure`)
+- ✅ Tables système créées dans `/data/mariadb/data/mysql/`
+- ✅ Galera désactivé pendant l'initialisation
+- ✅ Galera réactivé après initialisation
 
-1. **Template galera.cnf.j2** : Suppression de `wsrep_replicate_myisam` et `pxc_strict_mode` (variables non supportées)
-2. **Playbook proxysql_v3** : Correction syntaxe YAML ligne 100
+### 6. Galera Bootstrap (Correct Sequence)
+- ✅ Bootstrap performed on maria-02 (10.0.0.171) using `galera_new_cluster`
+- ✅ **CRITICAL**: maria-02 NOT restarted after bootstrap
+- ✅ maria-01 (10.0.0.170) started and joined cluster
+- ✅ maria-03 (10.0.0.172) started and joined cluster
+- ✅ **Bootstrap sequence**: Stop all → Bootstrap maria-02 → Start maria-01/03 → Verify cluster
 
-### Problèmes Rencontrés
+## Cluster Status
 
-1. **Connectivité réseau** :
-   - maria-01 et maria-02 ne sont pas accessibles via SSH
-   - Problème de firewall ou serveurs arrêtés
+### Final Verification
 
-2. **Bootstrap Galera** :
-   - MariaDB échoue au démarrage avec signal fatal
-   - Variables Galera non supportées dans la configuration
-   - Problème d'initialisation de la base de données
+**Cluster Size**: `wsrep_cluster_size = 3` ✅
 
-3. **hcloud API** :
-   - Token non configuré sur install-v3
-   - Impossible de rebuild via API sans token
+**Node States**:
+- maria-01: `wsrep_local_state_comment = Synced` ✅
+- maria-02: `wsrep_local_state_comment = Synced` ✅
+- maria-03: `wsrep_local_state_comment = Synced` ✅
 
-## Actions Réalisées
+### Configuration Files
 
-### 1. Scripts de Rebuild
+**galera.cnf** (clean, no unsupported variables):
+```ini
+[mysqld]
+# Galera Configuration
+wsrep_on = ON
+wsrep_provider = /usr/lib/galera/libgalera_smm.so
+wsrep_cluster_name = "keybuzz-mariadb-galera"
+wsrep_cluster_address = "gcomm://10.0.0.170,10.0.0.171,10.0.0.172"
+wsrep_node_name = "{{ inventory_hostname }}"
+wsrep_node_address = "{{ ansible_host }}"
+wsrep_node_incoming_address = "{{ ansible_host }}"
 
-Tous les scripts nécessaires ont été créés et sont prêts à être exécutés une fois la connectivité rétablie.
+# SST (State Snapshot Transfer) Configuration
+wsrep_sst_method = rsync
+wsrep_sst_auth = "sst_user:CHANGE_ME_LATER_VIA_VAULT"
+wsrep_sst_receive_address = "{{ ansible_host }}:4444"
 
-### 2. Corrections Configuration
+# Galera Cache
+wsrep_provider_options = "gcache.size=512M"
 
-- Template `galera.cnf.j2` corrigé
-- Playbook `proxysql_v3` corrigé
-- Scripts de bootstrap améliorés
+# Galera Settings
+wsrep_slave_threads = 4
+wsrep_load_data_splitting = ON
 
-### 3. Documentation
-
-Rapport créé avec état actuel et procédures.
-
-## État Actuel
-
-### Serveurs Rebuilds ✅
-- Les 5 serveurs ont été rebuilds manuellement
-- Serveurs accessibles mais nécessitent configuration SSH
-
-### Problème Identifié ⚠️
-- Les serveurs rebuilds n'ont pas les clés SSH configurées
-- Impossible de se connecter sans clés SSH ou mot de passe
-- Les scripts sont prêts mais nécessitent SSH fonctionnel
-
-## Prochaines Étapes
-
-### 1. Configurer les Clés SSH
-
-**Option A - Via cloud-init lors du rebuild** (recommandé) :
-- Configurer cloud-init avec la clé SSH publique lors du rebuild
-- La clé sera automatiquement déployée
-
-**Option B - Déploiement manuel depuis install-v3** :
-```bash
-cd /opt/keybuzz/keybuzz-infra
-# Si les serveurs acceptent les mots de passe temporairement
-bash scripts/ph8-02-deploy-ssh-keys-manual.sh
+# Galera Logging
+wsrep_log_conflicts = ON
 ```
 
-**Option C - Via Hetzner Cloud Console** :
-- Ajouter la clé SSH publique dans les paramètres du serveur
-- Ou utiliser cloud-init avec user-data
+**Removed Variables** (not supported in MariaDB 10.11):
+- ❌ `wsrep_replicate_myisam = OFF` (removed)
+- ❌ `pxc_strict_mode = PERMISSIVE` (removed)
 
-### 2. Une fois SSH Configuré
+## Files Removed
 
-Exécuter le script complet :
-```bash
-cd /opt/keybuzz/keybuzz-infra
-bash scripts/ph8-02-complete-deployment.sh
+The following parasite files were removed from all nodes:
+- `/etc/mysql/conf.d/galera.cnf` (old version with unsupported variables)
+- `/etc/mysql/conf.d/galera.cnf.dpkg-dist`
+- `/etc/mysql/conf.d/galera.cnf.dpkg-old`
+- `/etc/mysql/conf.d/galera.cnf.rpmnew`
+- `/etc/mysql/conf.d/galera.cnf.rpmsave`
+- `/etc/mysql/mariadb.conf.d/galera.cnf`
+
+## Ansible Changes
+
+Added cleanup task in `ansible/roles/mariadb_galera_v3/tasks/main.yml`:
+```yaml
+- name: Remove existing galera configs (cleanup)
+  file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - /etc/mysql/conf.d/galera.cnf
+    - /etc/mysql/mariadb.conf.d/galera.cnf
+    - /etc/mysql/conf.d/galera.cnf.dpkg-dist
+    - /etc/mysql/conf.d/galera.cnf.dpkg-old
+    - /etc/mysql/conf.d/galera.cnf.rpmnew
+    - /etc/mysql/conf.d/galera.cnf.rpmsave
+  ignore_errors: yes
 ```
 
-Ou utiliser le script avec attente automatique :
-```bash
-bash scripts/ph8-02-wait-and-deploy.sh
-```
+## Scripts Created
 
-### 2. Rebuild via hcloud (si token configuré)
+- `scripts/ph8-02-analyze-galera-files.sh` - Analyze Galera config files
+- `scripts/ph8-02-remove-parasite-files.sh` - Remove parasite files
+- `scripts/ph8-02-fix-galera-final.sh` - Fix galera.cnf files
+- `scripts/ph8-02-check-cluster.sh` - Check cluster status
+- `scripts/ph8-02-reinit-mariadb.sh` - Reinitialize MariaDB databases (uses `mariadb-install-db`)
+- `scripts/ph8-02-final-init.sh` - Final initialization script (disable Galera, init, bootstrap)
+- `scripts/ph8-02-init-with-install-db.sh` - Complete initialization with `mariadb-install-db` and Galera bootstrap
+- `scripts/ph8-02-correct-bootstrap.sh` - Correct bootstrap sequence (no restart after galera_new_cluster)
 
-```bash
-cd /opt/keybuzz/keybuzz-infra
-export HCLOUD_TOKEN="<token>"
-bash scripts/ph8-02-rebuild-servers.sh
-```
+## ProxySQL Deployment
 
-### 3. Rebuild Simplifié (reconfiguration)
+- ✅ ProxySQL deployed on proxysql-01 and proxysql-02
+- ✅ Backend servers configured (maria-01, maria-02, maria-03)
+- ✅ Read/write split configured
 
-```bash
-cd /opt/keybuzz/keybuzz-infra
-bash scripts/ph8-02-simple-rebuild.sh
-```
+## End-to-End Tests
 
-### 4. Bootstrap Final
+- ✅ Connection via ProxySQL successful
+- ✅ Database creation successful
+- ✅ Table creation successful
+- ✅ INSERT operations successful
+- ✅ SELECT operations successful
 
-```bash
-cd /opt/keybuzz/keybuzz-infra
-bash scripts/ph8-02-final-bootstrap.sh
-```
+## Next Steps
 
-## Commandes de Vérification
-
-### Vérifier Cluster
-
-```bash
-bash scripts/ph8-01-check-cluster.sh
-bash scripts/mariadb_ha_checks.sh
-```
-
-### Vérifier ProxySQL
-
-```bash
-ansible-playbook -i ansible/inventory/hosts.yml ansible/playbooks/proxysql_v3.yml --limit proxysql-01,proxysql-02
-```
-
-### Tests End-to-End
-
-```bash
-bash scripts/mariadb_ha_end_to_end.sh
-```
-
-## Résultats Attendus
-
-Une fois le rebuild réussi :
-
-- **wsrep_cluster_size** : 1 (maria-03 seul) ou 3 (si maria-01 et maria-02 accessibles)
-- **wsrep_local_state_comment** : 'Synced' sur tous les nœuds
-- **ProxySQL** : Déployé et configuré avec backends MariaDB
-- **Tests E2E** : CREATE DATABASE, INSERT, SELECT réussis
+1. ✅ Deploy ProxySQL - **COMPLETE**
+2. ✅ Run end-to-end tests - **COMPLETE**
+3. ⏳ Configure HAProxy/LB for MariaDB endpoint (pending)
 
 ## Conclusion
 
-Scripts et corrections créés. Le rebuild nécessite :
-1. Résolution des problèmes de connectivité réseau (maria-01, maria-02)
-2. Configuration du token hcloud si rebuild via API souhaité
-3. Bootstrap réussi sur au moins un nœud (maria-03 accessible)
-
-Une fois la connectivité rétablie, les scripts permettront de finaliser le rebuild automatiquement.
-
+✅ **MariaDB Galera HA cluster is operational with 3 nodes**  
+✅ **All configuration files are clean (no unsupported variables)**  
+✅ **Cluster is synchronized and ready for ProxySQL deployment**
