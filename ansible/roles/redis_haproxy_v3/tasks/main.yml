@@ -26,18 +26,25 @@
   notify: restart haproxy
 
 - name: Check if HAProxy config already includes conf.d
-  shell: grep -q "include /etc/haproxy/conf.d/\*\.cfg" /etc/haproxy/haproxy.cfg || echo "NOT_FOUND"
+  shell: grep -q 'include /etc/haproxy/conf.d/\*\.cfg' /etc/haproxy/haproxy.cfg || echo 'NOT_FOUND'
   register: include_check
   changed_when: false
   failed_when: false
 
-- name: Add include directive for conf.d
+- name: Get line number of last section (defaults or global)
+  shell: grep -n '^[a-z]' /etc/haproxy/haproxy.cfg | tail -1 | cut -d: -f1 || echo '1'
+  register: last_section_line
+  changed_when: false
+  failed_when: false
+
+- name: Add include directive after last section
   lineinfile:
     path: /etc/haproxy/haproxy.cfg
-    line: '    include /etc/haproxy/conf.d/*.cfg'
-    insertafter: '^global'
+    line: 'include /etc/haproxy/conf.d/*.cfg'
+    insertafter: '^defaults'
     regexp: '^.*include /etc/haproxy/conf\.d'
-  when: include_check.stdout == "NOT_FOUND"
+    state: present
+  when: include_check.stdout == 'NOT_FOUND'
   notify: restart haproxy
 
 - name: Validate HAProxy configuration
@@ -52,4 +59,3 @@
     state: restarted
     enabled: yes
     daemon_reload: yes
-

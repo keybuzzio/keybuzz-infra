@@ -41,3 +41,8 @@ redis_replica_hosts:
 redis_enable_replication: true
 redis_enable_sentinel: true
 
+
+# Replica IPs (for HAProxy configuration)
+redis_replica_ips:
+  - '10.0.0.124'  # redis-02
+  - '10.0.0.125'  # redis-03
