@@ -1,7 +1,14 @@
 # PH8-03 MariaDB via HAProxy + LB End-to-End
 
 **Date**: 2025-12-04  
-**Status**: ✅ Complete
+**Status**: ✅ Complete (Full Fix Applied)
+
+## Installation Method
+
+**ProxySQL Installation**: Via official .deb package (v2.6.2)  
+- Downloaded from GitHub releases  
+- Installed via `dpkg -i` on Ubuntu 24.04  
+- Service enabled and started successfully
 
 ## Summary
 
