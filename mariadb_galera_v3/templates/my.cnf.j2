@@ -1,0 +1,48 @@
+[client]
+port = {{ mariadb_port }}
+socket = /var/run/mysqld/mysqld.sock
+
+[mysqld]
+user = mysql
+bind-address = {{ mariadb_bind_address }}
+port = {{ mariadb_port }}
+datadir = {{ mariadb_data_dir }}/data
+socket = /var/run/mysqld/mysqld.sock
+log-error = {{ mariadb_data_dir }}/logs/mysql.err
+pid-file = /var/run/mysqld/mysqld.pid
+
+# Storage Engine
+default_storage_engine = {{ mariadb_default_storage_engine }}
+innodb_autoinc_lock_mode = 2
+
+# Binary Logging
+binlog_format = {{ mariadb_binlog_format }}
+
+# InnoDB Configuration
+innodb_buffer_pool_size = {{ mariadb_innodb_buffer_pool_size }}
+innodb_log_file_size = 256M
+innodb_log_buffer_size = 64M
+innodb_flush_log_at_trx_commit = 2
+innodb_flush_method = O_DIRECT
+
+# Connection Settings
+max_connections = {{ mariadb_max_connections }}
+max_allowed_packet = 64M
+thread_cache_size = 50
+table_open_cache = 4000
+
+# Query Cache (disabled in MariaDB 10.6+)
+query_cache_type = 0
+query_cache_size = 0
+
+# Character Set
+character-set-server = utf8mb4
+collation-server = utf8mb4_unicode_ci
+
+# Replication
+server-id = {{ 100 + (galera_nodes.index(inventory_hostname) | default(0)) }}
+
+# Galera will be configured in galera.cnf
+# Include Galera configuration
+!includedir /etc/mysql/conf.d/
+

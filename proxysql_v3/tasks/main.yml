@@ -1,0 +1,118 @@
+---
+# ProxySQL v3 Role - Tasks
+# Deploys ProxySQL for MariaDB Galera cluster
+
+- name: Install ProxySQL APT repository prerequisites
+  apt:
+    name:
+      - ca-certificates
+      - gnupg
+      - lsb-release
+      - wget
+    state: present
+    update_cache: yes
+
+- name: Add ProxySQL APT repository key
+  apt_key:
+    url: https://repo.proxysql.com/ProxySQL/proxysql-{{ proxysql_version }}/dists/bullseye/Release.gpg
+    state: present
+  ignore_errors: yes
+
+- name: Add ProxySQL APT repository (alternative method)
+  shell: |
+    wget -O - https://repo.proxysql.com/ProxySQL/proxysql-{{ proxysql_version }}/GPG-KEY | apt-key add -
+    echo "deb https://repo.proxysql.com/ProxySQL/proxysql-{{ proxysql_version }}/{{ ansible_distribution_release }} ./" > /etc/apt/sources.list.d/proxysql.list
+  args:
+    creates: /etc/apt/sources.list.d/proxysql.list
+
+- name: Update apt cache
+  apt:
+    update_cache: yes
+
+- name: Install ProxySQL
+  apt:
+    name: proxysql
+    state: present
+
+- name: Stop ProxySQL if running
+  systemd:
+    name: proxysql
+    state: stopped
+  ignore_errors: yes
+
+- name: Ensure ProxySQL config directory exists
+  file:
+    path: /etc/proxysql
+    state: directory
+    owner: proxysql
+    group: proxysql
+    mode: '0755'
+
+- name: Deploy ProxySQL configuration
+  template:
+    src: proxysql.cnf.j2
+    dest: /etc/proxysql/proxysql.cnf
+    owner: proxysql
+    group: proxysql
+    mode: '0644'
+  notify: restart proxysql
+
+- name: Start and enable ProxySQL service
+  systemd:
+    name: proxysql
+    state: started
+    enabled: yes
+
+- name: Wait for ProxySQL admin interface
+  wait_for:
+    port: "{{ proxysql_admin_port }}"
+    host: "{{ ansible_host }}"
+    delay: 5
+    timeout: 30
+
+- name: Configure ProxySQL backend servers
+  mysql_db:
+    login_host: "{{ ansible_host }}"
+    login_port: "{{ proxysql_admin_port }}"
+    login_user: "{{ proxysql_admin_user }}"
+    login_password: "{{ proxysql_admin_password }}"
+    name: proxysql
+    state: present
+  ignore_errors: yes
+
+- name: Add MariaDB backend servers to ProxySQL
+  shell: |
+    mysql -h{{ ansible_host }} -P{{ proxysql_admin_port }} -u{{ proxysql_admin_user }} -p{{ proxysql_admin_password }} <<EOF
+    INSERT INTO mysql_servers(hostgroup_id, hostname, port, weight, comment) VALUES
+    {% for backend in mariadb_backend_hosts %}
+    ({{ backend.hostgroup }}, '{{ backend.host }}', {{ backend.port }}, {{ backend.weight }}, '{{ backend.comment }}'){% if not loop.last %},{% endif %}
+    {% endfor %}
+    ON DUPLICATE KEY UPDATE hostname=VALUES(hostname), port=VALUES(port), weight=VALUES(weight);
+    LOAD MYSQL SERVERS TO RUNTIME;
+    SAVE MYSQL SERVERS TO DISK;
+    EOF
+  args:
+    creates: /tmp/proxysql_backends_configured
+  register: proxysql_backends_result
+  changed_when: "'INSERT' in proxysql_backends_result.stdout or 'UPDATE' in proxysql_backends_result.stdout"
+  failed_when: false
+
+- name: Configure ProxySQL users (default: root user can connect)
+  shell: |
+    mysql -h{{ ansible_host }} -P{{ proxysql_admin_port }} -u{{ proxysql_admin_user }} -p{{ proxysql_admin_password }} <<EOF
+    INSERT INTO mysql_users(username, password, default_hostgroup, active) VALUES
+    ('root', '', 0, 1)
+    ON DUPLICATE KEY UPDATE password=VALUES(password), default_hostgroup=VALUES(default_hostgroup), active=VALUES(active);
+    LOAD MYSQL USERS TO RUNTIME;
+    SAVE MYSQL USERS TO DISK;
+    EOF
+  args:
+    creates: /tmp/proxysql_users_configured
+  register: proxysql_users_result
+  changed_when: "'INSERT' in proxysql_users_result.stdout or 'UPDATE' in proxysql_users_result.stdout"
+  failed_when: false
+
+- name: Display ProxySQL status
+  debug:
+    msg: "ProxySQL on {{ inventory_hostname }} is ready and configured"
+

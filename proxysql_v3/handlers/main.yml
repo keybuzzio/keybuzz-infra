@@ -1,0 +1,9 @@
+---
+# ProxySQL Handlers
+
+- name: restart proxysql
+  systemd:
+    name: proxysql
+    state: restarted
+    enabled: yes
+
