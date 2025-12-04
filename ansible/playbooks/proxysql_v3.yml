@@ -1,0 +1,20 @@
+---
+# ProxySQL v3 Playbook
+# Deploys ProxySQL for MariaDB Galera cluster
+
+- name: Deploy ProxySQL for MariaDB Galera
+  hosts: db_proxysql
+  become: yes
+  gather_facts: yes
+  vars_files:
+    - ../group_vars/proxysql.yml
+    - ../group_vars/mariadb.yml
+
+  roles:
+    - proxysql_v3
+
+  post_tasks:
+    - name: Display ProxySQL status summary
+      debug:
+        msg: "ProxySQL deployment completed for {{ inventory_hostname }}"
+

@@ -1,0 +1,17 @@
+---
+# MariaDB Galera HA v3 Playbook
+# Deploys MariaDB 10.11 Galera HA cluster
+
+- name: Deploy MariaDB Galera HA Cluster
+  hosts: db_mariadb
+  become: yes
+  gather_facts: yes
+
+  roles:
+    - mariadb_galera_v3
+
+  post_tasks:
+    - name: Display cluster status summary
+      debug:
+        msg: "MariaDB Galera cluster deployment completed for {{ inventory_hostname }}"
+

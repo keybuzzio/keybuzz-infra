@@ -1,0 +1,43 @@
+---
+# MariaDB Galera HA Configuration Variables
+# TODO PH8.x: Migrer les secrets vers Vault
+
+# MariaDB Version
+mariadb_version: "10.11"
+
+# Data Directory
+mariadb_data_dir: "/data/mariadb"
+
+# Galera Cluster Configuration
+galera_cluster_name: "keybuzz-mariadb-galera"
+galera_nodes:
+  - "maria-01"
+  - "maria-02"
+  - "maria-03"
+galera_gcache_size: "512M"
+
+# MariaDB Network Configuration
+mariadb_bind_address: "0.0.0.0"
+mariadb_port: 3306
+
+# Authentication (Placeholders - à migrer vers Vault)
+mariadb_root_password: "CHANGE_ME_LATER_VIA_VAULT"
+mariadb_cluster_user: "sst_user"
+mariadb_cluster_password: "CHANGE_ME_LATER_VIA_VAULT"
+
+# Application Users (à définir plus tard)
+mariadb_app_users: []
+
+# MariaDB Configuration
+mariadb_max_connections: 200
+mariadb_innodb_buffer_pool_size: "1G"
+mariadb_binlog_format: "ROW"
+mariadb_default_storage_engine: "InnoDB"
+
+# SST Method (State Snapshot Transfer)
+galera_sst_method: "rsync"
+
+# ProxySQL Configuration
+proxysql_admin_port: 6032
+proxysql_mysql_port: 6033
+

@@ -1,0 +1,49 @@
+---
+# Redis HA Configuration Variables
+# TODO PH6-Vault: déplacer redis_auth_password dans Vault et le lire via External Secrets
+
+# Redis Authentication Password
+# Stored in Vault at kv/keybuzz/redis
+# This password is used for:
+# - requirepass (Redis authentication)
+# - masterauth (replica authentication)
+# - sentinel auth-pass
+redis_auth_password: "{{ lookup('community.hashi_vault.hashi_vault', 'secret=kv/keybuzz/redis:password', url='https://vault.keybuzz.io:8200', verify=False) }}"
+
+# Redis Configuration
+redis_bind: "0.0.0.0"  # Bind to all interfaces (or use specific IPs)
+redis_port: 6379
+redis_dir: "/data/redis"
+redis_protected_mode: "yes"
+
+# Sentinel Configuration
+# Note: 4 sentinels au total (redis-01/02/03 + monitor-01), quorum=3
+sentinel_port: 26379
+sentinel_master_name: "keybuzz-master"
+sentinel_quorum: 3          # Updated for external sentinel on monitor-01 (PH4-01D)
+sentinel_down_after_milliseconds: 5000
+sentinel_failover_timeout: 60000
+sentinel_parallel_syncs: 1
+
+# Master node (initial)
+redis_master_host: "redis-01"
+redis_master_ip: "10.0.0.123"
+redis_master_port: 6379
+
+# Replica nodes
+redis_replica_hosts:
+  - "redis-02"
+  - "redis-03"
+
+# Replica IPs (for HAProxy configuration)
+redis_replica_ips:
+  - "10.0.0.124"  # redis-02
+  - "10.0.0.125"  # redis-03
+
+# Feature flags for progressive deployment
+# PH4-01A: standalone mode on redis-01 only
+# PH4-01B: replication enabled on redis-02/03
+# PH4-01C: Sentinel enabled on all 3 nodes
+redis_enable_replication: true
+redis_enable_sentinel: true
+
