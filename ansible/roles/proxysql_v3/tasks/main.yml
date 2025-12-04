@@ -97,7 +97,7 @@
   changed_when: "'INSERT' in proxysql_backends_result.stdout or 'UPDATE' in proxysql_backends_result.stdout"
   failed_when: false
 
-- name: Configure ProxySQL users
+- name: Configure ProxySQL users (default: root user can connect)
   shell: |
     mysql -h{{ ansible_host }} -P{{ proxysql_admin_port }} -u{{ proxysql_admin_user }} -p{{ proxysql_admin_password }} <<'EOF'
     INSERT INTO mysql_users(username, password, default_hostgroup, active) VALUES
