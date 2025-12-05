@@ -1,0 +1,9 @@
+---
+# Handlers for k8s_cluster_v3 role
+
+- name: restart containerd
+  systemd:
+    name: containerd
+    state: restarted
+    daemon_reload: yes
+

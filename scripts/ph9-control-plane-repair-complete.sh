@@ -60,6 +60,11 @@ for ip in $MASTER02_IP $MASTER03_IP; do
         rm -rf /var/lib/etcd/* || true
         rm -rf /var/lib/kubelet/* || true
         rm -rf /etc/cni/net.d/* || true
+        # Kill any processes using control plane ports
+        lsof -ti:10257 | xargs kill -9 2>/dev/null || true
+        lsof -ti:10259 | xargs kill -9 2>/dev/null || true
+        lsof -ti:10250 | xargs kill -9 2>/dev/null || true
+        lsof -ti:6443 | xargs kill -9 2>/dev/null || true
 CLEAN_NODE
 done
 
@@ -146,7 +151,7 @@ if [ -z "$CERT_KEY" ] || [ -z "$TOKEN" ] || [ -z "$CA_HASH" ]; then
     exit 1
 fi
 
-JOIN_CMD="kubeadm join ${MASTER01_IP}:6443 --token ${TOKEN} --discovery-token-unsafe-skip-ca-verification --control-plane --certificate-key ${CERT_KEY} --ignore-preflight-errors=CRI,FileAvailable--etc-kubernetes-kubelet.conf,Port-10250"
+JOIN_CMD="kubeadm join ${MASTER01_IP}:6443 --token ${TOKEN} --discovery-token-unsafe-skip-ca-verification --control-plane --certificate-key ${CERT_KEY} --ignore-preflight-errors=CRI,FileAvailable--etc-kubernetes-kubelet.conf,Port-10250,Port-10257,Port-10259"
 
 echo "JOIN_CMD = $JOIN_CMD" > /opt/keybuzz/logs/phase9/fix-control-plane/join-cmd.txt
 

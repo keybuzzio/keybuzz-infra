@@ -1,0 +1,121 @@
+---
+# Kubernetes Cluster v3 Playbook
+# Deploys Kubernetes cluster via kubeadm
+
+- name: Prepare all Kubernetes nodes
+  hosts: k8s_masters:k8s_workers
+  become: yes
+  gather_facts: yes
+  roles:
+    - k8s_cluster_v3
+
+- name: Initialize Kubernetes cluster on first master
+  hosts: k8s-master-01
+  become: yes
+  gather_facts: yes
+  tasks:
+    - name: Check if cluster already initialized
+      stat:
+        path: /etc/kubernetes/admin.conf
+      register: admin_conf
+
+    - name: Initialize Kubernetes cluster
+      shell: |
+        kubeadm init \
+          --pod-network-cidr=10.244.0.0/16 \
+          --control-plane-endpoint=10.0.0.100:6443 \
+          --upload-certs \
+          --skip-token-print \
+          --ignore-preflight-errors=CRI
+      args:
+        creates: /etc/kubernetes/admin.conf
+      register: kubeadm_init
+      when: not admin_conf.stat.exists
+
+    - name: Save kubeadm join command for control plane
+      shell: |
+        kubeadm init phase upload-certs --upload-certs 2>/dev/null | tail -1 > /root/k8s_cert_key.txt || true
+        CERT_KEY=$(cat /root/k8s_cert_key.txt 2>/dev/null || echo "")
+        TOKEN=$(kubeadm token create --print-join-command 2>/dev/null | awk '{print $5}')
+        HASH=$(kubeadm token create --print-join-command 2>/dev/null | awk '{print $7}')
+        if [ -n "$CERT_KEY" ]; then
+          echo "kubeadm join 10.0.0.100:6443 --token $TOKEN --discovery-token-ca-cert-hash $HASH --control-plane --certificate-key $CERT_KEY" > /root/k8s_join_control_plane.txt
+        else
+          echo "kubeadm join 10.0.0.100:6443 --token $TOKEN --discovery-token-ca-cert-hash $HASH --control-plane" > /root/k8s_join_control_plane.txt
+        fi
+      when: not admin_conf.stat.exists
+
+    - name: Save kubeadm join command for workers
+      shell: |
+        kubeadm token create --print-join-command > /root/k8s_join_workers.txt
+      when: not admin_conf.stat.exists
+
+    - name: Create .kube directory on install-v3
+      file:
+        path: /root/.kube
+        state: directory
+        mode: '0755'
+      delegate_to: localhost
+
+    - name: Copy kubeconfig to install-v3
+      fetch:
+        src: /etc/kubernetes/admin.conf
+        dest: /root/.kube/config
+        flat: yes
+      delegate_to: localhost
+      when: not admin_conf.stat.exists
+
+- name: Join control plane nodes
+  hosts: k8s-master-02:k8s-master-03
+  become: yes
+  gather_facts: yes
+  tasks:
+    - name: Get join command from master-01
+      slurp:
+        src: /root/k8s_join_control_plane.txt
+      delegate_to: k8s-master-01
+      register: join_command_file
+
+    - name: Join control plane
+      shell: "{{ join_command_file.content | b64decode }}"
+      args:
+        creates: /etc/kubernetes/kubelet.conf
+      when: join_command_file.content is defined
+
+- name: Join worker nodes
+  hosts: k8s_workers
+  become: yes
+  gather_facts: yes
+  tasks:
+    - name: Get join command from master-01
+      slurp:
+        src: /root/k8s_join_workers.txt
+      delegate_to: k8s-master-01
+      register: join_command_file
+
+    - name: Join worker nodes
+      shell: "{{ join_command_file.content | b64decode }}"
+      args:
+        creates: /etc/kubernetes/kubelet.conf
+      when: join_command_file.content is defined
+
+- name: Verify cluster status
+  hosts: k8s-master-01
+  become: yes
+  gather_facts: yes
+  tasks:
+    - name: Wait for nodes to be ready
+      shell: kubectl get nodes --no-headers 2>/dev/null | grep -c Ready || echo "0"
+      register: ready_nodes
+      until: ready_nodes.stdout | int >= 8
+      retries: 30
+      delay: 10
+
+    - name: Display cluster status
+      shell: kubectl get nodes
+      register: nodes_status
+
+    - name: Show nodes
+      debug:
+        var: nodes_status.stdout_lines
+
