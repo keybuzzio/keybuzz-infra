@@ -152,12 +152,56 @@ mysql -h 10.0.0.10 -P 3306 -u root -p<password> -e "SELECT VERSION();"
 mysql -h 10.0.0.10 -P 3306 -u root -p<password> -e "SHOW STATUS LIKE 'wsrep_cluster_size';"
 ```
 
+## Final Validation (PH8-FINAL-VALIDATION)
+
+**Date**: 2025-12-05  
+**Status**: ✅ Validated
+
+### HAProxy Verification
+
+**haproxy-01 (10.0.0.11)**:
+```
+Port 3306: LISTEN
+Process: haproxy (pid=138246)
+Status: ✅ Active
+```
+
+**haproxy-02 (10.0.0.12)**:
+```
+Port 3306: LISTEN
+Process: haproxy (pid=158016)
+Status: ✅ Active
+```
+
+**Verification Command**:
+```bash
+ssh root@10.0.0.11 "ss -ntlp | grep 3306"
+ssh root@10.0.0.12 "ss -ntlp | grep 3306"
+```
+
+**Result**: ✅ Both HAProxy nodes listening on port 3306
+
+### Load Balancer Verification
+
+**LB Name**: `lb-haproxy`  
+**Service**: Port 3306 (TCP) → Port 3306  
+**Status**: ✅ Configured
+
+**Verification**:
+```bash
+hcloud load-balancer describe lb-haproxy | grep -A 5 "3306"
+```
+
+**Result**: ✅ Service 3306 exists and is configured
+
 ## Conclusion
 
 ✅ **HAProxy configured and deployed on haproxy-01/02**  
 ✅ **Hetzner LB configured for MariaDB (10.0.0.10:3306)**  
 ✅ **End-to-end tests successful**  
-✅ **Single endpoint available for applications: `mysql://root:<pwd>@10.0.0.10:3306/<db>`**
+✅ **Single endpoint available for applications: `mysql://root:<pwd>@10.0.0.10:3306/<db>`**  
+✅ **HAProxy validated: Port 3306 listening on both nodes**  
+✅ **Load Balancer validated: Service 3306 configured**
 
 The MariaDB Galera HA cluster is now accessible via a single endpoint through HAProxy and the Hetzner Load Balancer, providing high availability and load balancing for database connections.
 
