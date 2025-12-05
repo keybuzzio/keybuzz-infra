@@ -23,6 +23,27 @@ HAProxy (10.0.0.11:3306)
 MariaDB Galera Cluster (maria-01/02/03:3306)
 ```
 
+## MariaDB Admin User Setup
+
+### vault_admin User
+
+A dedicated MariaDB user `vault_admin` was created specifically for Vault operations:
+
+```sql
+CREATE USER IF NOT EXISTS 'vault_admin'@'%' IDENTIFIED BY '<generated-password>';
+GRANT ALL PRIVILEGES ON *.* TO 'vault_admin'@'%' WITH GRANT OPTION;
+FLUSH PRIVILEGES;
+```
+
+**Purpose**: 
+- Allows Vault to create and manage dynamic database users
+- Provides necessary privileges for user creation and privilege management
+- Isolated from application users for security
+
+**Password**: Stored securely in `/root/vault_admin_password.txt` on install-v3
+
+**Replication**: Automatically replicated across all MariaDB Galera nodes (10.0.0.170, 10.0.0.171, 10.0.0.172)
+
 ## Configuration Steps
 
 ### 1. Enable Database Secrets Engine
@@ -43,15 +64,17 @@ vault write mariadb/config/erpnext-mariadb \
     plugin_name="mysql-database-plugin" \
     connection_url="{{username}}:{{password}}@tcp(10.0.0.11:3306)/" \
     allowed_roles="erpnext-mariadb-role" \
-    username="root" \
-    password="${MARIADB_ROOT_PASSWORD}"
+    username="vault_admin" \
+    password="${VAULT_ADMIN_PASSWORD}"
 ```
 
 **Details**:
 - **Plugin**: `mysql-database-plugin` (compatible with MariaDB)
 - **Connection**: Via HAProxy endpoint (10.0.0.11:3306)
-- **Admin User**: `root` (with full privileges)
+- **Admin User**: `vault_admin` (dedicated user with ALL PRIVILEGES on *.*)
 - **Allowed Roles**: `erpnext-mariadb-role`
+
+**Note**: The `vault_admin` user was created specifically for Vault operations. It has `ALL PRIVILEGES ON *.* WITH GRANT OPTION` to allow Vault to create and manage dynamic database users.
 
 **Why HAProxy?**: 
 - Single endpoint for high availability
