@@ -2,7 +2,7 @@
 # PH8-05 - Vault Dynamic Credentials Setup (executed on vault-01)
 set -e
 
-export VAULT_ADDR="https://vault.keybuzz.io:8200"
+export VAULT_ADDR="https://127.0.0.1:8200"
 export VAULT_SKIP_VERIFY="true"
 export VAULT_TOKEN=$(cat /root/.vault-token 2>/dev/null || echo '')
 
