@@ -25,12 +25,31 @@ MARIADB_ROOT_PASSWORD="${MARIADB_ROOT_PASSWORD:-CHANGE_ME_LATER_VIA_VAULT}"
 # Step 1: Create vault_admin user on MariaDB leader
 echo "[INFO] Step 1: Creating vault_admin user on MariaDB leader (${MARIADB_LEADER})..."
 
-# Generate password
-VAULT_ADMIN_PASS=$(openssl rand -hex 16)
-echo "[INFO]   Generated password for vault_admin: ${VAULT_ADMIN_PASS:0:10}..."
+# Check if vault_admin already exists
+VAULT_ADMIN_EXISTS=$(ssh root@${MARIADB_LEADER} "mysql -u root -p\"${MARIADB_ROOT_PASSWORD}\" -e \"SELECT COUNT(*) FROM mysql.user WHERE User='vault_admin';\" 2>&1" | grep -v "Warning" | tail -1 | awk '{print $1}')
 
-# Create user on leader
-ssh root@${MARIADB_LEADER} bash <<CREATE_USER
+if [ "$VAULT_ADMIN_EXISTS" = "1" ]; then
+    echo "[INFO]   vault_admin user already exists, resetting password..."
+    # Generate new password
+    VAULT_ADMIN_PASS=$(openssl rand -hex 16)
+    echo "[INFO]   Generated new password for vault_admin: ${VAULT_ADMIN_PASS:0:10}..."
+    
+    # Reset password
+    ssh root@${MARIADB_LEADER} bash <<RESET_PASS
+set -e
+mysql -u root -p"${MARIADB_ROOT_PASSWORD}" <<SQL
+ALTER USER 'vault_admin'@'%' IDENTIFIED BY '${VAULT_ADMIN_PASS}';
+FLUSH PRIVILEGES;
+SELECT User, Host FROM mysql.user WHERE User='vault_admin';
+SQL
+RESET_PASS
+else
+    # Generate password
+    VAULT_ADMIN_PASS=$(openssl rand -hex 16)
+    echo "[INFO]   Generated password for vault_admin: ${VAULT_ADMIN_PASS:0:10}..."
+    
+    # Create user on leader
+    ssh root@${MARIADB_LEADER} bash <<CREATE_USER
 set -e
 mysql -u root -p"${MARIADB_ROOT_PASSWORD}" <<SQL
 CREATE USER IF NOT EXISTS 'vault_admin'@'%' IDENTIFIED BY '${VAULT_ADMIN_PASS}';
@@ -39,6 +58,7 @@ FLUSH PRIVILEGES;
 SELECT User, Host FROM mysql.user WHERE User='vault_admin';
 SQL
 CREATE_USER
+fi
 
 if [ $? -eq 0 ]; then
     echo "[INFO]   ✅ vault_admin user created successfully"
