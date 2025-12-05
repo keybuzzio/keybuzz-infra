@@ -146,8 +146,40 @@ Added cleanup task in `ansible/roles/mariadb_galera_v3/tasks/main.yml`:
 2. ✅ Run end-to-end tests - **COMPLETE**
 3. ⏳ Configure HAProxy/LB for MariaDB endpoint (pending)
 
+## Final Validation (PH8-FINAL-VALIDATION)
+
+**Date**: 2025-12-05  
+**Status**: ✅ Validated
+
+### Cluster Status Verification
+
+**All 3 nodes verified**:
+```
+Node 10.0.0.170 (maria-01):
+  wsrep_cluster_size = 3
+  wsrep_local_state_comment = Synced
+
+Node 10.0.0.171 (maria-02):
+  wsrep_cluster_size = 3
+  wsrep_local_state_comment = Synced
+
+Node 10.0.0.172 (maria-03):
+  wsrep_cluster_size = 3
+  wsrep_local_state_comment = Synced
+```
+
+**Verification Command**:
+```bash
+for ip in 10.0.0.170 10.0.0.171 10.0.0.172; do
+  ssh root@$ip "mysql -u root -p\"\$MARIADB_ROOT_PASSWORD\" -e \"SHOW STATUS LIKE 'wsrep_cluster_size'; SHOW STATUS LIKE 'wsrep_local_state_comment';\""
+done
+```
+
+**Result**: ✅ All nodes show `wsrep_cluster_size = 3` and `wsrep_local_state_comment = Synced`
+
 ## Conclusion
 
 ✅ **MariaDB Galera HA cluster is operational with 3 nodes**  
 ✅ **All configuration files are clean (no unsupported variables)**  
-✅ **Cluster is synchronized and ready for ProxySQL deployment**
+✅ **Cluster is synchronized and ready for ProxySQL deployment**  
+✅ **Cluster validated: wsrep_cluster_size=3, all nodes Synced**

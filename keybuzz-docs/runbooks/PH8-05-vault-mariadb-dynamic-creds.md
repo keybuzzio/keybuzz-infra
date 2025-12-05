@@ -321,6 +321,86 @@ PASS=$(vault read -field=password mariadb/creds/erpnext-mariadb-role)
 mysql -h 10.0.0.10 -P3306 -u "${USER}" -p"${PASS}" erpnextdb -e "SELECT VERSION();"
 ```
 
+## Final Validation (PH8-FINAL-VALIDATION)
+
+**Date**: 2025-12-05  
+**Status**: ✅ Validated
+
+### Vault Configuration Verification
+
+**Secrets Engine**: ✅ Enabled at `mariadb/`
+
+**Verification**:
+```bash
+vault secrets list | grep mariadb
+```
+
+**Result**: `mariadb/` secrets engine active
+
+### Dynamic Role Verification
+
+**Role**: `erpnext-mariadb-role`  
+**Status**: ✅ Configured and functional
+
+**Verification**:
+```bash
+vault read mariadb/roles/erpnext-mariadb-role
+```
+
+**Result**: Role configured with proper creation_statements and TTL
+
+### Dynamic Credentials Generation Test
+
+**Test Script**: `scripts/ph8-05-test-vault-creds.sh`  
+**Test Date**: 2025-12-05
+
+**Test Process**:
+1. Generate dynamic credentials via `vault read mariadb/creds/erpnext-mariadb-role`
+2. Extract username and password
+3. Connect to MariaDB via LB (10.0.0.10:3306)
+4. Create table, insert data, select data
+
+**Test Results**:
+```
+[INFO] Testing Vault dynamic credentials generation...
+[INFO]   ✅ Dynamic credentials generated
+[INFO]   ✅ Username: v-token-erpnext-<random>
+[INFO] Testing connection via LB (10.0.0.10:3306)...
+[INFO]   ✅ Connection test successful via LB
+[INFO]   ✅ Table created, data inserted, and selected
+```
+
+**Full Log**: `/opt/keybuzz/logs/phase8/ph8-05-test-vault-creds-final.log`
+
+**Result**: ✅ Dynamic credentials generation and usage via LB successful
+
+### Example Dynamic Credentials Output
+
+**Command**:
+```bash
+vault read mariadb/creds/erpnext-mariadb-role
+```
+
+**Output**:
+```
+Key                Value
+---                -----
+lease_id           mariadb/creds/erpnext-mariadb-role/abc123def456
+lease_duration     1h
+lease_renewable    true
+password           A1b2C3d4E5f6G7h8I9j0K1l2M3n4O5p6
+username           v-token-erpnext-abc123def456ghi789
+```
+
+**Connection Test**:
+```bash
+USER=$(vault read -field=username mariadb/creds/erpnext-mariadb-role)
+PASS=$(vault read -field=password mariadb/creds/erpnext-mariadb-role)
+mysql -h 10.0.0.10 -P3306 -u "${USER}" -p"${PASS}" erpnextdb -e "SELECT VERSION();"
+```
+
+**Result**: ✅ Connection successful via LB
+
 ## Conclusion
 
 ✅ **Database secrets engine enabled for MariaDB**  
@@ -328,7 +408,8 @@ mysql -h 10.0.0.10 -P3306 -u "${USER}" -p"${PASS}" erpnextdb -e "SELECT VERSION(
 ✅ **AppRole `erpnext-app` configured for Kubernetes**  
 ✅ **Dynamic credentials generation working**  
 ✅ **End-to-end test via LB successful**  
-✅ **Ready for ERPNext deployment (PH9)**
+✅ **Ready for ERPNext deployment (PH9)**  
+✅ **Vault dynamic credentials validated: Generation and connection via LB successful**
 
 The MariaDB database is now integrated with Vault for dynamic credential management, providing secure, rotating credentials for ERPNext applications with automatic expiration and cleanup.
 

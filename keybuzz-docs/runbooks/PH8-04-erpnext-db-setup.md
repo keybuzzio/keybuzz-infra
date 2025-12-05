@@ -175,6 +175,67 @@ mysql -h 10.0.0.173 -P 6032 -u admin -padmin -e "SELECT * FROM mysql_users WHERE
 mysql -h 10.0.0.10 -P 3306 -u erpnext -p<password> erpnextdb -e "SELECT DATABASE();"
 ```
 
+## Final Validation (PH8-FINAL-VALIDATION)
+
+**Date**: 2025-12-05  
+**Status**: ✅ Validated
+
+### ERPNext User Verification
+
+**User Status**: ✅ Exists and functional
+
+**Verification**:
+```bash
+mysql -u root -p"$MARIADB_ROOT_PASSWORD" -e "SELECT User, Host FROM mysql.user WHERE User='erpnext';"
+```
+
+**Result**: User `erpnext@%` exists
+
+### End-to-End Test via LB
+
+**Test Script**: `scripts/mariadb_erpnext_test.sh`  
+**LB Endpoint**: `10.0.0.10:3306`  
+**Test Date**: 2025-12-05
+
+**Test Results**:
+```
+[INFO] Test 1: Connecting to MariaDB via LB...
+VERSION()
+10.11.15-MariaDB-ubu2404
+[INFO]   ✅ Connection successful
+
+[INFO] Test 2: Accessing erpnextdb...
+[INFO]   ✅ Database access successful
+
+[INFO] Test 3: Creating test table...
+[INFO]   ✅ Table created
+
+[INFO] Test 4: Inserting test data...
+[INFO]   ✅ Data inserted
+
+[INFO] Test 5: Reading data...
+id      v
+1       OK_FROM_LB
+[INFO]   ✅ Data read successfully
+
+[INFO] ✅ All tests passed!
+```
+
+**Full Log**: `/opt/keybuzz/logs/phase8/mariadb_erpnext_test_final.log`
+
+**Result**: ✅ All tests passed via LB endpoint
+
+### ProxySQL Integration Status
+
+**ProxySQL Status**: ✅ User integrated
+
+**Verification**:
+```bash
+mysql -h 10.0.0.173 -P6032 -u admin -padmin -e "SELECT username, active FROM mysql_users WHERE username='erpnext';"
+```
+
+**Result**: User `erpnext` present in ProxySQL on both nodes (proxysql-01, proxysql-02)
+
 ## Conclusion
 
 ✅ **Database `erpnextdb` created with utf8mb4 charset**  
@@ -182,7 +243,8 @@ mysql -h 10.0.0.10 -P 3306 -u erpnext -p<password> erpnextdb -e "SELECT DATABASE
 ✅ **Database replicated across all 3 Galera nodes**  
 ✅ **User integrated into ProxySQL**  
 ✅ **End-to-end test via LB successful**  
-✅ **Ready for ERPNext application deployment**
+✅ **Ready for ERPNext application deployment**  
+✅ **ERPNext user validated: Connection, CREATE, INSERT, SELECT via LB all successful**
 
 The ERPNext database is now ready for use. The database and user are properly configured with the required privileges, charset, and collation. All operations are verified to work through the Load Balancer endpoint (10.0.0.10:3306).
 
