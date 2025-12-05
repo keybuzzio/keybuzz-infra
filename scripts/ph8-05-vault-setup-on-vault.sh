@@ -22,15 +22,14 @@ echo ""
 
 # Step 1: Enable database secrets engine
 echo "[INFO] Step 1: Enabling database secrets engine for MariaDB..."
-vault secrets enable -path=mariadb database 2>&1 || {
-    if vault secrets list | grep -q "^mariadb/"; then
-        echo "[INFO]   ✅ Database secrets engine already enabled at mariadb/"
-    else
-        echo "[ERROR]   ❌ Failed to enable database secrets engine"
-        exit 1
-    }
-}
-echo "[INFO]   ✅ Database secrets engine enabled"
+if vault secrets enable -path=mariadb database 2>&1; then
+    echo "[INFO]   ✅ Database secrets engine enabled"
+elif vault secrets list | grep -q "^mariadb/"; then
+    echo "[INFO]   ✅ Database secrets engine already enabled at mariadb/"
+else
+    echo "[ERROR]   ❌ Failed to enable database secrets engine"
+    exit 1
+fi
 
 # Step 2: Configure Vault → MariaDB connection
 echo ""
