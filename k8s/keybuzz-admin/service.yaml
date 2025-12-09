@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: keybuzz-admin
+  namespace: keybuzz-admin
+  labels:
+    app: keybuzz-admin
+    tier: frontend
+    env: prod
+spec:
+  type: ClusterIP
+  selector:
+    app: keybuzz-admin
+    tier: frontend
+    env: prod
+  ports:
+  - name: http
+    port: 3000
+    targetPort: 3000
+    protocol: TCP
+

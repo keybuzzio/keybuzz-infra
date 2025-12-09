@@ -1,0 +1,25 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: keybuzz-admin
+  namespace: argocd
+  labels:
+    app: keybuzz-admin
+    env: prod
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/keybuzzio/keybuzz-infra.git
+    targetRevision: main
+    path: k8s/keybuzz-admin
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: keybuzz-admin
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+    - CreateNamespace=true
+  revisionHistoryLimit: 3
+
