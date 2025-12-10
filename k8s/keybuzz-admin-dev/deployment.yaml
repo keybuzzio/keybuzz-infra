@@ -23,7 +23,7 @@ spec:
     spec:
       containers:
       - name: keybuzz-admin
-        image: REGISTRY_PLACEHOLDER/keybuzz-admin:DEV_TAG
+        image: ghcr.io/keybuzzio/keybuzz-admin:v1.0.0-dev
         ports:
         - name: http
           containerPort: 3000
