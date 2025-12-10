@@ -21,9 +21,11 @@ spec:
         tier: frontend
         env: dev
     spec:
+      imagePullSecrets:
+      - name: ghcr-secret
       containers:
       - name: keybuzz-admin
-        image: ghcr.io/keybuzzio/keybuzz-admin:v1.0.0-dev
+        image: ghcr.io/keybuzzio/keybuzz-admin:v1.0.1-dev
         ports:
         - name: http
           containerPort: 3000
@@ -56,4 +58,5 @@ spec:
           periodSeconds: 5
           timeoutSeconds: 3
           failureThreshold: 3
+
 
