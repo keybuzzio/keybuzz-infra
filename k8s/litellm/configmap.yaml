@@ -6,18 +6,31 @@ metadata:
 data:
   config.yaml: |
     model_list:
-      # Aliases KeyBuzz — no real providers yet
+      # Aliases KeyBuzz — no real providers yet (using openai/mock for testing)
       - model_name: kbz-cheap
         litellm_params:
-          model: mock
+          model: openai/mock
       - model_name: kbz-standard
         litellm_params:
-          model: mock
+          model: openai/mock
       - model_name: kbz-premium
         litellm_params:
-          model: mock
+          model: openai/mock
 
     general_settings:
-      # protect endpoint with master key
+      # Master key for admin operations
       master_key: os.environ/LITELLM_MASTER_KEY
+      # Database URL for runtime keys
+      database_url: os.environ/LITELLM_DATABASE_URL
 
+    # User config: use master key as API key for runtime
+    user_config:
+      - user_id: keybuzz-backend
+        user_email: backend@keybuzz.io
+        max_budget: null
+        models:
+          - kbz-cheap
+          - kbz-standard
+          - kbz-premium
+        # Use master key as the API key for this user
+        api_key: os.environ/LITELLM_MASTER_KEY
