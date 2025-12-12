@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: litellm-config
+  namespace: keybuzz-ai
+data:
+  config.yaml: |
+    model_list:
+      # Aliases KeyBuzz — no real providers yet
+      - model_name: kbz-cheap
+        litellm_params:
+          model: mock
+      - model_name: kbz-standard
+        litellm_params:
+          model: mock
+      - model_name: kbz-premium
+        litellm_params:
+          model: mock
+
+    general_settings:
+      # protect endpoint with master key
+      master_key: os.environ/LITELLM_MASTER_KEY
+
