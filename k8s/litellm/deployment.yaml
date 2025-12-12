@@ -21,6 +21,8 @@ spec:
           envFrom:
             - secretRef:
                 name: litellm-secret
+            - secretRef:
+                name: litellm-db-secret
           volumeMounts:
             - name: config
               mountPath: /app/config.yaml
