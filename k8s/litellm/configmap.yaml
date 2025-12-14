@@ -6,31 +6,66 @@ metadata:
 data:
   config.yaml: |
     model_list:
-      # Aliases KeyBuzz — no real providers yet (using openai/mock for testing)
+      # kbz-cheap: GPT-4o-mini (OpenAI)
       - model_name: kbz-cheap
         litellm_params:
-          model: openai/mock
+          model: openai/gpt-4o-mini
+          api_key: os.environ/OPENAI_API_KEY
+      
+      # kbz-standard: Claude 3.5 Sonnet (Anthropic)
       - model_name: kbz-standard
         litellm_params:
-          model: openai/mock
+          model: anthropic/claude-3-5-sonnet-20241022
+          api_key: os.environ/ANTHROPIC_API_KEY
+      
+      # kbz-premium: GPT-4o (OpenAI)
       - model_name: kbz-premium
         litellm_params:
-          model: openai/mock
+          model: openai/gpt-4o
+          api_key: os.environ/OPENAI_API_KEY
+      
+      # Fallback models
+      - model_name: kbz-cheap-fallback
+        litellm_params:
+          model: anthropic/claude-3-5-haiku-20241022
+          api_key: os.environ/ANTHROPIC_API_KEY
+      
+      - model_name: kbz-standard-fallback
+        litellm_params:
+          model: openai/gpt-4o-mini
+          api_key: os.environ/OPENAI_API_KEY
+      
+      - model_name: kbz-premium-fallback
+        litellm_params:
+          model: anthropic/claude-3-5-sonnet-20241022
+          api_key: os.environ/ANTHROPIC_API_KEY
+
+    router_settings:
+      # Fallbacks automatiques si un provider est down
+      fallbacks:
+        kbz-cheap:
+          - kbz-cheap-fallback
+        kbz-standard:
+          - kbz-standard-fallback
+        kbz-premium:
+          - kbz-premium-fallback
+      
+      # Retry logic
+      num_retries: 3
+      retry_after: 10
+      allowed_fails: 3
+      cooldown_time: 180
 
     general_settings:
-      # Master key for admin operations
       master_key: os.environ/LITELLM_MASTER_KEY
-      # Database URL for runtime keys
-      database_url: os.environ/LITELLM_DATABASE_URL
+      database_url: os.environ/DATABASE_URL
+      
+      # Logging et callbacks
+      success_callback: ["langfuse"]
+      failure_callback: ["langfuse"]
+      
+      # Cache (optionnel, pour plus tard)
+      # cache: true
+      # cache_params:
+      #   type: "redis"
 
-    # User config: use master key as API key for runtime
-    user_config:
-      - user_id: keybuzz-backend
-        user_email: backend@keybuzz.io
-        max_budget: null
-        models:
-          - kbz-cheap
-          - kbz-standard
-          - kbz-premium
-        # Use master key as the API key for this user
-        api_key: os.environ/LITELLM_MASTER_KEY
