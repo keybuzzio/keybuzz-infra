@@ -6,66 +6,54 @@ metadata:
 data:
   config.yaml: |
     model_list:
-      # kbz-cheap: GPT-4o-mini (OpenAI)
+      # kbz-cheap: GPT-4o-mini (OpenAI) - primary
       - model_name: kbz-cheap
         litellm_params:
           model: openai/gpt-4o-mini
           api_key: os.environ/OPENAI_API_KEY
       
-      # kbz-standard: Claude 3.5 Sonnet (Anthropic)
+      # kbz-cheap-fallback: Claude Haiku (Anthropic)
+      - model_name: kbz-cheap
+        litellm_params:
+          model: anthropic/claude-3-5-haiku-20241022
+          api_key: os.environ/ANTHROPIC_API_KEY
+      
+      # kbz-standard: Claude 3.5 Sonnet (Anthropic) - primary
       - model_name: kbz-standard
         litellm_params:
           model: anthropic/claude-3-5-sonnet-20241022
           api_key: os.environ/ANTHROPIC_API_KEY
       
-      # kbz-premium: GPT-4o (OpenAI)
+      # kbz-standard-fallback: GPT-4o-mini (OpenAI)
+      - model_name: kbz-standard
+        litellm_params:
+          model: openai/gpt-4o-mini
+          api_key: os.environ/OPENAI_API_KEY
+      
+      # kbz-premium: GPT-4o (OpenAI) - primary
       - model_name: kbz-premium
         litellm_params:
           model: openai/gpt-4o
           api_key: os.environ/OPENAI_API_KEY
       
-      # Fallback models
-      - model_name: kbz-cheap-fallback
-        litellm_params:
-          model: anthropic/claude-3-5-haiku-20241022
-          api_key: os.environ/ANTHROPIC_API_KEY
-      
-      - model_name: kbz-standard-fallback
-        litellm_params:
-          model: openai/gpt-4o-mini
-          api_key: os.environ/OPENAI_API_KEY
-      
-      - model_name: kbz-premium-fallback
+      # kbz-premium-fallback: Claude Sonnet (Anthropic)
+      - model_name: kbz-premium
         litellm_params:
           model: anthropic/claude-3-5-sonnet-20241022
           api_key: os.environ/ANTHROPIC_API_KEY
 
     router_settings:
-      # Fallbacks automatiques si un provider est down
-      fallbacks:
-        kbz-cheap:
-          - kbz-cheap-fallback
-        kbz-standard:
-          - kbz-standard-fallback
-        kbz-premium:
-          - kbz-premium-fallback
-      
       # Retry logic
       num_retries: 3
       retry_after: 10
       allowed_fails: 3
       cooldown_time: 180
+      
+      # Fallbacks automatiques : LiteLLM utilisera automatiquement
+      # le deuxième model_name identique en cas d'échec du premier
+      enable_pre_call_checks: true
 
     general_settings:
       master_key: os.environ/LITELLM_MASTER_KEY
       database_url: os.environ/DATABASE_URL
-      
-      # Logging et callbacks
-      success_callback: ["langfuse"]
-      failure_callback: ["langfuse"]
-      
-      # Cache (optionnel, pour plus tard)
-      # cache: true
-      # cache_params:
-      #   type: "redis"
 
