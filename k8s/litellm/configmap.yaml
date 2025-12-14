@@ -18,10 +18,10 @@ data:
           model: anthropic/claude-3-5-haiku-20241022
           api_key: os.environ/ANTHROPIC_API_KEY
       
-      # kbz-standard: Claude 3.5 Sonnet (Anthropic) - primary
+      # kbz-standard: Claude Sonnet 4 (Anthropic) - primary
       - model_name: kbz-standard
         litellm_params:
-          model: anthropic/claude-3-5-sonnet-latest
+          model: anthropic/claude-sonnet-4-20250514
           api_key: os.environ/ANTHROPIC_API_KEY
       
       # kbz-standard-fallback: GPT-4o-mini (OpenAI)
@@ -36,10 +36,10 @@ data:
           model: openai/gpt-4o
           api_key: os.environ/OPENAI_API_KEY
       
-      # kbz-premium-fallback: Claude Sonnet (Anthropic)
+      # kbz-premium-fallback: Claude Sonnet 4 (Anthropic)
       - model_name: kbz-premium
         litellm_params:
-          model: anthropic/claude-3-5-sonnet-latest
+          model: anthropic/claude-sonnet-4-20250514
           api_key: os.environ/ANTHROPIC_API_KEY
 
     router_settings:
@@ -48,8 +48,6 @@ data:
       retry_after: 10
       allowed_fails: 3
       cooldown_time: 180
-      
-      # Fallbacks automatiques
       enable_pre_call_checks: true
 
     general_settings:
