@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Endpoints
+metadata:
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"v1","kind":"Endpoints","metadata":{"annotations":{},"name":"keybuzz-backend","namespace":"keybuzz-api"},"subsets":[{"addresses":[{"ip":"10.0.0.250"}],"ports":[{"name":"http","port":4000,"protocol":"TCP"}]}]}
+  creationTimestamp: "2025-12-16T20:36:47Z"
+  name: keybuzz-backend
+  namespace: keybuzz-api
+  resourceVersion: "1879035"
+  uid: 1ea13cb0-1c33-49fc-81b7-50872855ec6a
+subsets:
+- addresses:
+  - ip: 10.0.0.250
+  ports:
+  - name: http
+    port: 4000
+    protocol: TCP

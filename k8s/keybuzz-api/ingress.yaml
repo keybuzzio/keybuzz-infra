@@ -1,0 +1,44 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"networking.k8s.io/v1","kind":"Ingress","metadata":{"annotations":{"cert-manager.io/cluster-issuer":"letsencrypt-prod","nginx.ingress.kubernetes.io/cors-allow-credentials":"true","nginx.ingress.kubernetes.io/cors-allow-headers":"DNT,X-CustomHeader,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Authorization","nginx.ingress.kubernetes.io/cors-allow-methods":"GET,POST,PUT,DELETE,OPTIONS,PATCH","nginx.ingress.kubernetes.io/cors-allow-origin":"https://admin-dev.keybuzz.io,https://admin.keybuzz.io","nginx.ingress.kubernetes.io/enable-cors":"true","nginx.ingress.kubernetes.io/force-ssl-redirect":"true","nginx.ingress.kubernetes.io/proxy-body-size":"10m","nginx.ingress.kubernetes.io/proxy-connect-timeout":"300","nginx.ingress.kubernetes.io/proxy-read-timeout":"300","nginx.ingress.kubernetes.io/ssl-redirect":"true"},"name":"keybuzz-backend-api","namespace":"keybuzz-api"},"spec":{"ingressClassName":"nginx","rules":[{"host":"platform-api.keybuzz.io","http":{"paths":[{"backend":{"service":{"name":"keybuzz-backend","port":{"number":4000}}},"path":"/","pathType":"Prefix"}]}}],"tls":[{"hosts":["platform-api.keybuzz.io"],"secretName":"platform-api-keybuzz-io-tls"}]}}
+    nginx.ingress.kubernetes.io/cors-allow-credentials: "true"
+    nginx.ingress.kubernetes.io/cors-allow-headers: DNT,X-CustomHeader,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Authorization
+    nginx.ingress.kubernetes.io/cors-allow-methods: GET,POST,PUT,DELETE,OPTIONS,PATCH
+    nginx.ingress.kubernetes.io/cors-allow-origin: https://admin-dev.keybuzz.io,https://admin.keybuzz.io
+    nginx.ingress.kubernetes.io/enable-cors: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/proxy-body-size: 10m
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "300"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+  creationTimestamp: "2025-12-16T20:37:25Z"
+  generation: 1
+  name: keybuzz-backend-api
+  namespace: keybuzz-api
+  resourceVersion: "1879276"
+  uid: 1d59797e-4ab8-4023-8c7c-2e5ac8fa6618
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: platform-api.keybuzz.io
+    http:
+      paths:
+      - backend:
+          service:
+            name: keybuzz-backend
+            port:
+              number: 4000
+        path: /
+        pathType: Prefix
+  tls:
+  - hosts:
+    - platform-api.keybuzz.io
+    secretName: platform-api-keybuzz-io-tls
+status:
+  loadBalancer:
+    ingress:
+    - ip: 10.111.50.244
