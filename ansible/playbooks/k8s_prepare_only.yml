@@ -1,0 +1,11 @@
+---
+# Kubernetes Cluster v3 - Preparation Only
+# Prepares all Kubernetes nodes WITHOUT cluster initialization
+# This is PHASE 2: Base OS & Kubernetes prerequisites
+
+- name: Prepare all Kubernetes nodes
+  hosts: k8s_masters:k8s_workers
+  become: yes
+  gather_facts: yes
+  roles:
+    - k8s_cluster_v3

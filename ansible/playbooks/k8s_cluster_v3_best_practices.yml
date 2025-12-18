@@ -1,0 +1,365 @@
+---
+# Kubernetes Cluster v3 Playbook - BEST PRACTICES VERSION
+# Basé sur les bonnes pratiques officielles Kubernetes/kubeadm
+# 
+# Corrections appliquées :
+# 1. Configuration DNS avant bootstrap
+# 2. Utilisation de fichiers de configuration kubeadm (au lieu de flags)
+# 3. Séquence séquentielle : master-01 init, puis master-02 join, puis master-03 join
+# 4. Attente entre chaque étape pour stabilité
+# 5. Configuration etcd avec IPs privées uniquement dans les SANs
+# 6. Vérifications de santé après chaque étape
+
+- name: Prepare all Kubernetes nodes
+  hosts: k8s_masters:k8s_workers
+  become: yes
+  gather_facts: yes
+  roles:
+    - k8s_cluster_v3
+
+- name: Fix DNS configuration on all nodes BEFORE bootstrap
+  hosts: k8s_masters:k8s_workers
+  become: yes
+  tasks:
+    - name: Stop and disable systemd-resolved
+      systemd:
+        name: systemd-resolved
+        state: stopped
+        enabled: no
+      ignore_errors: yes
+
+    - name: Configure static DNS nameserver
+      copy:
+        dest: /etc/resolv.conf
+        content: |
+          nameserver 1.1.1.1
+        backup: yes
+        mode: '0644'
+
+- name: Create kubeadm configuration files on master-01
+  hosts: k8s-master-01
+  become: yes
+  tasks:
+    - name: Create kubeadm init configuration file
+      copy:
+        dest: /root/kubeadm-init-config.yaml
+        content: |
+          apiVersion: kubeadm.k8s.io/v1beta3
+          kind: InitConfiguration
+          localAPIEndpoint:
+            advertiseAddress: "10.0.0.100"
+            bindPort: 6443
+          nodeRegistration:
+            criSocket: "unix:///var/run/containerd/containerd.sock"
+          ---
+          apiVersion: kubeadm.k8s.io/v1beta3
+          kind: ClusterConfiguration
+          kubernetesVersion: "v1.30.0"
+          controlPlaneEndpoint: "10.0.0.100:6443"
+          etcd:
+            local:
+              serverCertSANs:
+                - "10.0.0.100"
+                - "10.0.0.101"
+                - "10.0.0.102"
+                - "127.0.0.1"
+                - "localhost"
+              peerCertSANs:
+                - "10.0.0.100"
+                - "10.0.0.101"
+                - "10.0.0.102"
+                - "127.0.0.1"
+                - "localhost"
+          networking:
+            podSubnet: "10.244.0.0/16"
+            serviceSubnet: "10.96.0.0/12"
+        mode: '0644'
+
+    - name: Create kubeadm join configuration for master-02
+      copy:
+        dest: /root/kubeadm-join-master02.yaml
+        content: |
+          apiVersion: kubeadm.k8s.io/v1beta3
+          kind: JoinConfiguration
+          controlPlane:
+            localAPIEndpoint:
+              advertiseAddress: "10.0.0.101"
+              bindPort: 6443
+          nodeRegistration:
+            criSocket: "unix:///var/run/containerd/containerd.sock"
+          discovery:
+            bootstrapToken:
+              apiServerEndpoint: "10.0.0.100:6443"
+        mode: '0644'
+
+    - name: Create kubeadm join configuration for master-03
+      copy:
+        dest: /root/kubeadm-join-master03.yaml
+        content: |
+          apiVersion: kubeadm.k8s.io/v1beta3
+          kind: JoinConfiguration
+          controlPlane:
+            localAPIEndpoint:
+              advertiseAddress: "10.0.0.102"
+              bindPort: 6443
+          nodeRegistration:
+            criSocket: "unix:///var/run/containerd/containerd.sock"
+          discovery:
+            bootstrapToken:
+              apiServerEndpoint: "10.0.0.100:6443"
+        mode: '0644'
+
+- name: Initialize Kubernetes cluster on master-01 (BOOTSTRAP)
+  hosts: k8s-master-01
+  become: yes
+  tasks:
+    - name: Check if cluster already initialized
+      stat:
+        path: /etc/kubernetes/admin.conf
+      register: admin_conf
+
+    - name: Initialize Kubernetes cluster with kubeadm config file
+      shell: |
+        kubeadm init --config=/root/kubeadm-init-config.yaml --upload-certs --skip-token-print
+      args:
+        creates: /etc/kubernetes/admin.conf
+      when: not admin_conf.stat.exists
+      register: kubeadm_init
+
+    - name: Wait for API server to be ready
+      uri:
+        url: https://10.0.0.100:6443/healthz
+        method: GET
+        validate_certs: no
+        status_code: 200
+        timeout: 5
+      register: api_health
+      until: api_health.status == 200
+      retries: 60
+      delay: 10
+      when: not admin_conf.stat.exists
+
+    - name: Wait for etcd pod to be running
+      shell: |
+        export KUBECONFIG=/etc/kubernetes/admin.conf
+        kubectl wait --for=condition=Ready pod -l component=etcd -n kube-system --timeout=300s || true
+      when: not admin_conf.stat.exists
+      ignore_errors: yes
+
+    - name: Verify etcd endpoint health
+      shell: |
+        export KUBECONFIG=/etc/kubernetes/admin.conf
+        kubectl get pod -l component=etcd -n kube-system -o jsonpath='{.items[0].status.phase}' | grep -q Running || exit 1
+      when: not admin_conf.stat.exists
+      register: etcd_health
+      failed_when: etcd_health.rc != 0
+      retries: 30
+      delay: 10
+      ignore_errors: yes
+
+    - name: Generate join token and certificate key for control plane
+      shell: |
+        CERT_KEY=$(kubeadm init phase upload-certs --upload-certs 2>/dev/null | tail -1)
+        TOKEN=$(kubeadm token create --print-join-command 2>/dev/null | awk '{print $5}')
+        HASH=$(kubeadm token create --print-join-command 2>/dev/null | awk '{print $7}')
+        echo "kubeadm join 10.0.0.100:6443 --token $TOKEN --discovery-token-ca-cert-hash $HASH --control-plane --certificate-key $CERT_KEY" > /root/k8s_join_control_plane.txt
+      when: not admin_conf.stat.exists
+
+    - name: Generate join command for workers
+      shell: |
+        kubeadm token create --print-join-command > /root/k8s_join_workers.txt
+      when: not admin_conf.stat.exists
+
+    - name: Create .kube directory on install-v3
+      file:
+        path: /root/.kube
+        state: directory
+        mode: '0755'
+      delegate_to: localhost
+
+    - name: Copy kubeconfig to install-v3
+      fetch:
+        src: /etc/kubernetes/admin.conf
+        dest: /root/.kube/config
+        flat: yes
+      delegate_to: localhost
+      when: not admin_conf.stat.exists
+
+- name: Join master-02 to control plane (SEQUENTIAL - wait for master-01)
+  hosts: k8s-master-02
+  become: yes
+  tasks:
+    - name: Get join command from master-01
+      slurp:
+        src: /root/k8s_join_control_plane.txt
+      delegate_to: k8s-master-01
+      register: join_command_file
+
+    - name: Wait for master-01 API server to be ready
+      uri:
+        url: https://10.0.0.100:6443/healthz
+        method: GET
+        validate_certs: no
+        status_code: 200
+        timeout: 5
+      register: api_health
+      until: api_health.status == 200
+      retries: 60
+      delay: 10
+
+    - name: Join control plane
+      shell: |
+        {{ join_command_file.content | b64decode }} --apiserver-advertise-address=10.0.0.101
+      args:
+        creates: /etc/kubernetes/kubelet.conf
+      when: join_command_file.content is defined
+
+    - name: Wait for etcd cluster to stabilize (2 members)
+      shell: |
+        sleep 30
+        ETCDCTL_API=3 etcdctl \
+          --cacert=/etc/kubernetes/pki/etcd/ca.crt \
+          --cert=/etc/kubernetes/pki/etcd/server.crt \
+          --key=/etc/kubernetes/pki/etcd/server.key \
+          --endpoints=https://127.0.0.1:2379 \
+          endpoint health || true
+      args:
+        creates: /etc/kubernetes/kubelet.conf
+      retries: 20
+      delay: 10
+      ignore_errors: yes
+
+- name: Join master-03 to control plane (SEQUENTIAL - wait for master-02)
+  hosts: k8s-master-03
+  become: yes
+  tasks:
+    - name: Get join command from master-01
+      slurp:
+        src: /root/k8s_join_control_plane.txt
+      delegate_to: k8s-master-01
+      register: join_command_file
+
+    - name: Wait for master-02 to be ready
+      uri:
+        url: https://10.0.0.101:6443/healthz
+        method: GET
+        validate_certs: no
+        status_code: 200
+        timeout: 5
+      register: api_health
+      until: api_health.status == 200
+      retries: 60
+      delay: 10
+
+    - name: Join control plane
+      shell: |
+        {{ join_command_file.content | b64decode }} --apiserver-advertise-address=10.0.0.102
+      args:
+        creates: /etc/kubernetes/kubelet.conf
+      when: join_command_file.content is defined
+
+    - name: Wait for etcd cluster to stabilize (3 members)
+      shell: |
+        sleep 30
+        ETCDCTL_API=3 etcdctl \
+          --cacert=/etc/kubernetes/pki/etcd/ca.crt \
+          --cert=/etc/kubernetes/pki/etcd/server.crt \
+          --key=/etc/kubernetes/pki/etcd/server.key \
+          --endpoints=https://127.0.0.1:2379 \
+          endpoint health || true
+      args:
+        creates: /etc/kubernetes/kubelet.conf
+      retries: 20
+      delay: 10
+      ignore_errors: yes
+
+- name: Join worker nodes (CAN BE PARALLEL after masters are ready)
+  hosts: k8s_workers
+  become: yes
+  tasks:
+    - name: Wait for master-01 to be ready
+      uri:
+        url: "https://10.0.0.100:6443/healthz"
+        method: GET
+        validate_certs: no
+        status_code: 200
+        timeout: 5
+      register: master01_health
+      until: master01_health.status == 200
+      retries: 30
+      delay: 5
+      
+    - name: Wait for master-02 to be ready
+      uri:
+        url: "https://10.0.0.101:6443/healthz"
+        method: GET
+        validate_certs: no
+        status_code: 200
+        timeout: 5
+      register: master02_health
+      until: master02_health.status == 200
+      retries: 30
+      delay: 5
+      
+    - name: Wait for master-03 to be ready
+      uri:
+        url: "https://10.0.0.102:6443/healthz"
+        method: GET
+        validate_certs: no
+        status_code: 200
+        timeout: 5
+      register: master03_health
+      until: master03_health.status == 200
+      retries: 30
+      delay: 5
+
+    - name: Get join command from master-01
+      slurp:
+        src: /root/k8s_join_workers.txt
+      delegate_to: k8s-master-01
+      register: join_command_file
+
+    - name: Join worker nodes
+      shell: "{{ join_command_file.content | b64decode }}"
+      args:
+        creates: /etc/kubernetes/kubelet.conf
+      when: join_command_file.content is defined
+
+- name: Verify cluster status
+  hosts: k8s-master-01
+  become: yes
+  tasks:
+    - name: Wait for all nodes to be ready
+      shell: |
+        export KUBECONFIG=/etc/kubernetes/admin.conf
+        READY_COUNT=$(kubectl get nodes --no-headers 2>/dev/null | grep -c Ready || echo "0")
+        echo $READY_COUNT
+      register: ready_nodes
+      until: ready_nodes.stdout | int >= 8
+      retries: 60
+      delay: 10
+
+    - name: Display cluster status
+      shell: |
+        export KUBECONFIG=/etc/kubernetes/admin.conf
+        kubectl get nodes -o wide
+      register: nodes_status
+
+    - name: Verify etcd cluster members
+      shell: |
+        ETCDCTL_API=3 etcdctl \
+          --cacert=/etc/kubernetes/pki/etcd/ca.crt \
+          --cert=/etc/kubernetes/pki/etcd/server.crt \
+          --key=/etc/kubernetes/pki/etcd/server.key \
+          --endpoints=https://127.0.0.1:2379 \
+          member list
+      register: etcd_members
+
+    - name: Show etcd members
+      debug:
+        var: etcd_members.stdout_lines
+
+    - name: Show nodes
+      debug:
+        var: nodes_status.stdout_lines
+

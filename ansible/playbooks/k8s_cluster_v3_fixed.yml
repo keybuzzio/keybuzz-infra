@@ -1,0 +1,299 @@
+---
+# Kubernetes Cluster v3 Playbook - FIXED VERSION
+# Corrections apportées pour éviter les erreurs passées:
+# 1. Configuration DNS avant bootstrap
+# 2. kubeadm init avec IPs privées uniquement
+# 3. Configuration etcd avec IPs privées dès le début
+# 4. Options kubeadm pour éviter problèmes certificats
+
+- name: Prepare all Kubernetes nodes
+  hosts: k8s_masters:k8s_workers
+  become: yes
+  gather_facts: yes
+  roles:
+    - k8s_cluster_v3
+
+- name: Fix DNS configuration before bootstrap
+  hosts: k8s_masters
+  become: yes
+  tasks:
+    - name: Fix /etc/resolv.conf to use static IPv4 nameserver
+      lineinfile:
+        path: /etc/resolv.conf
+        line: "nameserver 1.1.1.1"
+        regexp: "^nameserver"
+        state: present
+        backup: yes
+
+    - name: Remove IPv6 nameservers from resolv.conf
+      lineinfile:
+        path: /etc/resolv.conf
+        line: ""
+        regexp: "^nameserver.*:"
+        state: absent
+
+    - name: Disable systemd-resolved to prevent conflicts
+      systemd:
+        name: systemd-resolved
+        state: stopped
+        enabled: no
+      ignore_errors: yes
+
+- name: Initialize Kubernetes cluster on first master
+  hosts: k8s-master-01
+  become: yes
+  gather_facts: yes
+  tasks:
+    - name: Check if cluster already initialized
+      stat:
+        path: /etc/kubernetes/admin.conf
+      register: admin_conf
+
+    - name: Initialize Kubernetes cluster with private IPs only
+      shell: |
+        kubeadm init \
+          --pod-network-cidr=10.244.0.0/16 \
+          --control-plane-endpoint=10.0.0.100:6443 \
+          --apiserver-advertise-address=10.0.0.100 \
+          --apiserver-bind-port=6443 \
+          --upload-certs \
+          --skip-token-print \
+          --ignore-preflight-errors=CRI \
+          --service-cidr=10.96.0.0/12 \
+          --cert-dir=/etc/kubernetes/pki
+      args:
+        creates: /etc/kubernetes/admin.conf
+      register: kubeadm_init
+      when: not admin_conf.stat.exists
+
+    - name: Wait for kubelet to be ready
+      wait_for:
+        port: 6443
+        host: 10.0.0.100
+        delay: 10
+        timeout: 300
+      when: not admin_conf.stat.exists
+
+    - name: Patch kube-apiserver manifest to use private IP only
+      shell: |
+        # Backup original
+        cp /etc/kubernetes/manifests/kube-apiserver.yaml /etc/kubernetes/manifests/kube-apiserver.yaml.bak
+        # Ensure advertise-address uses private IP
+        sed -i 's|--advertise-address=.*|--advertise-address=10.0.0.100|' /etc/kubernetes/manifests/kube-apiserver.yaml
+        # Remove any public IP references
+        sed -i '/--advertise-address=9[0-9]/d' /etc/kubernetes/manifests/kube-apiserver.yaml
+      when: not admin_conf.stat.exists
+      ignore_errors: yes
+
+    - name: Patch etcd manifest to use private IPs only
+      shell: |
+        # Backup original
+        cp /etc/kubernetes/manifests/etcd.yaml /etc/kubernetes/manifests/etcd.yaml.bak
+        # Replace any public IP with private IP
+        sed -i 's|10\.0\.0\.100|10.0.0.100|g' /etc/kubernetes/manifests/etcd.yaml
+        sed -i 's|9[0-9]\.[0-9]*\.[0-9]*\.[0-9]*|10.0.0.100|g' /etc/kubernetes/manifests/etcd.yaml
+        # Ensure listen-client-urls and advertise-client-urls use private IP
+        sed -i 's|--listen-client-urls=.*|--listen-client-urls=https://127.0.0.1:2379,https://10.0.0.100:2379|' /etc/kubernetes/manifests/etcd.yaml
+        sed -i 's|--advertise-client-urls=.*|--advertise-client-urls=https://10.0.0.100:2379|' /etc/kubernetes/manifests/etcd.yaml
+        sed -i 's|--initial-advertise-peer-urls=.*|--initial-advertise-peer-urls=https://10.0.0.100:2380|' /etc/kubernetes/manifests/etcd.yaml
+        sed -i 's|--listen-peer-urls=.*|--listen-peer-urls=https://10.0.0.100:2380|' /etc/kubernetes/manifests/etcd.yaml
+      when: not admin_conf.stat.exists
+      ignore_errors: yes
+
+    - name: Restart kubelet to apply manifest changes
+      systemd:
+        name: kubelet
+        state: restarted
+      when: not admin_conf.stat.exists
+      ignore_errors: yes
+
+    - name: Wait for API server to be ready
+      uri:
+        url: https://10.0.0.100:6443/healthz
+        method: GET
+        validate_certs: no
+        status_code: 200
+      register: api_health
+      until: api_health.status == 200
+      retries: 30
+      delay: 10
+      when: not admin_conf.stat.exists
+
+    - name: Save kubeadm join command for control plane
+      shell: |
+        kubeadm init phase upload-certs --upload-certs 2>/dev/null | tail -1 > /root/k8s_cert_key.txt || true
+        CERT_KEY=$(cat /root/k8s_cert_key.txt 2>/dev/null || echo "")
+        TOKEN=$(kubeadm token create --print-join-command 2>/dev/null | awk '{print $5}')
+        HASH=$(kubeadm token create --print-join-command 2>/dev/null | awk '{print $7}')
+        if [ -n "$CERT_KEY" ]; then
+          echo "kubeadm join 10.0.0.100:6443 --token $TOKEN --discovery-token-ca-cert-hash $HASH --control-plane --certificate-key $CERT_KEY --apiserver-advertise-address=" > /root/k8s_join_control_plane_template.txt
+        else
+          echo "kubeadm join 10.0.0.100:6443 --token $TOKEN --discovery-token-ca-cert-hash $HASH --control-plane --apiserver-advertise-address=" > /root/k8s_join_control_plane_template.txt
+        fi
+      when: not admin_conf.stat.exists
+
+    - name: Generate join commands for each control plane node
+      shell: |
+        if [ -f /root/k8s_join_control_plane_template.txt ]; then
+          BASE_CMD=$(cat /root/k8s_join_control_plane_template.txt)
+          echo "${BASE_CMD}10.0.0.101" > /root/k8s_join_control_plane_master02.txt
+          echo "${BASE_CMD}10.0.0.102" > /root/k8s_join_control_plane_master03.txt
+        fi
+      when: not admin_conf.stat.exists
+
+    - name: Save kubeadm join command for workers
+      shell: |
+        kubeadm token create --print-join-command > /root/k8s_join_workers.txt
+      when: not admin_conf.stat.exists
+
+    - name: Create .kube directory on install-v3
+      file:
+        path: /root/.kube
+        state: directory
+        mode: '0755'
+      delegate_to: localhost
+
+    - name: Copy kubeconfig to install-v3
+      fetch:
+        src: /etc/kubernetes/admin.conf
+        dest: /root/.kube/config
+        flat: yes
+      delegate_to: localhost
+      when: not admin_conf.stat.exists
+
+- name: Join control plane nodes
+  hosts: k8s-master-02:k8s-master-03
+  become: yes
+  gather_facts: yes
+  tasks:
+    - name: Fix DNS configuration
+      lineinfile:
+        path: /etc/resolv.conf
+        line: "nameserver 1.1.1.1"
+        regexp: "^nameserver"
+        state: present
+        backup: yes
+
+    - name: Disable systemd-resolved
+      systemd:
+        name: systemd-resolved
+        state: stopped
+        enabled: no
+      ignore_errors: yes
+
+    - name: Get join command for master-02
+      slurp:
+        src: /root/k8s_join_control_plane_master02.txt
+      delegate_to: k8s-master-01
+      register: join_command_master02
+      when: inventory_hostname == "k8s-master-02"
+
+    - name: Get join command for master-03
+      slurp:
+        src: /root/k8s_join_control_plane_master03.txt
+      delegate_to: k8s-master-01
+      register: join_command_master03
+      when: inventory_hostname == "k8s-master-03"
+
+    - name: Join control plane (master-02)
+      shell: "{{ join_command_master02.content | b64decode }}"
+      args:
+        creates: /etc/kubernetes/kubelet.conf
+      when: inventory_hostname == "k8s-master-02" and join_command_master02.content is defined
+
+    - name: Join control plane (master-03)
+      shell: "{{ join_command_master03.content | b64decode }}"
+      args:
+        creates: /etc/kubernetes/kubelet.conf
+      when: inventory_hostname == "k8s-master-03" and join_command_master03.content is defined
+
+    - name: Patch etcd manifest after join to use private IP
+      shell: |
+        PRIV_IP=""
+        case "{{ inventory_hostname }}" in
+          k8s-master-02) PRIV_IP="10.0.0.101" ;;
+          k8s-master-03) PRIV_IP="10.0.0.102" ;;
+        esac
+        if [ -n "$PRIV_IP" ] && [ -f /etc/kubernetes/manifests/etcd.yaml ]; then
+          cp /etc/kubernetes/manifests/etcd.yaml /etc/kubernetes/manifests/etcd.yaml.bak
+          sed -i "s|--listen-client-urls=.*|--listen-client-urls=https://127.0.0.1:2379,https://$PRIV_IP:2379|" /etc/kubernetes/manifests/etcd.yaml
+          sed -i "s|--advertise-client-urls=.*|--advertise-client-urls=https://$PRIV_IP:2379|" /etc/kubernetes/manifests/etcd.yaml
+          sed -i "s|--initial-advertise-peer-urls=.*|--initial-advertise-peer-urls=https://$PRIV_IP:2380|" /etc/kubernetes/manifests/etcd.yaml
+          sed -i "s|--listen-peer-urls=.*|--listen-peer-urls=https://$PRIV_IP:2380|" /etc/kubernetes/manifests/etcd.yaml
+          # Remove any public IP references
+          sed -i "s|9[0-9]\.[0-9]*\.[0-9]*\.[0-9]*|$PRIV_IP|g" /etc/kubernetes/manifests/etcd.yaml
+        fi
+      args:
+        creates: /etc/kubernetes/kubelet.conf
+      ignore_errors: yes
+
+    - name: Patch kube-apiserver manifest after join
+      shell: |
+        PRIV_IP=""
+        case "{{ inventory_hostname }}" in
+          k8s-master-02) PRIV_IP="10.0.0.101" ;;
+          k8s-master-03) PRIV_IP="10.0.0.102" ;;
+        esac
+        if [ -n "$PRIV_IP" ] && [ -f /etc/kubernetes/manifests/kube-apiserver.yaml ]; then
+          cp /etc/kubernetes/manifests/kube-apiserver.yaml /etc/kubernetes/manifests/kube-apiserver.yaml.bak
+          sed -i "s|--advertise-address=.*|--advertise-address=$PRIV_IP|" /etc/kubernetes/manifests/kube-apiserver.yaml
+          # Remove any public IP references
+          sed -i "/--advertise-address=9[0-9]/d" /etc/kubernetes/manifests/kube-apiserver.yaml
+        fi
+      args:
+        creates: /etc/kubernetes/kubelet.conf
+      ignore_errors: yes
+
+    - name: Restart kubelet after manifest patches
+      systemd:
+        name: kubelet
+        state: restarted
+      args:
+        creates: /etc/kubernetes/kubelet.conf
+      ignore_errors: yes
+
+- name: Join worker nodes
+  hosts: k8s_workers
+  become: yes
+  gather_facts: yes
+  tasks:
+    - name: Fix DNS configuration
+      lineinfile:
+        path: /etc/resolv.conf
+        line: "nameserver 1.1.1.1"
+        regexp: "^nameserver"
+        state: present
+        backup: yes
+
+    - name: Get join command from master-01
+      slurp:
+        src: /root/k8s_join_workers.txt
+      delegate_to: k8s-master-01
+      register: join_command_file
+
+    - name: Join worker nodes
+      shell: "{{ join_command_file.content | b64decode }}"
+      args:
+        creates: /etc/kubernetes/kubelet.conf
+      when: join_command_file.content is defined
+
+- name: Verify cluster status
+  hosts: k8s-master-01
+  become: yes
+  gather_facts: yes
+  tasks:
+    - name: Wait for nodes to be ready
+      shell: kubectl get nodes --no-headers 2>/dev/null | grep -c Ready || echo "0"
+      register: ready_nodes
+      until: ready_nodes.stdout | int >= 8
+      retries: 30
+      delay: 10
+
+    - name: Display cluster status
+      shell: kubectl get nodes
+      register: nodes_status
+
+    - name: Show nodes
+      debug:
+        var: nodes_status.stdout_lines
+
