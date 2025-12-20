@@ -9,6 +9,9 @@ metadata:
     env: dev
 spec:
   replicas: 1
+  progressDeadlineSeconds: 600
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
       app: keybuzz-admin
@@ -21,11 +24,13 @@ spec:
         tier: frontend
         env: dev
     spec:
+      nodeSelector:
+        kubernetes.io/hostname: k8s-worker-01
       imagePullSecrets:
       - name: ghcr-secret
       containers:
       - name: keybuzz-admin
-        image: ghcr.io/keybuzzio/keybuzz-admin:v1.0.30-dev
+        image: ghcr.io/keybuzzio/keybuzz-admin:v1.0.32-dev
         ports:
         - name: http
           containerPort: 3000
@@ -49,16 +54,16 @@ spec:
             path: /
             port: 3000
             scheme: HTTP
-          initialDelaySeconds: 20
+          initialDelaySeconds: 45
           periodSeconds: 10
           timeoutSeconds: 5
-          failureThreshold: 6
+          failureThreshold: 12
         livenessProbe:
           httpGet:
             path: /
             port: 3000
             scheme: HTTP
-          initialDelaySeconds: 40
+          initialDelaySeconds: 90
           periodSeconds: 15
           timeoutSeconds: 5
-          failureThreshold: 4
+          failureThreshold: 6
