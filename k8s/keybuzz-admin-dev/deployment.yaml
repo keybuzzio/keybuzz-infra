@@ -30,7 +30,7 @@ spec:
       - name: ghcr-secret
       containers:
       - name: keybuzz-admin
-        image: ghcr.io/keybuzzio/keybuzz-admin:v1.0.32-dev
+        image: ghcr.io/keybuzzio/keybuzz-admin:v1.0.33-dev
         ports:
         - name: http
           containerPort: 3000
@@ -51,19 +51,19 @@ spec:
             memory: 512Mi
         readinessProbe:
           httpGet:
-            path: /
+            path: /inbound-email
             port: 3000
             scheme: HTTP
-          initialDelaySeconds: 45
+          initialDelaySeconds: 30
           periodSeconds: 10
           timeoutSeconds: 5
           failureThreshold: 12
         livenessProbe:
           httpGet:
-            path: /
+            path: /inbound-email
             port: 3000
             scheme: HTTP
-          initialDelaySeconds: 90
+          initialDelaySeconds: 60
           periodSeconds: 15
           timeoutSeconds: 5
           failureThreshold: 6
