@@ -30,7 +30,7 @@ spec:
       - name: ghcr-secret
       containers:
       - name: keybuzz-admin
-        image: ghcr.io/keybuzzio/keybuzz-admin:v1.0.2-dev
+        image: ghcr.io/keybuzzio/keybuzz-admin:v1.0.3-dev
         ports:
         - name: http
           containerPort: 3000
