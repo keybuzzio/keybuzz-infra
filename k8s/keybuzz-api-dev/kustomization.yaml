@@ -1,0 +1,9 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: keybuzz-api-dev
+resources:
+- clustersecretstore-vault-database.yaml
+- externalsecret-postgres.yaml
+- deployment.yaml
+- service.yaml
+- ingress.yaml

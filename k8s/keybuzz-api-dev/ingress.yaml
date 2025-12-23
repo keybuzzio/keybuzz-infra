@@ -1,0 +1,24 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: keybuzz-api
+  namespace: keybuzz-api-dev
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - api-dev.keybuzz.io
+      secretName: api-dev-tls
+  rules:
+    - host: api-dev.keybuzz.io
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: keybuzz-api
+                port:
+                  number: 3001
