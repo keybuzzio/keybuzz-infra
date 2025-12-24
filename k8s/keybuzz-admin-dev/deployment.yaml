@@ -30,18 +30,18 @@ spec:
       - name: ghcr-secret
       containers:
       - name: keybuzz-admin
-        image: ghcr.io/keybuzzio/keybuzz-admin:v1.0.6-dev
+        image: ghcr.io/keybuzzio/keybuzz-admin:v1.0.8-dev
         ports:
         - name: http
           containerPort: 3000
           protocol: TCP
         env:
         - name: NODE_ENV
-          value: "production"
+          value: production
         - name: PORT
-          value: "3000"
+          value: '3000'
         - name: HOSTNAME
-          value: "0.0.0.0"
+          value: 0.0.0.0
         resources:
           requests:
             cpu: 100m
