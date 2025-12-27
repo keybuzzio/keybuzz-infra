@@ -1,0 +1,51 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: keybuzz-api-migrate-012
+  namespace: keybuzz-api-dev
+spec:
+  ttlSecondsAfterFinished: 300
+  backoffLimit: 1
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: migrate
+        image: postgres:17-alpine
+        command:
+        - sh
+        - -c
+        - |
+          set -e
+          echo "Installing vault CLI..."
+          apk add --no-cache curl jq
+          cd /tmp
+          curl -fsSLO https://releases.hashicorp.com/vault/1.15.4/vault_1.15.4_linux_amd64.zip
+          unzip vault_1.15.4_linux_amd64.zip
+          mv vault /usr/local/bin/
+          
+          echo "Fetching DB credentials from Vault..."
+          export VAULT_ADDR="https://vault.keybuzz.io:8200"
+          export VAULT_SKIP_VERIFY=true
+          VAULT_ADMIN_PASS=$(vault kv get -field=password kv/keybuzz/postgres)
+          
+          echo "Applying migration 012..."
+          export PGPASSWORD="$VAULT_ADMIN_PASS"
+          psql -h 10.0.0.10 -p 5432 -U vault_admin -d keybuzz -f /migration/012_message_attachments_status.sql
+          
+          echo "Migration 012 applied successfully"
+        env:
+        - name: VAULT_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: vault-root-token
+              key: VAULT_TOKEN
+        volumeMounts:
+        - name: migration
+          mountPath: /migration
+          readOnly: true
+      volumes:
+      - name: migration
+        configMap:
+          name: migration-012
+
