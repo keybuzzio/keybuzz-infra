@@ -1,0 +1,54 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: keybuzz-api-migrate-010
+  namespace: keybuzz-api-dev
+  labels:
+    app: keybuzz-api
+    job: migration-010
+spec:
+  backoffLimit: 1
+  template:
+    metadata:
+      labels:
+        app: keybuzz-api
+        job: migration-010
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: migration
+        image: ghcr.io/keybuzzio/keybuzz-api:v0.1.13-dev
+        command:
+          - sh
+          - -c
+          - |
+            echo "Starting migration 010..."
+            export DATABASE_URL="postgresql://${PGUSER}:${PGPASSWORD}@${PGHOST}:${PGPORT}/${PGDATABASE}"
+            psql "${DATABASE_URL}" -f /app/migrations/010_add_inbound_email_fields.sql
+            echo "Migration 010 completed successfully"
+        env:
+        - name: NODE_ENV
+          value: "production"
+        - name: PGHOST
+          value: "10.0.0.122"
+        - name: PGPORT
+          valueFrom:
+            secretKeyRef:
+              name: keybuzz-api-postgres
+              key: PGPORT
+        - name: PGDATABASE
+          valueFrom:
+            secretKeyRef:
+              name: keybuzz-api-postgres
+              key: PGDATABASE
+        - name: PGUSER
+          valueFrom:
+            secretKeyRef:
+              name: keybuzz-api-postgres
+              key: PGUSER
+        - name: PGPASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: keybuzz-api-postgres
+              key: PGPASSWORD
+
