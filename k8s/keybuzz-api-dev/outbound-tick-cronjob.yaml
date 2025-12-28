@@ -1,0 +1,59 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: outbound-tick-processor
+  namespace: keybuzz-api-dev
+  labels:
+    app: outbound-tick-processor
+  annotations:
+    description: "PH11-04-09B: Automatic outbound delivery processing via tick endpoint"
+spec:
+  schedule: "*/1 * * * *"  # Every minute
+  concurrencyPolicy: Forbid  # Don't allow overlapping jobs
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            app: outbound-tick-processor
+        spec:
+          restartPolicy: OnFailure
+          containers:
+            - name: tick
+              image: curlimages/curl:8.5.0
+              command:
+                - /bin/sh
+                - -c
+                - |
+                  echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] Starting tick job..."
+                  
+                  # Try internal service first (faster, no TLS)
+                  RESPONSE=$(curl -s -w "\n%{http_code}" -X POST \
+                    http://keybuzz-api.keybuzz-api-dev.svc.cluster.local:3001/debug/outbound/tick \
+                    -H "Content-Type: application/json" \
+                    --max-time 10 || echo "000")
+                  
+                  HTTP_CODE=$(echo "$RESPONSE" | tail -1)
+                  BODY=$(echo "$RESPONSE" | head -n -1)
+                  
+                  echo "HTTP Status: $HTTP_CODE"
+                  
+                  if [ "$HTTP_CODE" = "200" ]; then
+                    echo "Success!"
+                    echo "$BODY" | grep -q '"success":true' && echo "Delivery processed ✓" || echo "No jobs to process"
+                    exit 0
+                  else
+                    echo "Error: HTTP $HTTP_CODE"
+                    echo "$BODY"
+                    exit 1
+                  fi
+              resources:
+                limits:
+                  cpu: "50m"
+                  memory: "32Mi"
+                requests:
+                  cpu: "10m"
+                  memory: "16Mi"
+
