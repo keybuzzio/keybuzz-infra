@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: keybuzz-outbound-worker
+  namespace: keybuzz-api-dev
+  annotations:
+    reloader.stakater.com/auto: "true"  # Auto-restart on secret rotation
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: keybuzz-outbound-worker
+  template:
+    metadata:
+      labels:
+        app: keybuzz-outbound-worker
+    spec:
+      containers:
+      - name: worker
+        image: ghcr.io/keybuzzio/keybuzz-api:v0.1.24-dev
+        command: ["node", "dist/workers/outboundWorker.js"]
+        env:
+        - name: OUTBOUND_POLL_INTERVAL_MS
+          value: "2000"
+        envFrom:
+        - secretRef:
+            name: keybuzz-api-postgres  # Same DB credentials as API
+        resources:
+          requests:
+            cpu: 50m
+            memory: 128Mi
+          limits:
+            cpu: 200m
+            memory: 256Mi
+        livenessProbe:
+          exec:
+            command:
+            - /bin/sh
+            - -c
+            - "ps aux | grep outboundWorker.js | grep -v grep"
+          initialDelaySeconds: 10
+          periodSeconds: 30
+        readinessProbe:
+          exec:
+            command:
+            - /bin/sh
+            - -c
+            - "ps aux | grep outboundWorker.js | grep -v grep"
+          initialDelaySeconds: 5
+          periodSeconds: 10
+      restartPolicy: Always
+
