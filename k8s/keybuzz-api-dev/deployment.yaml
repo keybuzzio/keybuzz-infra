@@ -24,7 +24,7 @@ spec:
         - name: PORT
           value: '3001'
         - name: NODE_ENV
-          value: production
+          value: development
         - name: PGHOST
           value: 10.0.0.122
         - name: PGPORT
