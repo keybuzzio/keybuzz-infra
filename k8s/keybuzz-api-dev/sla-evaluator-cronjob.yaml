@@ -6,9 +6,9 @@ metadata:
   labels:
     app: sla-evaluator
   annotations:
-    description: "PH11-04-10: SLA Engine - evaluates and updates SLA states every minute"
+    description: "PH11-04-11: SLA Engine with dynamic policies"
 spec:
-  schedule: "*/1 * * * *"  # Every minute
+  schedule: "*/1 * * * *"
   concurrencyPolicy: Forbid
   successfulJobsHistoryLimit: 3
   failedJobsHistoryLimit: 3
@@ -28,27 +28,38 @@ spec:
                 - |
                   echo "[SLA Evaluator] Starting at $(date -u +%H:%M:%S)"
                   
-                  # SLA_RISK_MINUTES = 30 (risk when <30min remaining)
-                  RISK_INTERVAL="30 minutes"
-                  
-                  # Update SLA states based on sla_due_at
+                  # Update SLA states using policy-based risk thresholds
                   psql "postgresql://$PGUSER:$PGPASSWORD@$PGHOST:$PGPORT/$PGDATABASE?sslmode=disable" <<'EOSQL'
-                  -- Update SLA states for all conversations with active SLA
-                  UPDATE conversations
+                  -- Update SLA states based on sla_due_at and policy risk_minutes
+                  UPDATE conversations c
                   SET 
                     sla_state = CASE
-                      WHEN now() > sla_due_at THEN 'breached'
-                      WHEN now() > (sla_due_at - interval '30 minutes') THEN 'risk'
+                      WHEN c.sla_due_at IS NULL THEN 'ok'
+                      WHEN now() > c.sla_due_at THEN 'breached'
+                      WHEN now() > (c.sla_due_at - (COALESCE(p.risk_minutes, 30) || ' minutes')::interval) THEN 'risk'
                       ELSE 'ok'
                     END,
                     sla_last_evaluated_at = now()
-                  WHERE sla_due_at IS NOT NULL
+                  FROM sla_policies p
+                  WHERE c.sla_due_at IS NOT NULL
+                    AND p.id = COALESCE(
+                      c.sla_policy_id,
+                      -- Fallback to global default if no policy_id set
+                      (SELECT id FROM sla_policies 
+                       WHERE enabled = true 
+                         AND tenant_id IS NULL 
+                         AND plan IS NULL 
+                         AND channel IS NULL 
+                       ORDER BY priority ASC 
+                       LIMIT 1)
+                    )
                     AND (
-                      -- Only update if state actually changes
-                      sla_state IS NULL OR
-                      sla_state IS DISTINCT FROM CASE
-                        WHEN now() > sla_due_at THEN 'breached'
-                        WHEN now() > (sla_due_at - interval '30 minutes') THEN 'risk'
+                      -- Only update if state would actually change
+                      c.sla_state IS NULL OR
+                      c.sla_state IS DISTINCT FROM CASE
+                        WHEN c.sla_due_at IS NULL THEN 'ok'
+                        WHEN now() > c.sla_due_at THEN 'breached'
+                        WHEN now() > (c.sla_due_at - (COALESCE(p.risk_minutes, 30) || ' minutes')::interval) THEN 'risk'
                         ELSE 'ok'
                       END
                     );
@@ -57,7 +68,7 @@ spec:
                   EXIT_CODE=$?
                   
                   if [ $EXIT_CODE -eq 0 ]; then
-                    echo "[SLA Evaluator] ✅ Success - SLA states evaluated"
+                    echo "[SLA Evaluator] ✅ Success - SLA states evaluated with policy-based thresholds"
                   else
                     echo "[SLA Evaluator] ❌ Failed with exit code $EXIT_CODE"
                     exit $EXIT_CODE
