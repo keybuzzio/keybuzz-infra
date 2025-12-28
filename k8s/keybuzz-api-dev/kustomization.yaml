@@ -9,3 +9,4 @@ resources:
 - ingress.yaml
 - outbound-worker-deployment.yaml
 - outbound-tick-cronjob.yaml
+- sla-evaluator-cronjob.yaml
