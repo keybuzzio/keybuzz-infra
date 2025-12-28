@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: keybuzz-api
-        image: ghcr.io/keybuzzio/keybuzz-api:v0.1.27-dev
+        image: ghcr.io/keybuzzio/keybuzz-api:v0.1.27-dev-fix
         ports:
         - containerPort: 3001
         env:
