@@ -1,0 +1,75 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: sla-evaluator
+  namespace: keybuzz-api-dev
+  labels:
+    app: sla-evaluator
+  annotations:
+    description: "PH11-04-10: SLA Engine - evaluates and updates SLA states every minute"
+spec:
+  schedule: "*/1 * * * *"  # Every minute
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            app: sla-evaluator
+        spec:
+          restartPolicy: Never
+          containers:
+            - name: evaluator
+              image: postgres:17-alpine
+              command: ["/bin/sh", "-c"]
+              args:
+                - |
+                  echo "[SLA Evaluator] Starting at $(date -u +%H:%M:%S)"
+                  
+                  # SLA_RISK_MINUTES = 30 (risk when <30min remaining)
+                  RISK_INTERVAL="30 minutes"
+                  
+                  # Update SLA states based on sla_due_at
+                  psql "postgresql://$PGUSER:$PGPASSWORD@$PGHOST:$PGPORT/$PGDATABASE?sslmode=disable" <<'EOSQL'
+                  -- Update SLA states for all conversations with active SLA
+                  UPDATE conversations
+                  SET 
+                    sla_state = CASE
+                      WHEN now() > sla_due_at THEN 'breached'
+                      WHEN now() > (sla_due_at - interval '30 minutes') THEN 'risk'
+                      ELSE 'ok'
+                    END,
+                    sla_last_evaluated_at = now()
+                  WHERE sla_due_at IS NOT NULL
+                    AND (
+                      -- Only update if state actually changes
+                      sla_state IS NULL OR
+                      sla_state IS DISTINCT FROM CASE
+                        WHEN now() > sla_due_at THEN 'breached'
+                        WHEN now() > (sla_due_at - interval '30 minutes') THEN 'risk'
+                        ELSE 'ok'
+                      END
+                    );
+                  EOSQL
+                  
+                  EXIT_CODE=$?
+                  
+                  if [ $EXIT_CODE -eq 0 ]; then
+                    echo "[SLA Evaluator] ✅ Success - SLA states evaluated"
+                  else
+                    echo "[SLA Evaluator] ❌ Failed with exit code $EXIT_CODE"
+                    exit $EXIT_CODE
+                  fi
+              envFrom:
+                - secretRef:
+                    name: keybuzz-api-postgres
+              resources:
+                limits:
+                  cpu: "100m"
+                  memory: "64Mi"
+                requests:
+                  cpu: "50m"
+                  memory: "32Mi"
+
