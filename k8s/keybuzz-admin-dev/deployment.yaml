@@ -30,7 +30,7 @@ spec:
       - name: ghcr-secret
       containers:
       - name: keybuzz-admin
-        image: ghcr.io/keybuzzio/keybuzz-admin@sha256:16f675789ef04a1a5185173dd3269cc0269b9d7d9a25a5ba6a2d117d96956c1c
+        image: ghcr.io/keybuzzio/keybuzz-admin@sha256:4e2d3230dbdc1021b6200ce3e5153fbddb57b61e5217a7b22ceb3d6bab33f77c
         imagePullPolicy: Always
         ports:
         - name: http
