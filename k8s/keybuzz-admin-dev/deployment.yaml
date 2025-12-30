@@ -31,6 +31,7 @@ spec:
       containers:
       - name: keybuzz-admin
         image: ghcr.io/keybuzzio/keybuzz-admin:v1.0.36-dev
+        imagePullPolicy: Always
         ports:
         - name: http
           containerPort: 3000
