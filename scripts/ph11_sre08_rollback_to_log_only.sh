@@ -1,3 +1,18 @@
+#!/bin/bash
+# PH11-SRE-08: Rollback to log-only alerting
+# Reverts routing to only use keybuzz-log-only receiver
+
+set -euo pipefail
+
+echo "=== PH18-SRE+r08: Rollback to log-only ==="
+
+# Backup current config
+echo "[1/3] Backing up current config..."
+cp /opt/keybuzz/keybuzz-infra/k8s/observability/kube-prometheus-values-dev.yaml /opt/keybuzz/keybuzz-infra/k8s/observability/kube-prometheus-values-dev.yaml.bak
+
+# Create log-only config
+echo "[2/3] Applying log-only config..."
+cat > /tmp/kube-prometheus-values-logonly.yaml << 'EOF'
 alertmanager:
   enabled: true
   config:
@@ -20,22 +35,6 @@ alertmanager:
         webhook_configs:
           - url: http://10.0.0.152:9099/alerts
             send_resolved: true
-      - name: keybuzz-slack-dev
-        slack_configs:
-          - api_url_file: /etc/alertmanager/secrets/alerting-slack-dev/webhook_url
-            channel: "#alerts-dev"
-            send_resolved: true
-            title: '[KeyBuzz DEV] {{ .GroupLabels.alertname }}'
-            text: '*{{ .Status }}* {{ range .Alerts -}} {{ .Annotations.summary }} {{ end }}'
-      - name: keybuzz-email-dev
-        email_configs:
-          - to: sre@keybuzz.io
-            from: alerts@keybuzz.io
-            smarthost: "10.0.0.160:25"
-            require_tls: false
-            send_resolved: true
-            headers:
-              Subject: '[KeyBuzz DEV] {{ .GroupLabels.alertname }}'
     route:
       group_by: [alertname, instance]
       group_interval: 5m
@@ -45,20 +44,7 @@ alertmanager:
       routes:
         - matchers: [alertname = "Watchdog"]
           receiver: "null"
-        - matchers: [severity = "critical"]
-          receiver: keybuzz-slack-dev
-          continue: true
-        - matchers: [severity = "critical"]
-          receiver: keybuzz-email-dev
-          continue: true
-        - matchers: [severity = "warning"]
-          receiver: keybuzz-slack-dev
-          continue: true
     templates: [/etc/alertmanager/config/*.tmpl]
-  alertmanagerSpec:
-    secrets:
-      - alerting-slack-dev
-      - alerting-smtp-dev
 grafana:
   enabled: true
 prometheus:
@@ -74,3 +60,16 @@ prometheus:
           storageClassName: local-path
 prometheusOperator:
   enabled: true
+EOF
+
+helm upgrade kube-prometheus prometheus-community/kube-prometheus-stack -n observability -f /tmp/kube-prometheus-values-logonly.yaml --wait --timeout 5m
+
+echo "[3/3] Verifying..."
+sleep 10
+AM_IP=$(kubectl get svc kube-prometheus-kube-prome-alertmanager -n observability -o jsonpath='{.spec.clusterIP}')
+ssh root@10.0.0.100 "curl -s http://$AM_IP:9093/api/v2/status" | grep -o 'receiver.:"*bkeybuzz-log-only"%
+
+echo ""
+echo "=== Rollback complete ==="
+echo "Only log-only receiver is now active"
+echo "To re-enable Slack/Email, restore from .bak file and helm upgrade"
