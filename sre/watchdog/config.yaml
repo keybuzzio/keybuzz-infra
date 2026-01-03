@@ -1,6 +1,9 @@
 # KeyBuzz Watchdog Configuration
 # ===============================
 # Location: /opt/keybuzz/sre/watchdog/config.yaml
+#
+# SCOPE: Workers K8s uniquement!
+# Le watchdog est un "auto-heal compute", PAS un "auto-heal stateful".
 
 # How often checks run (controlled by systemd timer, this is for reference)
 check_interval_seconds: 60
@@ -21,8 +24,12 @@ recovery_timeout_seconds: 180
 dry_run: false
 
 # Nodes to exclude from watchdog (never touch these)
-excluded_nodes: []
-  # - k8s-master-01  # Uncomment to exclude specific nodes
+# IMPORTANT: Only workers should be auto-healed!
+# Masters are excluded because they run critical control-plane components.
+excluded_nodes:
+  - k8s-master-01
+  - k8s-master-02
+  - k8s-master-03
 
 # Notification webhook (placeholder for future implementation)
 notification_webhook: ""
