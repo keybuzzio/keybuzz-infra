@@ -1,0 +1,109 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: cert-manager-alerts
+  namespace: observability
+  labels:
+    prometheus: kube-prometheus
+    role: alert-rules
+spec:
+  groups:
+  - name: cert-manager.rules
+    interval: 30s
+    rules:
+    # Certificate expiration alerts
+    - alert: CertificateExpiringIn14Days
+      expr: |
+        (certmanager_certificate_expiration_timestamp_seconds - time()) < 1209600
+        and
+        certmanager_certificate_ready_status{condition="True"} == 1
+      for: 5m
+      labels:
+        severity: warning
+      annotations:
+        summary: "Certificate {{ $labels.name }} expires in less than 14 days"
+        description: "Certificate {{ $labels.name }} in namespace {{ $labels.namespace }} expires in {{ $value | humanizeDuration }}. Renew now or check cert-manager logs."
+    
+    - alert: CertificateExpiringIn7Days
+      expr: |
+        (certmanager_certificate_expiration_timestamp_seconds - time()) < 604800
+        and
+        certmanager_certificate_ready_status{condition="True"} == 1
+      for: 5m
+      labels:
+        severity: critical
+      annotations:
+        summary: "CRITICAL: Certificate {{ $labels.name }} expires in less than 7 days"
+        description: "Certificate {{ $labels.name }} in namespace {{ $labels.namespace }} expires in {{ $value | humanizeDuration }}. IMMEDIATE ACTION REQUIRED!"
+    
+    - alert: CertificateExpiringIn3Days
+      expr: |
+        (certmanager_certificate_expiration_timestamp_seconds - time()) < 259200
+        and
+        certmanager_certificate_ready_status{condition="True"} == 1
+      for: 1m
+      labels:
+        severity: critical
+      annotations:
+        summary: "EMERGENCY: Certificate {{ $labels.name }} expires in less than 3 days"
+        description: "Certificate {{ $labels.name }} in namespace {{ $labels.namespace }} expires in {{ $value | humanizeDuration }}. SERVICE WILL BE UNAVAILABLE SOON!"
+
+    # Certificate not ready alerts
+    - alert: CertificateNotReady
+      expr: certmanager_certificate_ready_status{condition="False"} == 1
+      for: 10m
+      labels:
+        severity: critical
+      annotations:
+        summary: "Certificate {{ $labels.name }} is not ready"
+        description: "Certificate {{ $labels.name }} in namespace {{ $labels.namespace }} has been not ready for more than 10 minutes. Check cert-manager logs and CertificateRequest status."
+    
+    # ACME challenges and orders
+    - alert: ACMEChallengesFailing
+      expr: |
+        increase(certmanager_http_acme_client_request_count{status="error"}[5m]) > 5
+      for: 5m
+      labels:
+        severity: warning
+      annotations:
+        summary: "ACME client errors increasing"
+        description: "Cert-manager ACME client is experiencing errors. This may indicate DNS issues, rate limiting, or ACME server problems."
+    
+    # Cert-manager controller down
+    - alert: CertManagerDown
+      expr: |
+        absent(up{job="cert-manager"} == 1)
+      for: 5m
+      labels:
+        severity: critical
+      annotations:
+        summary: "Cert-manager is down"
+        description: "Cert-manager controller has been unreachable for more than 5 minutes. Certificate renewals will fail!"
+
+    # Certificate renewal failure detection
+    - alert: CertificateRenewalFailed
+      expr: |
+        certmanager_certificate_renewal_timestamp_seconds > 0
+        and
+        (certmanager_certificate_expiration_timestamp_seconds - certmanager_certificate_renewal_timestamp_seconds) < 604800
+        and
+        certmanager_certificate_ready_status{condition="False"} == 1
+      for: 30m
+      labels:
+        severity: critical
+      annotations:
+        summary: "Certificate renewal failed for {{ $labels.name }}"
+        description: "Certificate {{ $labels.name }} in namespace {{ $labels.namespace }} renewal has failed. Check CertificateRequest and Orders in namespace."
+
+  # Recording rules for efficiency
+  - name: cert-manager.recording
+    interval: 30s
+    rules:
+    - record: certmanager:certificate_expiration_days
+      expr: (certmanager_certificate_expiration_timestamp_seconds - time()) / 86400
+    
+    - record: certmanager:certificates_ready_count
+      expr: count(certmanager_certificate_ready_status{condition="True"} == 1)
+    
+    - record: certmanager:certificates_not_ready_count
+      expr: count(certmanager_certificate_ready_status{condition="False"} == 1) or vector(0)
