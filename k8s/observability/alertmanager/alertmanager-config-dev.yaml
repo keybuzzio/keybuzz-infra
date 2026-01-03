@@ -1,0 +1,28 @@
+apiVersion: monitoring.coreos.com/v1alpha1
+kind: AlertmanagerConfig
+metadata:
+  name: keybuzz-dev-alerting
+  namespace: observability
+  labels:
+    app: keybuzz-alerting
+spec:
+  route:
+    groupBy:
+      - alertname
+      - instance
+    groupWait: 30s
+    groupInterval: 5m
+    repeatInterval: 12h
+    receiver: keybuzz-log-only
+    routes:
+      - matchers:
+          - name: severity
+            matchType: =~
+            value: critical|warning
+        receiver: keybuzz-log-only
+        continue: false
+  receivers:
+    - name: keybuzz-log-only
+      webhookConfigs:
+        - url: http://10.0.0.152:9099/alerts
+          sendResolved: true
