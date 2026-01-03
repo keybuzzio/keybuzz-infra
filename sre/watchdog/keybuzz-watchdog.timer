@@ -1,0 +1,14 @@
+[Unit]
+Description=KeyBuzz K8s Node Watchdog Timer
+Documentation=https://github.com/keybuzz/keybuzz-docs/runbooks/PH11-SRE-03-WATCHDOG.md
+
+[Timer]
+# Run every 60 seconds
+OnBootSec=30
+OnUnitActiveSec=60
+
+# Prevent multiple instances from starting if previous run is slow
+AccuracySec=5s
+
+[Install]
+WantedBy=timers.target

@@ -1,0 +1,24 @@
+[Unit]
+Description=KeyBuzz K8s Node Watchdog
+Documentation=https://github.com/keybuzz/keybuzz-docs/runbooks/PH11-SRE-03-WATCHDOG.md
+After=network.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/python3 /opt/keybuzz/sre/watchdog/watchdog.py
+WorkingDirectory=/opt/keybuzz/sre/watchdog
+EnvironmentFile=-/opt/keybuzz/credentials/hcloud.env
+
+# Security hardening
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+ReadWritePaths=/opt/keybuzz/logs /opt/keybuzz/state
+PrivateTmp=yes
+
+# Resource limits
+MemoryLimit=256M
+CPUQuota=50%
+
+[Install]
+WantedBy=multi-user.target

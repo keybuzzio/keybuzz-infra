@@ -1,0 +1,28 @@
+# KeyBuzz Watchdog Configuration
+# ===============================
+# Location: /opt/keybuzz/sre/watchdog/config.yaml
+
+# How often checks run (controlled by systemd timer, this is for reference)
+check_interval_seconds: 60
+
+# Number of consecutive failures before taking action
+consecutive_failures_threshold: 3
+
+# Cooldown period after a recovery action (minutes)
+cooldown_minutes: 20
+
+# Maximum recovery attempts per node per 24 hours
+max_attempts_per_24h: 3
+
+# How long to wait for node to recover after power cycle (seconds)
+recovery_timeout_seconds: 180
+
+# Dry run mode (log actions but don't execute)
+dry_run: false
+
+# Nodes to exclude from watchdog (never touch these)
+excluded_nodes: []
+  # - k8s-master-01  # Uncomment to exclude specific nodes
+
+# Notification webhook (placeholder for future implementation)
+notification_webhook: ""
