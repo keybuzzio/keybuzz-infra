@@ -1,0 +1,18 @@
+---
+# node_exporter defaults
+
+node_exporter_version: "1.8.2"
+node_exporter_user: "nodeexp"
+node_exporter_group: "nodeexp"
+node_exporter_port: 9100
+node_exporter_listen_address: "0.0.0.0:{{ node_exporter_port }}"
+
+# Download URL
+node_exporter_download_url: "https://github.com/prometheus/node_exporter/releases/download/v{{ node_exporter_version }}/node_exporter-{{ node_exporter_version }}.linux-amd64.tar.gz"
+
+# Installation path
+node_exporter_install_dir: "/opt/node_exporter"
+node_exporter_binary: "{{ node_exporter_install_dir }}/node_exporter"
+
+# UFW settings
+node_exporter_ufw_allow_from: "10.0.0.0/16"

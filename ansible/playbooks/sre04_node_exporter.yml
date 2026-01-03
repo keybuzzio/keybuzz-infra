@@ -1,0 +1,16 @@
+---
+# PH11-SRE-04: Deploy node_exporter to all infrastructure VMs
+# Run from install-v3: ansible-playbook -i inventory/hosts_sre04.ini playbooks/sre04_node_exporter.yml
+
+- name: Deploy node_exporter to infrastructure VMs
+  hosts: infra_vms
+  become: true
+  gather_facts: true
+  
+  roles:
+    - node_exporter
+
+  post_tasks:
+    - name: Summary
+      ansible.builtin.debug:
+        msg: "node_exporter installed on {{ inventory_hostname }} ({{ ansible_host }}:9100)"

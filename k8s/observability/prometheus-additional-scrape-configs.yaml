@@ -1,0 +1,134 @@
+- job_name: node_exporter_postgres
+  static_configs:
+  - targets:
+    - 10.0.0.120:9100
+    - 10.0.0.121:9100
+    - 10.0.0.122:9100
+    labels:
+      group: db_postgres
+  relabel_configs:
+  - source_labels:
+    - __address__
+    target_label: instance
+    regex: ([^:]+):\d+
+    replacement: ${1}
+- job_name: patroni
+  static_configs:
+  - targets:
+    - 10.0.0.120:8008
+    - 10.0.0.121:8008
+    - 10.0.0.122:8008
+    labels:
+      group: patroni
+  relabel_configs:
+  - source_labels:
+    - __address__
+    target_label: instance
+    regex: ([^:]+):\d+
+    replacement: ${1}
+- job_name: node_exporter_redis
+  static_configs:
+  - targets:
+    - 10.0.0.123:9100
+    - 10.0.0.124:9100
+    - 10.0.0.125:9100
+    labels:
+      group: redis
+  relabel_configs:
+  - source_labels:
+    - __address__
+    target_label: instance
+    regex: ([^:]+):\d+
+    replacement: ${1}
+- job_name: node_exporter_rabbitmq
+  static_configs:
+  - targets:
+    - 10.0.0.126:9100
+    - 10.0.0.127:9100
+    - 10.0.0.128:9100
+    labels:
+      group: rabbitmq
+  relabel_configs:
+  - source_labels:
+    - __address__
+    target_label: instance
+    regex: ([^:]+):\d+
+    replacement: ${1}
+- job_name: node_exporter_mariadb
+  static_configs:
+  - targets:
+    - 10.0.0.170:9100
+    - 10.0.0.171:9100
+    - 10.0.0.172:9100
+    labels:
+      group: mariadb
+  relabel_configs:
+  - source_labels:
+    - __address__
+    target_label: instance
+    regex: ([^:]+):\d+
+    replacement: ${1}
+- job_name: node_exporter_proxysql
+  static_configs:
+  - targets:
+    - 10.0.0.173:9100
+    - 10.0.0.174:9100
+    labels:
+      group: proxysql
+  relabel_configs:
+  - source_labels:
+    - __address__
+    target_label: instance
+    regex: ([^:]+):\d+
+    replacement: ${1}
+- job_name: node_exporter_haproxy
+  static_configs:
+  - targets:
+    - 10.0.0.11:9100
+    - 10.0.0.12:9100
+    labels:
+      group: haproxy
+  relabel_configs:
+  - source_labels:
+    - __address__
+    target_label: instance
+    regex: ([^:]+):\d+
+    replacement: ${1}
+- job_name: node_exporter_vault
+  static_configs:
+  - targets:
+    - 10.0.0.150:9100
+    labels:
+      group: vault
+  relabel_configs:
+  - source_labels:
+    - __address__
+    target_label: instance
+    regex: ([^:]+):\d+
+    replacement: ${1}
+- job_name: node_exporter_monitoring
+  static_configs:
+  - targets:
+    - 10.0.0.151:9100
+    - 10.0.0.152:9100
+    - 10.0.0.153:9100
+    labels:
+      group: monitoring
+  relabel_configs:
+  - source_labels:
+    - __address__
+    target_label: instance
+    regex: ([^:]+):\d+
+    replacement: ${1}
+- job_name: node_exporter_mail
+  static_configs:
+  - targets:
+    - 10.0.0.160:9100
+    labels:
+      group: mail
+  relabel_configs:
+  - source_labels:
+    - __address__
+    target_label: instance
+    regex: ([^:]+):\d+
+    replacement: ${1}
