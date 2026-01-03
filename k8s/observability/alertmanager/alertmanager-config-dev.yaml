@@ -12,13 +12,34 @@ spec:
       - instance
     groupWait: 30s
     groupInterval: 5m
-    repeatInterval: 12h
+    repeatInterval: 1h
     receiver: keybuzz-log-only
     routes:
+      # Critical: Slack + Email + log-only
       - matchers:
           - name: severity
-            matchType: =~
-            value: critical|warning
+            matchType: "="
+            value: critical
+        receiver: keybuzz-slack-dev
+        continue: true
+      - matchers:
+          - name: severity
+            matchType: "="
+            value: critical
+        receiver: keybuzz-email-dev
+        continue: true
+      # Warning: Slack + log-only
+      - matchers:
+          - name: severity
+            matchType: "="
+            value: warning
+        receiver: keybuzz-slack-dev
+        continue: true
+      # Fallback: log-only
+      - matchers:
+          - name: severity
+            matchType: "=~"
+            value: ".*"
         receiver: keybuzz-log-only
         continue: false
   receivers:
@@ -26,3 +47,27 @@ spec:
       webhookConfigs:
         - url: http://10.0.0.152:9099/alerts
           sendResolved: true
+    - name: keybuzz-slack-dev
+      slackConfigs:
+        - apiURL:
+            name: alerting-slack-dev
+            key: webhook_url
+          channel: "#alerts-dev"
+          sendResolved: true
+          title: |-
+            {{ if eq .Status "firing" }} 🔴 {{ else }} ✅ {{ end }} [KeyBuzz DEV] {{ .GroupLabels.alertname }}
+          text: |-
+            {{ range .Alerts -}}
+            *{{ .Labels.severity }}*: {{ .Annotations.summary }}
+            {{ .Annotations.description }}
+            {{ end }}
+    - name: keybuzz-email-dev
+      emailConfigs:
+        - to: sre@keybuzz.io
+          sendResolved: true
+          from: alerts@keybuzz.io
+          smarthost: "10.0.0.160:25"
+          requireTLS: false
+          headers:
+            - key: Subject
+              value: "{{ if eq .Status \"firing\" }}[FIRING]{{ else }}[RESOLVED]{{ end }} [KeyBuzz DEV] {{ .GroupLabels.alertname }}"
