@@ -1,0 +1,125 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: ingress-nginx-alerts
+  namespace: observability
+  labels:
+    prometheus: kube-prometheus
+    role: alert-rules
+spec:
+  groups:
+  - name: ingress-nginx.rules
+    interval: 30s
+    rules:
+    # Ingress controller availability
+    - alert: IngressNginxControllerDown
+      expr: |
+        absent(up{job="ingress-nginx"} == 1)
+      for: 5m
+      labels:
+        severity: critical
+      annotations:
+        summary: "Ingress-nginx controller is down"
+        description: "No ingress-nginx controller metrics available for 5 minutes. All HTTP/HTTPS traffic routing may be failing."
+    
+    - alert: IngressNginxControllerPodCrashLooping
+      expr: |
+        increase(kube_pod_container_status_restarts_total{namespace="ingress-nginx", container="controller"}[1h]) > 3
+      for: 5m
+      labels:
+        severity: warning
+      annotations:
+        summary: "Ingress-nginx controller pod is crash looping"
+        description: "Ingress-nginx controller pod {{ $labels.pod }} has restarted {{ $value }} times in the last hour."
+
+    # High error rates
+    - alert: IngressNginxHighErrorRate
+      expr: |
+        (
+          sum(rate(nginx_ingress_controller_requests{status=~"5.."}[5m])) 
+          / 
+          sum(rate(nginx_ingress_controller_requests[5m]))
+        ) > 0.05
+      for: 5m
+      labels:
+        severity: warning
+      annotations:
+        summary: "High 5xx error rate on ingress-nginx"
+        description: "More than 5% of requests are returning 5xx errors. Current rate: {{ $value | humanizePercentage }}"
+    
+    - alert: IngressNginxCriticalErrorRate
+      expr: |
+        (
+          sum(rate(nginx_ingress_controller_requests{status=~"5.."}[5m])) 
+          / 
+          sum(rate(nginx_ingress_controller_requests[5m]))
+        ) > 0.15
+      for: 2m
+      labels:
+        severity: critical
+      annotations:
+        summary: "CRITICAL: Very high 5xx error rate on ingress-nginx"
+        description: "More than 15% of requests are returning 5xx errors. Current rate: {{ $value | humanizePercentage }}. IMMEDIATE INVESTIGATION REQUIRED!"
+
+    # Per-host error monitoring
+    - alert: IngressHostHighErrorRate
+      expr: |
+        (
+          sum by (host) (rate(nginx_ingress_controller_requests{status=~"5.."}[5m])) 
+          / 
+          sum by (host) (rate(nginx_ingress_controller_requests[5m]))
+        ) > 0.10
+      for: 5m
+      labels:
+        severity: warning
+      annotations:
+        summary: "High error rate for host {{ $labels.host }}"
+        description: "Host {{ $labels.host }} has more than 10% 5xx error rate. Current rate: {{ $value | humanizePercentage }}"
+
+    # Latency alerts
+    - alert: IngressNginxHighLatency
+      expr: |
+        histogram_quantile(0.99, 
+          sum(rate(nginx_ingress_controller_request_duration_seconds_bucket[5m])) by (le, host)
+        ) > 3
+      for: 10m
+      labels:
+        severity: warning
+      annotations:
+        summary: "High latency on ingress for host {{ $labels.host }}"
+        description: "99th percentile latency for {{ $labels.host }} is above 3 seconds ({{ $value }}s)"
+
+    # SSL certificate expiration (nginx level)
+    - alert: IngressNginxSSLExpiringSoon
+      expr: |
+        (nginx_ingress_controller_ssl_expire_time_seconds - time()) < 604800
+      for: 5m
+      labels:
+        severity: warning
+      annotations:
+        summary: "SSL certificate expiring soon for {{ $labels.host }}"
+        description: "SSL certificate for {{ $labels.host }} expires in less than 7 days"
+
+    # Connection issues
+    - alert: IngressNginxConnectionErrors
+      expr: |
+        rate(nginx_ingress_controller_nginx_process_connections_total{state="waiting"}[5m]) > 1000
+      for: 10m
+      labels:
+        severity: warning
+      annotations:
+        summary: "High number of waiting connections"
+        description: "Ingress-nginx has more than 1000 waiting connections per second. This may indicate backend issues."
+
+  # Recording rules
+  - name: ingress-nginx.recording
+    interval: 30s
+    rules:
+    - record: ingress_nginx:request_rate_5m
+      expr: sum(rate(nginx_ingress_controller_requests[5m]))
+    
+    - record: ingress_nginx:error_rate_5m
+      expr: sum(rate(nginx_ingress_controller_requests{status=~"5.."}[5m])) / sum(rate(nginx_ingress_controller_requests[5m]))
+    
+    - record: ingress_nginx:requests_by_status_5m
+      expr: sum by (status) (rate(nginx_ingress_controller_requests[5m]))
