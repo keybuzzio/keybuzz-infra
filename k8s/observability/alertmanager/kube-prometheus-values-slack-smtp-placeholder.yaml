@@ -1,0 +1,89 @@
+# PH11-SRE-07 - Placeholder config pour Slack et Email
+# Ne pas appliquer avant d'avoir configuré les secrets dans Vault
+#
+# Secrets attendus dans Vault :
+#   - kv/keybuzz/observability/slack/dev -> webhook_url
+#   - kv/keybuzz/observability/smtp/dev -> host, port, username, password, from
+
+alertmanager:
+  enabled: true
+  config:
+    global:
+      resolve_timeout: 5m
+      smtp_smarthost: "<SMTP_HOST>:<SMTP_PORT>"
+      smtp_from: "<SMTP_FROM>"
+      smtp_auth_username: "<SMTP_USER>"
+      smtp_auth_password: "<SMTP_PASS>"
+      smtp_require_tls: true
+    inhibit_rules:
+      - equal: [namespace, alertname]
+        source_matchers: [severity = critical]
+        target_matchers: [severity =~ warning|info]
+      - equal: [namespace, alertname]
+        source_matchers: [severity = warning]
+        target_matchers: [severity = info]
+      - equal: [namespace]
+        source_matchers: [alertname = InfoInhibitor]
+        target_matchers: [severity = info]
+      - target_matchers: [alertname = InfoInhibitor]
+    receivers:
+      - name: "null"
+      - name: keybuzz-log-only
+        webhook_configs:
+          - url: http://10.0.0.152:9099/alerts
+            send_resolved: true
+      - name: keybuzz-slack-dev
+        slack_configs:
+          - api_url: "<SLACK_WEBHOOK_URL>"
+            channel: "#alerts-dev"
+            send_resolved: true
+            title: |-
+              {{ if eq .Status "firing" }}🔴{{ else }}✅{{ end }} [KeyBuzz DEV] {{ .GroupLabels.alertname }}
+            text: |-
+              {{ range .Alerts -}}
+              *<{{ .Labels.severity }}>*: {{ .Annotations.summary }}
+              {{ .Annotations.description }}
+              {{ end }}
+      - name: keybuzz-email-dev
+        email_configs:
+          - to: "alerts-dev@keybuzz.io"
+            send_resolved: true
+            headers:
+              subject: "{{ if eq .Status \"firing\" }}[FIRING]{{ else }}[RESOLVED]{{ end }} [KeyBuzz DEV] {{ .GroupLabels.alertname }}"
+    route:
+      group_by: [alertname, instance]
+      group_interval: 5m
+      group_wait: 30s
+      receiver: keybuzz-log-only
+      repeat_interval: 1h
+      routes:
+        - matchers: [alertname = "Watchdog"]
+          receiver: "null"
+        # Activer ces routes quand Slack/SMTP sont configures
+        # - matchers: [severity =~ "critical"]
+        #   receiver: keybuzz-slack-dev
+        #   continue: true
+        # - matchers: [severity =~ "critical"]
+        #   receiver: keybuzz-email-dev
+        #   continue: true
+        # - matchers: [severity =~ "warning"]
+        #   receiver: keybuzz-slack-dev
+    templates: [/etc/alertmanager/config/*.tmpl]
+
+grafana:
+  enabled: true
+
+prometheus:
+  prometheusSpec:
+    retention: 15d
+    storageSpec:
+      volumeClaimTemplate:
+        spec:
+          accessModes: [ReadWriteOnce]
+          resources:
+            requests:
+              storage: 20Gi
+          storageClassName: local-path
+
+prometheusOperator:
+  enabled: true

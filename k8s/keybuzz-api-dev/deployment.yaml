@@ -23,6 +23,7 @@ spec:
           value: '3001'
         - name: NODE_ENV
           value: development
+        # Keep env vars as fallback, but code will prefer volume secrets
         - name: PGHOST
           value: 10.0.0.122
         - name: PGPORT
@@ -45,7 +46,7 @@ spec:
             secretKeyRef:
               key: PGPASSWORD
               name: keybuzz-api-postgres
-        image: ghcr.io/keybuzzio/keybuzz-api:v0.1.39-dev
+        image: ghcr.io/keybuzzio/keybuzz-api:v0.1.41-dev
         livenessProbe:
           httpGet:
             path: /health
@@ -61,5 +62,13 @@ spec:
             port: 3001
           initialDelaySeconds: 5
           periodSeconds: 10
+        volumeMounts:
+        - name: pg-secrets
+          mountPath: /var/run/secrets/keybuzz-postgres
+          readOnly: true
       imagePullSecrets:
       - name: ghcr-cred
+      volumes:
+      - name: pg-secrets
+        secret:
+          secretName: keybuzz-api-postgres
