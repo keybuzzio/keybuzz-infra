@@ -1,10 +1,10 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: keybuzz-api
-  namespace: keybuzz-api-dev
   labels:
     app: keybuzz-api
+  name: keybuzz-api
+  namespace: keybuzz-api-dev
 spec:
   replicas: 1
   selector:
@@ -12,15 +12,13 @@ spec:
       app: keybuzz-api
   template:
     metadata:
+      annotations:
+        reloader.stakater.com/auto: 'true'
       labels:
         app: keybuzz-api
     spec:
       containers:
-      - name: keybuzz-api
-        image: ghcr.io/keybuzzio/keybuzz-api:v0.1.39-dev
-        ports:
-        - containerPort: 3001
-        env:
+      - env:
         - name: PORT
           value: '3001'
         - name: NODE_ENV
@@ -30,34 +28,38 @@ spec:
         - name: PGPORT
           valueFrom:
             secretKeyRef:
-              name: keybuzz-api-postgres
               key: PGPORT
+              name: keybuzz-api-postgres
         - name: PGDATABASE
           valueFrom:
             secretKeyRef:
-              name: keybuzz-api-postgres
               key: PGDATABASE
+              name: keybuzz-api-postgres
         - name: PGUSER
           valueFrom:
             secretKeyRef:
-              name: keybuzz-api-postgres
               key: PGUSER
+              name: keybuzz-api-postgres
         - name: PGPASSWORD
           valueFrom:
             secretKeyRef:
-              name: keybuzz-api-postgres
               key: PGPASSWORD
-        readinessProbe:
-          httpGet:
-            path: /health
-            port: 3001
-          initialDelaySeconds: 5
-          periodSeconds: 10
+              name: keybuzz-api-postgres
+        image: ghcr.io/keybuzzio/keybuzz-api:v0.1.39-dev
         livenessProbe:
           httpGet:
             path: /health
             port: 3001
           initialDelaySeconds: 10
           periodSeconds: 15
+        name: keybuzz-api
+        ports:
+        - containerPort: 3001
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 3001
+          initialDelaySeconds: 5
+          periodSeconds: 10
       imagePullSecrets:
       - name: ghcr-cred
