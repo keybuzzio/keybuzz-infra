@@ -23,7 +23,7 @@ spec:
           value: '3001'
         - name: NODE_ENV
           value: development
-        # Keep env vars as fallback, but code will prefer volume secrets
+        # Postgres config
         - name: PGHOST
           value: 10.0.0.122
         - name: PGPORT
@@ -46,7 +46,73 @@ spec:
             secretKeyRef:
               key: PGPASSWORD
               name: keybuzz-api-postgres
-        image: ghcr.io/keybuzzio/keybuzz-api:v0.1.50-dev
+        # PH12-STRIPE-01: Stripe config (from secret)
+        - name: STRIPE_SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              key: STRIPE_SECRET_KEY
+              name: keybuzz-stripe
+              optional: true
+        - name: STRIPE_WEBHOOK_SECRET
+          valueFrom:
+            secretKeyRef:
+              key: STRIPE_WEBHOOK_SECRET
+              name: keybuzz-stripe
+              optional: true
+        - name: STRIPE_PRICE_STARTER_MONTHLY
+          valueFrom:
+            secretKeyRef:
+              key: STRIPE_PRICE_STARTER_MONTHLY
+              name: keybuzz-stripe
+              optional: true
+        - name: STRIPE_PRICE_STARTER_ANNUAL
+          valueFrom:
+            secretKeyRef:
+              key: STRIPE_PRICE_STARTER_ANNUAL
+              name: keybuzz-stripe
+              optional: true
+        - name: STRIPE_PRICE_PRO_MONTHLY
+          valueFrom:
+            secretKeyRef:
+              key: STRIPE_PRICE_PRO_MONTHLY
+              name: keybuzz-stripe
+              optional: true
+        - name: STRIPE_PRICE_PRO_ANNUAL
+          valueFrom:
+            secretKeyRef:
+              key: STRIPE_PRICE_PRO_ANNUAL
+              name: keybuzz-stripe
+              optional: true
+        - name: STRIPE_PRICE_AUTOPILOT_MONTHLY
+          valueFrom:
+            secretKeyRef:
+              key: STRIPE_PRICE_AUTOPILOT_MONTHLY
+              name: keybuzz-stripe
+              optional: true
+        - name: STRIPE_PRICE_AUTOPILOT_ANNUAL
+          valueFrom:
+            secretKeyRef:
+              key: STRIPE_PRICE_AUTOPILOT_ANNUAL
+              name: keybuzz-stripe
+              optional: true
+        - name: STRIPE_PRICE_ADDON_CHANNEL_MONTHLY
+          valueFrom:
+            secretKeyRef:
+              key: STRIPE_PRICE_ADDON_CHANNEL_MONTHLY
+              name: keybuzz-stripe
+              optional: true
+        - name: STRIPE_PRICE_ADDON_CHANNEL_ANNUAL
+          valueFrom:
+            secretKeyRef:
+              key: STRIPE_PRICE_ADDON_CHANNEL_ANNUAL
+              name: keybuzz-stripe
+              optional: true
+        # App URLs
+        - name: APP_BASE_URL
+          value: 'https://client-dev.keybuzz.io'
+        - name: API_BASE_URL
+          value: 'https://api-dev.keybuzz.io'
+        image: ghcr.io/keybuzzio/keybuzz-api:v0.1.52-dev
         livenessProbe:
           httpGet:
             path: /health
