@@ -19,7 +19,7 @@ spec:
         - name: ghcr-secret
       containers:
         - name: keybuzz-client
-          image: ghcr.io/keybuzzio/keybuzz-client:v0.2.21-dev
+          image: ghcr.io/keybuzzio/keybuzz-client:v0.2.25-dev
           imagePullPolicy: Always
           ports:
             - containerPort: 3000
@@ -29,6 +29,45 @@ spec:
               value: "production"
             - name: NEXT_PUBLIC_API_URL
               value: "https://api-dev.keybuzz.io"
+            # PH13-AUTH-OAUTH: NextAuth config
+            - name: NEXTAUTH_URL
+              value: "https://client-dev.keybuzz.io"
+            - name: NEXTAUTH_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: keybuzz-auth
+                  key: NEXTAUTH_SECRET
+                  optional: true
+            - name: GOOGLE_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: keybuzz-auth
+                  key: GOOGLE_CLIENT_ID
+                  optional: true
+            - name: GOOGLE_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: keybuzz-auth
+                  key: GOOGLE_CLIENT_SECRET
+                  optional: true
+            - name: AZURE_AD_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: keybuzz-auth
+                  key: AZURE_AD_CLIENT_ID
+                  optional: true
+            - name: AZURE_AD_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: keybuzz-auth
+                  key: AZURE_AD_CLIENT_SECRET
+                  optional: true
+            - name: AZURE_AD_TENANT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: keybuzz-auth
+                  key: AZURE_AD_TENANT_ID
+                  optional: true
           resources:
             requests:
               memory: "128Mi"
@@ -38,13 +77,13 @@ spec:
               cpu: "500m"
           livenessProbe:
             httpGet:
-              path: /inbox
+              path: /api/auth/config
+              port: 3000
+            initialDelaySeconds: 15
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /api/auth/config
               port: 3000
             initialDelaySeconds: 10
             periodSeconds: 10
-          readinessProbe:
-            httpGet:
-              path: /inbox
-              port: 3000
-            initialDelaySeconds: 5
-            periodSeconds: 5
