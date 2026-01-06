@@ -2,7 +2,7 @@
 
 **Date:** 2026-01-06  
 **Environnement:** DEV uniquement  
-**Version Client:** v0.2.26-dev
+**Version Client:** v0.2.27-dev
 
 ---
 
@@ -65,19 +65,23 @@ Vérifié via `GET /api/auth/providers`:
 
 ---
 
-## 5. Tests Login
+## 5. Tests E2E (VALIDÉS)
 
-### Google OAuth
-- Cliquer sur "Continuer avec Google" sur /auth/signin
-- Redirection vers Google
-- Callback vers /api/auth/callback/google
-- Session créée
+### Google OAuth ✅
+- Cliquer sur "Continuer avec Google" sur /login
+- ✅ Redirection vers `accounts.google.com`
+- ✅ Page Google affiche "Accéder à l'application keybuzz.io"
+- Callback vers `/api/auth/callback/google`
 
-### Microsoft OAuth
-- Cliquer sur "Continuer avec Microsoft" sur /auth/signin
-- Redirection vers Azure AD
-- Callback vers /api/auth/callback/azure-ad
-- Session créée
+### Microsoft OAuth ✅
+- Cliquer sur "Continuer avec Microsoft" sur /login
+- ✅ Redirection vers `login.microsoftonline.com`
+- ✅ Page Microsoft affiche "Se connecter"
+- Callback vers `/api/auth/callback/azure-ad`
+
+### Preuves E2E
+- Google: URL de redirection contient `client_id=74873063393-...` ✅
+- Microsoft: URL de redirection contient `client_id=f0bbaa37-dc45-423a-a8ce-6424e08b369e` ✅
 
 ---
 
@@ -97,9 +101,9 @@ Pour corriger cela dans le futur:
 
 | Élément | Valeur |
 |---------|--------|
-| Version | v0.2.26-dev |
-| Image | ghcr.io/keybuzzio/keybuzz-client:v0.2.26-dev |
-| Digest | sha256:bd1f232c3fe45438b20d80cac3c00e6f6cca1a908aa0e0f64ada6f854e213116 |
+| Version | v0.2.27-dev |
+| Image | ghcr.io/keybuzzio/keybuzz-client:v0.2.27-dev |
+| Digest | sha256:31cf9d76da7466fc76af23f761f5845fcb2027a00badc6f364ecd3306c7177c7 |
 | Namespace | keybuzz-client-dev |
 | Secret | keybuzz-auth |
 
