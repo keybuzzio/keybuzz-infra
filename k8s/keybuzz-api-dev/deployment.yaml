@@ -25,7 +25,10 @@ spec:
           value: development
         # Postgres config
         - name: PGHOST
-          value: 10.0.0.122
+          valueFrom:
+            secretKeyRef:
+              key: PGHOST
+              name: keybuzz-api-postgres
         - name: PGPORT
           valueFrom:
             secretKeyRef:
@@ -112,7 +115,7 @@ spec:
           value: 'https://client-dev.keybuzz.io'
         - name: API_BASE_URL
           value: 'https://api-dev.keybuzz.io'
-        image: ghcr.io/keybuzzio/keybuzz-api:v0.1.52-dev
+        image: ghcr.io/keybuzzio/keybuzz-api:v0.1.54-dev
         livenessProbe:
           httpGet:
             path: /health
