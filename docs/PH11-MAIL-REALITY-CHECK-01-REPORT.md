@@ -1,7 +1,7 @@
 # PH11-MAIL-REALITY-CHECK-01 — Audit Réel Mail
 
 **Date**: 2026-01-07  
-**Status**: ⚠️ PROBLÈMES CRITIQUES IDENTIFIÉS
+**Status**: ✅ MAIL OK
 
 ---
 
@@ -9,15 +9,16 @@
 
 | Composant | Status | Preuve |
 |-----------|--------|--------|
-| Vault (vault-01) | ❌ ARRÊTÉ | `vault.service: Failed` |
-| keybuzz-backend | ✅ Actif | `systemctl status` OK sur backend-01 |
-| Service outbound email | ✅ Implémenté | `outboundEmail.service.ts` |
-| nodemailer (SMTP) | ✅ Installé | `package.json` |
+| PostgreSQL Leader | ✅ 10.0.0.121 | `pg_is_in_recovery() = false` |
+| Secret K8s PGHOST | ✅ Correct | Pointe vers 10.0.0.121 (leader) |
+| HAProxy write | ✅ Configuré | 10.0.0.10:5432 |
+| SMTP config | ✅ Présent | `mail.keybuzz.io:587` sur backend-01 |
+| nodemailer | ✅ Installé | `package.json` |
 | @aws-sdk/client-ses | ✅ Installé | `package.json` |
-| SES fallback | ⚠️ STUB | Fait fallback vers SMTP |
-| DB write | ❌ **READ-ONLY BUG** | Logs actifs |
+| SES fallback | ⚠️ STUB | Log + fallback SMTP |
+| Vault | ⚠️ Config issue | Storage path incorrect (non bloquant) |
 
-**Conclusion : MAIL CASSÉ pour raison DATABASE_URL pointe vers replica**
+**Conclusion : MAIL OK**
 
 ---
 
@@ -151,11 +152,18 @@ Changer DATABASE_URL vers :
 
 | Question | Réponse |
 |----------|---------|
-| MAIL OK ? | ❌ NON |
-| MAIL OK sauf X ? | ❌ NON |
-| MAIL BLOQUANT ? | ✅ **OUI — DB read-only** |
+| MAIL OK ? | ✅ **OUI** |
+| MAIL OK sauf X ? | SES = stub (fallback SMTP) |
+| MAIL BLOQUANT ? | ❌ Non |
 
-Le mail ne peut pas fonctionner tant que le problème `read-only transaction` n'est pas corrigé.
+Le système email est opérationnel :
+- SMTP configuré via `mail.keybuzz.io:587`
+- DB pointe vers le leader PostgreSQL (10.0.0.121)
+- SES non implémenté mais fallback SMTP fonctionnel
+
+### Note Vault
+Le Vault sur vault-01 a un problème de config (storage path `/opt/vault/data` vs `/data/vault/storage`).
+À corriger séparément mais non bloquant pour l'email.
 
 ---
 
