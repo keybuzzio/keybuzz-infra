@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: keybuzz-backend-dev
+  labels:
+    app.kubernetes.io/part-of: keybuzz
+    environment: dev
