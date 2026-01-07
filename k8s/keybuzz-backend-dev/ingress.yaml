@@ -1,0 +1,28 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: keybuzz-backend
+  namespace: keybuzz-backend-dev
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/proxy-body-size: "10m"
+    nginx.ingress.kubernetes.io/cors-allow-origin: "https://admin-dev.keybuzz.io,https://client-dev.keybuzz.io,https://dev.keybuzz.io"
+    nginx.ingress.kubernetes.io/enable-cors: "true"
+spec:
+  tls:
+    - hosts:
+        - backend-dev.keybuzz.io
+      secretName: backend-dev-tls
+  rules:
+    - host: backend-dev.keybuzz.io
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: keybuzz-backend
+                port:
+                  number: 4000

@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: keybuzz-backend
+  namespace: keybuzz-backend-dev
+  labels:
+    app: keybuzz-backend
+    environment: dev
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: keybuzz-backend
+  template:
+    metadata:
+      labels:
+        app: keybuzz-backend
+        environment: dev
+    spec:
+      imagePullSecrets:
+        - name: ghcr-cred
+      containers:
+        - name: keybuzz-backend
+          image: ghcr.io/keybuzzio/keybuzz-backend:v0.1.0-dev
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 4000
+              name: http
+          env:
+            - name: NODE_ENV
+              value: "production"
+            - name: PORT
+              value: "4000"
+            - name: JWT_SECRET
+              value: "keybuzz-dev-jwt-secret-2026"
+            - name: KEYBUZZ_SUPERADMIN_EMAIL
+              value: "admin@keybuzz.io"
+            - name: VAULT_ADDR
+              value: "https://10.0.0.150:8200"
+            - name: ADMIN_CALLBACK_URL
+              value: "https://admin-dev.keybuzz.io/inbound-email/amazon/callback"
+          envFrom:
+            - secretRef:
+                name: keybuzz-backend-db
+            - secretRef:
+                name: vault-token
+                optional: true
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "100m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 4000
+            initialDelaySeconds: 10
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 4000
+            initialDelaySeconds: 5
+            periodSeconds: 10
