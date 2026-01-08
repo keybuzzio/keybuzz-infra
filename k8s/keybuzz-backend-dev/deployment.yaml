@@ -1,66 +1,131 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: keybuzz-backend
-  namespace: keybuzz-backend-dev
+  annotations:
+    deployment.kubernetes.io/revision: "19"
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"apps/v1","kind":"Deployment","metadata":{"annotations":{},"labels":{"app":"keybuzz-backend","app.kubernetes.io/instance":"keybuzz-backend-dev","app.kubernetes.io/name":"keybuzz-backend","app.kubernetes.io/part-of":"keybuzz","environment":"dev"},"name":"keybuzz-backend","namespace":"keybuzz-backend-dev"},"spec":{"replicas":1,"selector":{"matchLabels":{"app":"keybuzz-backend","app.kubernetes.io/instance":"keybuzz-backend-dev","app.kubernetes.io/name":"keybuzz-backend","app.kubernetes.io/part-of":"keybuzz","environment":"dev"}},"template":{"metadata":{"labels":{"app":"keybuzz-backend","app.kubernetes.io/instance":"keybuzz-backend-dev","app.kubernetes.io/name":"keybuzz-backend","app.kubernetes.io/part-of":"keybuzz","environment":"dev"}},"spec":{"containers":[{"env":[{"name":"NODE_ENV","value":"production"},{"name":"PORT","value":"4000"},{"name":"JWT_SECRET","value":"keybuzz-dev-jwt-secret-2026"},{"name":"KEYBUZZ_SUPERADMIN_EMAIL","value":"admin@keybuzz.io"},{"name":"VAULT_ADDR","value":"https://10.0.0.150:8200"},{"name":"ADMIN_CALLBACK_URL","value":"https://admin-dev.keybuzz.io/inbound-email/amazon/callback"}],"envFrom":[{"secretRef":{"name":"keybuzz-backend-db"}},{"secretRef":{"name":"vault-token","optional":true}}],"image":"ghcr.io/keybuzzio/keybuzz-backend:v0.1.0-dev","imagePullPolicy":"Always","livenessProbe":{"httpGet":{"path":"/health","port":4000},"initialDelaySeconds":10,"periodSeconds":30},"name":"keybuzz-backend","ports":[{"containerPort":4000,"name":"http"}],"readinessProbe":{"httpGet":{"path":"/health","port":4000},"initialDelaySeconds":5,"periodSeconds":10},"resources":{"limits":{"cpu":"500m","memory":"512Mi"},"requests":{"cpu":"100m","memory":"256Mi"}}}],"imagePullSecrets":[{"name":"ghcr-cred"}]}}}}
+  creationTimestamp: "2026-01-07T18:33:09Z"
+  generation: 19
   labels:
     app: keybuzz-backend
+    app.kubernetes.io/instance: keybuzz-backend-dev
+    app.kubernetes.io/name: keybuzz-backend
+    app.kubernetes.io/part-of: keybuzz
     environment: dev
+  name: keybuzz-backend
+  namespace: keybuzz-backend-dev
+  resourceVersion: "9085734"
+  uid: 16fef92a-34df-415e-802a-3337b4b50332
 spec:
+  progressDeadlineSeconds: 600
   replicas: 1
+  revisionHistoryLimit: 10
   selector:
     matchLabels:
       app: keybuzz-backend
+      app.kubernetes.io/instance: keybuzz-backend-dev
+      app.kubernetes.io/name: keybuzz-backend
+      app.kubernetes.io/part-of: keybuzz
+      environment: dev
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
   template:
     metadata:
+      annotations:
+        kubectl.kubernetes.io/restartedAt: "2026-01-08T09:15:28Z"
+      creationTimestamp: null
       labels:
         app: keybuzz-backend
+        app.kubernetes.io/instance: keybuzz-backend-dev
+        app.kubernetes.io/name: keybuzz-backend
+        app.kubernetes.io/part-of: keybuzz
         environment: dev
     spec:
-      imagePullSecrets:
-        - name: ghcr-cred
       containers:
-        - name: keybuzz-backend
-          image: ghcr.io/keybuzzio/keybuzz-backend:v0.1.0-dev
-          imagePullPolicy: Always
-          ports:
-            - containerPort: 4000
-              name: http
-          env:
-            - name: NODE_ENV
-              value: "production"
-            - name: PORT
-              value: "4000"
-            - name: JWT_SECRET
-              value: "keybuzz-dev-jwt-secret-2026"
-            - name: KEYBUZZ_SUPERADMIN_EMAIL
-              value: "admin@keybuzz.io"
-            - name: VAULT_ADDR
-              value: "https://10.0.0.150:8200"
-            - name: ADMIN_CALLBACK_URL
-              value: "https://admin-dev.keybuzz.io/inbound-email/amazon/callback"
-          envFrom:
-            - secretRef:
-                name: keybuzz-backend-db
-            - secretRef:
-                name: vault-token
-                optional: true
-          resources:
-            requests:
-              memory: "256Mi"
-              cpu: "100m"
-            limits:
-              memory: "512Mi"
-              cpu: "500m"
-          livenessProbe:
-            httpGet:
-              path: /health
-              port: 4000
-            initialDelaySeconds: 10
-            periodSeconds: 30
-          readinessProbe:
-            httpGet:
-              path: /health
-              port: 4000
-            initialDelaySeconds: 5
-            periodSeconds: 10
+      - env:
+        - name: NODE_ENV
+          value: production
+        - name: PORT
+          value: "4000"
+        - name: JWT_SECRET
+          value: keybuzz-dev-jwt-secret-2026
+        - name: KEYBUZZ_SUPERADMIN_EMAIL
+          value: admin@keybuzz.io
+        - name: ADMIN_CALLBACK_URL
+          value: https://admin-dev.keybuzz.io/inbound-email/amazon/callback
+        - name: KEYBUZZ_DEV_MODE
+          value: "true"
+        envFrom:
+        - secretRef:
+            name: keybuzz-backend-db
+        - secretRef:
+            name: vault-token
+            optional: true
+        - secretRef:
+            name: amazon-spapi-creds
+        image: ghcr.io/keybuzzio/keybuzz-backend:v0.1.9-dev
+        imagePullPolicy: Always
+        livenessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /health
+            port: 4000
+            scheme: HTTP
+          initialDelaySeconds: 10
+          periodSeconds: 30
+          successThreshold: 1
+          timeoutSeconds: 1
+        name: keybuzz-backend
+        ports:
+        - containerPort: 4000
+          name: http
+          protocol: TCP
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /health
+            port: 4000
+            scheme: HTTP
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 1
+        resources:
+          limits:
+            cpu: 500m
+            memory: 512Mi
+          requests:
+            cpu: 100m
+            memory: 256Mi
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+      dnsPolicy: ClusterFirst
+      imagePullSecrets:
+      - name: ghcr-cred
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+status:
+  availableReplicas: 1
+  conditions:
+  - lastTransitionTime: "2026-01-07T18:33:47Z"
+    lastUpdateTime: "2026-01-07T18:33:47Z"
+    message: Deployment has minimum availability.
+    reason: MinimumReplicasAvailable
+    status: "True"
+    type: Available
+  - lastTransitionTime: "2026-01-07T21:20:01Z"
+    lastUpdateTime: "2026-01-08T09:19:05Z"
+    message: ReplicaSet "keybuzz-backend-bdddf8484" has successfully progressed.
+    reason: NewReplicaSetAvailable
+    status: "True"
+    type: Progressing
+  observedGeneration: 19
+  readyReplicas: 1
+  replicas: 1
+  updatedReplicas: 1
