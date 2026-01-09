@@ -4,7 +4,7 @@ metadata:
   name: keybuzz-outbound-worker
   namespace: keybuzz-api-dev
   annotations:
-    reloader.stakater.com/auto: "true"  # Auto-restart on secret rotation
+    reloader.stakater.com/auto: "true"
 spec:
   replicas: 1
   selector:
@@ -19,14 +19,25 @@ spec:
       - name: ghcr-cred
       containers:
       - name: worker
-        image: ghcr.io/keybuzzio/keybuzz-api:v0.1.31-dev
+        image: ghcr.io/keybuzzio/keybuzz-api:v0.1.75-dev
         command: ["node", "dist/workers/outboundWorker.js"]
         env:
         - name: OUTBOUND_POLL_INTERVAL_MS
           value: "2000"
+        # PH15: SMTP config for real email delivery
+        - name: SMTP_HOST
+          value: "49.13.35.167"
+        - name: SMTP_PORT
+          value: "25"
+        - name: SMTP_SECURE
+          value: "false"
+        - name: SMTP_TLS_REJECT_UNAUTHORIZED
+          value: "false"
         envFrom:
         - secretRef:
-            name: keybuzz-api-postgres  # Same DB credentials as API
+            name: keybuzz-api-postgres
+        - secretRef:
+            name: keybuzz-ses
         resources:
           requests:
             cpu: 50m
@@ -51,4 +62,3 @@ spec:
           initialDelaySeconds: 5
           periodSeconds: 10
       restartPolicy: Always
-
