@@ -115,7 +115,7 @@ spec:
           value: 'https://client-dev.keybuzz.io'
         - name: API_BASE_URL
           value: 'https://api-dev.keybuzz.io'
-        image: ghcr.io/keybuzzio/keybuzz-api:v0.1.73-dev
+        image: ghcr.io/keybuzzio/keybuzz-api:0.1.92
         livenessProbe:
           httpGet:
             path: /health
