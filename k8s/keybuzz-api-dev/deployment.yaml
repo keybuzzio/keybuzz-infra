@@ -115,7 +115,18 @@ spec:
           value: 'https://client-dev.keybuzz.io'
         - name: API_BASE_URL
           value: 'https://api-dev.keybuzz.io'
-        image: ghcr.io/keybuzzio/keybuzz-api:0.1.92
+        # PH18: SMTP config for email invites
+        - name: SMTP_HOST
+          value: '49.13.35.167'
+        - name: SMTP_PORT
+          value: '25'
+        - name: SMTP_SECURE
+          value: 'false'
+        - name: SMTP_TLS_REJECT_UNAUTHORIZED
+          value: 'false'
+        - name: SMTP_FROM
+          value: 'noreply@keybuzz.io'
+        image: ghcr.io/keybuzzio/keybuzz-api:0.1.94
         livenessProbe:
           httpGet:
             path: /health
