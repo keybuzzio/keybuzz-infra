@@ -1,0 +1,44 @@
+# k8s/keybuzz-backend-dev/cronjob-orders-sync.yaml
+# PH15-AMAZON-ORDERS-SYNC-01: Delta sync every 5 minutes
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: amazon-orders-sync
+  namespace: keybuzz-backend-dev
+spec:
+  schedule: "*/5 * * * *"  # Every 5 minutes
+  concurrencyPolicy: Forbid  # Prevent overlapping runs
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      ttlSecondsAfterFinished: 600
+      backoffLimit: 1
+      template:
+        spec:
+          restartPolicy: Never
+          hostAliases:
+            - ip: "10.0.0.150"
+              hostnames:
+                - "vault.keybuzz.io"
+          containers:
+            - name: sync-runner
+              image: curlimages/curl:latest
+              command:
+                - /bin/sh
+                - -c
+                - |
+                  echo "Starting Amazon Orders Delta Sync for ecomlg-001..."
+                  curl -sk -X POST \
+                    -H "X-User-Email: system@keybuzz.io" \
+                    -H "X-Tenant-Id: ecomlg-001" \
+                    https://backend-dev.keybuzz.io/api/v1/orders/sync/run
+                  echo ""
+                  echo "Sync completed"
+              resources:
+                limits:
+                  memory: "64Mi"
+                  cpu: "100m"
+                requests:
+                  memory: "32Mi"
+                  cpu: "50m"
