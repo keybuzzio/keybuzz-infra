@@ -1,13 +1,13 @@
 # k8s/keybuzz-backend-dev/cronjob-orders-sync.yaml
-# PH15-AMAZON-ORDERS-SYNC-SCALE-01: Global multi-tenant sync
+# PH15-AMAZON-ORDERS-SYNC-SCALE-02: Hardened global sync
 apiVersion: batch/v1
 kind: CronJob
 metadata:
   name: amazon-orders-sync
   namespace: keybuzz-backend-dev
 spec:
-  schedule: "*/5 * * * *"  # Every 5 minutes
-  concurrencyPolicy: Forbid  # Prevent overlapping runs
+  schedule: "*/5 * * * *"
+  concurrencyPolicy: Forbid
   successfulJobsHistoryLimit: 3
   failedJobsHistoryLimit: 3
   jobTemplate:
@@ -28,10 +28,11 @@ spec:
                 - /bin/sh
                 - -c
                 - |
-                  echo "Starting Global Amazon Orders Sync..."
-                  echo "Processing ALL CONNECTED tenants (batch mode)"
+                  echo "Starting Global Amazon Orders Sync (Hardened)..."
+                  echo "Processing ALL CONNECTED tenants with valid tokens"
                   curl -sk -X POST \
-                    -H "X-User-Email: system@keybuzz.io" \
+                    -H "X-User-Email: cron@system.keybuzz.io" \
+                    -H "X-Tenant-Id: ecomlg-001" \
                     https://backend-dev.keybuzz.io/api/v1/orders/sync/run/global
                   echo ""
                   echo "Global sync completed"
