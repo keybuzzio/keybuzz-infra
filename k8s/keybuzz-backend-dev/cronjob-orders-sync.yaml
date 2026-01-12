@@ -1,5 +1,5 @@
 # k8s/keybuzz-backend-dev/cronjob-orders-sync.yaml
-# PH15-AMAZON-ORDERS-SYNC-01: Delta sync every 5 minutes
+# PH15-AMAZON-ORDERS-SYNC-SCALE-01: Global multi-tenant sync
 apiVersion: batch/v1
 kind: CronJob
 metadata:
@@ -28,13 +28,13 @@ spec:
                 - /bin/sh
                 - -c
                 - |
-                  echo "Starting Amazon Orders Delta Sync for ecomlg-001..."
+                  echo "Starting Global Amazon Orders Sync..."
+                  echo "Processing ALL CONNECTED tenants (batch mode)"
                   curl -sk -X POST \
                     -H "X-User-Email: system@keybuzz.io" \
-                    -H "X-Tenant-Id: ecomlg-001" \
-                    https://backend-dev.keybuzz.io/api/v1/orders/sync/run
+                    https://backend-dev.keybuzz.io/api/v1/orders/sync/run/global
                   echo ""
-                  echo "Sync completed"
+                  echo "Global sync completed"
               resources:
                 limits:
                   memory: "64Mi"
