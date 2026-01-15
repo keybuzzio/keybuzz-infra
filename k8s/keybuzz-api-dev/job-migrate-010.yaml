@@ -30,7 +30,10 @@ spec:
         - name: NODE_ENV
           value: "production"
         - name: PGHOST
-          value: "10.0.0.122"
+          valueFrom:
+            secretKeyRef:
+              name: keybuzz-api-postgres
+              key: PGHOST
         - name: PGPORT
           valueFrom:
             secretKeyRef:
