@@ -14,33 +14,31 @@
   blockinfile:
     path: /etc/haproxy/haproxy.cfg
     block: |
-      # PostgreSQL Writer (Master) - Port 5432
+      # PostgreSQL Primary (Write) - Via Patroni health check
+      # PH-SRE-DB-ENDPOINT-NONREGRESSION-02: Utilise /primary pour détecter le leader
       listen postgres_write
           mode tcp
           bind *:{{ haproxy_postgres_write_port }}
           balance first
-          option tcp-check
-          tcp-check connect port {{ postgres_listen_port }}
-          timeout client  1m
-          timeout server  1m
-          timeout connect 5s
-          server db-postgres-01 10.0.0.120:{{ postgres_listen_port }} check inter 2000 fall 2 rise 2
-          server db-postgres-02 10.0.0.121:{{ postgres_listen_port }} check inter 2000 fall 2 rise 2 backup
-          server db-postgres-03 10.0.0.122:{{ postgres_listen_port }} check inter 2000 fall 2 rise 2 backup
+          option httpchk GET /primary
+          http-check expect status 200
+          default-server inter 2000 fall 2 rise 2 on-marked-down shutdown-sessions
+          server db-postgres-01 {{ postgres_nodes[0].ansible_host }}:{{ postgres_listen_port }} check port 8008
+          server db-postgres-02 {{ postgres_nodes[1].ansible_host }}:{{ postgres_listen_port }} check port 8008
+          server db-postgres-03 {{ postgres_nodes[2].ansible_host }}:{{ postgres_listen_port }} check port 8008
 
-      # PostgreSQL Readers (Replicas) - Port 5433 (optional)
+      # PostgreSQL Replicas (Read) - Port 5433
+      # Utilise /replica pour détecter les replicas
       listen postgres_read
           mode tcp
           bind *:{{ haproxy_postgres_read_port }}
           balance roundrobin
-          option tcp-check
-          tcp-check connect port {{ postgres_listen_port }}
-          timeout client  1m
-          timeout server  1m
-          timeout connect 5s
-          server db-postgres-01 {{ postgres_nodes[0].ansible_host }}:{{ postgres_listen_port }} check inter 2000 fall 2 rise 2
-          server db-postgres-02 {{ postgres_nodes[1].ansible_host }}:{{ postgres_listen_port }} check inter 2000 fall 2 rise 2
-          server db-postgres-03 {{ postgres_nodes[2].ansible_host }}:{{ postgres_listen_port }} check inter 2000 fall 2 rise 2
+          option httpchk GET /replica
+          http-check expect status 200
+          default-server inter 2000 fall 2 rise 2
+          server db-postgres-01 {{ postgres_nodes[0].ansible_host }}:{{ postgres_listen_port }} check port 8008
+          server db-postgres-02 {{ postgres_nodes[1].ansible_host }}:{{ postgres_listen_port }} check port 8008
+          server db-postgres-03 {{ postgres_nodes[2].ansible_host }}:{{ postgres_listen_port }} check port 8008
     marker: "# {mark} ANSIBLE MANAGED BLOCK FOR POSTGRESQL HA"
     insertafter: EOF
   notify: restart haproxy
