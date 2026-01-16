@@ -19,7 +19,7 @@ spec:
       - name: ghcr-cred
       containers:
       - name: worker
-        image: ghcr.io/keybuzzio/keybuzz-api:v0.1.107-dev
+        image: ghcr.io/keybuzzio/keybuzz-api:v0.1.109-dev
         command: ["node", "dist/workers/outboundWorker.js"]
         env:
         - name: OUTBOUND_POLL_INTERVAL_MS
