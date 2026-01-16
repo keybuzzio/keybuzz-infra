@@ -1,0 +1,83 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: db-migrate-sla-025
+  namespace: keybuzz-api-dev
+  labels:
+    app: keybuzz-api
+    migration: "025"
+    phase: ph20-sla
+spec:
+  ttlSecondsAfterFinished: 86400  # Keep for 24h for debugging
+  backoffLimit: 0  # No retries
+  template:
+    metadata:
+      labels:
+        app: keybuzz-api
+        job: db-migrate-sla-025
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: migrate
+        image: postgres:16-alpine
+        command:
+          - sh
+          - -c
+          - |
+            set -e
+            
+            echo "🔧 PH20-SLA-01A: Applying migration 025..."
+            echo "DB: $PGHOST:$PGPORT/$PGDATABASE as $PGUSER"
+            
+            # Test connection
+            psql -v ON_ERROR_STOP=1 -c "SELECT version();" || {
+              echo "❌ Cannot connect to database"
+              exit 1
+            }
+            
+            echo "✅ Connection successful"
+            
+            # Apply migration
+            echo "Applying migration..."
+            psql -v ON_ERROR_STOP=1 -f /migrations/025_add_sla_fields.sql
+            
+            if [ $? -eq 0 ]; then
+              echo "✅ Migration 025 applied successfully!"
+            else
+              echo "❌ Migration failed!"
+              exit 1
+            fi
+        env:
+        - name: PGHOST
+          valueFrom:
+            secretKeyRef:
+              name: keybuzz-db-migrator
+              key: PGHOST
+        - name: PGPORT
+          valueFrom:
+            secretKeyRef:
+              name: keybuzz-db-migrator
+              key: PGPORT
+        - name: PGDATABASE
+          valueFrom:
+            secretKeyRef:
+              name: keybuzz-db-migrator
+              key: PGDATABASE
+        - name: PGUSER
+          valueFrom:
+            secretKeyRef:
+              name: keybuzz-db-migrator
+              key: PGUSER
+        - name: PGPASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: keybuzz-db-migrator
+              key: PGPASSWORD
+        volumeMounts:
+        - name: migration-sql
+          mountPath: /migrations
+          readOnly: true
+      volumes:
+      - name: migration-sql
+        configMap:
+          name: migration-025-sla

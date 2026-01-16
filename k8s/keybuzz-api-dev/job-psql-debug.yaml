@@ -1,0 +1,68 @@
+---
+# PH-SEC-DB-CREDS-VAULT-ONLY-01
+# Job K8s pour debug DB SANS secrets en clair
+# Usage: kubectl apply -f job-psql-debug.yaml -n keybuzz-api-dev
+#        kubectl logs job/psql-debug -n keybuzz-api-dev
+#        kubectl delete job psql-debug -n keybuzz-api-dev
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: psql-debug
+  namespace: keybuzz-api-dev
+spec:
+  ttlSecondsAfterFinished: 300
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: psql
+        image: postgres:15-alpine
+        command:
+        - sh
+        - -c
+        - |
+          echo "=== KeyBuzz DB Debug (secrets from ESO) ==="
+          echo "Host: $PGHOST"
+          echo "Database: $PGDATABASE"
+          echo "User: $PGUSER"
+          echo ""
+          echo "=== Testing connection ==="
+          psql -c "SELECT version();" || exit 1
+          echo ""
+          echo "=== Tables ==="
+          psql -c "\dt" | head -30
+          echo ""
+          echo "=== Recent conversations (5) ==="
+          psql -c "SELECT id, channel, left(subject, 40) as subject, created_at FROM conversations ORDER BY created_at DESC LIMIT 5;"
+          echo ""
+          echo "=== Outbound deliveries status ==="
+          psql -c "SELECT status, count(*) FROM outbound_deliveries GROUP BY status;"
+          echo ""
+          echo "=== Done ==="
+        env:
+        - name: PGHOST
+          valueFrom:
+            secretKeyRef:
+              name: keybuzz-db-migrator
+              key: PGHOST
+              optional: true
+        - name: PGPORT
+          value: "5432"
+        - name: PGDATABASE
+          valueFrom:
+            secretKeyRef:
+              name: keybuzz-db-migrator
+              key: PGDATABASE
+              optional: true
+        - name: PGUSER
+          valueFrom:
+            secretKeyRef:
+              name: keybuzz-db-migrator
+              key: PGUSER
+              optional: true
+        - name: PGPASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: keybuzz-db-migrator
+              key: PGPASSWORD
+              optional: true
