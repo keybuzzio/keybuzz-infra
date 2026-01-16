@@ -1,0 +1,71 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: migration-025-sla
+  namespace: keybuzz-api-dev
+  labels:
+    app: keybuzz-api
+    migration: "025"
+data:
+  025_add_sla_fields.sql: |
+    -- PH20-SLA-01A: Add SLA fields to conversations
+    -- Migration 025 (idempotent)
+    
+    BEGIN;
+    
+    -- Add SLA-related columns (idempotent with IF NOT EXISTS)
+    DO $$
+    BEGIN
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
+                       WHERE table_name='conversations' AND column_name='first_response_at') THEN
+            ALTER TABLE conversations ADD COLUMN first_response_at TIMESTAMPTZ;
+        END IF;
+        
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
+                       WHERE table_name='conversations' AND column_name='last_customer_message_at') THEN
+            ALTER TABLE conversations ADD COLUMN last_customer_message_at TIMESTAMPTZ;
+        END IF;
+        
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
+                       WHERE table_name='conversations' AND column_name='last_agent_message_at') THEN
+            ALTER TABLE conversations ADD COLUMN last_agent_message_at TIMESTAMPTZ;
+        END IF;
+        
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
+                       WHERE table_name='conversations' AND column_name='sla_updated_at') THEN
+            ALTER TABLE conversations ADD COLUMN sla_updated_at TIMESTAMPTZ;
+        END IF;
+        
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
+                       WHERE table_name='conversations' AND column_name='sla_state') THEN
+            ALTER TABLE conversations ADD COLUMN sla_state VARCHAR(20) DEFAULT 'OK';
+        END IF;
+    END $$;
+    
+    -- Create indexes (idempotent with IF NOT EXISTS)
+    CREATE INDEX IF NOT EXISTS idx_conversations_sla_state_ph20
+      ON conversations(tenant_id, sla_state) 
+      WHERE status != 'resolved';
+      
+    CREATE INDEX IF NOT EXISTS idx_conversations_last_customer_ph20
+      ON conversations(tenant_id, last_customer_message_at) 
+      WHERE status != 'resolved';
+    
+    -- Add comments (idempotent - will replace if exists)
+    COMMENT ON COLUMN conversations.first_response_at IS 'PH20: First agent response';
+    COMMENT ON COLUMN conversations.last_customer_message_at IS 'PH20: Last customer message';
+    COMMENT ON COLUMN conversations.last_agent_message_at IS 'PH20: Last agent message';
+    COMMENT ON COLUMN conversations.sla_state IS 'PH20: OK|AT_RISK|BREACHED';
+    COMMENT ON COLUMN conversations.sla_updated_at IS 'PH20: Last SLA update';
+    
+    COMMIT;
+    
+    -- Verify columns exist
+    SELECT 
+      column_name, 
+      data_type,
+      is_nullable
+    FROM information_schema.columns 
+    WHERE table_name = 'conversations' 
+      AND column_name IN ('first_response_at', 'last_customer_message_at', 'last_agent_message_at', 'sla_state', 'sla_updated_at')
+    ORDER BY column_name;
