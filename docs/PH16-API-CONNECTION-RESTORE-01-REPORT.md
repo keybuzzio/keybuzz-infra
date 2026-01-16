@@ -38,7 +38,7 @@ Les credentials dynamiques générés par Vault pour keybuzz-api-dev avaient exp
 ### 2.1 Création d'un utilisateur DB statique pour DEV
 
 ```sql
-CREATE ROLE keybuzz_api_dev WITH LOGIN PASSWORD 'KeyBuzz_Dev_2026!';
+CREATE ROLE keybuzz_api_dev WITH LOGIN PASSWORD '<REDACTED>';
 GRANT ALL PRIVILEGES ON DATABASE keybuzz TO keybuzz_api_dev;
 GRANT ALL PRIVILEGES ON DATABASE keybuzz_backend TO keybuzz_api_dev;
 ```
@@ -51,7 +51,7 @@ kubectl -n keybuzz-api-dev create secret generic keybuzz-api-postgres \
   --from-literal=PGPORT=5432 \
   --from-literal=PGDATABASE=keybuzz \
   --from-literal=PGUSER=keybuzz_api_dev \
-  --from-literal=PGPASSWORD='KeyBuzz_Dev_2026!'
+  --from-literal=PGPASSWORD='<REDACTED>'
 ```
 
 ### 2.3 Secret keybuzz-backend-db (keybuzz-backend-dev)
@@ -62,8 +62,8 @@ kubectl -n keybuzz-backend-dev create secret generic keybuzz-backend-db \
   --from-literal=PGPORT=5432 \
   --from-literal=PGDATABASE=keybuzz_backend \
   --from-literal=PGUSER=keybuzz_api_dev \
-  --from-literal=PGPASSWORD='KeyBuzz_Dev_2026!' \
-  --from-literal=DATABASE_URL='postgresql://keybuzz_api_dev:KeyBuzz_Dev_2026!@10.0.0.120:5432/keybuzz_backend'
+  --from-literal=PGPASSWORD='<REDACTED>' \
+  --from-literal=DATABASE_URL='postgresql://keybuzz_api_dev:<REDACTED>@10.0.0.120:5432/keybuzz_backend'
 ```
 
 ### 2.4 Seed de keybuzz_backend
