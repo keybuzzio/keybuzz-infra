@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: keybuzz-website
+  namespace: keybuzz-website-dev
+  labels:
+    app: keybuzz-website
+    environment: dev
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: keybuzz-website
+  template:
+    metadata:
+      labels:
+        app: keybuzz-website
+        environment: dev
+    spec:
+      containers:
+      - name: keybuzz-website
+        image: ghcr.io/keybuzzio/keybuzz-website:v0.2.0
+        ports:
+        - containerPort: 3000
+          name: http
+        env:
+        - name: NEXT_PUBLIC_SITE_MODE
+          value: "preview"
+        - name: NODE_ENV
+          value: "production"
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "250m"
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 3000
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 3000
+          initialDelaySeconds: 15
+          periodSeconds: 20
+      imagePullSecrets:
+      - name: ghcr-secret

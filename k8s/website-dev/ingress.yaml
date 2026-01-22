@@ -1,0 +1,26 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: keybuzz-website-preview
+  namespace: keybuzz-website-dev
+  labels:
+    app: keybuzz-website
+    environment: dev
+  annotations:
+    nginx.ingress.kubernetes.io/auth-type: "basic"
+    nginx.ingress.kubernetes.io/auth-secret: "preview-basic-auth"
+    nginx.ingress.kubernetes.io/auth-realm: "Authentication Required - KeyBuzz Preview"
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: preview.keybuzz.pro
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: keybuzz-website
+            port:
+              number: 80
