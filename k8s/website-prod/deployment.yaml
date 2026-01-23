@@ -1,0 +1,88 @@
+# =============================================================================
+# DEPLOYMENT PROD - KeyBuzz Website
+# =============================================================================
+# ⚠️ NE PAS APPLIQUER AVANT LE CUTOVER
+# Différences avec preview:
+# - NEXT_PUBLIC_SITE_MODE = "production" (pas "preview")
+# - Pas de basic auth
+# - robots.txt autorise l'indexation
+# =============================================================================
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: keybuzz-website
+  namespace: keybuzz-website-prod
+  labels:
+    app: keybuzz-website
+    environment: prod
+spec:
+  replicas: 2  # HA en prod
+  selector:
+    matchLabels:
+      app: keybuzz-website
+  template:
+    metadata:
+      labels:
+        app: keybuzz-website
+        environment: prod
+    spec:
+      containers:
+      - name: keybuzz-website
+        image: ghcr.io/keybuzzio/keybuzz-website:v0.4.16
+        ports:
+        - containerPort: 3000
+        env:
+        # ⚠️ DIFFÉRENCE CRITIQUE: "production" au lieu de "preview"
+        - name: NEXT_PUBLIC_SITE_MODE
+          value: "production"
+        - name: NODE_ENV
+          value: "production"
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "250m"
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 3000
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 3000
+          initialDelaySeconds: 15
+          periodSeconds: 20
+      imagePullSecrets:
+      - name: ghcr-secret
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: keybuzz-website
+  namespace: keybuzz-website-prod
+  labels:
+    app: keybuzz-website
+    environment: prod
+spec:
+  type: ClusterIP
+  ports:
+  - port: 80
+    targetPort: 3000
+    protocol: TCP
+  selector:
+    app: keybuzz-website
+
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: keybuzz-website-prod
+  labels:
+    app: keybuzz-website
+    environment: prod
