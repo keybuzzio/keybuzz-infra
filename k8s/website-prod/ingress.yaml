@@ -1,12 +1,8 @@
-# =============================================================================
+# =====================================================================
 # INGRESS PROD - KeyBuzz Website
-# =============================================================================
-# ⚠️ NE PAS APPLIQUER AVANT LE CUTOVER
-# Ce fichier est préparé mais ne doit être appliqué qu'après:
-# 1. Création du namespace keybuzz-website-prod
-# 2. Déploiement du deployment prod
-# 3. Configuration DNS pointant vers le cluster
-# =============================================================================
+# =====================================================================
+# Certificat unique couvrant www.keybuzz.pro + keybuzz.pro (SAN)
+# =====================================================================
 
 apiVersion: networking.k8s.io/v1
 kind: Ingress
@@ -17,13 +13,10 @@ metadata:
     app: keybuzz-website
     environment: prod
   annotations:
-    # TLS via cert-manager
     cert-manager.io/cluster-issuer: "letsencrypt-prod"
-    # Force HTTPS
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
     nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
-    # Pas de basic auth en prod
-    # nginx.ingress.kubernetes.io/auth-type: "basic"  # RETIRÉ
+    nginx.ingress.kubernetes.io/from-to-www-redirect: "true"
 spec:
   ingressClassName: nginx
   tls:
@@ -42,32 +35,6 @@ spec:
             name: keybuzz-website
             port:
               number: 80
-
----
-# =============================================================================
-# INGRESS REDIRECT - keybuzz.pro → www.keybuzz.pro
-# =============================================================================
-# Optionnel: Redirige le domaine apex vers www
-# À appliquer uniquement si keybuzz.pro pointe aussi vers le cluster
-
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: keybuzz-website-redirect
-  namespace: keybuzz-website-prod
-  labels:
-    app: keybuzz-website
-    environment: prod
-  annotations:
-    nginx.ingress.kubernetes.io/ssl-redirect: "true"
-    nginx.ingress.kubernetes.io/permanent-redirect: "https://www.keybuzz.pro$request_uri"
-spec:
-  ingressClassName: nginx
-  tls:
-  - hosts:
-    - keybuzz.pro
-    secretName: keybuzz-website-prod-tls
-  rules:
   - host: keybuzz.pro
     http:
       paths:
