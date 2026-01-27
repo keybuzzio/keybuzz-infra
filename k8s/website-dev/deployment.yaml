@@ -19,7 +19,7 @@ spec:
     spec:
       containers:
       - name: keybuzz-website
-        image: ghcr.io/keybuzzio/keybuzz-website:v0.4.19-contact
+        image: ghcr.io/keybuzzio/keybuzz-website:v0.4.20-home-fixes
         ports:
         - containerPort: 3000
           name: http
