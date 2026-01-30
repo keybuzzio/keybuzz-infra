@@ -1,0 +1,142 @@
+# PH26.2-AMAZON-BACKFILL-COMPLETE-ORDERS-01
+# Job de migration pour la table amazon_orders_backfill_state
+# 
+# Utilise le secret existant keybuzz-backend-db (pas de credentials en clair)
+# 
+# Pour executer:
+#   kubectl apply -f configmap-migration-030-backfill.yaml
+#   kubectl apply -f job-migrate-030-backfill.yaml
+#   kubectl logs -f job/db-migrate-030-backfill -n keybuzz-backend-dev
+
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: db-migrate-030-backfill
+  namespace: keybuzz-backend-dev
+  labels:
+    app: keybuzz-backend
+    migration: "030"
+    phase: ph26.2-amazon-backfill
+spec:
+  ttlSecondsAfterFinished: 86400  # Keep for 24h for debugging
+  backoffLimit: 1  # 1 retry max
+  activeDeadlineSeconds: 300  # Timeout 5 min
+  template:
+    metadata:
+      labels:
+        app: keybuzz-backend
+        job: db-migrate-030-backfill
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: migrate
+        image: postgres:16-alpine
+        command:
+          - sh
+          - -c
+          - |
+            set -e
+            
+            echo "========================================"
+            echo "PH26.2: Migration 030 - amazon_orders_backfill_state"
+            echo "========================================"
+            echo ""
+            echo "Target: $PGHOST:$PGPORT/$PGDATABASE as $PGUSER"
+            echo "Started at: $(date -Iseconds)"
+            echo ""
+            
+            # Test connection
+            echo "Testing database connection..."
+            psql -v ON_ERROR_STOP=1 -c "SELECT version();" || {
+              echo "ERROR: Cannot connect to database"
+              exit 1
+            }
+            echo "Connection OK"
+            echo ""
+            
+            # Check if table already exists
+            echo "Checking if table already exists..."
+            EXISTS=$(psql -tAc "SELECT EXISTS(SELECT 1 FROM information_schema.tables WHERE table_name='amazon_orders_backfill_state');")
+            if [ "$EXISTS" = "t" ]; then
+              echo "WARNING: Table already exists - checking columns..."
+              psql -c "\d amazon_orders_backfill_state" 2>/dev/null || true
+              echo ""
+              echo "Migration will be idempotent (IF NOT EXISTS)"
+            fi
+            echo ""
+            
+            # Apply migration
+            echo "Applying migration 030..."
+            psql -v ON_ERROR_STOP=1 -f /migrations/030_amazon_orders_backfill_state.sql
+            
+            RESULT=$?
+            echo ""
+            
+            if [ $RESULT -eq 0 ]; then
+              echo "========================================"
+              echo "SUCCESS: Migration 030 applied!"
+              echo "========================================"
+              
+              # Verify table structure
+              echo ""
+              echo "Table structure:"
+              psql -c "\d amazon_orders_backfill_state"
+              
+              echo ""
+              echo "Indexes:"
+              psql -c "SELECT indexname FROM pg_indexes WHERE tablename = 'amazon_orders_backfill_state';"
+              
+              echo ""
+              echo "Row count:"
+              psql -c "SELECT COUNT(*) as count FROM amazon_orders_backfill_state;"
+              
+            else
+              echo "========================================"
+              echo "FAILED: Migration 030 failed!"
+              echo "========================================"
+              exit 1
+            fi
+            
+            echo ""
+            echo "Completed at: $(date -Iseconds)"
+        env:
+        - name: PGHOST
+          valueFrom:
+            secretKeyRef:
+              name: keybuzz-backend-db
+              key: PGHOST
+        - name: PGPORT
+          valueFrom:
+            secretKeyRef:
+              name: keybuzz-backend-db
+              key: PGPORT
+        - name: PGDATABASE
+          valueFrom:
+            secretKeyRef:
+              name: keybuzz-backend-db
+              key: PGDATABASE
+        - name: PGUSER
+          valueFrom:
+            secretKeyRef:
+              name: keybuzz-backend-db
+              key: PGUSER
+        - name: PGPASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: keybuzz-backend-db
+              key: PGPASSWORD
+        volumeMounts:
+        - name: migration-sql
+          mountPath: /migrations
+          readOnly: true
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "50m"
+          limits:
+            memory: "128Mi"
+            cpu: "200m"
+      volumes:
+      - name: migration-sql
+        configMap:
+          name: migration-030-backfill

@@ -1,0 +1,126 @@
+# k8s/keybuzz-backend-dev/cronjob-orders-backfill.yaml
+# PH26.2-AMAZON-BACKFILL-COMPLETE-ORDERS-01
+# CronJob pour le backfill automatique des commandes Amazon
+# 
+# Schedule: Toutes les 10 minutes
+# - Reprend les backfills PENDING, RUNNING, ERROR
+# - Non-bloquant pour le delta sync
+# - Retry automatique avec backoff
+
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: amazon-orders-backfill
+  namespace: keybuzz-backend-dev
+  labels:
+    app: amazon-orders-backfill
+    app.kubernetes.io/name: amazon-orders-backfill
+    app.kubernetes.io/part-of: keybuzz
+    environment: dev
+spec:
+  # Toutes les 10 minutes (decale du delta sync)
+  schedule: "3,13,23,33,43,53 * * * *"
+  
+  # Empecher les runs concurrents
+  concurrencyPolicy: Forbid
+  
+  # Garder l'historique
+  successfulJobsHistoryLimit: 5
+  failedJobsHistoryLimit: 5
+  
+  # Permettre de suspendre manuellement
+  suspend: false
+  
+  jobTemplate:
+    spec:
+      # TTL apres completion
+      ttlSecondsAfterFinished: 1800
+      
+      # Max 2 retries
+      backoffLimit: 2
+      
+      # Timeout global: 30 minutes
+      activeDeadlineSeconds: 1800
+      
+      template:
+        metadata:
+          labels:
+            app: amazon-orders-backfill
+        spec:
+          restartPolicy: Never
+          
+          # DNS pour Vault
+          hostAliases:
+            - ip: "10.0.0.150"
+              hostnames:
+                - "vault.keybuzz.io"
+          
+          containers:
+            - name: backfill-runner
+              image: curlimages/curl:latest
+              
+              command:
+                - /bin/sh
+                - -c
+                - |
+                  echo "========================================"
+                  echo "Amazon Orders Backfill - $(date -Iseconds)"
+                  echo "========================================"
+                  echo ""
+                  
+                  # Appeler l'endpoint global de backfill
+                  echo "Starting global backfill run..."
+                  RESPONSE=$(curl -sk -X POST \
+                    -H "X-User-Email: cron-backfill@system.keybuzz.io" \
+                    -H "Content-Type: application/json" \
+                    --max-time 600 \
+                    https://backend-dev.keybuzz.io/api/v1/orders/backfill/run/global)
+                  
+                  echo ""
+                  echo "Response:"
+                  echo "$RESPONSE" | head -c 2000
+                  echo ""
+                  echo ""
+                  
+                  # Extraire le nombre de tenants traites
+                  TENANTS=$(echo "$RESPONSE" | grep -o '"tenantsProcessed":[0-9]*' | cut -d: -f2)
+                  ORDERS=$(echo "$RESPONSE" | grep -o '"totalOrdersProcessed":[0-9]*' | cut -d: -f2)
+                  
+                  echo "========================================"
+                  echo "Summary:"
+                  echo "  Tenants processed: ${TENANTS:-0}"
+                  echo "  Orders processed:  ${ORDERS:-0}"
+                  echo "========================================"
+                  echo ""
+                  echo "Backfill run completed at $(date -Iseconds)"
+              
+              resources:
+                requests:
+                  memory: "32Mi"
+                  cpu: "50m"
+                limits:
+                  memory: "64Mi"
+                  cpu: "100m"
+              
+              # Health check: ne pas redemarrer si le job prend du temps
+              # Le timeout est gere par activeDeadlineSeconds
+
+---
+# ConfigMap pour la configuration du backfill (optionnel)
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: amazon-backfill-config
+  namespace: keybuzz-backend-dev
+data:
+  # Periode max de backfill (mois)
+  MAX_MONTHS: "24"
+  
+  # Taille des chunks (jours)
+  CHUNK_SIZE_DAYS: "30"
+  
+  # Max commandes par run
+  MAX_ORDERS_PER_RUN: "500"
+  
+  # Delai retry apres erreur (minutes)
+  RETRY_DELAY_MINUTES: "15"
