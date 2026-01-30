@@ -1,0 +1,154 @@
+# PH26.2B-AMAZON-BACKFILL-FAST-MULTITENANT-01
+# Worker pool deployment for Amazon orders backfill
+# 
+# Features:
+# - 3 replicas for parallel multi-tenant processing
+# - Each worker claims 1 tenant at a time (DB lock)
+# - Runs continuously, processing chunks
+# - Uses same backend image but different entrypoint
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: amazon-orders-backfill-worker
+  namespace: keybuzz-backend-dev
+  labels:
+    app: amazon-orders-backfill-worker
+    tier: worker
+    phase: ph26.2b
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: amazon-orders-backfill-worker
+  template:
+    metadata:
+      labels:
+        app: amazon-orders-backfill-worker
+        tier: worker
+    spec:
+      containers:
+      - name: worker
+        image: ghcr.io/keybuzzio/keybuzz-backend:v1.0.31-ph262b
+        imagePullPolicy: Always
+        command:
+          - node
+          - -e
+          - |
+            const { runWorkerLoop } = require('./dist/modules/marketplaces/amazon/amazonOrdersBackfillFast.service');
+            console.log('[BackfillWorker] Starting worker loop...');
+            runWorkerLoop({ maxIterations: Infinity, delayBetweenMs: 1000 })
+              .then(() => console.log('[BackfillWorker] Loop ended'))
+              .catch(err => {
+                console.error('[BackfillWorker] Fatal error:', err);
+                process.exit(1);
+              });
+        env:
+        - name: NODE_ENV
+          value: "production"
+        - name: PGHOST
+          valueFrom:
+            secretKeyRef:
+              name: keybuzz-backend-db
+              key: PGHOST
+        - name: PGPORT
+          valueFrom:
+            secretKeyRef:
+              name: keybuzz-backend-db
+              key: PGPORT
+        - name: PGDATABASE
+          valueFrom:
+            secretKeyRef:
+              name: keybuzz-backend-db
+              key: PGDATABASE
+        - name: PGUSER
+          valueFrom:
+            secretKeyRef:
+              name: keybuzz-backend-db
+              key: PGUSER
+        - name: PGPASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: keybuzz-backend-db
+              key: PGPASSWORD
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: keybuzz-backend-db
+              key: DATABASE_URL
+        - name: VAULT_ADDR
+          value: "http://vault.vault.svc.cluster.local:8200"
+        - name: VAULT_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: vault-token
+              key: token
+              optional: true
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        livenessProbe:
+          exec:
+            command:
+              - sh
+              - -c
+              - "ps aux | grep node | grep -v grep"
+          initialDelaySeconds: 30
+          periodSeconds: 60
+          failureThreshold: 3
+      imagePullSecrets:
+      - name: ghcr-secret
+      restartPolicy: Always
+---
+# Alternative: CronJob that triggers worker via HTTP
+# Use this if you prefer HTTP-based triggering over continuous loop
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: amazon-orders-backfill-trigger
+  namespace: keybuzz-backend-dev
+  labels:
+    app: amazon-orders-backfill
+    phase: ph26.2b
+spec:
+  schedule: "*/5 * * * *"  # Every 5 minutes
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      activeDeadlineSeconds: 240  # 4 min max
+      template:
+        spec:
+          restartPolicy: Never
+          containers:
+          - name: trigger
+            image: curlimages/curl:latest
+            command:
+              - /bin/sh
+              - -c
+              - |
+                echo "Triggering backfill worker..."
+                RESPONSE=$(curl -sk -X POST \
+                  -H "X-User-Email: cron-backfill@system.keybuzz.io" \
+                  --max-time 180 \
+                  "https://backend-dev.keybuzz.io/api/v1/orders/backfill/worker/run?iterations=20")
+                echo "Response: $RESPONSE"
+                if echo "$RESPONSE" | grep -q "accepted"; then
+                  echo "SUCCESS: Worker triggered"
+                  exit 0
+                else
+                  echo "WARNING: Unexpected response"
+                  exit 0
+                fi
+            resources:
+              requests:
+                memory: "32Mi"
+                cpu: "10m"
+              limits:
+                memory: "64Mi"
+                cpu: "50m"
