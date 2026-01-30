@@ -1,0 +1,100 @@
+# PH26.2-AMAZON-BACKFILL-COMPLETE-ORDERS-01
+# ConfigMap contenant le SQL de migration
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: migration-030-backfill
+  namespace: keybuzz-backend-dev
+  labels:
+    app: keybuzz-backend
+    migration: "030"
+    phase: ph26.2-amazon-backfill
+data:
+  030_amazon_orders_backfill_state.sql: |
+    -- =============================================================================
+    -- 030_amazon_orders_backfill_state.sql
+    -- PH26.2-AMAZON-BACKFILL-COMPLETE-ORDERS-01
+    -- Table de suivi de l'etat du backfill Amazon Orders
+    -- =============================================================================
+
+    DO $$
+    BEGIN
+        IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'BackfillStatus') THEN
+            CREATE TYPE "BackfillStatus" AS ENUM (
+                'PENDING',
+                'RUNNING',
+                'PAUSED',
+                'DONE',
+                'ERROR'
+            );
+            RAISE NOTICE 'Type BackfillStatus created';
+        ELSE
+            RAISE NOTICE 'Type BackfillStatus already exists';
+        END IF;
+    END$$;
+
+    CREATE TABLE IF NOT EXISTS "amazon_orders_backfill_state" (
+        "id" TEXT NOT NULL,
+        "tenantId" TEXT NOT NULL,
+        "marketplace" TEXT NOT NULL DEFAULT 'AMAZON',
+        "backfillStartDate" TIMESTAMP(3) NOT NULL,
+        "backfillEndDate" TIMESTAMP(3) NOT NULL,
+        "currentChunkStart" TIMESTAMP(3),
+        "currentChunkEnd" TIMESTAMP(3),
+        "lastSyncedOrderDate" TIMESTAMP(3),
+        "nextToken" TEXT,
+        "status" "BackfillStatus" NOT NULL DEFAULT 'PENDING',
+        "progressPercent" INTEGER NOT NULL DEFAULT 0,
+        "totalOrdersEstimated" INTEGER DEFAULT 0,
+        "totalOrdersSynced" INTEGER NOT NULL DEFAULT 0,
+        "chunkSizeDays" INTEGER NOT NULL DEFAULT 30,
+        "maxMonths" INTEGER NOT NULL DEFAULT 24,
+        "lastError" TEXT,
+        "errorCount" INTEGER NOT NULL DEFAULT 0,
+        "lastErrorAt" TIMESTAMP(3),
+        "retryAfter" TIMESTAMP(3),
+        "startedAt" TIMESTAMP(3),
+        "completedAt" TIMESTAMP(3),
+        "lastRunAt" TIMESTAMP(3),
+        "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        CONSTRAINT "amazon_orders_backfill_state_pkey" PRIMARY KEY ("id")
+    );
+
+    CREATE UNIQUE INDEX IF NOT EXISTS "amazon_orders_backfill_state_tenantId_marketplace_key" 
+        ON "amazon_orders_backfill_state"("tenantId", "marketplace");
+    CREATE INDEX IF NOT EXISTS "amazon_orders_backfill_state_status_idx" 
+        ON "amazon_orders_backfill_state"("status");
+    CREATE INDEX IF NOT EXISTS "amazon_orders_backfill_state_retryAfter_idx" 
+        ON "amazon_orders_backfill_state"("retryAfter");
+    CREATE INDEX IF NOT EXISTS "amazon_orders_backfill_state_lastRunAt_idx" 
+        ON "amazon_orders_backfill_state"("lastRunAt");
+
+    -- Trigger for updatedAt
+    CREATE OR REPLACE FUNCTION update_amazon_orders_backfill_state_updated_at()
+    RETURNS TRIGGER AS $$
+    BEGIN
+        NEW."updatedAt" = CURRENT_TIMESTAMP;
+        RETURN NEW;
+    END;
+    $$ LANGUAGE plpgsql;
+
+    DROP TRIGGER IF EXISTS trigger_amazon_orders_backfill_state_updated_at 
+        ON "amazon_orders_backfill_state";
+
+    CREATE TRIGGER trigger_amazon_orders_backfill_state_updated_at
+        BEFORE UPDATE ON "amazon_orders_backfill_state"
+        FOR EACH ROW
+        EXECUTE FUNCTION update_amazon_orders_backfill_state_updated_at();
+
+    -- Verification
+    DO $$
+    BEGIN
+        IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'amazon_orders_backfill_state') THEN
+            RAISE NOTICE 'SUCCESS: Table amazon_orders_backfill_state exists';
+        ELSE
+            RAISE EXCEPTION 'FAILED: Table amazon_orders_backfill_state not created';
+        END IF;
+    END$$;
+
+    SELECT 'Migration 030 completed successfully' as result;
