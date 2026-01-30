@@ -19,7 +19,7 @@ spec:
         - name: ghcr-secret
       containers:
         - name: keybuzz-client
-          image: ghcr.io/keybuzzio/keybuzz-client:v1.5.0-cookie-domain
+          image: ghcr.io/keybuzzio/keybuzz-client:v1.5.1-internal-api
           imagePullPolicy: Always
           ports:
             - containerPort: 3000
@@ -29,7 +29,8 @@ spec:
               value: "production"
             - name: NEXT_PUBLIC_API_URL
               value: "https://api-dev.keybuzz.io"
-            # PH13-AUTH-OAUTH: NextAuth config
+            - name: API_URL_INTERNAL
+              value: "http://keybuzz-api.keybuzz-api-dev.svc.cluster.local:3001"
             - name: NEXTAUTH_URL
               value: "https://client-dev.keybuzz.io"
             - name: NEXTAUTH_SECRET
