@@ -1,0 +1,50 @@
+# PH-S01: Deployment seller-client
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: seller-client
+  namespace: keybuzz-seller-dev
+  labels:
+    app: seller-client
+    app.kubernetes.io/part-of: keybuzz-seller
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: seller-client
+  template:
+    metadata:
+      labels:
+        app: seller-client
+    spec:
+      imagePullSecrets:
+        - name: ghcr-cred
+      containers:
+        - name: seller-client
+          image: ghcr.io/keybuzzio/seller-client:v1.0.0
+          ports:
+            - containerPort: 3001
+          env:
+            - name: NEXT_PUBLIC_API_URL
+              value: "https://seller-api-dev.keybuzz.io"
+            - name: NEXT_PUBLIC_CLIENT_URL
+              value: "https://client-dev.keybuzz.io"
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 3001
+            initialDelaySeconds: 10
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 3001
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"

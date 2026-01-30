@@ -1,0 +1,79 @@
+# PH-S01: Deployment seller-api
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: seller-api
+  namespace: keybuzz-seller-dev
+  labels:
+    app: seller-api
+    app.kubernetes.io/part-of: keybuzz-seller
+  annotations:
+    reloader.stakater.com/auto: 'true'
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: seller-api
+  template:
+    metadata:
+      labels:
+        app: seller-api
+    spec:
+      imagePullSecrets:
+        - name: ghcr-cred
+      containers:
+        - name: seller-api
+          image: ghcr.io/keybuzzio/seller-api:v1.0.0
+          ports:
+            - containerPort: 3002
+          env:
+            - name: DEBUG
+              value: "false"
+            # Auth KeyBuzz SSO - URL pour introspection session
+            - name: KEYBUZZ_CLIENT_URL
+              value: "https://client-dev.keybuzz.io"
+            # PostgreSQL from Vault
+            - name: PGHOST
+              valueFrom:
+                secretKeyRef:
+                  name: seller-api-postgres
+                  key: PGHOST
+            - name: PGPORT
+              valueFrom:
+                secretKeyRef:
+                  name: seller-api-postgres
+                  key: PGPORT
+            - name: PGDATABASE
+              valueFrom:
+                secretKeyRef:
+                  name: seller-api-postgres
+                  key: PGDATABASE
+            - name: PGUSER
+              valueFrom:
+                secretKeyRef:
+                  name: seller-api-postgres
+                  key: PGUSER
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: seller-api-postgres
+                  key: PGPASSWORD
+          livenessProbe:
+            httpGet:
+              path: /health/live
+              port: 3002
+            initialDelaySeconds: 10
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /health/ready
+              port: 3002
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"

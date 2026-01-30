@@ -1,0 +1,31 @@
+# PH-S01: Ingress seller-api (seller-api-dev.keybuzz.io)
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: seller-api
+  namespace: keybuzz-seller-dev
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/proxy-body-size: "50m"
+    nginx.ingress.kubernetes.io/enable-cors: "true"
+    nginx.ingress.kubernetes.io/cors-allow-origin: "https://seller-dev.keybuzz.io,https://client-dev.keybuzz.io"
+    nginx.ingress.kubernetes.io/cors-allow-credentials: "true"
+    nginx.ingress.kubernetes.io/cors-allow-methods: "GET, POST, PATCH, DELETE, OPTIONS"
+    nginx.ingress.kubernetes.io/cors-allow-headers: "Content-Type, Authorization, X-User-Email, X-Tenant-Id"
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - seller-api-dev.keybuzz.io
+      secretName: seller-api-dev-tls
+  rules:
+    - host: seller-api-dev.keybuzz.io
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: seller-api
+                port:
+                  number: 3002
