@@ -1,0 +1,17 @@
+# PH-S01: Service seller-client
+apiVersion: v1
+kind: Service
+metadata:
+  name: seller-client
+  namespace: keybuzz-seller-dev
+  labels:
+    app: seller-client
+spec:
+  type: ClusterIP
+  ports:
+    - port: 3001
+      targetPort: 3001
+      protocol: TCP
+      name: http
+  selector:
+    app: seller-client

@@ -1,0 +1,8 @@
+# PH-S01: Namespace keybuzz-seller-dev
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: keybuzz-seller-dev
+  labels:
+    app.kubernetes.io/part-of: keybuzz
+    environment: dev

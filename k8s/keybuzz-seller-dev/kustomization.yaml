@@ -1,0 +1,19 @@
+# PH-S01: Kustomization keybuzz-seller-dev
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: keybuzz-seller-dev
+
+resources:
+  - namespace.yaml
+  - externalsecret-postgres.yaml
+  - deployment-api.yaml
+  - service-api.yaml
+  - ingress-api.yaml
+  - deployment-client.yaml
+  - service-client.yaml
+  - ingress-client.yaml
+
+commonLabels:
+  app.kubernetes.io/part-of: keybuzz-seller
+  environment: dev
