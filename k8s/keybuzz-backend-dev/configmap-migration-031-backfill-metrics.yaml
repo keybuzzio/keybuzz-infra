@@ -1,0 +1,82 @@
+# PH26.3 - Migration pour table de métriques backfill
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: migration-031-backfill-metrics
+  namespace: keybuzz-backend-dev
+data:
+  031_amazon_backfill_metrics.sql: |
+    -- PH26.3: Table de métriques backfill (par tenant)
+    -- Objectif: Métriques FIABLES et exploitables pour support & debug
+    
+    -- Ajouter colonnes de métriques à la table existante
+    ALTER TABLE "amazon_orders_backfill_state"
+    ADD COLUMN IF NOT EXISTS "itemsTotalExpected" INTEGER DEFAULT 0,
+    ADD COLUMN IF NOT EXISTS "itemsPending" INTEGER DEFAULT 0,
+    ADD COLUMN IF NOT EXISTS "itemsFailed" INTEGER DEFAULT 0,
+    ADD COLUMN IF NOT EXISTS "itemsWorkerStatus" VARCHAR(20) DEFAULT 'IDLE',
+    ADD COLUMN IF NOT EXISTS "itemsWorkerLastRunAt" TIMESTAMP,
+    ADD COLUMN IF NOT EXISTS "itemsWorkerLastError" TEXT,
+    ADD COLUMN IF NOT EXISTS "quotaMaxConcurrent" INTEGER DEFAULT 1,
+    ADD COLUMN IF NOT EXISTS "quotaRateLimitPerMin" INTEGER DEFAULT 30;
+    
+    -- Table de locks pour isolation multi-tenant
+    CREATE TABLE IF NOT EXISTS "amazon_backfill_locks" (
+      "id" TEXT PRIMARY KEY,
+      "tenantId" TEXT NOT NULL,
+      "lockType" TEXT NOT NULL,  -- 'ORDERS' ou 'ITEMS'
+      "workerId" TEXT NOT NULL,
+      "lockedAt" TIMESTAMP DEFAULT NOW(),
+      "expiresAt" TIMESTAMP NOT NULL,
+      "metadata" JSONB DEFAULT '{}'::jsonb,
+      UNIQUE("tenantId", "lockType")
+    );
+    
+    -- Index pour locks
+    CREATE INDEX IF NOT EXISTS "idx_backfill_locks_tenant_type" 
+    ON "amazon_backfill_locks" ("tenantId", "lockType");
+    
+    CREATE INDEX IF NOT EXISTS "idx_backfill_locks_expires" 
+    ON "amazon_backfill_locks" ("expiresAt");
+    
+    -- Fonction pour nettoyer les locks expirés
+    CREATE OR REPLACE FUNCTION cleanup_expired_backfill_locks()
+    RETURNS void AS $$
+    BEGIN
+      DELETE FROM "amazon_backfill_locks" WHERE "expiresAt" < NOW();
+    END;
+    $$ LANGUAGE plpgsql;
+    
+    -- Vue pour métriques agrégées (par tenant)
+    CREATE OR REPLACE VIEW "amazon_backfill_metrics_view" AS
+    SELECT 
+      s."tenantId",
+      s."status" as "ordersWorkerStatus",
+      s."totalOrdersEstimated" as "ordersTotal",
+      s."totalOrdersSynced" as "ordersPersisted",
+      s."progressPercent" as "ordersProgress",
+      s."itemsTotalExpected",
+      s."itemsPending",
+      s."itemsFailed",
+      s."itemsWorkerStatus",
+      s."lastRunAt" as "lastBackfillAt",
+      s."lastError",
+      s."errorCount",
+      -- Calculs dérivés
+      CASE 
+        WHEN s."totalOrdersEstimated" > 0 
+        THEN ROUND((s."totalOrdersSynced"::numeric / s."totalOrdersEstimated") * 100, 2)
+        ELSE 0 
+      END as "ordersPercentComplete",
+      CASE 
+        WHEN s."itemsTotalExpected" > 0 
+        THEN ROUND(((s."itemsTotalExpected" - s."itemsPending")::numeric / s."itemsTotalExpected") * 100, 2)
+        ELSE 0 
+      END as "itemsPercentComplete"
+    FROM "amazon_orders_backfill_state" s;
+    
+    -- Vérification
+    DO $$
+    BEGIN
+      RAISE NOTICE 'PH26.3 Migration 031 completed: backfill metrics tables created';
+    END $$;
