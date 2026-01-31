@@ -1,0 +1,91 @@
+# PH26.3 - Amazon Items Worker (ASYNC BACKGROUND)
+# Deployment Kubernetes pour le worker items
+# STRICT: Rate limit par tenant, ne bloque JAMAIS le orders worker
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: amazon-items-worker
+  namespace: keybuzz-backend-dev
+  labels:
+    app: amazon-items-worker
+    component: backfill
+    tier: worker
+spec:
+  replicas: 1  # 1 seul replica pour éviter rate limit explosion
+  selector:
+    matchLabels:
+      app: amazon-items-worker
+  template:
+    metadata:
+      labels:
+        app: amazon-items-worker
+        component: backfill
+    spec:
+      imagePullSecrets:
+        - name: ghcr-cred
+      hostAliases:
+        - ip: "10.0.0.150"
+          hostnames:
+            - "vault.keybuzz.io"
+      containers:
+      - name: worker
+        image: ghcr.io/keybuzzio/keybuzz-backend:v1.0.34-ph263
+        command:
+          - node
+          - -e
+          - |
+            const { runItemsFillLoop } = require('./dist/modules/marketplaces/amazon/amazonOrderItemsFill.service');
+            console.log('[ItemsWorker] Starting ITEMS ASYNC BACKGROUND worker...');
+            console.log('[ItemsWorker] Worker ID:', process.env.HOSTNAME);
+            console.log('[ItemsWorker] NOTE: This worker is NON-BLOCKING - orders continue without items');
+            runItemsFillLoop({ maxIterations: Infinity })
+              .then(() => console.log('[ItemsWorker] Loop ended'))
+              .catch(err => { console.error('[ItemsWorker] Fatal error:', err); process.exit(1); });
+        env:
+          - name: DATABASE_URL
+            valueFrom:
+              secretKeyRef:
+                name: keybuzz-backend-db
+                key: DATABASE_URL
+          - name: VAULT_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: vault-token
+                key: VAULT_TOKEN
+          - name: VAULT_ADDR
+            value: "https://vault.keybuzz.io:8200"
+          - name: NODE_ENV
+            value: "production"
+          - name: WORKER_TYPE
+            value: "ITEMS"
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "50m"
+          limits:
+            memory: "384Mi"
+            cpu: "250m"
+        livenessProbe:
+          exec:
+            command:
+              - sh
+              - -c
+              - "ps aux | grep node | grep -v grep"
+          initialDelaySeconds: 30
+          periodSeconds: 60
+          failureThreshold: 3
+      restartPolicy: Always
+---
+# ConfigMap pour la configuration du worker items
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: amazon-items-worker-config
+  namespace: keybuzz-backend-dev
+data:
+  WORKER_TYPE: "ITEMS"
+  MAX_ITERATIONS: "Infinity"
+  BATCH_SIZE: "20"
+  RATE_LIMIT_DELAY_MS: "500"
+  MAX_CALLS_PER_MINUTE: "30"

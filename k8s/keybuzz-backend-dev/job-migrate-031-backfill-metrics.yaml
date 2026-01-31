@@ -1,0 +1,38 @@
+# PH26.3 - Job pour appliquer la migration métriques
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: migrate-031-backfill-metrics
+  namespace: keybuzz-backend-dev
+spec:
+  ttlSecondsAfterFinished: 300
+  template:
+    spec:
+      containers:
+      - name: migrator
+        image: postgres:16-alpine
+        command:
+          - sh
+          - -c
+          - |
+            echo "=== PH26.3 Migration 031: Backfill Metrics ==="
+            psql -h 10.0.0.10 -U kb_backend -d keybuzz_backend -f /migrations/031_amazon_backfill_metrics.sql
+            echo "=== Verification ==="
+            psql -h 10.0.0.10 -U kb_backend -d keybuzz_backend -c "\d amazon_backfill_locks"
+            psql -h 10.0.0.10 -U kb_backend -d keybuzz_backend -c "\d+ amazon_backfill_metrics_view"
+            echo "=== Migration 031 Complete ==="
+        env:
+          - name: PGPASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: keybuzz-backend-db
+                key: PGPASSWORD
+        volumeMounts:
+          - name: migration-scripts
+            mountPath: /migrations
+      volumes:
+        - name: migration-scripts
+          configMap:
+            name: migration-031-backfill-metrics
+      restartPolicy: Never
+  backoffLimit: 2

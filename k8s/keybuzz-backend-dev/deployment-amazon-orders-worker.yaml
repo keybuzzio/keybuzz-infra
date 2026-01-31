@@ -1,0 +1,92 @@
+# PH26.3 - Amazon Orders Worker (FAST PATH)
+# Deployment Kubernetes pour le worker orders-only
+# ISOLATION: 1 worker = 1 tenant à la fois (via FOR UPDATE SKIP LOCKED)
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: amazon-orders-worker
+  namespace: keybuzz-backend-dev
+  labels:
+    app: amazon-orders-worker
+    component: backfill
+    tier: worker
+spec:
+  replicas: 2  # 2 replicas pour parallélisme multi-tenant
+  selector:
+    matchLabels:
+      app: amazon-orders-worker
+  template:
+    metadata:
+      labels:
+        app: amazon-orders-worker
+        component: backfill
+    spec:
+      imagePullSecrets:
+        - name: ghcr-cred
+      hostAliases:
+        - ip: "10.0.0.150"
+          hostnames:
+            - "vault.keybuzz.io"
+      containers:
+      - name: worker
+        image: ghcr.io/keybuzzio/keybuzz-backend:v1.0.34-ph263
+        command:
+          - node
+          - -e
+          - |
+            const { runWorkerLoop } = require('./dist/modules/marketplaces/amazon/amazonOrdersBackfillFast.service');
+            console.log('[OrdersWorker] Starting ORDERS FAST PATH worker...');
+            console.log('[OrdersWorker] Worker ID:', process.env.HOSTNAME);
+            runWorkerLoop({ maxIterations: Infinity, delayBetweenMs: 1000 })
+              .then(() => console.log('[OrdersWorker] Loop ended'))
+              .catch(err => { console.error('[OrdersWorker] Fatal error:', err); process.exit(1); });
+        env:
+          - name: DATABASE_URL
+            valueFrom:
+              secretKeyRef:
+                name: keybuzz-backend-db
+                key: DATABASE_URL
+          - name: VAULT_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: vault-token
+                key: VAULT_TOKEN
+          - name: VAULT_ADDR
+            value: "https://vault.keybuzz.io:8200"
+          - name: NODE_ENV
+            value: "production"
+          - name: WORKER_TYPE
+            value: "ORDERS"
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        livenessProbe:
+          exec:
+            command:
+              - sh
+              - -c
+              - "ps aux | grep node | grep -v grep"
+          initialDelaySeconds: 30
+          periodSeconds: 60
+          failureThreshold: 3
+      restartPolicy: Always
+---
+# ConfigMap pour la configuration du worker
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: amazon-orders-worker-config
+  namespace: keybuzz-backend-dev
+data:
+  WORKER_TYPE: "ORDERS"
+  MAX_ITERATIONS: "Infinity"
+  DELAY_BETWEEN_MS: "1000"
+  RATE_LIMIT_DELAY_MS: "600"
+  RATE_LIMIT_BACKOFF_MS: "8000"
+  MAX_RETRIES: "5"
+  CHUNK_SIZE_DAYS: "30"
