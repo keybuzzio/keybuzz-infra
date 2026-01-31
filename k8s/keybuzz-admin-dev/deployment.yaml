@@ -24,13 +24,11 @@ spec:
         tier: frontend
         env: dev
     spec:
-      nodeSelector:
-        kubernetes.io/hostname: k8s-worker-01
       imagePullSecrets:
       - name: ghcr-secret
       containers:
       - name: keybuzz-admin
-        image: ghcr.io/keybuzzio/keybuzz-admin:v2.1.2-attach
+        image: ghcr.io/keybuzzio/keybuzz-admin:v2.1.3-ws
         imagePullPolicy: Always
         ports:
         - name: http
