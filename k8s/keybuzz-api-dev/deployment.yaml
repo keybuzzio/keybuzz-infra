@@ -128,7 +128,7 @@ spec:
           value: 'false'
         - name: SMTP_FROM
           value: 'noreply@keybuzz.io'
-        image: ghcr.io/keybuzzio/keybuzz-api:v1.0.40-guardrails
+        image: ghcr.io/keybuzzio/keybuzz-api:v0.4.30-amazon-hint
         livenessProbe:
           httpGet:
             path: /health
