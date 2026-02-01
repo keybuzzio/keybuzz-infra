@@ -34,7 +34,7 @@ spec:
             - "vault.keybuzz.io"
       containers:
         - name: keybuzz-backend
-          image: ghcr.io/keybuzzio/keybuzz-backend:1.0.20-dev
+          image: ghcr.io/keybuzzio/keybuzz-backend:v0.3.15-partial-detect
           imagePullPolicy: Always
           ports:
             - name: http
