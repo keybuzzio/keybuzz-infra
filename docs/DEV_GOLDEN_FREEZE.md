@@ -28,7 +28,7 @@
 
 | Service | Namespace | Image | Digest |
 |---------|-----------|-------|--------|
-| keybuzz-api | keybuzz-api-dev | `ghcr.io/keybuzzio/keybuzz-api:v1.0.39-lang-strong` | `sha256:cccf29ad7fc9c932c3fca4395619f6f9f559b457e70ab3f2280c0a85262b79a2` |
+| keybuzz-api | keybuzz-api-dev | `ghcr.io/keybuzzio/keybuzz-api:v1.0.40-guardrails` | `sha256:0fc2cdaf1c6bbc80e7b5e8b155963b9670c7a149ab75a57b8dea413c90049f6f` |
 | keybuzz-client | keybuzz-client-dev | `ghcr.io/keybuzzio/keybuzz-client:v0.5.26-all-messages` | `sha256:bc2a18f05d04320ef953e8db38642d110c13bd30acbea541bd9cdcca4546e2fd` |
 | keybuzz-admin | keybuzz-admin-dev | `ghcr.io/keybuzzio/keybuzz-admin:v2.1.3-ws` | `sha256:1f8f171bec41a0c3aace3dbccb7840cdf9dbea6923d5a507090d91c7f71b86c0` |
 | keybuzz-backend | keybuzz-backend-dev | `ghcr.io/keybuzzio/keybuzz-backend:v1.0.44-ph265l` | *(voir GHCR)* |
@@ -102,7 +102,7 @@ Si un hotfix critique est nécessaire :
 
 | Date | Tag | Raison | Approuvé par |
 |------|-----|--------|--------------|
-| - | - | *(Aucune modification)* | - |
+| 2026-02-01 | v1.0.40-guardrails | PH26.7 IA Guardrails Anti-Refus | Ludovic |
 
 ---
 
