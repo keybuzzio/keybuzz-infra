@@ -1,0 +1,75 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: keybuzz-client
+  namespace: keybuzz-client-prod
+  labels:
+    app: keybuzz-client
+    environment: production
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: keybuzz-client
+  template:
+    metadata:
+      labels:
+        app: keybuzz-client
+      annotations:
+        reloader.stakater.com/auto: "true"
+    spec:
+      imagePullSecrets:
+        - name: ghcr-cred
+      containers:
+        - name: keybuzz-client
+          # PH28.2: PROD client with correct NEXT_PUBLIC_* URLs baked in at build time
+          image: ghcr.io/keybuzzio/keybuzz-client:prod-2026-02-01
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 3000
+          env:
+            # NextAuth runtime config
+            - name: NEXTAUTH_URL
+              value: "https://client.keybuzz.io"
+            - name: NEXTAUTH_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: keybuzz-auth-secrets
+                  key: NEXTAUTH_SECRET
+            # Google OAuth
+            - name: GOOGLE_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: keybuzz-auth-secrets
+                  key: GOOGLE_CLIENT_ID
+            - name: GOOGLE_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: keybuzz-auth-secrets
+                  key: GOOGLE_CLIENT_SECRET
+            # Azure AD OAuth
+            - name: AZURE_AD_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: keybuzz-auth-secrets
+                  key: AZURE_AD_CLIENT_ID
+            - name: AZURE_AD_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: keybuzz-auth-secrets
+                  key: AZURE_AD_CLIENT_SECRET
+            - name: AZURE_AD_TENANT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: keybuzz-auth-secrets
+                  key: AZURE_AD_TENANT_ID
+            # Environment marker
+            - name: NEXT_PUBLIC_APP_ENV
+              value: "production"
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "256Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
