@@ -23,7 +23,7 @@ spec:
       containers:
         - name: keybuzz-client
           # PH28.2: PROD client with correct NEXT_PUBLIC_* URLs baked in at build time
-          image: ghcr.io/keybuzzio/keybuzz-client:prod-ux-auth-2026-02-02
+          image: ghcr.io/keybuzzio/keybuzz-client:prod-onboarding-2026-02-02
           imagePullPolicy: Always
           ports:
             - containerPort: 3000
