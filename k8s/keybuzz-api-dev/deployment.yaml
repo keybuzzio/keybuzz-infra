@@ -128,7 +128,7 @@ spec:
           value: 'false'
         - name: SMTP_FROM
           value: 'noreply@keybuzz.io'
-        image: ghcr.io/keybuzzio/keybuzz-api:v0.4.34-readonly-tenants
+        image: ghcr.io/keybuzzio/keybuzz-api:dev-idempotent-2026-02-02
         livenessProbe:
           httpGet:
             path: /health
