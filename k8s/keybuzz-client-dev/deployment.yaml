@@ -19,7 +19,7 @@ spec:
         - name: ghcr-secret
       containers:
         - name: keybuzz-client
-          image: ghcr.io/keybuzzio/keybuzz-client:dev-tenant-gate-2026-02-02a
+          image: ghcr.io/keybuzzio/keybuzz-client:dev-otp-email-v3-2026-02-02
           imagePullPolicy: Always
           ports:
             - containerPort: 3000
