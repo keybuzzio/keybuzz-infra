@@ -19,7 +19,7 @@ spec:
         - name: ghcr-secret
       containers:
         - name: keybuzz-client
-          image: ghcr.io/keybuzzio/keybuzz-client:dev-inbox-encoding-fix-2026-02-03
+          image: ghcr.io/keybuzzio/keybuzz-client:dev-inbox-tenant-fix-2026-02-03
           imagePullPolicy: Always
           ports:
             - containerPort: 3000
