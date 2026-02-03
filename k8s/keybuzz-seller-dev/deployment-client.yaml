@@ -23,7 +23,7 @@ spec:
         - name: ghcr-cred
       containers:
         - name: seller-client
-          image: ghcr.io/keybuzzio/seller-client:v2.0.1-ph-prod-ftp-01.1
+          image: ghcr.io/keybuzzio/seller-client:v2.0.5-ph-prod-ftp-02
           ports:
             - containerPort: 3001
           env:
