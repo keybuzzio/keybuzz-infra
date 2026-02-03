@@ -23,7 +23,7 @@ spec:
         - name: ghcr-cred
       containers:
         - name: seller-api
-          image: ghcr.io/keybuzzio/seller-api:v2.0.1-ph-prod-ftp-01
+          image: ghcr.io/keybuzzio/seller-api:v2.0.2-ph-prod-ftp-01.1
           ports:
             - containerPort: 3002
           env:
