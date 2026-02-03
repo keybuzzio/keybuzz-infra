@@ -20,7 +20,7 @@ spec:
       containers:
         - name: keybuzz-client
           # PH28.26: Menu FR renaming (label-only)
-          image: ghcr.io/keybuzzio/keybuzz-client:golden-ph28.25b-2026-02-03
+          image: ghcr.io/keybuzzio/keybuzz-client:menu-fr-ph28.26-2026-02-03
           imagePullPolicy: Always
           ports:
             - containerPort: 3000
