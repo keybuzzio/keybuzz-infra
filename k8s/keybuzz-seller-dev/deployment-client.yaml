@@ -23,7 +23,7 @@ spec:
         - name: ghcr-cred
       containers:
         - name: seller-client
-          image: ghcr.io/keybuzzio/seller-client:v1.0.5-ph-s03.9s-body
+          image: ghcr.io/keybuzzio/seller-client:v1.0.5-ph-s04.0-mvp
           ports:
             - containerPort: 3001
           env:
