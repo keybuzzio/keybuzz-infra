@@ -19,7 +19,7 @@ spec:
         - name: ghcr-secret
       containers:
         - name: keybuzz-client
-          image: ghcr.io/keybuzzio/keybuzz-client:dev-idempotent-2026-02-02
+          image: ghcr.io/keybuzzio/keybuzz-client:dev-orders-fix-2026-02-03
           imagePullPolicy: Always
           ports:
             - containerPort: 3000
