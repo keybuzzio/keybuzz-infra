@@ -19,7 +19,8 @@ spec:
         - name: ghcr-secret
       containers:
         - name: keybuzz-client
-          image: ghcr.io/keybuzzio/keybuzz-client:dev-settings-profile-2026-02-03
+          # PH28.26: Menu FR renaming (label-only)
+          image: ghcr.io/keybuzzio/keybuzz-client:dev-menu-fr-v5-2026-02-03
           imagePullPolicy: Always
           ports:
             - containerPort: 3000
