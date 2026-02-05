@@ -16,76 +16,77 @@ spec:
         app: keybuzz-client
     spec:
       imagePullSecrets:
-        - name: ghcr-secret
+      - name: ghcr-secret
       containers:
-        - name: keybuzz-client
-          # PH28.26: Menu FR renaming (label-only)
-          image: ghcr.io/keybuzzio/keybuzz-client:phxx-debug-2026012222
-          imagePullPolicy: Always
-          ports:
-            - containerPort: 3000
-              name: http
-          env:
-            - name: NODE_ENV
-              value: "production"
-            - name: NEXT_PUBLIC_API_URL
-              value: "https://api-dev.keybuzz.io"
-            - name: API_URL_INTERNAL
-              value: "http://keybuzz-api.keybuzz-api-dev.svc.cluster.local:3001"
-            - name: NEXTAUTH_URL
-              value: "https://client-dev.keybuzz.io"
-            - name: NEXTAUTH_SECRET
-              valueFrom:
-                secretKeyRef:
-                  name: keybuzz-auth
-                  key: NEXTAUTH_SECRET
-                  optional: true
-            - name: GOOGLE_CLIENT_ID
-              valueFrom:
-                secretKeyRef:
-                  name: keybuzz-auth
-                  key: GOOGLE_CLIENT_ID
-                  optional: true
-            - name: GOOGLE_CLIENT_SECRET
-              valueFrom:
-                secretKeyRef:
-                  name: keybuzz-auth
-                  key: GOOGLE_CLIENT_SECRET
-                  optional: true
-            - name: AZURE_AD_CLIENT_ID
-              valueFrom:
-                secretKeyRef:
-                  name: keybuzz-auth
-                  key: AZURE_AD_CLIENT_ID
-                  optional: true
-            - name: AZURE_AD_CLIENT_SECRET
-              valueFrom:
-                secretKeyRef:
-                  name: keybuzz-auth
-                  key: AZURE_AD_CLIENT_SECRET
-                  optional: true
-            - name: AZURE_AD_TENANT_ID
-              valueFrom:
-                secretKeyRef:
-                  name: keybuzz-auth
-                  key: AZURE_AD_TENANT_ID
-                  optional: true
-          resources:
-            requests:
-              memory: "128Mi"
-              cpu: "100m"
-            limits:
-              memory: "512Mi"
-              cpu: "500m"
-          livenessProbe:
-            httpGet:
-              path: /api/auth/config
-              port: 3000
-            initialDelaySeconds: 15
-            periodSeconds: 30
-          readinessProbe:
-            httpGet:
-              path: /api/auth/config
-              port: 3000
-            initialDelaySeconds: 10
-            periodSeconds: 10
+      - name: keybuzz-client
+        image: ghcr.io/keybuzzio/keybuzz-client:phxx-bff-fix-2026012223
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 3000
+          name: http
+        env:
+        - name: NODE_ENV
+          value: production
+        - name: NEXT_PUBLIC_API_URL
+          value: https://api-dev.keybuzz.io
+        - name: API_URL_INTERNAL
+          value: http://keybuzz-api.keybuzz-api-dev.svc.cluster.local:3001
+        - name: API_URL
+          value: https://api-dev.keybuzz.io
+        - name: NEXTAUTH_URL
+          value: https://client-dev.keybuzz.io
+        - name: NEXTAUTH_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: keybuzz-auth
+              key: NEXTAUTH_SECRET
+              optional: true
+        - name: GOOGLE_CLIENT_ID
+          valueFrom:
+            secretKeyRef:
+              name: keybuzz-auth
+              key: GOOGLE_CLIENT_ID
+              optional: true
+        - name: GOOGLE_CLIENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: keybuzz-auth
+              key: GOOGLE_CLIENT_SECRET
+              optional: true
+        - name: AZURE_AD_CLIENT_ID
+          valueFrom:
+            secretKeyRef:
+              name: keybuzz-auth
+              key: AZURE_AD_CLIENT_ID
+              optional: true
+        - name: AZURE_AD_CLIENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: keybuzz-auth
+              key: AZURE_AD_CLIENT_SECRET
+              optional: true
+        - name: AZURE_AD_TENANT_ID
+          valueFrom:
+            secretKeyRef:
+              name: keybuzz-auth
+              key: AZURE_AD_TENANT_ID
+              optional: true
+        resources:
+          requests:
+            memory: 128Mi
+            cpu: 100m
+          limits:
+            memory: 512Mi
+            cpu: 500m
+        livenessProbe:
+          httpGet:
+            path: /api/auth/config
+            port: 3000
+          initialDelaySeconds: 15
+          periodSeconds: 30
+        readinessProbe:
+          httpGet:
+            path: /api/auth/config
+            port: 3000
+          initialDelaySeconds: 10
+          periodSeconds: 10
