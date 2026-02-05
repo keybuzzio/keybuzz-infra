@@ -23,7 +23,7 @@ spec:
       containers:
         - name: keybuzz-api
           # PH28.2: Using stable DEV image with full routes
-          image: ghcr.io/keybuzzio/keybuzz-api:ph30.1-octopia-2026-02-04c
+          image: ghcr.io/keybuzzio/keybuzz-api:api-prod-full-2026-02-05a
           imagePullPolicy: Always
           ports:
             - containerPort: 3001
