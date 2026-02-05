@@ -11,7 +11,7 @@ Exemples:
 ## Images PROD validees
 
 ### Client PROD
-ghcr.io/keybuzzio/keybuzz-client:menu-fr-ph28.26-2026-02-03
+ghcr.io/keybuzzio/keybuzz-client:ph29.7e-prod-debug-2026-02-05
 
 ### API PROD
 ghcr.io/keybuzzio/keybuzz-api:api-prod-full-2026-02-05a
