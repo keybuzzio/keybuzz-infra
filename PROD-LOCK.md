@@ -14,7 +14,7 @@ Exemples:
 ghcr.io/keybuzzio/keybuzz-client:menu-fr-ph28.26-2026-02-03
 
 ### API PROD
-ghcr.io/keybuzzio/keybuzz-api:ph30.1-octopia-2026-02-04c
+ghcr.io/keybuzzio/keybuzz-api:api-prod-full-2026-02-05a
 
 ## Derniere mise a jour
 2026-02-05 - PH29.7B Rollback
