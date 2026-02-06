@@ -22,7 +22,6 @@ spec:
         - name: ghcr-cred
       containers:
         - name: keybuzz-client
-          # PH28.2: PROD client with correct NEXT_PUBLIC_* URLs baked in at build time
           image: ghcr.io/keybuzzio/keybuzz-client:menu-fr-ph28.26-2026-02-03
           imagePullPolicy: Always
           ports:
@@ -66,6 +65,15 @@ spec:
             # Environment marker
             - name: NEXT_PUBLIC_APP_ENV
               value: "production"
+            # PH30.5: Backend API URLs (required for BFF order routes)
+            - name: BACKEND_URL
+              value: "http://keybuzz-api.keybuzz-api-prod.svc.cluster.local:80"
+            - name: API_URL
+              value: "https://api.keybuzz.io"
+            - name: API_URL_INTERNAL
+              value: "http://keybuzz-api.keybuzz-api-prod.svc.cluster.local:80"
+            - name: NEXT_PUBLIC_API_URL
+              value: "https://api.keybuzz.io"
           resources:
             requests:
               cpu: "100m"
