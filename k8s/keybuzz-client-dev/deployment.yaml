@@ -29,6 +29,8 @@ spec:
           value: production
         - name: NEXT_PUBLIC_API_URL
           value: https://api-dev.keybuzz.io
+        - name: BACKEND_URL
+          value: http://keybuzz-api.keybuzz-api-dev.svc.cluster.local:3001
         - name: API_URL_INTERNAL
           value: http://keybuzz-api.keybuzz-api-dev.svc.cluster.local:3001
         - name: API_URL
