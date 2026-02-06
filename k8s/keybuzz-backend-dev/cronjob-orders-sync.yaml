@@ -32,7 +32,7 @@ spec:
                   echo "Processing ALL CONNECTED tenants with valid tokens"
                   curl -sk -X POST \
                     -H "X-User-Email: cron@system.keybuzz.io" \
-                    -H "X-Tenant-Id: ecomlg-001" \
+                    -H "X-Tenant-Id: system-global" \
                     https://backend-dev.keybuzz.io/api/v1/orders/sync/run/global
                   echo ""
                   echo "Global sync completed"
