@@ -65,15 +65,13 @@ spec:
             # Environment marker
             - name: NEXT_PUBLIC_APP_ENV
               value: "production"
-            # PH30.5: Backend API URLs (required for BFF order routes)
+            # PH30.5: Backend API URLs (server-side BFF only)
             - name: BACKEND_URL
               value: "http://keybuzz-api.keybuzz-api-prod.svc.cluster.local:80"
             - name: API_URL
               value: "https://api.keybuzz.io"
             - name: API_URL_INTERNAL
               value: "http://keybuzz-api.keybuzz-api-prod.svc.cluster.local:80"
-            - name: NEXT_PUBLIC_API_URL
-              value: "https://api.keybuzz.io"
           resources:
             requests:
               cpu: "100m"
