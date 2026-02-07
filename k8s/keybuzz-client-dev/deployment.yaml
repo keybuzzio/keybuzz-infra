@@ -66,6 +66,13 @@ spec:
             secretKeyRef:
               name: keybuzz-auth
               key: AZURE_AD_CLIENT_SECRET
+              optional: true
+        - name: AZURE_AD_TENANT_ID
+          valueFrom:
+            secretKeyRef:
+              name: keybuzz-auth
+              key: AZURE_AD_TENANT_ID
+              optional: true
         # SMTP for OTP emails
         - name: SMTP_HOST
           value: "49.13.35.167"
@@ -75,13 +82,6 @@ spec:
           value: "false"
         - name: SMTP_FROM
           value: "KeyBuzz <noreply@keybuzz.io>"
-              optional: true
-        - name: AZURE_AD_TENANT_ID
-          valueFrom:
-            secretKeyRef:
-              name: keybuzz-auth
-              key: AZURE_AD_TENANT_ID
-              optional: true
         resources:
           requests:
             memory: 128Mi
