@@ -19,7 +19,7 @@ spec:
       - name: ghcr-secret
       containers:
       - name: keybuzz-client
-        image: ghcr.io/keybuzzio/keybuzz-client:golden-email-overlay-20260206
+        image: ghcr.io/keybuzzio/keybuzz-client:ph33.0-full-build-20260207
         imagePullPolicy: Always
         ports:
         - containerPort: 3000
@@ -74,7 +74,7 @@ spec:
         - name: SMTP_SECURE
           value: "false"
         - name: SMTP_FROM
-          value: "noreply@keybuzz.io"
+          value: "KeyBuzz <noreply@keybuzz.io>"
               optional: true
         - name: AZURE_AD_TENANT_ID
           valueFrom:
