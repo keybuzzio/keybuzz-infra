@@ -19,7 +19,7 @@ spec:
       - name: ghcr-secret
       containers:
       - name: keybuzz-client
-        image: ghcr.io/keybuzzio/keybuzz-client:ai-full-module-202602071338
+        image: ghcr.io/keybuzzio/keybuzz-client:wallet-fix-202602071636
         imagePullPolicy: Always
         ports:
         - containerPort: 3000
