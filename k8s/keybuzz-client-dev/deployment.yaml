@@ -19,7 +19,7 @@ spec:
       - name: ghcr-secret
       containers:
       - name: keybuzz-client
-        image: ghcr.io/keybuzzio/keybuzz-client:kbactions-no-usd-202602072141
+        image: ghcr.io/keybuzzio/keybuzz-client:kba-weights-202602072213
         imagePullPolicy: Always
         ports:
         - containerPort: 3000
