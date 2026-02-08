@@ -1,0 +1,80 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: '{"apiVersion":"batch/v1","kind":"CronJob","metadata":{"annotations":{},"name":"sla-evaluator","namespace":"keybuzz-api-prod"},"spec":{"concurrencyPolicy":"Forbid","failedJobsHistoryLimit":1,"jobTemplate":{"spec":{"template":{"spec":{"containers":[{"args":["echo
+      \"[SLA Evaluator] Starting at $(date -u +%H:%M:%S)\"\npsql \"postgresql://$PGUSER:$PGPASSWORD@$PGHOST:$PGPORT/$PGDATABASE?sslmode=disable\"
+      \u003c\u003c''EOSQL''\nUPDATE conversations c\nSET \n  sla_state = CASE\n    WHEN
+      c.sla_due_at IS NULL THEN ''ok''\n    WHEN now() \u003e c.sla_due_at THEN ''breached''\n    WHEN
+      now() \u003e (c.sla_due_at - (COALESCE(p.risk_minutes, 30) || '' minutes'')::interval)
+      THEN ''risk''\n    ELSE ''ok''\n  END,\n  sla_last_evaluated_at = now()\nFROM
+      sla_policies p\nWHERE c.sla_due_at IS NOT NULL\n  AND p.id = COALESCE(\n    c.sla_policy_id,\n    (SELECT
+      id FROM sla_policies \n     WHERE enabled = true \n       AND tenant_id IS NULL
+      \n       AND plan IS NULL \n       AND channel IS NULL \n     ORDER BY priority
+      ASC \n     LIMIT 1)\n  )\n  AND (\n    c.sla_state IS NULL OR\n    c.sla_state
+      IS DISTINCT FROM CASE\n      WHEN c.sla_due_at IS NULL THEN ''ok''\n      WHEN
+      now() \u003e c.sla_due_at THEN ''breached''\n      WHEN now() \u003e (c.sla_due_at
+      - (COALESCE(p.risk_minutes, 30) || '' minutes'')::interval) THEN ''risk''\n      ELSE
+      ''ok''\n    END\n  );\nEOSQL\necho \"[SLA Evaluator] Done\"\n"],"command":["/bin/sh","-c"],"envFrom":[{"secretRef":{"name":"keybuzz-api-postgres"}}],"image":"postgres:17-alpine","name":"evaluator","resources":{"limits":{"cpu":"100m","memory":"128Mi"},"requests":{"cpu":"50m","memory":"64Mi"}}}],"restartPolicy":"Never"}},"ttlSecondsAfterFinished":300}},"schedule":"*/1
+      * * * *","successfulJobsHistoryLimit":3}}
+
+      '
+  name: sla-evaluator
+  namespace: keybuzz-api-prod
+spec:
+  concurrencyPolicy: Forbid
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    metadata:
+      creationTimestamp: null
+    spec:
+      template:
+        metadata:
+          creationTimestamp: null
+        spec:
+          containers:
+          - args:
+            - "echo \"[SLA Evaluator] Starting at $(date -u +%H:%M:%S)\"\npsql \"\
+              postgresql://$PGUSER:$PGPASSWORD@$PGHOST:$PGPORT/$PGDATABASE?sslmode=disable\"\
+              \ <<'EOSQL'\nUPDATE conversations c\nSET \n  sla_state = CASE\n    WHEN\
+              \ c.sla_due_at IS NULL THEN 'ok'\n    WHEN now() > c.sla_due_at THEN\
+              \ 'breached'\n    WHEN now() > (c.sla_due_at - (COALESCE(p.risk_minutes,\
+              \ 30) || ' minutes')::interval) THEN 'risk'\n    ELSE 'ok'\n  END,\n\
+              \  sla_last_evaluated_at = now()\nFROM sla_policies p\nWHERE c.sla_due_at\
+              \ IS NOT NULL\n  AND p.id = COALESCE(\n    c.sla_policy_id,\n    (SELECT\
+              \ id FROM sla_policies \n     WHERE enabled = true \n       AND tenant_id\
+              \ IS NULL \n       AND plan IS NULL \n       AND channel IS NULL \n\
+              \     ORDER BY priority ASC \n     LIMIT 1)\n  )\n  AND (\n    c.sla_state\
+              \ IS NULL OR\n    c.sla_state IS DISTINCT FROM CASE\n      WHEN c.sla_due_at\
+              \ IS NULL THEN 'ok'\n      WHEN now() > c.sla_due_at THEN 'breached'\n\
+              \      WHEN now() > (c.sla_due_at - (COALESCE(p.risk_minutes, 30) ||\
+              \ ' minutes')::interval) THEN 'risk'\n      ELSE 'ok'\n    END\n  );\n\
+              EOSQL\necho \"[SLA Evaluator] Done\"\n"
+            command:
+            - /bin/sh
+            - -c
+            envFrom:
+            - secretRef:
+                name: keybuzz-api-postgres
+            image: postgres:17-alpine
+            imagePullPolicy: IfNotPresent
+            name: evaluator
+            resources:
+              limits:
+                cpu: 100m
+                memory: 128Mi
+              requests:
+                cpu: 50m
+                memory: 64Mi
+            terminationMessagePath: /dev/termination-log
+            terminationMessagePolicy: File
+          dnsPolicy: ClusterFirst
+          restartPolicy: Never
+          schedulerName: default-scheduler
+          securityContext: {}
+          terminationGracePeriodSeconds: 30
+      ttlSecondsAfterFinished: 300
+  schedule: '*/1 * * * *'
+  successfulJobsHistoryLimit: 3
+  suspend: false
+

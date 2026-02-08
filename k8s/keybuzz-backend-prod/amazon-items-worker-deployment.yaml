@@ -1,0 +1,101 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    deployment.kubernetes.io/revision: '1'
+    kubectl.kubernetes.io/last-applied-configuration: '{"apiVersion":"apps/v1","kind":"Deployment","metadata":{"annotations":{},"labels":{"app":"amazon-items-worker","environment":"prod"},"name":"amazon-items-worker","namespace":"keybuzz-backend-prod"},"spec":{"replicas":1,"selector":{"matchLabels":{"app":"amazon-items-worker"}},"template":{"metadata":{"labels":{"app":"amazon-items-worker"}},"spec":{"containers":[{"args":["const
+      { runItemsFillLoop } = require(''./dist/modules/marketplaces/amazon/amazonOrderItemsFill.service'');\nconsole.log(''[ItemsWorker-PROD]
+      Starting ITEMS ASYNC BACKGROUND worker...'');\nconsole.log(''[ItemsWorker-PROD]
+      Worker ID:'', process.env.HOSTNAME);\nrunItemsFillLoop({ maxIterations: Infinity
+      })\n  .then(() =\u003e console.log(''[ItemsWorker-PROD] Loop ended''))\n  .catch(err
+      =\u003e { console.error(''[ItemsWorker-PROD] Fatal error:'', err); process.exit(1);
+      });\n"],"command":["node","-e"],"env":[{"name":"DATABASE_URL","valueFrom":{"secretKeyRef":{"key":"DATABASE_URL","name":"keybuzz-backend-db"}}},{"name":"VAULT_TOKEN","valueFrom":{"secretKeyRef":{"key":"VAULT_TOKEN","name":"vault-token"}}},{"name":"VAULT_ADDR","value":"https://vault.keybuzz.io:8200"},{"name":"NODE_ENV","value":"production"},{"name":"WORKER_TYPE","value":"ITEMS"}],"image":"ghcr.io/keybuzzio/keybuzz-backend:v1.0.34-ph263","imagePullPolicy":"IfNotPresent","livenessProbe":{"exec":{"command":["sh","-c","ps
+      aux | grep node | grep -v grep"]},"initialDelaySeconds":30,"periodSeconds":60},"name":"worker","resources":{"limits":{"cpu":"500m","memory":"512Mi"},"requests":{"cpu":"100m","memory":"256Mi"}}}],"hostAliases":[{"hostnames":["vault.keybuzz.io"],"ip":"10.0.0.150"}],"imagePullSecrets":[{"name":"ghcr-cred"}]}}}}
+
+      '
+  labels:
+    app: amazon-items-worker
+    environment: prod
+  name: amazon-items-worker
+  namespace: keybuzz-backend-prod
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: amazon-items-worker
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: amazon-items-worker
+    spec:
+      containers:
+      - args:
+        - "const { runItemsFillLoop } = require('./dist/modules/marketplaces/amazon/amazonOrderItemsFill.service');\n\
+          console.log('[ItemsWorker-PROD] Starting ITEMS ASYNC BACKGROUND worker...');\n\
+          console.log('[ItemsWorker-PROD] Worker ID:', process.env.HOSTNAME);\nrunItemsFillLoop({\
+          \ maxIterations: Infinity })\n  .then(() => console.log('[ItemsWorker-PROD]\
+          \ Loop ended'))\n  .catch(err => { console.error('[ItemsWorker-PROD] Fatal\
+          \ error:', err); process.exit(1); });\n"
+        command:
+        - node
+        - -e
+        env:
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              key: DATABASE_URL
+              name: keybuzz-backend-db
+        - name: VAULT_TOKEN
+          valueFrom:
+            secretKeyRef:
+              key: VAULT_TOKEN
+              name: vault-token
+        - name: VAULT_ADDR
+          value: https://vault.keybuzz.io:8200
+        - name: NODE_ENV
+          value: production
+        - name: WORKER_TYPE
+          value: ITEMS
+        image: ghcr.io/keybuzzio/keybuzz-backend:v1.0.34-ph263
+        imagePullPolicy: IfNotPresent
+        livenessProbe:
+          exec:
+            command:
+            - sh
+            - -c
+            - ps aux | grep node | grep -v grep
+          failureThreshold: 3
+          initialDelaySeconds: 30
+          periodSeconds: 60
+          successThreshold: 1
+          timeoutSeconds: 1
+        name: worker
+        resources:
+          limits:
+            cpu: 500m
+            memory: 512Mi
+          requests:
+            cpu: 100m
+            memory: 256Mi
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+      dnsPolicy: ClusterFirst
+      hostAliases:
+      - hostnames:
+        - vault.keybuzz.io
+        ip: 10.0.0.150
+      imagePullSecrets:
+      - name: ghcr-cred
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+
