@@ -1,0 +1,61 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: '{"apiVersion":"batch/v1","kind":"CronJob","metadata":{"annotations":{},"name":"amazon-reports-tracking-sync","namespace":"keybuzz-backend-prod"},"spec":{"concurrencyPolicy":"Forbid","failedJobsHistoryLimit":1,"jobTemplate":{"spec":{"template":{"spec":{"containers":[{"args":["echo
+      \"Starting PROD Amazon Reports Tracking Sync...\"\ncurl -sk -X POST http://keybuzz-backend.keybuzz-backend-dev.svc.cluster.local:4000/api/v1/orders/sync/reports/run\necho
+      \"Reports sync completed\"\n"],"command":["/bin/sh","-c"],"image":"curlimages/curl:latest","imagePullPolicy":"Always","name":"reports-sync","resources":{"limits":{"cpu":"100m","memory":"64Mi"},"requests":{"cpu":"50m","memory":"32Mi"}}}],"hostAliases":[{"hostnames":["vault.keybuzz.io"],"ip":"10.0.0.150"}],"restartPolicy":"Never"}},"ttlSecondsAfterFinished":600}},"schedule":"0
+      */6 * * *","successfulJobsHistoryLimit":3}}
+
+      '
+  name: amazon-reports-tracking-sync
+  namespace: keybuzz-backend-prod
+spec:
+  concurrencyPolicy: Forbid
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    metadata:
+      creationTimestamp: null
+    spec:
+      template:
+        metadata:
+          creationTimestamp: null
+        spec:
+          containers:
+          - args:
+            - 'echo "Starting PROD Amazon Reports Tracking Sync..."
+
+              curl -sk -X POST http://keybuzz-backend.keybuzz-backend-dev.svc.cluster.local:4000/api/v1/orders/sync/reports/run
+
+              echo "Reports sync completed"
+
+              '
+            command:
+            - /bin/sh
+            - -c
+            image: curlimages/curl:latest
+            imagePullPolicy: Always
+            name: reports-sync
+            resources:
+              limits:
+                cpu: 100m
+                memory: 64Mi
+              requests:
+                cpu: 50m
+                memory: 32Mi
+            terminationMessagePath: /dev/termination-log
+            terminationMessagePolicy: File
+          dnsPolicy: ClusterFirst
+          hostAliases:
+          - hostnames:
+            - vault.keybuzz.io
+            ip: 10.0.0.150
+          restartPolicy: Never
+          schedulerName: default-scheduler
+          securityContext: {}
+          terminationGracePeriodSeconds: 30
+      ttlSecondsAfterFinished: 600
+  schedule: 0 */6 * * *
+  successfulJobsHistoryLimit: 3
+  suspend: false
+
