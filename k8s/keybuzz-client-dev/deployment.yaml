@@ -19,7 +19,7 @@ spec:
       - name: ghcr-secret
       containers:
       - name: keybuzz-client
-        image: ghcr.io/keybuzzio/keybuzz-client:fix-aijournal-audit-dev-202602082020
+        image: ghcr.io/keybuzzio/keybuzz-client:fix-settings-audit-dev-202602082100
         imagePullPolicy: Always
         ports:
         - containerPort: 3000
