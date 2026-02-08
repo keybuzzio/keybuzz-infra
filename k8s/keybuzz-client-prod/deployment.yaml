@@ -22,7 +22,7 @@ spec:
         - name: ghcr-cred
       containers:
         - name: keybuzz-client
-          image: ghcr.io/keybuzzio/keybuzz-client:fix-cookies-sharp-prod-202602081610
+          image: ghcr.io/keybuzzio/keybuzz-client:fix-tenant-loop-prod-202602081630
           imagePullPolicy: Always
           ports:
             - containerPort: 3000
