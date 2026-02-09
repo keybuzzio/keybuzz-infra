@@ -128,7 +128,7 @@ spec:
           value: 'false'
         - name: SMTP_FROM
           value: 'noreply@keybuzz.io'
-        image: ghcr.io/keybuzzio/keybuzz-api:debt-clean-202602081259
+        image: ghcr.io/keybuzzio/keybuzz-api:v0.1.28-fix-amount
         livenessProbe:
           httpGet:
             path: /health
