@@ -23,7 +23,7 @@ spec:
       containers:
         - name: keybuzz-api
           # PH28.2: Using stable DEV image with full routes
-          image: ghcr.io/keybuzzio/keybuzz-api:ph32-secure-202602080955
+          image: ghcr.io/keybuzzio/keybuzz-api:v0.1.28-fix-amount
           imagePullPolicy: Always
           ports:
             - containerPort: 3001
@@ -32,6 +32,16 @@ spec:
               value: "3001"
             - name: NODE_ENV
               value: production
+            # Vault config (SP-API credentials)
+            - name: VAULT_ADDR
+              value: 'https://vault.default.svc.cluster.local:8200'
+            - name: VAULT_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  key: VAULT_TOKEN
+                  name: vault-root-token
+            - name: NODE_TLS_REJECT_UNAUTHORIZED
+              value: '0'
             # Database (from PROD secret - keybuzz_prod)
             - name: PGHOST
               valueFrom:
