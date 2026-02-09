@@ -22,8 +22,9 @@ spec:
         - name: ghcr-cred
       containers:
         - name: keybuzz-api
-          # PH28.2: Using stable DEV image with full routes
-          image: ghcr.io/keybuzzio/keybuzz-api:v0.1.29-enrich
+          # PH-BULK-SYNC: Promote bulk sync from DEV (was v0.1.29-enrich)
+          # Rollback tag: prod-pre-bulk-sync-20260209
+          image: ghcr.io/keybuzzio/keybuzz-api:v0.1.32-sync-v2
           imagePullPolicy: Always
           ports:
             - containerPort: 3001
