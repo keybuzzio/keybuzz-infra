@@ -25,6 +25,16 @@ spec:
           value: '3001'
         - name: NODE_ENV
           value: development
+        # Vault config (SP-API credentials)
+        - name: VAULT_ADDR
+          value: 'https://vault.default.svc.cluster.local:8200'
+        - name: VAULT_TOKEN
+          valueFrom:
+            secretKeyRef:
+              key: VAULT_TOKEN
+              name: vault-root-token
+        - name: NODE_TLS_REJECT_UNAUTHORIZED
+          value: '0'
         # Postgres config
         - name: PGHOST
           valueFrom:
