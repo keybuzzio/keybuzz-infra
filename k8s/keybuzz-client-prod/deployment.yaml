@@ -22,7 +22,7 @@ spec:
         - name: ghcr-cred
       containers:
         - name: keybuzz-client
-          image: ghcr.io/keybuzzio/keybuzz-client:v2.11.1-french-final
+          image: ghcr.io/keybuzzio/keybuzz-client:v2.11.2-french-menus
           imagePullPolicy: Always
           ports:
             - containerPort: 3000
