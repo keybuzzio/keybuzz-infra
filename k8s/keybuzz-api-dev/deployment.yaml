@@ -138,7 +138,8 @@ spec:
           value: 'false'
         - name: SMTP_FROM
           value: 'noreply@keybuzz.io'
-        image: ghcr.io/keybuzzio/keybuzz-api:v0.1.42-compat-fix
+        # v3.2.1: Fix Amazon rate limit resilience for bulk order sync
+        image: ghcr.io/keybuzzio/keybuzz-api:v3.2.1-rate-limit-fix
         livenessProbe:
           httpGet:
             path: /health
