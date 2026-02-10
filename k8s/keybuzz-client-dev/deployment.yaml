@@ -19,8 +19,8 @@ spec:
       - name: ghcr-secret
       containers:
       - name: keybuzz-client
-        # v3.2.1: Fix unicode encoding in sync progress display
-        image: ghcr.io/keybuzzio/keybuzz-client:v3.2.1-encoding-fix
+        # v3.2.2: Fix sync encoding + pagination 100/page
+        image: ghcr.io/keybuzzio/keybuzz-client:v3.2.2-pagination
         imagePullPolicy: Always
         ports:
         - containerPort: 3000
