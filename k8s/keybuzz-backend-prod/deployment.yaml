@@ -1,0 +1,82 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: keybuzz-backend
+  namespace: keybuzz-backend-prod
+  labels:
+    app: keybuzz-backend
+    env: production
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: keybuzz-backend
+  template:
+    metadata:
+      labels:
+        app: keybuzz-backend
+        env: production
+    spec:
+      imagePullSecrets:
+        - name: ghcr-cred
+      containers:
+        - name: keybuzz-backend
+          image: ghcr.io/keybuzzio/keybuzz-backend:dev-check-email-2026-02-02
+          ports:
+            - containerPort: 4000
+          envFrom:
+            - secretRef:
+                name: keybuzz-backend-db
+            - secretRef:
+                name: vault-token
+                optional: true
+            - secretRef:
+                name: amazon-spapi-creds
+            - secretRef:
+                name: inbound-webhook-key
+          env:
+            - name: NODE_ENV
+              value: "production"
+            - name: PORT
+              value: "4000"
+            - name: JWT_SECRET
+              value: "keybuzz-prod-jwt-secret-2026"
+            - name: KEYBUZZ_SUPERADMIN_EMAIL
+              value: "admin@keybuzz.io"
+            - name: VAULT_ADDR
+              value: "https://vault.keybuzz.io:8200"
+            - name: ADMIN_CALLBACK_URL
+              value: "https://admin.keybuzz.io/inbound-email/amazon/callback"
+            - name: KEYBUZZ_DEV_MODE
+              value: "false"
+            - name: KEYBUZZ_INTERNAL_TOKEN
+              value: "fca299a68a2ff8180b88cf24a397832dd2c8f7ca27fa32b02f63615b7c76deac"
+            - name: MINIO_ENDPOINT
+              value: "http://10.0.0.11:9000"
+            - name: MINIO_ACCESS_KEY
+              value: "keybuzz-admin"
+            - name: MINIO_SECRET_KEY
+              value: "KeyBuzz-MinIO-2026-SecureP@ss!"
+            - name: MINIO_BUCKET_ATTACHMENTS
+              value: "keybuzz-attachments"
+            - name: PRODUCT_DATABASE_URL
+              value: "postgresql://keybuzz_api_prod:Pr0d_K3yBuzz_f7323476e6f86ff7@10.0.0.10:5432/keybuzz_prod"
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "256Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 4000
+            initialDelaySeconds: 15
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 4000
+            initialDelaySeconds: 10
+            periodSeconds: 10
