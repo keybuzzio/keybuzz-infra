@@ -19,8 +19,8 @@ spec:
       - name: ghcr-secret
       containers:
       - name: keybuzz-client
-        # v3.2.2: Fix sync encoding + pagination 100/page
-        image: ghcr.io/keybuzzio/keybuzz-client:v3.2.2-pagination
+        # v3.2.3: Fix total counter + Précédent encoding + sort by order_date
+        image: ghcr.io/keybuzzio/keybuzz-client:v3.2.3-total-sort-fix
         imagePullPolicy: Always
         ports:
         - containerPort: 3000
