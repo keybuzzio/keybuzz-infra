@@ -24,7 +24,7 @@ spec:
         - name: keybuzz-api
           # PH-BULK-SYNC: Promote bulk sync from DEV (was v0.1.29-enrich)
           # Rollback tag: prod-pre-bulk-sync-20260209
-          image: ghcr.io/keybuzzio/keybuzz-api:v0.1.32-sync-v2
+          image: ghcr.io/keybuzzio/keybuzz-api:v0.1.42-compat-fix
           imagePullPolicy: Always
           ports:
             - containerPort: 3001
