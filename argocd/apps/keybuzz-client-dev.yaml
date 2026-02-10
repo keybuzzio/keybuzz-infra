@@ -1,0 +1,22 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: keybuzz-client-dev
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/keybuzzio/keybuzz-infra.git
+    targetRevision: main
+    path: k8s/keybuzz-client-dev
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: keybuzz-client-dev
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
