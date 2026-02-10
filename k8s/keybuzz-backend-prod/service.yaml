@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: keybuzz-backend
+  namespace: keybuzz-backend-prod
+  labels:
+    app: keybuzz-backend
+    env: production
+spec:
+  selector:
+    app: keybuzz-backend
+  ports:
+    - port: 4000
+      targetPort: 4000
+      protocol: TCP
+  type: ClusterIP
