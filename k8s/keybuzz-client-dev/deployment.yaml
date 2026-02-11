@@ -19,8 +19,8 @@ spec:
       - name: ghcr-secret
       containers:
       - name: keybuzz-client
-        # v3.2.3: Fix total counter + Précédent encoding + sort by order_date
-        image: ghcr.io/keybuzzio/keybuzz-client:v3.3.2-ph33-mp-fix
+        # v3.3.3-ph34: Unifier KPIs Dashboard/Inbox - source unique de verite
+        image: ghcr.io/keybuzzio/keybuzz-client:v3.3.3-ph34-kpi-dev
         imagePullPolicy: Always
         ports:
         - containerPort: 3000
