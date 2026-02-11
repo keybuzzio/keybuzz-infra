@@ -23,7 +23,7 @@ spec:
       containers:
         - name: keybuzz-client
           # v3.2.0: Next.js 14.2.35 security update + ESLint warnings fix
-          image: ghcr.io/keybuzzio/keybuzz-client:v3.2.4-prod
+          image: ghcr.io/keybuzzio/keybuzz-client:v3.3.0-ph32-sav-prod
           imagePullPolicy: Always
           ports:
             - containerPort: 3000
