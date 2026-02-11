@@ -155,20 +155,29 @@ spec:
               name: minio-credentials
         image: ghcr.io/keybuzzio/keybuzz-api:v3.3.0-ph32-sav
         livenessProbe:
+          failureThreshold: 3
           httpGet:
             path: /health
             port: 3001
+            scheme: HTTP
           initialDelaySeconds: 10
           periodSeconds: 15
+          successThreshold: 1
+          timeoutSeconds: 1
         name: keybuzz-api
         ports:
         - containerPort: 3001
+          protocol: TCP
         readinessProbe:
+          failureThreshold: 3
           httpGet:
             path: /health
             port: 3001
+            scheme: HTTP
           initialDelaySeconds: 5
           periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 1
         volumeMounts:
         - mountPath: /var/run/secrets/keybuzz-postgres
           name: pg-secrets
@@ -178,4 +187,5 @@ spec:
       volumes:
       - name: pg-secrets
         secret:
+          defaultMode: 420
           secretName: keybuzz-api-postgres
