@@ -1,6 +1,9 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  annotations:
+    argocd.argoproj.io/compare-options: IgnoreExtraneous
+    argocd.argoproj.io/sync-options: Prune=false,Force=false
   labels:
     app: keybuzz-api
   name: keybuzz-api
@@ -13,111 +16,134 @@ spec:
   template:
     metadata:
       annotations:
+        kubectl.kubernetes.io/restartedAt: '2026-02-10T10:55:23Z'
         reloader.stakater.com/auto: 'true'
       labels:
         app: keybuzz-api
     spec:
       containers:
       - env:
+        - name: LITELLM_MASTER_KEY
+          valueFrom:
+            secretKeyRef:
+              name: keybuzz-litellm
+              key: LITELLM_MASTER_KEY
+        - name: LITELLM_BASE_URL
+          value: https://llm.keybuzz.io
+        - name: STAKATER_KEYBUZZ_API_POSTGRES_SECRET
+          value: 5b00415322efe98e8507ef34a3b0c8642152205e
+        - name: MINIO_ENDPOINT
+          valueFrom:
+            secretKeyRef:
+              name: minio-credentials
+              key: MINIO_ENDPOINT
+        - name: MINIO_BUCKET_ATTACHMENTS
+          valueFrom:
+            secretKeyRef:
+              name: minio-credentials
+              key: MINIO_BUCKET_ATTACHMENTS
+        - name: MINIO_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: minio-credentials
+              key: MINIO_ACCESS_KEY
+        - name: MINIO_SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: minio-credentials
+              key: MINIO_SECRET_KEY
+        - name: STAKATER_MINIO_CREDENTIALS_SECRET
+          value: 63398b92399ecd4a3796053d12c77ed1b5b0528c
         - name: AMAZON_OUTBOUND_ATTACHMENTS_ENABLED
           value: 'true'
         - name: PORT
           value: '3001'
         - name: NODE_ENV
           value: development
-        - name: VAULT_ADDR
-          value: https://vault.default.svc.cluster.local:8200
-        - name: VAULT_TOKEN
-          valueFrom:
-            secretKeyRef:
-              key: VAULT_TOKEN
-              name: vault-root-token
-        - name: NODE_TLS_REJECT_UNAUTHORIZED
-          value: '0'
         - name: PGHOST
           valueFrom:
             secretKeyRef:
-              key: PGHOST
               name: keybuzz-api-postgres
+              key: PGHOST
         - name: PGPORT
           valueFrom:
             secretKeyRef:
-              key: PGPORT
               name: keybuzz-api-postgres
+              key: PGPORT
         - name: PGDATABASE
           valueFrom:
             secretKeyRef:
-              key: PGDATABASE
               name: keybuzz-api-postgres
+              key: PGDATABASE
         - name: PGUSER
           valueFrom:
             secretKeyRef:
-              key: PGUSER
               name: keybuzz-api-postgres
+              key: PGUSER
         - name: PGPASSWORD
           valueFrom:
             secretKeyRef:
-              key: PGPASSWORD
               name: keybuzz-api-postgres
+              key: PGPASSWORD
         - name: STRIPE_SECRET_KEY
           valueFrom:
             secretKeyRef:
-              key: STRIPE_SECRET_KEY
               name: keybuzz-stripe
+              key: STRIPE_SECRET_KEY
               optional: true
         - name: STRIPE_WEBHOOK_SECRET
           valueFrom:
             secretKeyRef:
-              key: STRIPE_WEBHOOK_SECRET
               name: keybuzz-stripe
+              key: STRIPE_WEBHOOK_SECRET
               optional: true
         - name: STRIPE_PRICE_STARTER_MONTHLY
           valueFrom:
             secretKeyRef:
-              key: STRIPE_PRICE_STARTER_MONTHLY
               name: keybuzz-stripe
+              key: STRIPE_PRICE_STARTER_MONTHLY
               optional: true
         - name: STRIPE_PRICE_STARTER_ANNUAL
           valueFrom:
             secretKeyRef:
-              key: STRIPE_PRICE_STARTER_ANNUAL
               name: keybuzz-stripe
+              key: STRIPE_PRICE_STARTER_ANNUAL
               optional: true
         - name: STRIPE_PRICE_PRO_MONTHLY
           valueFrom:
             secretKeyRef:
-              key: STRIPE_PRICE_PRO_MONTHLY
               name: keybuzz-stripe
+              key: STRIPE_PRICE_PRO_MONTHLY
               optional: true
         - name: STRIPE_PRICE_PRO_ANNUAL
           valueFrom:
             secretKeyRef:
-              key: STRIPE_PRICE_PRO_ANNUAL
               name: keybuzz-stripe
+              key: STRIPE_PRICE_PRO_ANNUAL
               optional: true
         - name: STRIPE_PRICE_AUTOPILOT_MONTHLY
           valueFrom:
             secretKeyRef:
-              key: STRIPE_PRICE_AUTOPILOT_MONTHLY
               name: keybuzz-stripe
+              key: STRIPE_PRICE_AUTOPILOT_MONTHLY
               optional: true
         - name: STRIPE_PRICE_AUTOPILOT_ANNUAL
           valueFrom:
             secretKeyRef:
-              key: STRIPE_PRICE_AUTOPILOT_ANNUAL
               name: keybuzz-stripe
+              key: STRIPE_PRICE_AUTOPILOT_ANNUAL
               optional: true
         - name: STRIPE_PRICE_ADDON_CHANNEL_MONTHLY
           valueFrom:
             secretKeyRef:
-              key: STRIPE_PRICE_ADDON_CHANNEL_MONTHLY
               name: keybuzz-stripe
+              key: STRIPE_PRICE_ADDON_CHANNEL_MONTHLY
               optional: true
         - name: STRIPE_PRICE_ADDON_CHANNEL_ANNUAL
           valueFrom:
             secretKeyRef:
-              key: STRIPE_PRICE_ADDON_CHANNEL_ANNUAL
               name: keybuzz-stripe
+              key: STRIPE_PRICE_ADDON_CHANNEL_ANNUAL
               optional: true
         - name: APP_BASE_URL
           value: https://client-dev.keybuzz.io
@@ -133,26 +159,46 @@ spec:
           value: 'false'
         - name: SMTP_FROM
           value: noreply@keybuzz.io
-        - name: MINIO_ENDPOINT
+        - name: APP_ENV
+          value: development
+        - name: OCTOPIA_CLIENT_ID
           valueFrom:
             secretKeyRef:
-              key: MINIO_ENDPOINT
-              name: minio-credentials
-        - name: MINIO_ACCESS_KEY
+              key: OCTOPIA_CLIENT_ID
+              name: octopia-credentials
+        - name: OCTOPIA_CLIENT_SECRET
           valueFrom:
             secretKeyRef:
-              key: MINIO_ACCESS_KEY
-              name: minio-credentials
-        - name: MINIO_SECRET_KEY
+              name: keybuzz-octopia
+              key: OCTOPIA_CLIENT_SECRET
+        - name: OCTOPIA_API_URL
+          value: https://api.octopia-io.net/seller/v2
+        - name: OCTOPIA_AUTH_URL
           valueFrom:
             secretKeyRef:
-              key: MINIO_SECRET_KEY
-              name: minio-credentials
-        - name: MINIO_BUCKET_ATTACHMENTS
+              key: OCTOPIA_AUTH_URL
+              name: octopia-credentials
+        - name: COOKIE_SECRET
           valueFrom:
             secretKeyRef:
-              key: MINIO_BUCKET_ATTACHMENTS
-              name: minio-credentials
+              name: keybuzz-api-auth
+              key: COOKIE_SECRET
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: keybuzz-api-auth
+              key: JWT_SECRET
+        - name: BACKEND_INTERNAL_URL
+          value: http://keybuzz-api.keybuzz-api-dev.svc.cluster.local:3001
+        - name: VAULT_ADDR
+          value: https://vault.default.svc.cluster.local:8200
+        - name: VAULT_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: vault-root-token
+              key: VAULT_TOKEN
+        - name: NODE_TLS_REJECT_UNAUTHORIZED
+          value: '0'
         image: ghcr.io/keybuzzio/keybuzz-api:v3.3.0-ph32-sav
         livenessProbe:
           failureThreshold: 3
