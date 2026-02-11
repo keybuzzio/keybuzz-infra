@@ -23,8 +23,9 @@ spec:
       containers:
         - name: keybuzz-api
           # PH-BULK-SYNC: Promote bulk sync from DEV (was v0.1.29-enrich)
-          # Rollback tag: prod-pre-bulk-sync-20260209
-          image: ghcr.io/keybuzzio/keybuzz-api:v3.3.0-ph32-sav-prod
+          # Rollback tag: v3.3.0-ph32-sav-prod
+          # v3.3.4-ph323: Supplier Reply-To tokenise + inbound threading (PROD-A)
+          image: ghcr.io/keybuzzio/keybuzz-api:v3.3.4-ph323-supplier-replyto-prod
           imagePullPolicy: Always
           ports:
             - containerPort: 3001
