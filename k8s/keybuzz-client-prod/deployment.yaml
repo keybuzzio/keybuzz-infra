@@ -22,8 +22,8 @@ spec:
         - name: ghcr-cred
       containers:
         - name: keybuzz-client
-          # v3.2.0: Next.js 14.2.35 security update + ESLint warnings fix
-          image: ghcr.io/keybuzzio/keybuzz-client:v3.3.2-ph33-mp-prod
+          # v3.3.3-ph34: Unifier KPIs Dashboard/Inbox - source unique de verite
+          image: ghcr.io/keybuzzio/keybuzz-client:v3.3.3-ph34-kpi-prod
           imagePullPolicy: Always
           ports:
             - containerPort: 3000
