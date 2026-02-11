@@ -139,7 +139,7 @@ spec:
         - name: SMTP_FROM
           value: 'noreply@keybuzz.io'
         # v3.2.3: Sort orders by order_date DESC + pool fix
-        image: ghcr.io/keybuzzio/keybuzz-api:v3.2.6-pg-resilient
+        image: ghcr.io/keybuzzio/keybuzz-api:v3.3.0-ph32-sav
         livenessProbe:
           httpGet:
             path: /health
