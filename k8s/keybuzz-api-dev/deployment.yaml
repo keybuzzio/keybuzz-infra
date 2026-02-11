@@ -138,8 +138,8 @@ spec:
           value: 'false'
         - name: SMTP_FROM
           value: 'noreply@keybuzz.io'
-        # v3.3.3-ph321: Mini Centre SAV Fournisseur V1
-        image: ghcr.io/keybuzzio/keybuzz-api:v3.3.3-ph321-sav-dev
+        # v3.3.4-ph323: Supplier Reply-To tokenise + inbound threading
+        image: ghcr.io/keybuzzio/keybuzz-api:v3.3.4-ph323-supplier-replyto-dev
         livenessProbe:
           httpGet:
             path: /health
