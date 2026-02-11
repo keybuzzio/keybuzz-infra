@@ -19,8 +19,8 @@ spec:
       - name: ghcr-secret
       containers:
       - name: keybuzz-client
-        # v3.3.3-ph34: Unifier KPIs Dashboard/Inbox - source unique de verite
-        image: ghcr.io/keybuzzio/keybuzz-client:v3.3.3-ph34-kpi-dev
+        # v3.3.3-ph321: Mini Centre SAV Fournisseur V1
+        image: ghcr.io/keybuzzio/keybuzz-client:v3.3.3-ph321-sav-dev
         imagePullPolicy: Always
         ports:
         - containerPort: 3000

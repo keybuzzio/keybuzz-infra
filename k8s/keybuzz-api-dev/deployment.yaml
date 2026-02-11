@@ -1,9 +1,6 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  annotations:
-    argocd.argoproj.io/compare-options: IgnoreExtraneous
-    argocd.argoproj.io/sync-options: Prune=false,Force=false
   labels:
     app: keybuzz-api
   name: keybuzz-api
@@ -16,141 +13,123 @@ spec:
   template:
     metadata:
       annotations:
-        kubectl.kubernetes.io/restartedAt: '2026-02-10T10:55:23Z'
         reloader.stakater.com/auto: 'true'
       labels:
         app: keybuzz-api
     spec:
       containers:
       - env:
-        - name: LITELLM_MASTER_KEY
-          valueFrom:
-            secretKeyRef:
-              name: keybuzz-litellm
-              key: LITELLM_MASTER_KEY
-        - name: LITELLM_BASE_URL
-          value: https://llm.keybuzz.io
-        - name: STAKATER_KEYBUZZ_API_POSTGRES_SECRET
-          value: 5b00415322efe98e8507ef34a3b0c8642152205e
-        - name: MINIO_ENDPOINT
-          valueFrom:
-            secretKeyRef:
-              name: minio-credentials
-              key: MINIO_ENDPOINT
-        - name: MINIO_BUCKET_ATTACHMENTS
-          valueFrom:
-            secretKeyRef:
-              name: minio-credentials
-              key: MINIO_BUCKET_ATTACHMENTS
-        - name: MINIO_ACCESS_KEY
-          valueFrom:
-            secretKeyRef:
-              name: minio-credentials
-              key: MINIO_ACCESS_KEY
-        - name: MINIO_SECRET_KEY
-          valueFrom:
-            secretKeyRef:
-              name: minio-credentials
-              key: MINIO_SECRET_KEY
-        - name: STAKATER_MINIO_CREDENTIALS_SECRET
-          value: 63398b92399ecd4a3796053d12c77ed1b5b0528c
         - name: AMAZON_OUTBOUND_ATTACHMENTS_ENABLED
-          value: 'true'
+          value: "true"
         - name: PORT
           value: '3001'
         - name: NODE_ENV
           value: development
+        # Vault config (SP-API credentials)
+        - name: VAULT_ADDR
+          value: 'https://vault.default.svc.cluster.local:8200'
+        - name: VAULT_TOKEN
+          valueFrom:
+            secretKeyRef:
+              key: VAULT_TOKEN
+              name: vault-root-token
+        - name: NODE_TLS_REJECT_UNAUTHORIZED
+          value: '0'
+        # Postgres config
         - name: PGHOST
           valueFrom:
             secretKeyRef:
-              name: keybuzz-api-postgres
               key: PGHOST
+              name: keybuzz-api-postgres
         - name: PGPORT
           valueFrom:
             secretKeyRef:
-              name: keybuzz-api-postgres
               key: PGPORT
+              name: keybuzz-api-postgres
         - name: PGDATABASE
           valueFrom:
             secretKeyRef:
-              name: keybuzz-api-postgres
               key: PGDATABASE
+              name: keybuzz-api-postgres
         - name: PGUSER
           valueFrom:
             secretKeyRef:
-              name: keybuzz-api-postgres
               key: PGUSER
+              name: keybuzz-api-postgres
         - name: PGPASSWORD
           valueFrom:
             secretKeyRef:
-              name: keybuzz-api-postgres
               key: PGPASSWORD
+              name: keybuzz-api-postgres
+        # PH12-STRIPE-01: Stripe config (from secret)
         - name: STRIPE_SECRET_KEY
           valueFrom:
             secretKeyRef:
-              name: keybuzz-stripe
               key: STRIPE_SECRET_KEY
+              name: keybuzz-stripe
               optional: true
         - name: STRIPE_WEBHOOK_SECRET
           valueFrom:
             secretKeyRef:
-              name: keybuzz-stripe
               key: STRIPE_WEBHOOK_SECRET
+              name: keybuzz-stripe
               optional: true
         - name: STRIPE_PRICE_STARTER_MONTHLY
           valueFrom:
             secretKeyRef:
-              name: keybuzz-stripe
               key: STRIPE_PRICE_STARTER_MONTHLY
+              name: keybuzz-stripe
               optional: true
         - name: STRIPE_PRICE_STARTER_ANNUAL
           valueFrom:
             secretKeyRef:
-              name: keybuzz-stripe
               key: STRIPE_PRICE_STARTER_ANNUAL
+              name: keybuzz-stripe
               optional: true
         - name: STRIPE_PRICE_PRO_MONTHLY
           valueFrom:
             secretKeyRef:
-              name: keybuzz-stripe
               key: STRIPE_PRICE_PRO_MONTHLY
+              name: keybuzz-stripe
               optional: true
         - name: STRIPE_PRICE_PRO_ANNUAL
           valueFrom:
             secretKeyRef:
-              name: keybuzz-stripe
               key: STRIPE_PRICE_PRO_ANNUAL
+              name: keybuzz-stripe
               optional: true
         - name: STRIPE_PRICE_AUTOPILOT_MONTHLY
           valueFrom:
             secretKeyRef:
-              name: keybuzz-stripe
               key: STRIPE_PRICE_AUTOPILOT_MONTHLY
+              name: keybuzz-stripe
               optional: true
         - name: STRIPE_PRICE_AUTOPILOT_ANNUAL
           valueFrom:
             secretKeyRef:
-              name: keybuzz-stripe
               key: STRIPE_PRICE_AUTOPILOT_ANNUAL
+              name: keybuzz-stripe
               optional: true
         - name: STRIPE_PRICE_ADDON_CHANNEL_MONTHLY
           valueFrom:
             secretKeyRef:
-              name: keybuzz-stripe
               key: STRIPE_PRICE_ADDON_CHANNEL_MONTHLY
+              name: keybuzz-stripe
               optional: true
         - name: STRIPE_PRICE_ADDON_CHANNEL_ANNUAL
           valueFrom:
             secretKeyRef:
-              name: keybuzz-stripe
               key: STRIPE_PRICE_ADDON_CHANNEL_ANNUAL
+              name: keybuzz-stripe
               optional: true
+        # App URLs
         - name: APP_BASE_URL
-          value: https://client-dev.keybuzz.io
+          value: 'https://client-dev.keybuzz.io'
         - name: API_BASE_URL
-          value: https://api-dev.keybuzz.io
+          value: 'https://api-dev.keybuzz.io'
+        # PH18: SMTP config for email invites
         - name: SMTP_HOST
-          value: 49.13.35.167
+          value: '49.13.35.167'
         - name: SMTP_PORT
           value: '25'
         - name: SMTP_SECURE
@@ -158,80 +137,31 @@ spec:
         - name: SMTP_TLS_REJECT_UNAUTHORIZED
           value: 'false'
         - name: SMTP_FROM
-          value: noreply@keybuzz.io
-        - name: APP_ENV
-          value: development
-        - name: OCTOPIA_CLIENT_ID
-          valueFrom:
-            secretKeyRef:
-              key: OCTOPIA_CLIENT_ID
-              name: octopia-credentials
-        - name: OCTOPIA_CLIENT_SECRET
-          valueFrom:
-            secretKeyRef:
-              name: keybuzz-octopia
-              key: OCTOPIA_CLIENT_SECRET
-        - name: OCTOPIA_API_URL
-          value: https://api.octopia-io.net/seller/v2
-        - name: OCTOPIA_AUTH_URL
-          valueFrom:
-            secretKeyRef:
-              key: OCTOPIA_AUTH_URL
-              name: octopia-credentials
-        - name: COOKIE_SECRET
-          valueFrom:
-            secretKeyRef:
-              name: keybuzz-api-auth
-              key: COOKIE_SECRET
-        - name: JWT_SECRET
-          valueFrom:
-            secretKeyRef:
-              name: keybuzz-api-auth
-              key: JWT_SECRET
-        - name: BACKEND_INTERNAL_URL
-          value: http://keybuzz-api.keybuzz-api-dev.svc.cluster.local:3001
-        - name: VAULT_ADDR
-          value: https://vault.default.svc.cluster.local:8200
-        - name: VAULT_TOKEN
-          valueFrom:
-            secretKeyRef:
-              name: vault-root-token
-              key: VAULT_TOKEN
-        - name: NODE_TLS_REJECT_UNAUTHORIZED
-          value: '0'
-        image: ghcr.io/keybuzzio/keybuzz-api:v3.3.0-ph32-sav
+          value: 'noreply@keybuzz.io'
+        # v3.3.3-ph321: Mini Centre SAV Fournisseur V1
+        image: ghcr.io/keybuzzio/keybuzz-api:v3.3.3-ph321-sav-dev
         livenessProbe:
-          failureThreshold: 3
           httpGet:
             path: /health
             port: 3001
-            scheme: HTTP
           initialDelaySeconds: 10
           periodSeconds: 15
-          successThreshold: 1
-          timeoutSeconds: 1
         name: keybuzz-api
         ports:
         - containerPort: 3001
-          protocol: TCP
         readinessProbe:
-          failureThreshold: 3
           httpGet:
             path: /health
             port: 3001
-            scheme: HTTP
           initialDelaySeconds: 5
           periodSeconds: 10
-          successThreshold: 1
-          timeoutSeconds: 1
         volumeMounts:
-        - mountPath: /var/run/secrets/keybuzz-postgres
-          name: pg-secrets
+        - name: pg-secrets
+          mountPath: /var/run/secrets/keybuzz-postgres
           readOnly: true
       imagePullSecrets:
       - name: ghcr-cred
       volumes:
       - name: pg-secrets
         secret:
-          defaultMode: 420
           secretName: keybuzz-api-postgres
