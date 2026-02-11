@@ -20,14 +20,13 @@ spec:
       containers:
       - env:
         - name: AMAZON_OUTBOUND_ATTACHMENTS_ENABLED
-          value: "true"
+          value: 'true'
         - name: PORT
           value: '3001'
         - name: NODE_ENV
           value: development
-        # Vault config (SP-API credentials)
         - name: VAULT_ADDR
-          value: 'https://vault.default.svc.cluster.local:8200'
+          value: https://vault.default.svc.cluster.local:8200
         - name: VAULT_TOKEN
           valueFrom:
             secretKeyRef:
@@ -35,7 +34,6 @@ spec:
               name: vault-root-token
         - name: NODE_TLS_REJECT_UNAUTHORIZED
           value: '0'
-        # Postgres config
         - name: PGHOST
           valueFrom:
             secretKeyRef:
@@ -61,7 +59,6 @@ spec:
             secretKeyRef:
               key: PGPASSWORD
               name: keybuzz-api-postgres
-        # PH12-STRIPE-01: Stripe config (from secret)
         - name: STRIPE_SECRET_KEY
           valueFrom:
             secretKeyRef:
@@ -122,14 +119,12 @@ spec:
               key: STRIPE_PRICE_ADDON_CHANNEL_ANNUAL
               name: keybuzz-stripe
               optional: true
-        # App URLs
         - name: APP_BASE_URL
-          value: 'https://client-dev.keybuzz.io'
+          value: https://client-dev.keybuzz.io
         - name: API_BASE_URL
-          value: 'https://api-dev.keybuzz.io'
-        # PH18: SMTP config for email invites
+          value: https://api-dev.keybuzz.io
         - name: SMTP_HOST
-          value: '49.13.35.167'
+          value: 49.13.35.167
         - name: SMTP_PORT
           value: '25'
         - name: SMTP_SECURE
@@ -137,8 +132,27 @@ spec:
         - name: SMTP_TLS_REJECT_UNAUTHORIZED
           value: 'false'
         - name: SMTP_FROM
-          value: 'noreply@keybuzz.io'
-        # v3.2.3: Sort orders by order_date DESC + pool fix
+          value: noreply@keybuzz.io
+        - name: MINIO_ENDPOINT
+          valueFrom:
+            secretKeyRef:
+              key: MINIO_ENDPOINT
+              name: minio-credentials
+        - name: MINIO_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              key: MINIO_ACCESS_KEY
+              name: minio-credentials
+        - name: MINIO_SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              key: MINIO_SECRET_KEY
+              name: minio-credentials
+        - name: MINIO_BUCKET_ATTACHMENTS
+          valueFrom:
+            secretKeyRef:
+              key: MINIO_BUCKET_ATTACHMENTS
+              name: minio-credentials
         image: ghcr.io/keybuzzio/keybuzz-api:v3.3.0-ph32-sav
         livenessProbe:
           httpGet:
@@ -156,8 +170,8 @@ spec:
           initialDelaySeconds: 5
           periodSeconds: 10
         volumeMounts:
-        - name: pg-secrets
-          mountPath: /var/run/secrets/keybuzz-postgres
+        - mountPath: /var/run/secrets/keybuzz-postgres
+          name: pg-secrets
           readOnly: true
       imagePullSecrets:
       - name: ghcr-cred
