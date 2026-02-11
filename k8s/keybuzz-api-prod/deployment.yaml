@@ -154,6 +154,26 @@ spec:
             # AI
             - name: LITELLM_BASE_URL
               value: "https://llm.keybuzz.io"
+            # Auth secrets
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: keybuzz-api-jwt
+                  key: JWT_SECRET
+            - name: COOKIE_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: keybuzz-api-jwt
+                  key: COOKIE_SECRET
+            # LiteLLM
+            - name: LITELLM_MASTER_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: keybuzz-litellm
+                  key: LITELLM_MASTER_KEY
+            # Internal URL
+            - name: BACKEND_INTERNAL_URL
+              value: "http://keybuzz-api.keybuzz-api-prod.svc.cluster.local:3001"
             # Features
             - name: AMAZON_OUTBOUND_ATTACHMENTS_ENABLED
               value: "true"
