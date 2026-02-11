@@ -20,7 +20,7 @@ spec:
       containers:
       - name: keybuzz-client
         # v3.2.3: Fix total counter + Précédent encoding + sort by order_date
-        image: ghcr.io/keybuzzio/keybuzz-client:v3.3.1-ph33-mp-sync
+        image: ghcr.io/keybuzzio/keybuzz-client:v3.3.2-ph33-mp-fix
         imagePullPolicy: Always
         ports:
         - containerPort: 3000
