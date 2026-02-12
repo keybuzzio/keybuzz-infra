@@ -139,7 +139,7 @@ spec:
         - name: SMTP_FROM
           value: 'noreply@keybuzz.io'
         # v3.3.6-ph324b: + PATCH sav-status route
-        image: ghcr.io/keybuzzio/keybuzz-api:v3.3.8c-ph325c-sav-detail-dev
+        image: ghcr.io/keybuzzio/keybuzz-api:v3.3.6-ph324b-sav-status
         livenessProbe:
           httpGet:
             path: /health
