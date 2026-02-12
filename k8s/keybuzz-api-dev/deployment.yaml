@@ -138,8 +138,8 @@ spec:
           value: 'false'
         - name: SMTP_FROM
           value: 'noreply@keybuzz.io'
-        # v3.3.4-ph323: Supplier Reply-To tokenise + inbound threading
-        image: ghcr.io/keybuzzio/keybuzz-api:v3.3.4-ph323-supplier-replyto-dev
+        # v3.3.5-ph324: Injection contexte fournisseur dans IA
+        image: ghcr.io/keybuzzio/keybuzz-api:v3.3.5-ph324-supplier-ia-dev
         livenessProbe:
           httpGet:
             path: /health
