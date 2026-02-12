@@ -19,7 +19,8 @@ spec:
       - name: ghcr-cred
       containers:
       - name: worker
-        image: ghcr.io/keybuzzio/keybuzz-api:v0.1.112-dev
+        # PH32.4B: Fix SMTP supplier outbound (body + replyTo + subject from delivery_trace)
+        image: ghcr.io/keybuzzio/keybuzz-api:v3.3.5-ph324b-smtp-fix-dev-3
         command: ["node", "dist/workers/outboundWorker.js"]
         env:
         - name: OUTBOUND_POLL_INTERVAL_MS
