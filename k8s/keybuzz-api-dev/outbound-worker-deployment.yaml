@@ -1,10 +1,10 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  annotations:
+    reloader.stakater.com/auto: 'true'
   name: keybuzz-outbound-worker
   namespace: keybuzz-api-dev
-  annotations:
-    reloader.stakater.com/auto: "true"
 spec:
   replicas: 1
   selector:
@@ -15,51 +15,65 @@ spec:
       labels:
         app: keybuzz-outbound-worker
     spec:
-      imagePullSecrets:
-      - name: ghcr-cred
       containers:
-      - name: worker
-        # v3.3.6-ph324b: + PATCH sav-status route
-        image: ghcr.io/keybuzzio/keybuzz-api:v3.3.6-ph324b-sav-status
-        command: ["node", "dist/workers/outboundWorker.js"]
+      - command:
+        - node
+        - dist/workers/outboundWorker.js
         env:
         - name: OUTBOUND_POLL_INTERVAL_MS
-          value: "2000"
-        # PH15: SMTP config for real email delivery
+          value: '2000'
         - name: SMTP_HOST
-          value: "49.13.35.167"
+          value: 49.13.35.167
         - name: SMTP_PORT
-          value: "25"
+          value: '25'
         - name: SMTP_SECURE
-          value: "false"
+          value: 'false'
         - name: SMTP_TLS_REJECT_UNAUTHORIZED
-          value: "false"
+          value: 'false'
+        - name: MINIO_ENDPOINT
+          value: http://10.0.0.11:9000
+        - name: MINIO_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              key: access-key
+              name: minio-credentials
+        - name: MINIO_SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              key: secret-key
+              name: minio-credentials
+        - name: MINIO_BUCKET_ATTACHMENTS
+          value: keybuzz-attachments
         envFrom:
         - secretRef:
             name: keybuzz-api-postgres
         - secretRef:
             name: keybuzz-ses
-        resources:
-          requests:
-            cpu: 50m
-            memory: 128Mi
-          limits:
-            cpu: 200m
-            memory: 256Mi
+        image: ghcr.io/keybuzzio/keybuzz-api:v3.3.9-ph326-golden-unified
         livenessProbe:
           exec:
             command:
             - /bin/sh
             - -c
-            - "ps aux | grep outboundWorker.js | grep -v grep"
+            - ps aux | grep outboundWorker.js | grep -v grep
           initialDelaySeconds: 10
           periodSeconds: 30
+        name: worker
         readinessProbe:
           exec:
             command:
             - /bin/sh
             - -c
-            - "ps aux | grep outboundWorker.js | grep -v grep"
+            - ps aux | grep outboundWorker.js | grep -v grep
           initialDelaySeconds: 5
           periodSeconds: 10
+        resources:
+          limits:
+            cpu: 200m
+            memory: 256Mi
+          requests:
+            cpu: 50m
+            memory: 128Mi
+      imagePullSecrets:
+      - name: ghcr-cred
       restartPolicy: Always

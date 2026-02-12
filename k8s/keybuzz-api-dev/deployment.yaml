@@ -138,8 +138,45 @@ spec:
           value: 'false'
         - name: SMTP_FROM
           value: 'noreply@keybuzz.io'
-        # v3.3.6-ph324b: + PATCH sav-status route
-        image: ghcr.io/keybuzzio/keybuzz-api:v3.3.6-ph324b-sav-status
+        # MinIO (attachment storage)
+        - name: MINIO_ENDPOINT
+          value: 'http://10.0.0.11:9000'
+        - name: MINIO_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: minio-credentials
+              key: access-key
+        - name: MINIO_SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: minio-credentials
+              key: secret-key
+        - name: MINIO_BUCKET_ATTACHMENTS
+          value: 'keybuzz-attachments'
+        # LiteLLM (AI)
+        - name: LITELLM_BASE_URL
+          value: 'https://llm.keybuzz.io'
+        - name: LITELLM_MASTER_KEY
+          valueFrom:
+            secretKeyRef:
+              name: keybuzz-litellm-secrets
+              key: LITELLM_MASTER_KEY
+        # Auth secrets
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: keybuzz-api-jwt
+              key: JWT_SECRET
+        - name: COOKIE_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: keybuzz-api-jwt
+              key: COOKIE_SECRET
+        # Internal URL
+        - name: BACKEND_INTERNAL_URL
+          value: 'http://keybuzz-api.keybuzz-api-dev.svc.cluster.local:3001'
+        # v3.3.9-ph326: golden unified (minio + suppliers + sav-status)
+        image: ghcr.io/keybuzzio/keybuzz-api:v3.3.9-ph326-golden-unified
         livenessProbe:
           httpGet:
             path: /health
