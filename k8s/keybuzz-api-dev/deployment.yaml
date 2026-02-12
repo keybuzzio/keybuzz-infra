@@ -138,8 +138,8 @@ spec:
           value: 'false'
         - name: SMTP_FROM
           value: 'noreply@keybuzz.io'
-        # v3.3.5-ph324: Injection contexte fournisseur dans IA
-        image: ghcr.io/keybuzzio/keybuzz-api:v3.3.5-ph324-supplier-ia-dev
+        # v3.3.5-ph324: Injection contexte fournisseur IA + suppliers routes fix
+        image: ghcr.io/keybuzzio/keybuzz-api:v3.3.5-ph324-supplier-ia-dev-2
         livenessProbe:
           httpGet:
             path: /health
