@@ -60,9 +60,9 @@ spec:
             name: keybuzz-api-postgres
         - secretRef:
             name: keybuzz-ses
-        # Rollback tag: ph32-secure-202602080955
-        # v3.3.5-ph324b: Fix SMTP supplier outbound (body + replyTo + subject from delivery_trace)
-        image: ghcr.io/keybuzzio/keybuzz-api:v3.3.5-ph324b-smtp-supplier-prod
+        # Rollback tag: v3.3.5-ph324b-smtp-supplier-prod
+        # v3.3.6-ph324b: + PATCH sav-status route
+        image: ghcr.io/keybuzzio/keybuzz-api:v3.3.6-ph324b-sav-status
         imagePullPolicy: IfNotPresent
         livenessProbe:
           exec:

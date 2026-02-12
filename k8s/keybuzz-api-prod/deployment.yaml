@@ -22,9 +22,9 @@ spec:
         - name: ghcr-cred
       containers:
         - name: keybuzz-api
-          # Rollback tag: v3.3.4-ph323-supplier-replyto-prod
-          # v3.3.5-ph324b: Fix SMTP supplier outbound (body + replyTo + subject)
-          image: ghcr.io/keybuzzio/keybuzz-api:v3.3.5-ph324b-smtp-supplier-prod
+          # Rollback tag: v3.3.5-ph324b-smtp-supplier-prod
+          # v3.3.6-ph324b: + PATCH sav-status route
+          image: ghcr.io/keybuzzio/keybuzz-api:v3.3.6-ph324b-sav-status
           imagePullPolicy: Always
           ports:
             - containerPort: 3001

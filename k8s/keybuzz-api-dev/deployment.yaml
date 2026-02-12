@@ -138,8 +138,8 @@ spec:
           value: 'false'
         - name: SMTP_FROM
           value: 'noreply@keybuzz.io'
-        # v3.3.5-ph324b: Fix SMTP provider + outbound email fournisseur
-        image: ghcr.io/keybuzzio/keybuzz-api:v3.3.5-ph324b-smtp-fix-dev-3
+        # v3.3.6-ph324b: + PATCH sav-status route
+        image: ghcr.io/keybuzzio/keybuzz-api:v3.3.6-ph324b-sav-status
         livenessProbe:
           httpGet:
             path: /health
