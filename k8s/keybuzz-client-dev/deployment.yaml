@@ -20,7 +20,7 @@ spec:
       containers:
       - name: keybuzz-client
         # v3.3.4-ph323: Supplier Reply-To tokenise + inbound threading + badges
-        image: ghcr.io/keybuzzio/keybuzz-client:v3.3.4-ph323-supplier-replyto-dev
+        image: ghcr.io/keybuzzio/keybuzz-client:v3.3.5-ph325c-sav-badge-colors-dev
         imagePullPolicy: Always
         ports:
         - containerPort: 3000
