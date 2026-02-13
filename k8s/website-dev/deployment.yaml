@@ -19,12 +19,14 @@ spec:
     spec:
       containers:
       - name: keybuzz-website
-        image: ghcr.io/keybuzzio/keybuzz-website:v0.4.21-amazon-compliance
+        image: ghcr.io/keybuzzio/keybuzz-website:v0.5.0-ph33-pricing-links-dev
         ports:
         - containerPort: 3000
           name: http
         env:
         - name: NEXT_PUBLIC_SITE_MODE
+        - name: NEXT_PUBLIC_CLIENT_APP_URL
+          value: "https://client-dev.keybuzz.io"
           value: "preview"
         - name: NODE_ENV
           value: "production"
