@@ -62,7 +62,7 @@ spec:
             name: keybuzz-ses
         # Rollback tag: v3.3.5-ph324b-smtp-supplier-prod
         # v3.3.6-ph324b: + PATCH sav-status route
-        image: ghcr.io/keybuzzio/keybuzz-api:v3.3.9-ph326-golden-unified
+        image: ghcr.io/keybuzzio/keybuzz-api:v3.3.13-ph327d-sav-sync-overlay-prod
         imagePullPolicy: IfNotPresent
         livenessProbe:
           exec:
