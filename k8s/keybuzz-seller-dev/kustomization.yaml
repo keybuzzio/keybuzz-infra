@@ -1,4 +1,5 @@
 # PH-S01: Kustomization keybuzz-seller-dev
+# NOTE: commonLabels removed - it mutates spec.selector which is immutable
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
@@ -13,7 +14,3 @@ resources:
   - deployment-client.yaml
   - service-client.yaml
   - ingress-client.yaml
-
-commonLabels:
-  app.kubernetes.io/part-of: keybuzz-seller
-  environment: dev
