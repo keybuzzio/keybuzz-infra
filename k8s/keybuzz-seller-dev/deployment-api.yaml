@@ -8,7 +8,6 @@ metadata:
     app: seller-api
     app.kubernetes.io/part-of: keybuzz-seller
   annotations:
-    reloader.stakater.com/auto: 'true'
 spec:
   replicas: 1
   selector:
