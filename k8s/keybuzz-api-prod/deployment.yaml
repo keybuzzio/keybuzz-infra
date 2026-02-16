@@ -24,7 +24,7 @@ spec:
         - name: keybuzz-api
           # Rollback tag: v3.3.5-ph324b-smtp-supplier-prod
           # v3.3.6-ph324b: + PATCH sav-status route
-          image: ghcr.io/keybuzzio/keybuzz-api:v3.4.0-ph3311g-api-prod-1
+          image: ghcr.io/keybuzzio/keybuzz-api:v3.4.1-ph3315-kbactions-grant-prod-1
           imagePullPolicy: Always
           ports:
             - containerPort: 3001
