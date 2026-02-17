@@ -21,7 +21,7 @@ spec:
         - name: ghcr-cred
       containers:
         - name: keybuzz-backend
-          image: ghcr.io/keybuzzio/keybuzz-backend:dev-check-email-2026-02-02
+          image: ghcr.io/keybuzzio/keybuzz-backend:v3.1.1-ph341c-trusted-proxy
           ports:
             - containerPort: 4000
           envFrom:
@@ -48,9 +48,14 @@ spec:
             - name: ADMIN_CALLBACK_URL
               value: "https://admin.keybuzz.io/inbound-email/amazon/callback"
             - name: KEYBUZZ_DEV_MODE
-              value: "true"
+              value: "false"
             - name: DEV_AUTH
               value: "true"
+            - name: KEYBUZZ_INTERNAL_PROXY_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: keybuzz-internal-proxy
+                  key: token
             - name: KEYBUZZ_INTERNAL_TOKEN
               value: "fca299a68a2ff8180b88cf24a397832dd2c8f7ca27fa32b02f63615b7c76deac"
             - name: MINIO_ENDPOINT
