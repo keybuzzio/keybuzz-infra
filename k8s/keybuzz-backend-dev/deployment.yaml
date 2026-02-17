@@ -55,6 +55,8 @@ spec:
               value: https://admin-dev.keybuzz.io/inbound-email/amazon/callback
             - name: KEYBUZZ_DEV_MODE
               value: "true"
+            - name: DEV_AUTH
+              value: "true"
           envFrom:
             - secretRef:
                 name: keybuzz-backend-db
