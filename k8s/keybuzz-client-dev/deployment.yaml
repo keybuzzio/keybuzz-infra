@@ -20,7 +20,7 @@ spec:
       containers:
       - name: keybuzz-client
         # v3.3.4-ph323: Supplier Reply-To tokenise + inbound threading + badges
-        image: ghcr.io/keybuzzio/keybuzz-client:v3.4.1-ph3318-3-fix-logout
+        image: ghcr.io/keybuzzio/keybuzz-client:v3.4.1-ph341-amazon-oauth-fix
         imagePullPolicy: Always
         ports:
         - containerPort: 3000
@@ -32,6 +32,8 @@ spec:
           value: https://api-dev.keybuzz.io
         - name: BACKEND_URL
           value: http://keybuzz-api.keybuzz-api-dev.svc.cluster.local:3001
+        - name: AMAZON_BACKEND_URL
+          value: http://keybuzz-backend.keybuzz-backend-dev.svc.cluster.local:4000
         - name: API_URL_INTERNAL
           value: http://keybuzz-api.keybuzz-api-dev.svc.cluster.local:3001
         - name: API_URL
