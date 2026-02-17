@@ -48,7 +48,7 @@ spec:
             - name: ADMIN_CALLBACK_URL
               value: "https://admin.keybuzz.io/inbound-email/amazon/callback"
             - name: KEYBUZZ_DEV_MODE
-              value: "false"
+              value: "true"
             - name: DEV_AUTH
               value: "true"
             - name: KEYBUZZ_INTERNAL_TOKEN
