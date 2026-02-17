@@ -20,7 +20,7 @@ spec:
       containers:
       - name: keybuzz-client
         # v3.3.4-ph323: Supplier Reply-To tokenise + inbound threading + badges
-        image: ghcr.io/keybuzzio/keybuzz-client:v3.4.1-ph341-amazon-oauth-fix
+        image: ghcr.io/keybuzzio/keybuzz-client:v3.4.1-ph341b-amazon-debug
         imagePullPolicy: Always
         ports:
         - containerPort: 3000
