@@ -176,7 +176,7 @@ spec:
         - name: BACKEND_INTERNAL_URL
           value: 'http://keybuzz-api.keybuzz-api-dev.svc.cluster.local:3001'
         # v3.3.9-ph326: golden unified (minio + suppliers + sav-status)
-        image: ghcr.io/keybuzzio/keybuzz-api:v3.4.1-ph3316-paywall-dev
+        image: ghcr.io/keybuzzio/keybuzz-api:v3.4.1-ph3316b-dev
         livenessProbe:
           httpGet:
             path: /health
