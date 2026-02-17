@@ -24,7 +24,7 @@ spec:
         - name: keybuzz-client
           # Rollback tag: v3.3.3-ph34-kpi-prod
           # v3.3.4-ph323: Supplier Reply-To badges + contact modal (PROD-A)
-          image: ghcr.io/keybuzzio/keybuzz-client:v3.4.1-ph341b-amazon-debug
+          image: ghcr.io/keybuzzio/keybuzz-client:v3.4.1-ph341c-trusted-proxy
           imagePullPolicy: Always
           ports:
             - containerPort: 3000
@@ -72,6 +72,11 @@ spec:
               value: "http://keybuzz-api.keybuzz-api-prod.svc.cluster.local:80"
             - name: AMAZON_BACKEND_URL
               value: "http://keybuzz-backend.keybuzz-backend-prod.svc.cluster.local:4000"
+            - name: KEYBUZZ_INTERNAL_PROXY_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: keybuzz-internal-proxy
+                  key: token
             - name: API_URL
               value: "https://api.keybuzz.io"
             - name: API_URL_INTERNAL
