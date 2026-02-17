@@ -29,7 +29,7 @@ spec:
     spec:
       containers:
       - name: keybuzz-website
-        image: ghcr.io/keybuzzio/keybuzz-website:v0.4.21-amazon-compliance
+        image: ghcr.io/keybuzzio/keybuzz-website:v0.5.1-ph3317-prod-links
         ports:
         - containerPort: 3000
         env:
