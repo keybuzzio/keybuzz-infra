@@ -24,7 +24,7 @@ spec:
         - name: keybuzz-client
           # Rollback tag: v3.3.3-ph34-kpi-prod
           # v3.3.4-ph323: Supplier Reply-To badges + contact modal (PROD-A)
-          image: ghcr.io/keybuzzio/keybuzz-client:v3.4.1-ph341c-trusted-proxy
+          image: ghcr.io/keybuzzio/keybuzz-client:v3.4.2-ph342-inbound-prod-1
           imagePullPolicy: Always
           ports:
             - containerPort: 3000
