@@ -19,7 +19,7 @@ spec:
     spec:
       containers:
       - name: keybuzz-website
-        image: ghcr.io/keybuzzio/keybuzz-website:v0.5.0-ph33-pricing-links-dev
+        image: ghcr.io/keybuzzio/keybuzz-website:v0.5.1-ph3317-prod-links
         ports:
         - containerPort: 3000
           name: http
