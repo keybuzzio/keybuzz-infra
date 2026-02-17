@@ -49,6 +49,8 @@ spec:
               value: "https://admin.keybuzz.io/inbound-email/amazon/callback"
             - name: KEYBUZZ_DEV_MODE
               value: "false"
+            - name: DEV_AUTH
+              value: "true"
             - name: KEYBUZZ_INTERNAL_TOKEN
               value: "fca299a68a2ff8180b88cf24a397832dd2c8f7ca27fa32b02f63615b7c76deac"
             - name: MINIO_ENDPOINT
