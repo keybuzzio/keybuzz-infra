@@ -2,15 +2,15 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   annotations:
-    deployment.kubernetes.io/revision: "44"
+    deployment.kubernetes.io/revision: "46"
     kubectl.kubernetes.io/last-applied-configuration: |
       {"apiVersion":"apps/v1","kind":"Deployment","metadata":{"annotations":{"reloader.stakater.com/auto":"true"},"name":"keybuzz-outbound-worker","namespace":"keybuzz-api-dev"},"spec":{"replicas":1,"selector":{"matchLabels":{"app":"keybuzz-outbound-worker"}},"template":{"metadata":{"labels":{"app":"keybuzz-outbound-worker"}},"spec":{"containers":[{"command":["node","dist/workers/outboundWorker.js"],"env":[{"name":"OUTBOUND_POLL_INTERVAL_MS","value":"2000"},{"name":"SMTP_HOST","value":"49.13.35.167"},{"name":"SMTP_PORT","value":"25"},{"name":"SMTP_SECURE","value":"false"},{"name":"SMTP_TLS_REJECT_UNAUTHORIZED","value":"false"}],"envFrom":[{"secretRef":{"name":"keybuzz-api-postgres"}},{"secretRef":{"name":"keybuzz-ses"}}],"image":"ghcr.io/keybuzzio/keybuzz-api:v0.1.112-dev","livenessProbe":{"exec":{"command":["/bin/sh","-c","ps aux | grep outboundWorker.js | grep -v grep"]},"initialDelaySeconds":10,"periodSeconds":30},"name":"worker","readinessProbe":{"exec":{"command":["/bin/sh","-c","ps aux | grep outboundWorker.js | grep -v grep"]},"initialDelaySeconds":5,"periodSeconds":10},"resources":{"limits":{"cpu":"200m","memory":"256Mi"},"requests":{"cpu":"50m","memory":"128Mi"}}}],"imagePullSecrets":[{"name":"ghcr-cred"}],"restartPolicy":"Always"}}}}
     reloader.stakater.com/auto: "true"
   creationTimestamp: "2026-01-16T19:26:00Z"
-  generation: 45
+  generation: 47
   name: keybuzz-outbound-worker
   namespace: keybuzz-api-dev
-  resourceVersion: "26326247"
+  resourceVersion: "26331820"
   uid: 6368cd20-4afa-494b-81b2-b6fa0e346bb0
 spec:
   progressDeadlineSeconds: 600
@@ -27,7 +27,7 @@ spec:
   template:
     metadata:
       annotations:
-        kubectl.kubernetes.io/restartedAt: "2026-02-18T23:47:13Z"
+        kubectl.kubernetes.io/restartedAt: "2026-02-19T00:01:53Z"
       creationTimestamp: null
       labels:
         app: keybuzz-outbound-worker
@@ -68,7 +68,7 @@ spec:
             name: keybuzz-api-postgres
         - secretRef:
             name: keybuzz-ses
-        image: ghcr.io/keybuzzio/keybuzz-api:v3.4.3-ph353b-advisory-lock-dev
+        image: ghcr.io/keybuzzio/keybuzz-api:v3.4.4-ph353b-fixed-lock-dev
         imagePullPolicy: IfNotPresent
         livenessProbe:
           exec:
@@ -119,12 +119,12 @@ status:
     status: "True"
     type: Available
   - lastTransitionTime: "2026-01-16T19:26:00Z"
-    lastUpdateTime: "2026-02-18T23:47:33Z"
-    message: ReplicaSet "keybuzz-outbound-worker-6f46bb89c7" has successfully progressed.
+    lastUpdateTime: "2026-02-19T00:02:24Z"
+    message: ReplicaSet "keybuzz-outbound-worker-59578f8dd7" has successfully progressed.
     reason: NewReplicaSetAvailable
     status: "True"
     type: Progressing
-  observedGeneration: 45
+  observedGeneration: 47
   readyReplicas: 1
   replicas: 1
   updatedReplicas: 1

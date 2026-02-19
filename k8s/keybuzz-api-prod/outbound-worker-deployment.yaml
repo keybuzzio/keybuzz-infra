@@ -2,17 +2,17 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   annotations:
-    deployment.kubernetes.io/revision: "14"
+    deployment.kubernetes.io/revision: "16"
     kubectl.kubernetes.io/last-applied-configuration: |
       {"apiVersion":"apps/v1","kind":"Deployment","metadata":{"annotations":{"deployment.kubernetes.io/revision":"1"},"labels":{"app":"keybuzz-outbound-worker","environment":"prod"},"name":"keybuzz-outbound-worker","namespace":"keybuzz-api-prod"},"spec":{"progressDeadlineSeconds":600,"replicas":1,"revisionHistoryLimit":10,"selector":{"matchLabels":{"app":"keybuzz-outbound-worker"}},"strategy":{"rollingUpdate":{"maxSurge":"25%","maxUnavailable":"25%"},"type":"RollingUpdate"},"template":{"metadata":{"labels":{"app":"keybuzz-outbound-worker"}},"spec":{"containers":[{"command":["node","dist/workers/outboundWorker.js"],"env":[{"name":"OUTBOUND_POLL_INTERVAL_MS","value":"2000"},{"name":"SMTP_HOST","value":"mail.keybuzz.io"},{"name":"SMTP_PORT","value":"25"},{"name":"SMTP_SECURE","value":"false"},{"name":"SMTP_TLS_REJECT_UNAUTHORIZED","value":"false"},{"name":"MINIO_ENDPOINT","value":"http://10.0.0.11:9000"},{"name":"MINIO_ACCESS_KEY","valueFrom":{"secretKeyRef":{"key":"access-key","name":"minio-credentials"}}},{"name":"MINIO_SECRET_KEY","valueFrom":{"secretKeyRef":{"key":"secret-key","name":"minio-credentials"}}},{"name":"MINIO_BUCKET_ATTACHMENTS","value":"keybuzz-attachments"}],"envFrom":[{"secretRef":{"name":"keybuzz-api-postgres"}},{"secretRef":{"name":"keybuzz-ses"}}],"image":"ghcr.io/keybuzzio/keybuzz-api:ph32-secure-202602080955","imagePullPolicy":"IfNotPresent","livenessProbe":{"exec":{"command":["/bin/sh","-c","ps aux | grep outboundWorker.js | grep -v grep"]},"failureThreshold":3,"initialDelaySeconds":10,"periodSeconds":30,"successThreshold":1,"timeoutSeconds":1},"name":"worker","readinessProbe":{"exec":{"command":["/bin/sh","-c","ps aux | grep outboundWorker.js | grep -v grep"]},"failureThreshold":3,"initialDelaySeconds":5,"periodSeconds":10,"successThreshold":1,"timeoutSeconds":1},"resources":{"limits":{"cpu":"200m","memory":"256Mi"},"requests":{"cpu":"50m","memory":"128Mi"}},"terminationMessagePath":"/dev/termination-log","terminationMessagePolicy":"File"}],"dnsPolicy":"ClusterFirst","imagePullSecrets":[{"name":"ghcr-cred"}],"restartPolicy":"Always","schedulerName":"default-scheduler","securityContext":{},"terminationGracePeriodSeconds":30}}}}
   creationTimestamp: "2026-02-08T11:38:13Z"
-  generation: 14
+  generation: 16
   labels:
     app: keybuzz-outbound-worker
     environment: prod
   name: keybuzz-outbound-worker
   namespace: keybuzz-api-prod
-  resourceVersion: "26328421"
+  resourceVersion: "26332058"
   uid: cbfd1adf-69a2-4787-97f4-69620b8ae9ae
 spec:
   progressDeadlineSeconds: 600
@@ -29,7 +29,7 @@ spec:
   template:
     metadata:
       annotations:
-        kubectl.kubernetes.io/restartedAt: "2026-02-18T23:53:06Z"
+        kubectl.kubernetes.io/restartedAt: "2026-02-19T00:02:25Z"
       creationTimestamp: null
       labels:
         app: keybuzz-outbound-worker
@@ -76,7 +76,7 @@ spec:
             name: keybuzz-api-postgres
         - secretRef:
             name: keybuzz-ses
-        image: ghcr.io/keybuzzio/keybuzz-api:v3.4.3-ph353-octopia-readonly-prod-1
+        image: ghcr.io/keybuzzio/keybuzz-api:v3.4.4-ph353-octopia-readonly-prod-2
         imagePullPolicy: IfNotPresent
         livenessProbe:
           exec:
@@ -127,12 +127,12 @@ status:
     status: "True"
     type: Available
   - lastTransitionTime: "2026-02-08T11:38:13Z"
-    lastUpdateTime: "2026-02-18T23:53:17Z"
-    message: ReplicaSet "keybuzz-outbound-worker-6bcc67d5c8" has successfully progressed.
+    lastUpdateTime: "2026-02-19T00:02:45Z"
+    message: ReplicaSet "keybuzz-outbound-worker-798b7b6d4c" has successfully progressed.
     reason: NewReplicaSetAvailable
     status: "True"
     type: Progressing
-  observedGeneration: 14
+  observedGeneration: 16
   readyReplicas: 1
   replicas: 1
   updatedReplicas: 1
