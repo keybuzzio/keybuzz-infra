@@ -24,10 +24,6 @@ spec:
     spec:
       imagePullSecrets:
         - name: ghcr-cred
-      hostAliases:
-        - ip: "10.0.0.150"
-          hostnames:
-            - "vault.keybuzz.io"
       containers:
       - name: worker
         image: ghcr.io/keybuzzio/keybuzz-backend:v1.0.34-ph263
@@ -53,7 +49,7 @@ spec:
                 name: vault-token
                 key: VAULT_TOKEN
           - name: VAULT_ADDR
-            value: "https://vault.keybuzz.io:8200"
+            value: "http://vault.default.svc.cluster.local:8200"
           - name: NODE_ENV
             value: "production"
           - name: WORKER_TYPE

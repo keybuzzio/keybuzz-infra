@@ -49,12 +49,6 @@ spec:
         spec:
           restartPolicy: Never
           
-          # DNS pour Vault
-          hostAliases:
-            - ip: "10.0.0.150"
-              hostnames:
-                - "vault.keybuzz.io"
-          
           containers:
             - name: backfill-runner
               image: curlimages/curl:latest

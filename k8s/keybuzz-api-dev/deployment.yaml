@@ -25,17 +25,15 @@ spec:
           value: '3001'
         - name: NODE_ENV
           value: development
-        # Vault config (SP-API credentials)
         - name: VAULT_ADDR
-          value: 'https://vault.default.svc.cluster.local:8200'
+          value: 'http://vault.default.svc.cluster.local:8200'
         - name: VAULT_TOKEN
           valueFrom:
             secretKeyRef:
               key: VAULT_TOKEN
               name: vault-root-token
-        - name: NODE_TLS_REJECT_UNAUTHORIZED
-          value: '0'
-        # Postgres config
+        - name: REDIS_URL
+          value: 'redis://:1e1hAa5YTOxakO8i9lhpOEfRiGZO8uRHta2Gzj31@10.0.0.10:6379'
         - name: PGHOST
           valueFrom:
             secretKeyRef:
@@ -61,7 +59,6 @@ spec:
             secretKeyRef:
               key: PGPASSWORD
               name: keybuzz-api-postgres
-        # PH12-STRIPE-01: Stripe config (from secret)
         - name: STRIPE_SECRET_KEY
           valueFrom:
             secretKeyRef:
@@ -122,12 +119,10 @@ spec:
               key: STRIPE_PRICE_ADDON_CHANNEL_ANNUAL
               name: keybuzz-stripe
               optional: true
-        # App URLs
         - name: APP_BASE_URL
           value: 'https://client-dev.keybuzz.io'
         - name: API_BASE_URL
           value: 'https://api-dev.keybuzz.io'
-        # PH18: SMTP config for email invites
         - name: SMTP_HOST
           value: '49.13.35.167'
         - name: SMTP_PORT
@@ -137,9 +132,44 @@ spec:
         - name: SMTP_TLS_REJECT_UNAUTHORIZED
           value: 'false'
         - name: SMTP_FROM
-          value: 'noreply@keybuzz.io'
-        # v3.3.6-ph324b: + PATCH sav-status route
-        image: ghcr.io/keybuzzio/keybuzz-api:v3.3.6-ph324b-sav-status
+          value: '"KeyBuzz" <noreply@keybuzz.io>'
+        - name: MINIO_ENDPOINT
+          value: "http://10.0.0.11:9000"
+        - name: MINIO_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: minio-credentials
+              key: MINIO_ACCESS_KEY
+        - name: MINIO_SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: minio-credentials
+              key: MINIO_SECRET_KEY
+        - name: MINIO_BUCKET_ATTACHMENTS
+          value: "keybuzz-attachments"
+        - name: LITELLM_BASE_URL
+          value: "https://llm.keybuzz.io"
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: keybuzz-api-jwt
+              key: JWT_SECRET
+              optional: true
+        - name: COOKIE_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: keybuzz-api-jwt
+              key: COOKIE_SECRET
+              optional: true
+        - name: LITELLM_MASTER_KEY
+          valueFrom:
+            secretKeyRef:
+              name: keybuzz-litellm
+              key: LITELLM_MASTER_KEY
+              optional: true
+        - name: BACKEND_INTERNAL_URL
+          value: "http://keybuzz-api.keybuzz-api-dev.svc.cluster.local:3001" 
+        image: ghcr.io/keybuzzio/keybuzz-api:v3.5.67-channels-stripe-dev
         livenessProbe:
           httpGet:
             path: /health

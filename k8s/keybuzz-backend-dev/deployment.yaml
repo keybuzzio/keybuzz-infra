@@ -27,14 +27,9 @@ spec:
         app.kubernetes.io/part-of: keybuzz
         environment: dev
     spec:
-      # PH17.2: DNS interne pour Vault TLS valide
-      hostAliases:
-        - ip: "10.0.0.150"
-          hostnames:
-            - "vault.keybuzz.io"
       containers:
         - name: keybuzz-backend
-          image: ghcr.io/keybuzzio/keybuzz-backend:v0.3.15-partial-detect
+          image: ghcr.io/keybuzzio/keybuzz-backend:v1.0.38-vault-tls-dev
           imagePullPolicy: Always
           ports:
             - name: http
@@ -48,9 +43,8 @@ spec:
               value: keybuzz-dev-jwt-secret-2026
             - name: KEYBUZZ_SUPERADMIN_EMAIL
               value: admin@keybuzz.io
-            # PH17.2: TLS propre - utiliser hostname avec cert Let Encrypt valide
             - name: VAULT_ADDR
-              value: "https://vault.keybuzz.io:8200"
+              value: "http://vault.default.svc.cluster.local:8200"
             - name: ADMIN_CALLBACK_URL
               value: https://admin-dev.keybuzz.io/inbound-email/amazon/callback
             - name: KEYBUZZ_DEV_MODE
