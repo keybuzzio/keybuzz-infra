@@ -17,10 +17,6 @@ spec:
       template:
         spec:
           restartPolicy: Never
-          hostAliases:
-            - ip: "10.0.0.150"
-              hostnames:
-                - "vault.keybuzz.io"
           containers:
             - name: sync-runner
               image: curlimages/curl:latest

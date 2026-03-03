@@ -21,7 +21,7 @@ spec:
         - name: ghcr-cred
       containers:
         - name: keybuzz-backend
-          image: ghcr.io/keybuzzio/keybuzz-backend:dev-check-email-2026-02-02
+          image: ghcr.io/keybuzzio/keybuzz-backend:v1.0.38-vault-tls-prod
           ports:
             - containerPort: 4000
           envFrom:
@@ -44,7 +44,7 @@ spec:
             - name: KEYBUZZ_SUPERADMIN_EMAIL
               value: "admin@keybuzz.io"
             - name: VAULT_ADDR
-              value: "https://vault.keybuzz.io:8200"
+              value: "http://vault.default.svc.cluster.local:8200"
             - name: ADMIN_CALLBACK_URL
               value: "https://admin.keybuzz.io/inbound-email/amazon/callback"
             - name: KEYBUZZ_DEV_MODE
