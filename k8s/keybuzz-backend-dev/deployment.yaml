@@ -49,6 +49,13 @@ spec:
               value: https://admin-dev.keybuzz.io/inbound-email/amazon/callback
             - name: KEYBUZZ_DEV_MODE
               value: "true"
+            - name: DEV_AUTH
+              value: "true"
+            - name: KEYBUZZ_INTERNAL_PROXY_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: keybuzz-internal-proxy
+                  key: token
           envFrom:
             - secretRef:
                 name: keybuzz-backend-db
