@@ -22,9 +22,9 @@ spec:
         - name: ghcr-cred
       containers:
         - name: keybuzz-client
-          # Rollback tag: v3.3.3-ph34-kpi-prod
-          # v3.3.4-ph323: Supplier Reply-To badges + contact modal (PROD-A)
-          image: ghcr.io/keybuzzio/keybuzz-client:v3.4.2-ph351-octopia-import-prod
+          # Rollback tag: v3.3.4-ph323-supplier-replyto-prod
+          # v3.5.48-white-bg-prod: Official marketplace logos + white backgrounds
+          image: ghcr.io/keybuzzio/keybuzz-client:v3.5.71-amazon-auth-token-prod
           imagePullPolicy: Always
           ports:
             - containerPort: 3000
@@ -70,13 +70,6 @@ spec:
             # PH30.5: Backend API URLs (server-side BFF only)
             - name: BACKEND_URL
               value: "http://keybuzz-api.keybuzz-api-prod.svc.cluster.local:80"
-            - name: AMAZON_BACKEND_URL
-              value: "http://keybuzz-backend.keybuzz-backend-prod.svc.cluster.local:4000"
-            - name: KEYBUZZ_INTERNAL_PROXY_TOKEN
-              valueFrom:
-                secretKeyRef:
-                  name: keybuzz-internal-proxy
-                  key: token
             - name: API_URL
               value: "https://api.keybuzz.io"
             - name: API_URL_INTERNAL
@@ -88,3 +81,7 @@ spec:
             limits:
               cpu: "500m"
               memory: "512Mi"
+
+
+
+
