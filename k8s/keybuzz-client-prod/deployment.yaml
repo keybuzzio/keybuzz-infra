@@ -72,8 +72,12 @@ spec:
               value: "http://keybuzz-api.keybuzz-api-prod.svc.cluster.local:80"
             - name: API_URL
               value: "https://api.keybuzz.io"
+            - name: AMAZON_BACKEND_URL
+              value: "http://keybuzz-backend.keybuzz-backend-prod.svc.cluster.local:4000"
             - name: API_URL_INTERNAL
               value: "http://keybuzz-api.keybuzz-api-prod.svc.cluster.local:80"
+            - name: KEYBUZZ_INTERNAL_PROXY_TOKEN
+              value: "a0b9714c287bd18577f2e430770169e4b969bcfbbcedccdcf420cd09acd09147"
           resources:
             requests:
               cpu: "100m"
