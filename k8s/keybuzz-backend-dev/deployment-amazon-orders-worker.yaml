@@ -26,7 +26,7 @@ spec:
         - name: ghcr-cred
       containers:
       - name: worker
-        image: ghcr.io/keybuzzio/keybuzz-backend:v1.0.34-ph263
+        image: ghcr.io/keybuzzio/keybuzz-backend:v1.0.39-vault-ha-dev
         command:
           - node
           - -e
