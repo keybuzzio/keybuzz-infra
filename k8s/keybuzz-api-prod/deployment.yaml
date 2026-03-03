@@ -24,7 +24,7 @@ spec:
         - name: keybuzz-api
           # Rollback tag: v3.3.6-ph324b-sav-status
           # PH_AUTH_FIX_P1
-          image: ghcr.io/keybuzzio/keybuzz-api:v3.5.68-vault-ha-prod
+          image: ghcr.io/keybuzzio/keybuzz-api:v3.5.73-ai-journal-unified-prod
           imagePullPolicy: Always
           ports:
             - containerPort: 3001
