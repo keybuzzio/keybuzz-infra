@@ -169,7 +169,7 @@ spec:
               optional: true
         - name: BACKEND_INTERNAL_URL
           value: "http://keybuzz-api.keybuzz-api-dev.svc.cluster.local:3001" 
-        image: ghcr.io/keybuzzio/keybuzz-api:v3.5.73-ai-journal-unified-dev
+        image: ghcr.io/keybuzzio/keybuzz-api:v3.5.75-journal-enriched-dev
         livenessProbe:
           httpGet:
             path: /health
