@@ -20,7 +20,7 @@ spec:
       containers:
       - name: keybuzz-client
         # v3.5.48-white-bg-dev: Fix marketplace SVGs (valid XML paths only)
-        image: ghcr.io/keybuzzio/keybuzz-client:v3.6.1-ph27-metronic-dev
+        image: ghcr.io/keybuzzio/keybuzz-client:v3.6.2-ph27.1-arch-dev
         imagePullPolicy: Always
         ports:
         - containerPort: 3000
