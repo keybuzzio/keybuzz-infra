@@ -1,0 +1,57 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: migration-032-scheduler
+  namespace: keybuzz-backend-dev
+data:
+  migration-032-scheduler.sql: |
+    CREATE TABLE IF NOT EXISTS "amazon_backfill_schedule" (
+      "tenantId"              TEXT PRIMARY KEY,
+      "ordersEligible"        BOOLEAN DEFAULT false,
+      "itemsEligible"         BOOLEAN DEFAULT false,
+      "ordersActive"          BOOLEAN DEFAULT false,
+      "itemsActive"           BOOLEAN DEFAULT false,
+      "currentPhase"          TEXT DEFAULT 'idle',
+      "priority"              INT DEFAULT 0,
+      "ordersCooldownUntil"   TIMESTAMP,
+      "itemsCooldownUntil"    TIMESTAMP,
+      "lastOrdersSuccessAt"   TIMESTAMP,
+      "lastItemsSuccessAt"    TIMESTAMP,
+      "ordersCallsMinute"     INT DEFAULT 0,
+      "itemsCallsMinute"      INT DEFAULT 0,
+      "rateLimitHitsTotal"    INT DEFAULT 0,
+      "consecutiveCooldowns"  INT DEFAULT 0,
+      "schedulerAssignedAt"   TIMESTAMP,
+      "createdAt"             TIMESTAMP DEFAULT NOW(),
+      "updatedAt"             TIMESTAMP DEFAULT NOW()
+    );
+    CREATE INDEX IF NOT EXISTS idx_schedule_active ON "amazon_backfill_schedule" ("ordersActive", "itemsActive");
+    CREATE INDEX IF NOT EXISTS idx_schedule_eligible ON "amazon_backfill_schedule" ("ordersEligible", "itemsEligible");
+    CREATE INDEX IF NOT EXISTS idx_schedule_phase ON "amazon_backfill_schedule" ("currentPhase");
+    CREATE TABLE IF NOT EXISTS "amazon_backfill_tenant_metrics" (
+      "tenantId"              TEXT PRIMARY KEY,
+      "ordersFetchedTotal"    INT DEFAULT 0,
+      "ordersPersistedTotal"  INT DEFAULT 0,
+      "ordersChunksDone"      INT DEFAULT 0,
+      "ordersChunksTotal"     INT DEFAULT 0,
+      "itemsPendingCount"     INT DEFAULT 0,
+      "itemsPersistedTotal"   INT DEFAULT 0,
+      "rateLimitHitsOrders"   INT DEFAULT 0,
+      "rateLimitHitsItems"    INT DEFAULT 0,
+      "lastSuccessAt"         TIMESTAMP,
+      "retryAfter"            TIMESTAMP,
+      "currentPhase"          TEXT DEFAULT 'idle',
+      "throughputOrdersMin"   FLOAT DEFAULT 0,
+      "throughputItemsMin"    FLOAT DEFAULT 0,
+      "updatedAt"             TIMESTAMP DEFAULT NOW()
+    );
+    CREATE OR REPLACE VIEW "amazon_backfill_global_metrics_v2" AS
+    SELECT
+      COUNT(*) FILTER (WHERE "ordersActive" OR "itemsActive") as "tenantsRunning",
+      COUNT(*) FILTER (WHERE "ordersEligible" AND NOT "ordersActive") as "queueDepthOrders",
+      COUNT(*) FILTER (WHERE "itemsEligible" AND NOT "itemsActive") as "queueDepthItems",
+      COUNT(*) FILTER (WHERE "currentPhase" = 'cooldown') as "tenantsCooldown",
+      COUNT(*) FILTER (WHERE "currentPhase" = 'done') as "tenantsDone",
+      COALESCE(SUM("ordersCallsMinute"), 0) as "totalOrdersCallsMin",
+      COALESCE(SUM("itemsCallsMinute"), 0) as "totalItemsCallsMin"
+    FROM "amazon_backfill_schedule";
