@@ -9,7 +9,7 @@ metadata:
       ID:'', process.env.HOSTNAME);\nrunWorkerLoop({ maxIterations: Infinity, delayBetweenMs:
       1000 })\n  .then(() =\u003e console.log(''[OrdersWorker-PROD] Loop ended''))\n  .catch(err
       =\u003e { console.error(''[OrdersWorker-PROD] Fatal error:'', err); process.exit(1);
-      });\n"],"command":["node","-e"],"env":[{"name":"DATABASE_URL","valueFrom":{"secretKeyRef":{"key":"DATABASE_URL","name":"keybuzz-backend-db"}}},{"name":"VAULT_TOKEN","valueFrom":{"secretKeyRef":{"key":"VAULT_TOKEN","name":"vault-token"}}},{"name":"VAULT_ADDR","value":"https://vault.keybuzz.io:8200"},{"name":"NODE_ENV","value":"production"},{"name":"WORKER_TYPE","value":"ORDERS"}],"image":"ghcr.io/keybuzzio/keybuzz-backend:v1.0.39-vault-ha-prod","imagePullPolicy":"IfNotPresent","livenessProbe":{"exec":{"command":["sh","-c","ps
+      });\n"],"command":["node","-e"],"env":[{"name":"DATABASE_URL","valueFrom":{"secretKeyRef":{"key":"DATABASE_URL","name":"keybuzz-backend-db"}}},{"name":"VAULT_TOKEN","valueFrom":{"secretKeyRef":{"key":"VAULT_TOKEN","name":"vault-token"}}},{"name":"VAULT_ADDR","value":"https://vault.keybuzz.io:8200"},{"name":"NODE_ENV","value":"production"},{"name":"WORKER_TYPE","value":"ORDERS"}],"image":"ghcr.io/keybuzzio/keybuzz-backend:v1.0.41-ph263b-scheduler-prod","imagePullPolicy":"IfNotPresent","livenessProbe":{"exec":{"command":["sh","-c","ps
       aux | grep node | grep -v grep"]},"initialDelaySeconds":30,"periodSeconds":60},"name":"worker","resources":{"limits":{"cpu":"500m","memory":"512Mi"},"requests":{"cpu":"100m","memory":"256Mi"}}}],"hostAliases":[{"hostnames":["vault.keybuzz.io"],"ip":"10.0.0.150"}],"imagePullSecrets":[{"name":"ghcr-cred"}]}}}}
 
       '
@@ -64,7 +64,7 @@ spec:
           value: production
         - name: WORKER_TYPE
           value: ORDERS
-        image: ghcr.io/keybuzzio/keybuzz-backend:v1.0.39-vault-ha-prod
+        image: ghcr.io/keybuzzio/keybuzz-backend:v1.0.41-ph263b-scheduler-prod
         imagePullPolicy: IfNotPresent
         livenessProbe:
           exec:

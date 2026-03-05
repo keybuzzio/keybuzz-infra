@@ -1,0 +1,29 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: migrate-032-scheduler
+  namespace: keybuzz-backend-prod
+spec:
+  backoffLimit: 3
+  ttlSecondsAfterFinished: 300
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: migrate
+          image: postgres:17-alpine
+          command:
+            - sh
+            - -c
+            - |
+              psql "$DATABASE_URL" -f /migrations/migration-032-scheduler.sql
+          envFrom:
+            - secretRef:
+                name: keybuzz-backend-db
+          volumeMounts:
+            - name: migration
+              mountPath: /migrations
+      volumes:
+        - name: migration
+          configMap:
+            name: migration-032-scheduler
