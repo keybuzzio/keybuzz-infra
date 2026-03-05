@@ -1,0 +1,65 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backfill-scheduler
+  namespace: keybuzz-backend-dev
+  labels:
+    app: backfill-scheduler
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backfill-scheduler
+  template:
+    metadata:
+      labels:
+        app: backfill-scheduler
+    spec:
+      containers:
+        - name: scheduler
+          image: ghcr.io/keybuzzio/keybuzz-backend:v1.0.41-ph263b-scheduler-dev
+          command:
+            - node
+            - -e
+            - >
+              require('./dist/modules/marketplaces/amazon/amazonBackfillScheduler.service').runSchedulerLoop()
+          envFrom:
+            - secretRef:
+                name: keybuzz-backend-db
+          env:
+            - name: SCHEDULER_MAX_PARALLEL
+              value: "3"
+            - name: SCHEDULER_MAX_ORDERS_CALLS
+              value: "60"
+            - name: SCHEDULER_MAX_ITEMS_CALLS
+              value: "30"
+            - name: SCHEDULER_MAX_CALLS_GLOBAL
+              value: "120"
+            - name: SCHEDULER_TICK_MS
+              value: "5000"
+            - name: NODE_EXTRA_CA_CERTS
+              value: /etc/ssl/vault/ca.crt
+          volumeMounts:
+            - name: vault-ca-cert
+              mountPath: /etc/ssl/vault
+              readOnly: true
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "50m"
+            limits:
+              memory: "256Mi"
+              cpu: "200m"
+          livenessProbe:
+            exec:
+              command:
+                - node
+                - -e
+                - "process.exit(0)"
+            initialDelaySeconds: 30
+            periodSeconds: 60
+      volumes:
+        - name: vault-ca-cert
+          configMap:
+            name: vault-ca-cert
+            optional: true
