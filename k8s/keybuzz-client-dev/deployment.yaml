@@ -19,8 +19,8 @@ spec:
       - name: ghcr-secret
       containers:
       - name: keybuzz-client
-        # v3.5.48-white-bg-dev: Fix marketplace SVGs (valid XML paths only)
-        image: ghcr.io/keybuzzio/keybuzz-client:v3.5.49-fix-messages-dev
+        # PH52.6: Learning Control UI (rollback: v3.5.49-fix-messages-dev)
+        image: ghcr.io/keybuzzio/keybuzz-client:v3.5.61b-ph526-learning-ui-dev
         imagePullPolicy: Always
         ports:
         - containerPort: 3000
