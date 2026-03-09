@@ -19,8 +19,8 @@ spec:
       - name: ghcr-secret
       containers:
       - name: keybuzz-client
-        # PH52.6: Learning Control UI (rollback: v3.5.49-fix-messages-dev)
-        image: ghcr.io/keybuzzio/keybuzz-client:v3.5.61c-ph526-learning-ui-dev
+        # PH52.7: Expert Mode Backend State (rollback: v3.5.61c-ph526-learning-ui-dev)
+        image: ghcr.io/keybuzzio/keybuzz-client:v3.5.62-ph527-expert-mode-dev
         imagePullPolicy: Always
         ports:
         - containerPort: 3000
