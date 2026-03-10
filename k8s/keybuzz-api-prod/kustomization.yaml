@@ -1,0 +1,24 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: keybuzz-api-prod
+
+resources:
+  - namespace.yaml
+  - deployment.yaml
+  - outbound-worker-deployment.yaml
+  - service.yaml
+  - ingress.yaml
+  - externalsecret-postgres.yaml
+  - externalsecret-stripe.yaml
+  - externalsecret-minio.yaml
+  - externalsecret-ses.yaml
+
+# GOLDEN VERSIONS - DO NOT CHANGE WITHOUT RELEASE LEDGER UPDATE
+images:
+  - name: ghcr.io/keybuzzio/keybuzz-api
+    newTag: v0.7.4-lockstep
+
+commonLabels:
+  environment: production
+  app.kubernetes.io/part-of: keybuzz

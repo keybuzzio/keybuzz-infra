@@ -1,0 +1,9 @@
+#!/bin/bash
+# PH26.5K: Run MinIO test in pod (from /app)
+
+POD=$(kubectl get pod -n keybuzz-backend-dev -l app=keybuzz-backend -o jsonpath='{.items[0].metadata.name}')
+echo "Using pod: $POD"
+
+# Copy to /app instead of /tmp
+kubectl cp /tmp/ph26.5k-test-minio.js keybuzz-backend-dev/$POD:/app/test-minio.js
+kubectl exec -n keybuzz-backend-dev $POD -- node /app/test-minio.js

@@ -1,0 +1,82 @@
+# PH-S03.5E: Validation Playwright — Catalog Sources (Unknown error) + Wizard 5 étapes
+# Déclenchement: workflow_dispatch ou push sur e2e/ ou ce workflow
+# Avec secret SELLER_DEV_COOKIES (JSON array cookies): tests authentifiés complets
+# Sans secret: test non authentifié (pas de "Unknown error" dans HTML initial)
+name: PH-S03.5E Playwright proof
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main, master]
+    paths:
+      - 'e2e/**'
+      - '.github/workflows/ph-s035e*.yml'
+
+env:
+  SELLER_DEV_URL: https://seller-dev.keybuzz.io
+  CLIENT_DEV_URL: https://client-dev.keybuzz.io
+  NODE_VERSION: '20'
+
+jobs:
+  playwright-proof:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout keybuzz-infra
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: e2e/package-lock.json
+
+      - name: Install e2e deps
+        working-directory: e2e
+        run: |
+          if [ -f package-lock.json ]; then npm ci; else npm install; fi
+          npx playwright install chromium --with-deps
+
+      - name: Run Playwright
+        working-directory: e2e
+        env:
+          SELLER_DEV_URL: ${{ env.SELLER_DEV_URL }}
+          CLIENT_DEV_URL: ${{ env.CLIENT_DEV_URL }}
+          SELLER_DEV_COOKIES: ${{ secrets.SELLER_DEV_COOKIES }}
+        run: |
+          npx playwright test --reporter=list,html 2>&1 | tee ../playwright-output.txt
+          echo $? > ../playwright-exit.txt
+        continue-on-error: true
+
+      - name: Mask and collect proof artifacts
+        run: |
+          mkdir -p proof-artifacts
+          if [ -f e2e/test-results/catalog-sources-page.png ]; then
+            cp e2e/test-results/catalog-sources-page.png proof-artifacts/
+          fi
+          if [ -f e2e/test-results/wizard-stepper.png ]; then
+            cp e2e/test-results/wizard-stepper.png proof-artifacts/
+          fi
+          if [ -f playwright-output.txt ]; then
+            sed 's/\(token\|cookie\|session\|Bearer\)[^[:space:]]*/***MASKED***/gi' playwright-output.txt > proof-artifacts/playwright-log-masked.txt
+          fi
+          if [ -d e2e/playwright-report ]; then
+            cp -r e2e/playwright-report proof-artifacts/
+          fi
+          echo "BUILD_SHA_PROVEN=see deployment-client.yaml image tag" > proof-artifacts/version.txt
+          echo "RUN_ID=${{ github.run_id }}" >> proof-artifacts/version.txt
+          echo "RUN_URL=${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" >> proof-artifacts/version.txt
+
+      - name: Upload proof artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ph-s035e-playwright-proof
+          path: proof-artifacts/
+
+      - name: Fail if Playwright failed
+        run: |
+          EXIT=$(cat playwright-exit.txt 2>/dev/null || echo 0)
+          if [ "$EXIT" != "0" ]; then
+            echo "Playwright tests failed (exit $EXIT)"
+            exit 1
+          fi

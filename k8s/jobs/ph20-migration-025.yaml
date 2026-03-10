@@ -1,0 +1,110 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: migration-025-sla-fields
+  namespace: keybuzz-api-dev
+  labels:
+    app: keybuzz-api
+    migration: "025"
+    phase: ph20-sla-01a
+spec:
+  ttlSecondsAfterFinished: 3600
+  template:
+    metadata:
+      labels:
+        app: keybuzz-api
+        job: migration-025
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: migration
+        image: postgres:15-alpine
+        command:
+          - sh
+          - -c
+          - |
+            echo "🔧 PH20-SLA-01A: Applying migration 025..."
+            
+            psql "$DATABASE_URL" <<'EOSQL'
+            -- PH20-SLA-01A: Add SLA fields to conversations
+            -- Migration 025
+
+            BEGIN;
+
+            -- Add SLA-related columns to conversations table
+            ALTER TABLE conversations
+            ADD COLUMN IF NOT EXISTS first_response_at TIMESTAMPTZ,
+            ADD COLUMN IF NOT EXISTS last_customer_message_at TIMESTAMPTZ,
+            ADD COLUMN IF NOT EXISTS last_agent_message_at TIMESTAMPTZ,
+            ADD COLUMN IF NOT EXISTS sla_state_v2 VARCHAR(20) DEFAULT 'OK',
+            ADD COLUMN IF NOT EXISTS sla_updated_at TIMESTAMPTZ;
+
+            -- Rename old sla_state if exists (legacy)
+            DO $$
+            BEGIN
+              IF EXISTS (
+                SELECT 1 FROM information_schema.columns 
+                WHERE table_name = 'conversations' 
+                AND column_name = 'sla_state'
+                AND data_type != 'character varying'
+              ) THEN
+                ALTER TABLE conversations RENAME COLUMN sla_state TO sla_state_old;
+              END IF;
+            END $$;
+
+            -- Rename sla_state_v2 to sla_state
+            ALTER TABLE conversations RENAME COLUMN sla_state_v2 TO sla_state;
+
+            -- Create index for SLA filtering
+            CREATE INDEX IF NOT EXISTS idx_conversations_sla_state 
+              ON conversations(tenant_id, sla_state) 
+              WHERE status != 'resolved';
+              
+            CREATE INDEX IF NOT EXISTS idx_conversations_last_customer_message 
+              ON conversations(tenant_id, last_customer_message_at) 
+              WHERE status != 'resolved';
+
+            -- Add comments
+            COMMENT ON COLUMN conversations.first_response_at IS 'PH20: Timestamp of first agent response';
+            COMMENT ON COLUMN conversations.last_customer_message_at IS 'PH20: Timestamp of last inbound customer message';
+            COMMENT ON COLUMN conversations.last_agent_message_at IS 'PH20: Timestamp of last agent outbound message';
+            COMMENT ON COLUMN conversations.sla_state IS 'PH20: SLA state: OK, AT_RISK, BREACHED';
+            COMMENT ON COLUMN conversations.sla_updated_at IS 'PH20: Last SLA calculation timestamp';
+
+            -- Initialize existing conversations with data from messages
+            UPDATE conversations c
+            SET 
+                last_customer_message_at = (
+                    SELECT MAX(m.created_at)
+                    FROM messages m
+                    WHERE m.conversation_id = c.id
+                    AND m.direction = 'inbound'
+                ),
+                first_response_at = (
+                    SELECT MIN(m.created_at)
+                    FROM messages m
+                    WHERE m.conversation_id = c.id
+                    AND m.direction = 'outbound'
+                ),
+                last_agent_message_at = (
+                    SELECT MAX(m.created_at)
+                    FROM messages m
+                    WHERE m.conversation_id = c.id
+                    AND m.direction = 'outbound'
+                ),
+                sla_updated_at = NOW()
+            WHERE c.id IS NOT NULL;
+
+            COMMIT;
+
+            EOSQL
+            
+            echo "✅ Migration 025 applied successfully!"
+        env:
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: keybuzz-api-secrets
+              key: database-url
+      imagePullSecrets:
+      - name: ghcr-secret

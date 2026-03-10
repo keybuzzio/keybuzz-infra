@@ -1,0 +1,59 @@
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="------=_Part_1234567_8901234.1234567890"
+
+------=_Part_1234567_8901234.1234567890
+Content-Type: multipart/alternative; boundary="------=_Part_9876543_2109876.1234567890"
+
+------=_Part_9876543_2109876.1234567890
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+
+Vous avez recu un message.
+
+# 171-TEST-ORDER:
+1 / Produit test [ASIN: B000TEST01]
+
+------------- Message:  -------------
+
+Bonjour, voici ma preuve de d=C3=A9p=C3=B4t pour le retour de ma commande.
+J'ai d=C3=A9pos=C3=A9 le colis =C3=A0 la poste ce matin.
+Le num=C3=A9ro de suivi est 1Z9999999999999999.
+Merci de confirmer la r=C3=A9ception.
+Cordialement,
+Test Client
+
+------------- Fin du message -------------
+
+------=_Part_9876543_2109876.1234567890
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+
+<!DOCTYPE html>
+<html>
+<body>
+<p>Bonjour, voici ma preuve de d=C3=A9p=C3=B4t pour le retour de ma commande.</p>
+<p>J'ai d=C3=A9pos=C3=A9 le colis =C3=A0 la poste ce matin.</p>
+<p>Le num=C3=A9ro de suivi est 1Z9999999999999999.</p>
+<p>Merci de confirmer la r=C3=A9ception.</p>
+<p>Cordialement,<br>Test Client</p>
+</body>
+</html>
+
+------=_Part_9876543_2109876.1234567890--
+
+------=_Part_1234567_8901234.1234567890
+Content-Type: application/pdf; name="preuve_depot_20260130.pdf"
+Content-Disposition: attachment; filename="preuve_depot_20260130.pdf"
+Content-Transfer-Encoding: base64
+
+JVBERi0xLjQKMSAwIG9iago8PAovVHlwZSAvQ2F0YWxvZwovUGFnZXMgMiAwIFIKPj4KZW5kb2Jq
+CjIgMCBvYmoKPDwKL1R5cGUgL1BhZ2VzCi9LaWRzIFszIDAgUl0KL0NvdW50IDEKL01lZGlhQm94
+IFswIDAgNjEyIDc5Ml0KPj4KZW5kb2JqCjMgMCBvYmoKPDwKL1R5cGUgL1BhZ2UKL1BhcmVudCAy
+IDAgUgovUmVzb3VyY2VzIDw8Ci9Gb250IDw8Ci9GMSAxIDAgUgo+Pgo+PgovQ29udGVudHMgNCAw
+IFIKPj4KZW5kb2JqCjQgMCBvYmoKPDwKPj4Kc3RyZWFtCkJUCi9GMSAxMiBUZgoxMDAgNzAwIFRk
+CihQcmV1dmUgZGUgZGVwb3QpIFRqCkVUCmVuZHN0cmVhbQplbmRvYmoKeHJlZgowIDUKMDAwMDAw
+MDAwMCA2NTUzNSBmIAowMDAwMDAwMDA5IDAwMDAwIG4gCjAwMDAwMDAwNTYgMDAwMDAgbiAKMDAw
+MDAwMDEzMCAwMDAwMCBuIAowMDAwMDAwMjQyIDAwMDAwIG4gCnRyYWlsZXIKPDwKL1NpemUgNQov
+Um9vdCAxIDAgUgo+PgpzdGFydHhyZWYKMzE2CiUlRU9GCg==
+
+------=_Part_1234567_8901234.1234567890--

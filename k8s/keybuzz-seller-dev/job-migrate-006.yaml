@@ -1,0 +1,69 @@
+# PH-S03.2D: Job GitOps — appliquer la migration 006 (auth_mode + last_test_*)
+# Déclenché par ArgoCD sync ; utilise seller-api-postgres (ESO) et ConfigMap migration-006.
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: seller-migrate-006
+  namespace: keybuzz-seller-dev
+  labels:
+    app.kubernetes.io/part-of: keybuzz-seller
+    environment: dev
+    purpose: migration
+  annotations:
+    argocd.argoproj.io/hook: PostSync
+    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
+spec:
+  ttlSecondsAfterFinished: 300
+  backoffLimit: 1
+  template:
+    metadata:
+      labels:
+        app: seller-migrate-006
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: migrate
+          image: postgres:17-alpine
+          command:
+            - sh
+            - -c
+            - |
+              set -e
+              echo "Applying migration 006 (PH-S03.2)..."
+              export PGPASSWORD="$PGPASSWORD"
+              psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$PGDATABASE" -f /migration/006_ph_s03_2_ftp_auth_mode.sql
+              echo "Migration 006 applied successfully"
+          env:
+            - name: PGHOST
+              valueFrom:
+                secretKeyRef:
+                  name: seller-api-postgres
+                  key: PGHOST
+            - name: PGPORT
+              valueFrom:
+                secretKeyRef:
+                  name: seller-api-postgres
+                  key: PGPORT
+            - name: PGDATABASE
+              valueFrom:
+                secretKeyRef:
+                  name: seller-api-postgres
+                  key: PGDATABASE
+            - name: PGUSER
+              valueFrom:
+                secretKeyRef:
+                  name: seller-api-postgres
+                  key: PGUSER
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: seller-api-postgres
+                  key: PGPASSWORD
+          volumeMounts:
+            - name: migration
+              mountPath: /migration
+              readOnly: true
+      volumes:
+        - name: migration
+          configMap:
+            name: migration-006

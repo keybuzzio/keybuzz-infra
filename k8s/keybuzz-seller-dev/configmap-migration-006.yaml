@@ -1,0 +1,84 @@
+# PH-S03.2D: Migration 006 — auth_mode + last_test_* (synced depuis keybuzz-seller/migrations)
+# Déployé via GitOps ; Job job-migrate-006 exécute ce script en lecture/écriture DB.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: migration-006
+  namespace: keybuzz-seller-dev
+  labels:
+    app.kubernetes.io/part-of: keybuzz-seller
+    environment: dev
+    purpose: migration
+data:
+  "006_ph_s03_2_ftp_auth_mode.sql": |
+    -- =============================================================================
+    -- 006_ph_s03_2_ftp_auth_mode.sql
+    -- PH-S03.2: FTP durable via secret_ref — auth_mode + last_test_*
+    -- =============================================================================
+    DO $$
+    BEGIN
+        IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'FtpAuthMode' AND typnamespace = (SELECT oid FROM pg_namespace WHERE nspname = 'seller')) THEN
+            CREATE TYPE seller."FtpAuthMode" AS ENUM (
+                'temp_password',
+                'vault_secret_ref'
+            );
+            RAISE NOTICE 'PH-S03.2: Enum FtpAuthMode cree';
+        END IF;
+    END$$;
+    DO $$
+    BEGIN
+        IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'FtpLastTestStatus' AND typnamespace = (SELECT oid FROM pg_namespace WHERE nspname = 'seller')) THEN
+            CREATE TYPE seller."FtpLastTestStatus" AS ENUM (
+                'ok',
+                'error',
+                'never'
+            );
+            RAISE NOTICE 'PH-S03.2: Enum FtpLastTestStatus cree';
+        END IF;
+    END$$;
+    DO $$
+    BEGIN
+        IF NOT EXISTS (
+            SELECT 1 FROM information_schema.columns
+            WHERE table_schema = 'seller' AND table_name = 'catalog_source_connections' AND column_name = 'auth_mode'
+        ) THEN
+            ALTER TABLE seller.catalog_source_connections
+            ADD COLUMN "auth_mode" seller."FtpAuthMode" NOT NULL DEFAULT 'vault_secret_ref';
+            RAISE NOTICE 'PH-S03.2: Colonne auth_mode ajoutee';
+        END IF;
+    END$$;
+    DO $$
+    BEGIN
+        IF NOT EXISTS (
+            SELECT 1 FROM information_schema.columns
+            WHERE table_schema = 'seller' AND table_name = 'catalog_source_connections' AND column_name = 'last_test_at'
+        ) THEN
+            ALTER TABLE seller.catalog_source_connections ADD COLUMN "last_test_at" TIMESTAMP(3);
+            RAISE NOTICE 'PH-S03.2: Colonne last_test_at ajoutee';
+        END IF;
+    END$$;
+    DO $$
+    BEGIN
+        IF NOT EXISTS (
+            SELECT 1 FROM information_schema.columns
+            WHERE table_schema = 'seller' AND table_name = 'catalog_source_connections' AND column_name = 'last_test_status'
+        ) THEN
+            ALTER TABLE seller.catalog_source_connections
+            ADD COLUMN "last_test_status" seller."FtpLastTestStatus" NOT NULL DEFAULT 'never';
+            RAISE NOTICE 'PH-S03.2: Colonne last_test_status ajoutee';
+        END IF;
+    END$$;
+    DO $$
+    BEGIN
+        IF NOT EXISTS (
+            SELECT 1 FROM information_schema.columns
+            WHERE table_schema = 'seller' AND table_name = 'catalog_source_connections' AND column_name = 'last_test_error'
+        ) THEN
+            ALTER TABLE seller.catalog_source_connections ADD COLUMN "last_test_error" TEXT;
+            RAISE NOTICE 'PH-S03.2: Colonne last_test_error ajoutee';
+        END IF;
+    END$$;
+    COMMENT ON COLUMN seller.catalog_source_connections."auth_mode" IS 'PH-S03.2: temp_password | vault_secret_ref';
+    COMMENT ON COLUMN seller.catalog_source_connections."last_test_at" IS 'PH-S03.2: Dernier test connexion';
+    COMMENT ON COLUMN seller.catalog_source_connections."last_test_status" IS 'PH-S03.2: ok | error | never';
+    COMMENT ON COLUMN seller.catalog_source_connections."last_test_error" IS 'PH-S03.2: Message erreur (jamais de secret)';

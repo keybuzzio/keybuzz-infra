@@ -1,0 +1,23 @@
+# PH-S01: ArgoCD Application keybuzz-seller-dev
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: keybuzz-seller-dev
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/keybuzzio/keybuzz-infra.git
+    targetRevision: main
+    path: k8s/keybuzz-seller-dev
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: keybuzz-seller-dev
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
