@@ -22,9 +22,9 @@ spec:
         - name: ghcr-cred
       containers:
         - name: keybuzz-client
-          # ROLLBACK: v3.5.62-ph527-expert-mode-prod
-          # PH58: Fix inbox filters + conversation detail tenantId race condition
-          image: ghcr.io/keybuzzio/keybuzz-client:v3.5.79-fix-reply-tenantid-prod
+          # ROLLBACK: v3.5.79-fix-reply-tenantid-prod
+          # PH59: OAuth Google/Microsoft connexion + inscription
+          image: ghcr.io/keybuzzio/keybuzz-client:v3.5.80-ph59-oauth-fix-prod
           imagePullPolicy: Always
           ports:
             - containerPort: 3000
