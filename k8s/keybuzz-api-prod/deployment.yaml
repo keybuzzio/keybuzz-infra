@@ -22,9 +22,9 @@ spec:
         - name: ghcr-cred
       containers:
         - name: keybuzz-api
-          # ROLLBACK: v3.5.69-ph59-context-compression-prod
-          # PH60: Decision Calibration Engine (AUTO/GUIDED/HUMAN_REQUIRED, 0 LLM, 0 KBActions)
-          image: ghcr.io/keybuzzio/keybuzz-api:v3.5.70-ph60-decision-calibration-prod
+          # ROLLBACK: v3.5.70-ph60-decision-calibration-prod
+          # PH61: Marketplace Intelligence Engine (AMAZON/OCTOPIA/FNAC/MIRAKL, 0 LLM, 0 KBActions)
+          image: ghcr.io/keybuzzio/keybuzz-api:v3.5.71-ph61-marketplace-intelligence-prod
           imagePullPolicy: Always
           ports:
             - containerPort: 3001
