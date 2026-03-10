@@ -1,0 +1,164 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: ph288-cleanup-dev
+  namespace: keybuzz-api-dev
+  labels:
+    app: db-cleanup
+    phase: ph288
+    environment: dev
+spec:
+  ttlSecondsAfterFinished: 3600
+  template:
+    metadata:
+      labels:
+        app: db-cleanup
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: cleanup
+          image: postgres:17-alpine
+          env:
+            - name: PGHOST
+              valueFrom:
+                secretKeyRef:
+                  name: keybuzz-api-postgres
+                  key: PGHOST
+            - name: PGUSER
+              valueFrom:
+                secretKeyRef:
+                  name: keybuzz-api-postgres
+                  key: PGUSER
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: keybuzz-api-postgres
+                  key: PGPASSWORD
+            - name: PGDATABASE
+              valueFrom:
+                secretKeyRef:
+                  name: keybuzz-api-postgres
+                  key: PGDATABASE
+          command:
+            - /bin/sh
+            - -c
+            - |
+              set -e
+              echo "========================================"
+              echo "PH28.8 - DEV Database Cleanup"
+              echo "Date: $(date -Iseconds)"
+              echo "========================================"
+              
+              # User and tenant to KEEP
+              KEEP_USER_EMAIL='ludo.gonthier@gmail.com'
+              KEEP_TENANT_ID='ecomlg-001'
+              
+              echo ""
+              echo "=== COUNTS BEFORE CLEANUP ==="
+              echo "Users: $(psql -t -c 'SELECT COUNT(*) FROM users;')"
+              echo "Tenants: $(psql -t -c 'SELECT COUNT(*) FROM tenants;')"
+              echo "User-Tenant relations: $(psql -t -c 'SELECT COUNT(*) FROM user_tenants;')"
+              echo "Conversations: $(psql -t -c 'SELECT COUNT(*) FROM conversations;')"
+              echo "Messages: $(psql -t -c 'SELECT COUNT(*) FROM messages;')"
+              echo "Inbound connections: $(psql -t -c 'SELECT COUNT(*) FROM inbound_connections;')"
+              echo "Inbound addresses: $(psql -t -c 'SELECT COUNT(*) FROM inbound_addresses;')"
+              echo "AI action logs: $(psql -t -c 'SELECT COUNT(*) FROM ai_action_log;')"
+              echo "AI journal events: $(psql -t -c 'SELECT COUNT(*) FROM ai_journal_events;')"
+              
+              echo ""
+              echo "=== KEEPING ==="
+              echo "User: $KEEP_USER_EMAIL"
+              echo "Tenant: $KEEP_TENANT_ID"
+              
+              # Get user ID to keep
+              KEEP_USER_ID=$(psql -t -c "SELECT id FROM users WHERE email = '$KEEP_USER_EMAIL';" | tr -d ' ')
+              echo "User ID to keep: $KEEP_USER_ID"
+              
+              echo ""
+              echo "=== STEP 1: Clean up AI data for other tenants ==="
+              psql -c "DELETE FROM ai_action_log WHERE tenant_id != '$KEEP_TENANT_ID';"
+              psql -c "DELETE FROM ai_journal_events WHERE tenant_id != '$KEEP_TENANT_ID';"
+              psql -c "DELETE FROM ai_returns_decision_trace WHERE tenant_id != '$KEEP_TENANT_ID';"
+              psql -c "DELETE FROM ai_actions_ledger WHERE tenant_id != '$KEEP_TENANT_ID';"
+              psql -c "DELETE FROM ai_actions_wallet WHERE tenant_id != '$KEEP_TENANT_ID';"
+              psql -c "DELETE FROM ai_credits_ledger WHERE tenant_id != '$KEEP_TENANT_ID';"
+              psql -c "DELETE FROM ai_credits_wallet WHERE tenant_id != '$KEEP_TENANT_ID';"
+              psql -c "DELETE FROM ai_budget_alerts WHERE tenant_id != '$KEEP_TENANT_ID';"
+              psql -c "DELETE FROM ai_budget_settings WHERE tenant_id != '$KEEP_TENANT_ID';"
+              echo "AI data cleaned"
+              
+              echo ""
+              echo "=== STEP 2: Clean up marketplace data for other tenants ==="
+              psql -c "DELETE FROM marketplace_octopia_accounts WHERE \"tenantId\" != '$KEEP_TENANT_ID';"
+              psql -c "DELETE FROM marketplace_connections WHERE \"tenantId\" != '$KEEP_TENANT_ID';"
+              psql -c "DELETE FROM marketplace_sync_states WHERE \"tenantId\" != '$KEEP_TENANT_ID';"
+              echo "Marketplace data cleaned"
+              
+              echo ""
+              echo "=== STEP 3: Clean up inbound data for other tenants ==="
+              psql -c "DELETE FROM inbound_addresses WHERE \"tenantId\" != '$KEEP_TENANT_ID';"
+              psql -c "DELETE FROM inbound_connections WHERE \"tenantId\" != '$KEEP_TENANT_ID';"
+              echo "Inbound data cleaned"
+              
+              echo ""
+              echo "=== STEP 4: Clean up Amazon returns for other tenants ==="
+              psql -c "DELETE FROM amazon_returns WHERE tenant_id != '$KEEP_TENANT_ID';"
+              psql -c "DELETE FROM amazon_returns_sync_status WHERE tenant_id != '$KEEP_TENANT_ID';"
+              echo "Amazon returns cleaned"
+              
+              echo ""
+              echo "=== STEP 5: Clean up return analyses for other tenants ==="
+              psql -c "DELETE FROM return_analyses WHERE tenant_id != '$KEEP_TENANT_ID';"
+              echo "Return analyses cleaned"
+              
+              echo ""
+              echo "=== STEP 6: Clean up space invites for other tenants ==="
+              psql -c "DELETE FROM space_invites WHERE tenant_id != '$KEEP_TENANT_ID';"
+              echo "Space invites cleaned"
+              
+              echo ""
+              echo "=== STEP 7: Clean up tenant metadata for other tenants ==="
+              psql -c "DELETE FROM tenant_metadata WHERE tenant_id != '$KEEP_TENANT_ID';"
+              echo "Tenant metadata cleaned"
+              
+              echo ""
+              echo "=== STEP 8: Delete user_tenants relations for other tenants ==="
+              psql -c "DELETE FROM user_tenants WHERE tenant_id != '$KEEP_TENANT_ID';"
+              echo "User-tenant relations cleaned"
+              
+              echo ""
+              echo "=== STEP 9: Delete tenants (CASCADE will clean conversations/messages) ==="
+              psql -c "DELETE FROM tenants WHERE id != '$KEEP_TENANT_ID';"
+              echo "Tenants deleted"
+              
+              echo ""
+              echo "=== STEP 10: Delete users not related to kept tenant ==="
+              # Keep only users who have a relation with ecomlg-001
+              psql -c "DELETE FROM users WHERE id NOT IN (SELECT user_id FROM user_tenants WHERE tenant_id = '$KEEP_TENANT_ID');"
+              echo "Orphan users deleted"
+              
+              echo ""
+              echo "=== COUNTS AFTER CLEANUP ==="
+              echo "Users: $(psql -t -c 'SELECT COUNT(*) FROM users;')"
+              echo "Tenants: $(psql -t -c 'SELECT COUNT(*) FROM tenants;')"
+              echo "User-Tenant relations: $(psql -t -c 'SELECT COUNT(*) FROM user_tenants;')"
+              echo "Conversations: $(psql -t -c 'SELECT COUNT(*) FROM conversations;')"
+              echo "Messages: $(psql -t -c 'SELECT COUNT(*) FROM messages;')"
+              echo "Inbound connections: $(psql -t -c 'SELECT COUNT(*) FROM inbound_connections;')"
+              echo "Inbound addresses: $(psql -t -c 'SELECT COUNT(*) FROM inbound_addresses;')"
+              
+              echo ""
+              echo "=== REMAINING DATA ==="
+              echo "Users:"
+              psql -c "SELECT id, email, name FROM users;"
+              echo ""
+              echo "Tenants:"
+              psql -c "SELECT id, name, plan, status FROM tenants;"
+              echo ""
+              echo "User-Tenant relations:"
+              psql -c "SELECT * FROM user_tenants;"
+              
+              echo ""
+              echo "========================================"
+              echo "PH28.8 DEV Cleanup Complete"
+              echo "========================================"

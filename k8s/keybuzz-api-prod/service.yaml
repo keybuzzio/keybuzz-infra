@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: keybuzz-api
+  namespace: keybuzz-api-prod
+  labels:
+    app: keybuzz-api
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: 3001
+      protocol: TCP
+  selector:
+    app: keybuzz-api

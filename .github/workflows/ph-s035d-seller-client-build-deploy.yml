@@ -1,0 +1,145 @@
+# PH-S03.5D: Build + push seller-client, update GitOps, preuves (sans action Ludovic)
+# Déclenchement: workflow_dispatch (CE ou cron/API) ou push sur k8s/keybuzz-seller-dev/*
+# Prérequis: secret REPO_ACCESS_TOKEN (lecture keybuzz-seller si repo privé)
+#            secret GHCR_TOKEN ou GITHUB_TOKEN avec packages: write pour ghcr.io/keybuzzio
+name: PH-S03.5D seller-client build deploy
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main, master]
+    paths:
+      - 'k8s/keybuzz-seller-dev/deployment-client.yaml'
+      - 'scripts/ph-s035d*.sh'
+      - '.github/workflows/ph-s035d*.yml'
+
+env:
+  IMAGE_NAME: ghcr.io/keybuzzio/seller-client
+  VERSION_PREFIX: v1.0.1
+  SELLER_DEV_URL: https://seller-dev.keybuzz.io
+
+jobs:
+  build-seller-client:
+    runs-on: ubuntu-latest
+    outputs:
+      digest: ${{ steps.outputs.outputs.digest }}
+      tag: ${{ steps.meta.outputs.tag }}
+      image_ref: ${{ steps.outputs.outputs.image_ref }}
+    steps:
+      - name: Checkout keybuzz-infra
+        uses: actions/checkout@v4
+        with:
+          path: keybuzz-infra
+
+      - name: Checkout keybuzz-seller
+        uses: actions/checkout@v4
+        with:
+          repository: keybuzzio/keybuzz-seller
+          path: keybuzz-seller
+          token: ${{ secrets.REPO_ACCESS_TOKEN || github.token }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Docker meta (tag)
+        id: meta
+        run: |
+          BUILD_SHA=$(cd keybuzz-seller && git rev-parse HEAD)
+          SHORT_SHA=${BUILD_SHA:0:7}
+          TAG="${{ env.VERSION_PREFIX }}-${SHORT_SHA}"
+          echo "tag=${TAG}" >> $GITHUB_OUTPUT
+          echo "build_sha=${BUILD_SHA}" >> $GITHUB_OUTPUT
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GHCR_TOKEN || secrets.GITHUB_TOKEN }}
+
+      - name: Build and push seller-client
+        id: build
+        uses: docker/build-push-action@v5
+        with:
+          context: keybuzz-seller/seller-client
+          push: true
+          tags: |
+            ${{ env.IMAGE_NAME }}:${{ steps.meta.outputs.tag }}
+          build-args: |
+            BUILD_SHA=${{ steps.meta.outputs.build_sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Set job outputs (digest + image_ref)
+        id: outputs
+        run: |
+          DIGEST="${{ steps.build.outputs.digest }}"
+          if [ -z "$DIGEST" ]; then
+            IMAGE_REF="${{ env.IMAGE_NAME }}:${{ steps.meta.outputs.tag }}"
+          else
+            IMAGE_REF="${{ env.IMAGE_NAME }}@${DIGEST}"
+          fi
+          echo "digest=${DIGEST}" >> $GITHUB_OUTPUT
+          echo "image_ref=${IMAGE_REF}" >> $GITHUB_OUTPUT
+
+  update-gitops:
+    needs: build-seller-client
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout keybuzz-infra
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GHCR_TOKEN || github.token }}
+
+      - name: Update deployment-client.yaml
+        run: |
+          DEPLOY="k8s/keybuzz-seller-dev/deployment-client.yaml"
+          # Récupérer digest depuis le job build (outputs)
+          TAG="${{ needs.build-seller-client.outputs.tag }}"
+          IMAGE_REF="${{ needs.build-seller-client.outputs.image_ref }}"
+          if [ -z "$IMAGE_REF" ]; then
+            IMAGE_REF="${{ env.IMAGE_NAME }}:${TAG}"
+          fi
+          sed -i "s|image: ghcr.io/keybuzzio/seller-client[@:][^[:space:]]*|image: $IMAGE_REF|" "$DEPLOY"
+          grep "image:" "$DEPLOY" | head -1
+
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add k8s/keybuzz-seller-dev/deployment-client.yaml
+          if git diff --cached --quiet; then
+            echo "No change to deployment."
+          else
+            git commit -m "PH-S03.5D: seller-client ${{ needs.build-seller-client.outputs.tag }} (CI)"
+            git push
+          fi
+
+  proof-functional:
+    needs: update-gitops
+    runs-on: ubuntu-latest
+    steps:
+      - name: Curl catalog-sources
+        run: |
+          mkdir -p proof
+          HTTP=$(curl -s -o proof/catalog-sources.html -w "%{http_code}" "${{ env.SELLER_DEV_URL }}/catalog-sources")
+          echo "HTTP $HTTP" > proof/result.txt
+          if grep -q "Unknown error" proof/catalog-sources.html 2>/dev/null; then
+            echo "FAIL: Unknown error in HTML" >> proof/result.txt
+          else
+            echo "OK: no Unknown error in HTML" >> proof/result.txt
+          fi
+          if grep -q "Mapping des colonnes" proof/catalog-sources.html 2>/dev/null; then
+            echo "WARN: Mapping des colonnes in page" >> proof/result.txt
+          else
+            echo "OK: no Mapping des colonnes" >> proof/result.txt
+          fi
+          cat proof/result.txt
+
+      - name: Upload proof artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ph-s035d-proof
+          path: proof/

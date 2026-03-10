@@ -1,0 +1,7 @@
+PH-S03.5D proof 2026-02-02T15:37:13.5254080+01:00
+GET https://seller-dev.keybuzz.io/catalog-sources
+HTTP 200
+Unknown error in HTML: False
+Mapping des colonnes in HTML: False
+Finalisation in HTML: False
+Colonnes (CSV) in HTML: False
