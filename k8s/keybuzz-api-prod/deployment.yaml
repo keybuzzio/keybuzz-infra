@@ -22,9 +22,9 @@ spec:
         - name: ghcr-cred
       containers:
         - name: keybuzz-api
-          # Rollback tag: v3.3.6-ph324b-sav-status
-          # PH_AUTH_FIX_P1
-          image: ghcr.io/keybuzzio/keybuzz-api:v3.6.3-ph264-ssot-prod
+          # ROLLBACK: v3.5.67-ph57-supplier-warranty-intelligence-prod
+          # PH58: Conversation Memory Engine (12 flags, 0 LLM, 0 KBActions)
+          image: ghcr.io/keybuzzio/keybuzz-api:v3.5.68-ph58-conversation-memory-prod
           imagePullPolicy: Always
           ports:
             - containerPort: 3001
