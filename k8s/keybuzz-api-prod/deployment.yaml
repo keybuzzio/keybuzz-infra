@@ -22,9 +22,9 @@ spec:
         - name: ghcr-cred
       containers:
         - name: keybuzz-api
-          # ROLLBACK: v3.5.68-ph58-conversation-memory-prod
-          # PH59: Context Compression Engine (4 families, ~51% token savings, 0 LLM, 0 KBActions)
-          image: ghcr.io/keybuzzio/keybuzz-api:v3.5.69-ph59-context-compression-prod
+          # ROLLBACK: v3.5.69-ph59-context-compression-prod
+          # PH60: Decision Calibration Engine (AUTO/GUIDED/HUMAN_REQUIRED, 0 LLM, 0 KBActions)
+          image: ghcr.io/keybuzzio/keybuzz-api:v3.5.70-ph60-decision-calibration-prod
           imagePullPolicy: Always
           ports:
             - containerPort: 3001
