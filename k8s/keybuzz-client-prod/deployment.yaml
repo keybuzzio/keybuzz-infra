@@ -22,9 +22,9 @@ spec:
         - name: ghcr-cred
       containers:
         - name: keybuzz-client
-          # Rollback tag: v3.3.4-ph323-supplier-replyto-prod
-          # PH52.7: Expert Mode Backend State (rollback: v3.5.61c-ph526-learning-ui-prod)
-          image: ghcr.io/keybuzzio/keybuzz-client:v3.5.62-ph527-expert-mode-prod
+          # ROLLBACK: v3.5.62-ph527-expert-mode-prod
+          # PH58: Fix inbox filters + conversation detail tenantId race condition
+          image: ghcr.io/keybuzzio/keybuzz-client:v3.5.78-ph58-final-prod
           imagePullPolicy: Always
           ports:
             - containerPort: 3000
