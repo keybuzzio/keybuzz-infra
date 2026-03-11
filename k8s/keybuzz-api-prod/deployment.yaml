@@ -24,7 +24,7 @@ spec:
         - name: keybuzz-api
           # ROLLBACK: v3.5.72-ph62-evidence-intelligence-prod
           # PH63: Abuse Pattern Engine (longitudinal abuse detection, 0 LLM, 0 KBActions)
-          image: ghcr.io/keybuzzio/keybuzz-api:v3.5.80-ph69-prompt-stability-prod
+          image: ghcr.io/keybuzzio/keybuzz-api:v3.5.81-ph70-workflow-orchestration-prod
           imagePullPolicy: Always
           ports:
             - containerPort: 3001
