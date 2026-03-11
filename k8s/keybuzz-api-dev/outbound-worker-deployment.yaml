@@ -20,7 +20,7 @@ spec:
       containers:
       - name: worker
         # v3.3.6-ph324b: + PATCH sav-status route
-        image: ghcr.io/keybuzzio/keybuzz-api:v3.5.81-ph70-workflow-orchestration-dev
+        image: ghcr.io/keybuzzio/keybuzz-api:v3.5.82-ph71-case-autopilot-dev
         command: ["node", "dist/workers/outboundWorker.js"]
         env:
         - name: OUTBOUND_POLL_INTERVAL_MS
