@@ -78,7 +78,7 @@ spec:
             name: keybuzz-ses
         # Rollback tag: v3.3.5-ph324b-smtp-supplier-prod
         # v3.3.6-ph324b: + PATCH sav-status route
-        image: ghcr.io/keybuzzio/keybuzz-api:v3.5.87-ph76-autopilot-execution-prod
+        image: ghcr.io/keybuzzio/keybuzz-api:v3.5.88-ph77-execution-audit-prod
         imagePullPolicy: IfNotPresent
         livenessProbe:
           exec:
