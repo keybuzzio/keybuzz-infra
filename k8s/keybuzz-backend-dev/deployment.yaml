@@ -46,7 +46,7 @@ spec:
             - name: VAULT_ADDR
               value: "http://vault.default.svc.cluster.local:8200"
             - name: ADMIN_CALLBACK_URL
-              value: https://admin-dev.keybuzz.io/inbound-email/amazon/callback
+              value: https://client-dev.keybuzz.io/inbound-email/amazon/callback
             - name: KEYBUZZ_DEV_MODE
               value: "true"
             - name: DEV_AUTH
