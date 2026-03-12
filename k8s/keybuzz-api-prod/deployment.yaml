@@ -41,7 +41,10 @@ spec:
                   key: VAULT_TOKEN
                   name: vault-root-token
             - name: REDIS_URL
-              value: 'redis://:1e1hAa5YTOxakO8i9lhpOEfRiGZO8uRHta2Gzj31@10.0.0.10:6379'
+              valueFrom:
+                secretKeyRef:
+                  name: redis-credentials
+                  key: REDIS_URL
             - name: PGHOST
               valueFrom:
                 secretKeyRef:

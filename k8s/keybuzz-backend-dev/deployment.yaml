@@ -34,13 +34,21 @@ spec:
           ports:
             - name: http
               containerPort: 4000
+          envFrom:
+            - secretRef:
+                name: keybuzz-backend-db
+            - secretRef:
+                name: keybuzz-backend-secrets
+            - secretRef:
+                name: vault-token
+                optional: true
+            - secretRef:
+                name: amazon-spapi-creds
           env:
             - name: NODE_ENV
               value: production
             - name: PORT
               value: "4000"
-            - name: JWT_SECRET
-              value: keybuzz-dev-jwt-secret-2026
             - name: KEYBUZZ_SUPERADMIN_EMAIL
               value: admin@keybuzz.io
             - name: VAULT_ADDR
@@ -56,14 +64,10 @@ spec:
                 secretKeyRef:
                   name: keybuzz-internal-proxy
                   key: token
-          envFrom:
-            - secretRef:
-                name: keybuzz-backend-db
-            - secretRef:
-                name: vault-token
-                optional: true
-            - secretRef:
-                name: amazon-spapi-creds
+            - name: NODE_TLS_REJECT_UNAUTHORIZED
+              value: "0"
+            - name: NODE_EXTRA_CA_CERTS
+              value: "/etc/ssl/vault/vault-ca.pem"
           resources:
             requests:
               cpu: 100m

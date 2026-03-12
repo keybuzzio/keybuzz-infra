@@ -64,13 +64,25 @@ spec:
         - name: MINIO_BUCKET_ATTACHMENTS
           value: keybuzz-attachments
         - name: OCTOPIA_AUTH_URL
-          value: https://auth.octopia-io.net/auth/realms/maas/protocol/openid-connect/token
+          valueFrom:
+            secretKeyRef:
+              name: octopia-credentials
+              key: OCTOPIA_AUTH_URL
         - name: OCTOPIA_API_URL
-          value: https://api.octopia-io.net/seller/v2
+          valueFrom:
+            secretKeyRef:
+              name: octopia-credentials
+              key: OCTOPIA_API_URL
         - name: OCTOPIA_CLIENT_ID
-          value: KeyBuzz
+          valueFrom:
+            secretKeyRef:
+              name: octopia-credentials
+              key: OCTOPIA_CLIENT_ID
         - name: OCTOPIA_CLIENT_SECRET
-          value: 783EU1ZQX2Pp4U398JVsAka8VxumocdW
+          valueFrom:
+            secretKeyRef:
+              name: octopia-credentials
+              key: OCTOPIA_CLIENT_SECRET
         envFrom:
         - secretRef:
             name: keybuzz-api-postgres

@@ -28,6 +28,8 @@ spec:
             - secretRef:
                 name: keybuzz-backend-db
             - secretRef:
+                name: keybuzz-backend-secrets
+            - secretRef:
                 name: vault-token
                 optional: true
             - secretRef:
@@ -39,8 +41,6 @@ spec:
               value: "production"
             - name: PORT
               value: "4000"
-            - name: JWT_SECRET
-              value: "keybuzz-prod-jwt-secret-2026"
             - name: KEYBUZZ_SUPERADMIN_EMAIL
               value: "admin@keybuzz.io"
             - name: VAULT_ADDR
@@ -56,18 +56,16 @@ spec:
                 secretKeyRef:
                   name: keybuzz-internal-proxy
                   key: token
-            - name: KEYBUZZ_INTERNAL_TOKEN
-              value: "fca299a68a2ff8180b88cf24a397832dd2c8f7ca27fa32b02f63615b7c76deac"
-            - name: MINIO_ENDPOINT
-              value: "http://10.0.0.11:9000"
-            - name: MINIO_ACCESS_KEY
-              value: "keybuzz-admin"
-            - name: MINIO_SECRET_KEY
-              value: "KeyBuzz-MinIO-2026-SecureP@ss!"
-            - name: MINIO_BUCKET_ATTACHMENTS
-              value: "keybuzz-attachments"
-            - name: PRODUCT_DATABASE_URL
-              value: "postgresql://keybuzz_api_prod:Pr0d_K3yBuzz_f7323476e6f86ff7@10.0.0.10:5432/keybuzz_prod"
+            - name: AMAZON_SPAPI_REDIRECT_URI
+              value: "https://backend.keybuzz.io/api/v1/marketplaces/amazon/oauth/callback"
+            - name: VAULT_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: vault-app-token
+                  key: token
+                  optional: true
+            - name: NODE_EXTRA_CA_CERTS
+              value: "/etc/ssl/vault/vault-ca.pem"
           resources:
             requests:
               cpu: "100m"
