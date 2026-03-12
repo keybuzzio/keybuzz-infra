@@ -7,7 +7,7 @@ metadata:
     cert-manager.io/cluster-issuer: letsencrypt-prod
     kubernetes.io/ingress.class: nginx
     nginx.ingress.kubernetes.io/enable-cors: "true"
-    nginx.ingress.kubernetes.io/cors-allow-origin: "https://admin.keybuzz.io,https://client.keybuzz.io,https://keybuzz.io"
+    nginx.ingress.kubernetes.io/cors-allow-origin: "https://client.keybuzz.io,https://keybuzz.io"
     nginx.ingress.kubernetes.io/proxy-body-size: "10m"
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
 spec:
