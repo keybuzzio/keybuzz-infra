@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: keybuzz-admin-v2-prod
+  labels:
+    app: keybuzz-admin-v2
+    env: prod

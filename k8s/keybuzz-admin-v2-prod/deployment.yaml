@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: keybuzz-admin-v2
+  namespace: keybuzz-admin-v2-prod
+  labels:
+    app: keybuzz-admin-v2
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: keybuzz-admin-v2
+  template:
+    metadata:
+      labels:
+        app: keybuzz-admin-v2
+    spec:
+      imagePullSecrets:
+        - name: ghcr-secret
+      containers:
+        - name: keybuzz-admin-v2
+          image: ghcr.io/keybuzzio/keybuzz-admin-v2:v0.1.0-ph86.1-foundation-prod
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 3000
+              name: http
+          env:
+            - name: NODE_ENV
+              value: "production"
+            - name: NEXT_PUBLIC_API_URL
+              value: "https://api.keybuzz.io"
+            - name: NEXT_PUBLIC_APP_ENV
+              value: "production"
+            - name: NEXTAUTH_URL
+              value: "https://admin.keybuzz.io"
+            - name: NEXTAUTH_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: keybuzz-admin-v2-auth
+                  key: NEXTAUTH_SECRET
+                  optional: true
+            - name: KEYBUZZ_API_INTERNAL_URL
+              value: "http://keybuzz-api.keybuzz-api-prod.svc.cluster.local:3001"
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "300m"
+              memory: "384Mi"
+          livenessProbe:
+            httpGet:
+              path: /login
+              port: 3000
+            initialDelaySeconds: 15
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /login
+              port: 3000
+            initialDelaySeconds: 5
+            periodSeconds: 10
