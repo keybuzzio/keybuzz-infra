@@ -1,0 +1,25 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: keybuzz-admin-v2
+  namespace: keybuzz-admin-v2-dev
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/proxy-body-size: "10m"
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - admin-dev.keybuzz.io
+      secretName: keybuzz-admin-v2-tls
+  rules:
+    - host: admin-dev.keybuzz.io
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: keybuzz-admin-v2
+                port:
+                  number: 3000

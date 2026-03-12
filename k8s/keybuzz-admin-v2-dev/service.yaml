@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: keybuzz-admin-v2
+  namespace: keybuzz-admin-v2-dev
+  labels:
+    app: keybuzz-admin-v2
+spec:
+  type: ClusterIP
+  selector:
+    app: keybuzz-admin-v2
+  ports:
+    - port: 3000
+      targetPort: 3000
+      protocol: TCP
+      name: http
