@@ -19,7 +19,7 @@ spec:
         - name: ghcr-secret
       containers:
         - name: keybuzz-admin-v2
-          image: ghcr.io/keybuzzio/keybuzz-admin-v2:v0.1.0-ph86.1-foundation-dev
+          image: ghcr.io/keybuzzio/keybuzz-admin-v2:v0.2.1-ph86.1b-auth-bcrypt-fix-dev
           imagePullPolicy: Always
           ports:
             - containerPort: 3000
@@ -41,6 +41,16 @@ spec:
                   optional: true
             - name: KEYBUZZ_API_INTERNAL_URL
               value: "http://keybuzz-api.keybuzz-api-dev.svc.cluster.local:3001"
+            - name: ADMIN_BOOTSTRAP_EMAIL
+              valueFrom:
+                secretKeyRef:
+                  name: keybuzz-admin-v2-bootstrap
+                  key: ADMIN_BOOTSTRAP_EMAIL
+            - name: ADMIN_BOOTSTRAP_PASSWORD_HASH
+              valueFrom:
+                secretKeyRef:
+                  name: keybuzz-admin-v2-bootstrap
+                  key: ADMIN_BOOTSTRAP_PASSWORD_HASH
           resources:
             requests:
               cpu: "50m"
