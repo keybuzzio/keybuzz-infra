@@ -24,7 +24,7 @@ spec:
         - name: keybuzz-client
           # ROLLBACK: v3.5.79-fix-reply-tenantid-prod
           # PH59: OAuth Google/Microsoft connexion + inscription
-          image: ghcr.io/keybuzzio/keybuzz-client:v3.5.54-channels-safety-prod
+          image: ghcr.io/keybuzzio/keybuzz-client:v3.5.57-channels-fix-prod
           imagePullPolicy: Always
           ports:
             - containerPort: 3000
