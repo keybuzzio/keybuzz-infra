@@ -20,7 +20,7 @@ spec:
       containers:
       - name: keybuzz-client
         # PH52.7: Expert Mode Backend State (rollback: v3.5.61c-ph526-learning-ui-dev)
-        image: ghcr.io/keybuzzio/keybuzz-client:v3.5.53-channels-catalog-dev
+        image: ghcr.io/keybuzzio/keybuzz-client:v3.5.54-channels-safety-dev
         imagePullPolicy: Always
         ports:
         - containerPort: 3000
