@@ -19,7 +19,7 @@ spec:
         - name: ghcr-secret
       containers:
         - name: keybuzz-admin-v2
-          image: ghcr.io/keybuzzio/keybuzz-admin-v2:v0.3.0-ph86.1c-auth-hardening-prod
+          image: ghcr.io/keybuzzio/keybuzz-admin-v2:v0.4.0-ph86.2a-ops-api-integration-prod
           imagePullPolicy: Always
           ports:
             - containerPort: 3000
