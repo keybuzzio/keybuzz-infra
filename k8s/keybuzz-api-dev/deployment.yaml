@@ -174,7 +174,7 @@ spec:
           value: "http://keybuzz-api.keybuzz-api-dev.svc.cluster.local:3001" 
         # ROLLBACK: v3.5.72-ph62-evidence-intelligence-dev
         # PH63: Abuse Pattern Engine (longitudinal abuse detection, 0 LLM, 0 KBActions)
-        image: ghcr.io/keybuzzio/keybuzz-api:v3.5.97-fix-mime-truncation-dev
+        image: ghcr.io/keybuzzio/keybuzz-api:v3.5.58-channels-billing-dev
         livenessProbe:
           httpGet:
             path: /health
