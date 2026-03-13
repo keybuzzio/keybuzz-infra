@@ -52,6 +52,7 @@ spec:
             - name: DEV_AUTH
               value: "true"
             - name: KEYBUZZ_INTERNAL_PROXY_TOKEN
+              value: "a0b9714c287bd18577f2e430770169e4b969bcfbbcedccdcf420cd09acd09147"
               valueFrom:
                 secretKeyRef:
                   name: keybuzz-internal-proxy
