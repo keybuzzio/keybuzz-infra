@@ -24,7 +24,7 @@ spec:
         - name: keybuzz-client
           # ROLLBACK: v3.5.79-fix-reply-tenantid-prod
           # PH59: OAuth Google/Microsoft connexion + inscription
-          image: ghcr.io/keybuzzio/keybuzz-client:v3.5.52-order-panel-toggle-prod
+          image: ghcr.io/keybuzzio/keybuzz-client:v3.5.54-channels-safety-prod
           imagePullPolicy: Always
           ports:
             - containerPort: 3000
@@ -69,13 +69,13 @@ spec:
               value: "production"
             # PH30.5: Backend API URLs (server-side BFF only)
             - name: BACKEND_URL
-              value: "http://keybuzz-api.keybuzz-api-prod.svc.cluster.local:80"
+              value: "http://keybuzz-api.keybuzz-api-prod.svc.cluster.local:3001"
             - name: API_URL
               value: "https://api.keybuzz.io"
             - name: AMAZON_BACKEND_URL
               value: "http://keybuzz-backend.keybuzz-backend-prod.svc.cluster.local:4000"
             - name: API_URL_INTERNAL
-              value: "http://keybuzz-api.keybuzz-api-prod.svc.cluster.local:80"
+              value: "http://keybuzz-api.keybuzz-api-prod.svc.cluster.local:3001"
             - name: KEYBUZZ_INTERNAL_PROXY_TOKEN
               value: "a0b9714c287bd18577f2e430770169e4b969bcfbbcedccdcf420cd09acd09147"
           resources:
