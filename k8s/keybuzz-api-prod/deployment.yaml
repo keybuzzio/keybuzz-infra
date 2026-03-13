@@ -169,7 +169,7 @@ spec:
               value: "http://keybuzz-api.keybuzz-api-prod.svc.cluster.local:3001"
             - name: AMAZON_OUTBOUND_ATTACHMENTS_ENABLED
             - name: LEGACY_BACKEND_URL
-              value: "http://keybuzz-backend.keybuzz-backend-prod.svc.cluster.local:4000"
+              value: "http://keybuzz-backend.keybuzz-backend-dev.svc.cluster.local:4000"
             - name: KEYBUZZ_INTERNAL_PROXY_TOKEN
               value: "a0b9714c287bd18577f2e430770169e4b969bcfbbcedccdcf420cd09acd09147"
               value: "true"
