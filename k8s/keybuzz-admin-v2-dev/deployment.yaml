@@ -19,7 +19,7 @@ spec:
         - name: ghcr-secret
       containers:
         - name: keybuzz-admin-v2
-          image: ghcr.io/keybuzzio/keybuzz-admin-v2:v0.4.0-ph86.2a-ops-api-integration-dev
+          image: ghcr.io/keybuzzio/keybuzz-admin-v2:v0.5.0-ph86.1d-user-management-dev
           imagePullPolicy: Always
           ports:
             - containerPort: 3000
@@ -51,6 +51,31 @@ spec:
                 secretKeyRef:
                   name: keybuzz-admin-v2-bootstrap
                   key: ADMIN_BOOTSTRAP_PASSWORD_HASH
+            - name: PGHOST
+              valueFrom:
+                secretKeyRef:
+                  name: keybuzz-admin-v2-postgres
+                  key: PGHOST
+            - name: PGPORT
+              valueFrom:
+                secretKeyRef:
+                  name: keybuzz-admin-v2-postgres
+                  key: PGPORT
+            - name: PGDATABASE
+              valueFrom:
+                secretKeyRef:
+                  name: keybuzz-admin-v2-postgres
+                  key: PGDATABASE
+            - name: PGUSER
+              valueFrom:
+                secretKeyRef:
+                  name: keybuzz-admin-v2-postgres
+                  key: PGUSER
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: keybuzz-admin-v2-postgres
+                  key: PGPASSWORD
           resources:
             requests:
               cpu: "50m"
