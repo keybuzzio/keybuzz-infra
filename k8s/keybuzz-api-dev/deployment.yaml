@@ -174,8 +174,9 @@ spec:
           value: "http://keybuzz-api.keybuzz-api-dev.svc.cluster.local:3001"
         - name: STRIPE_PRODUCT_ADDON_CHANNEL
           value: "prod_TjrtcvXp3I6fJR"
-        # ROLLBACK: v3.5.58-channels-billing-dev
-        image: ghcr.io/keybuzzio/keybuzz-api:v3.5.59-channels-stripe-sync-dev
+        # ROLLBACK: v3.5.59-channels-stripe-sync-dev
+        # PH-CHANNELS-STRIPE-PROD-CHECK: Anti-fraud protection (activated_at, billable_until, grace period 15min)
+        image: ghcr.io/keybuzzio/keybuzz-api:v3.5.59-channels-billing-secure-dev
         livenessProbe:
           httpGet:
             path: /health
