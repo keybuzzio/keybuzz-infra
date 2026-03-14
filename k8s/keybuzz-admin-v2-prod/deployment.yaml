@@ -19,7 +19,7 @@ spec:
         - name: ghcr-secret
       containers:
         - name: keybuzz-admin-v2
-          image: ghcr.io/keybuzzio/keybuzz-admin-v2:v0.18.0-ph87.2a-feature-flags
+          image: ghcr.io/keybuzzio/keybuzz-admin-v2:v0.19.0-ph87.3a-incidents
           imagePullPolicy: Always
           ports:
             - containerPort: 3000
