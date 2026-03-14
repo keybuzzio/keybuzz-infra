@@ -174,9 +174,9 @@ spec:
           value: "http://keybuzz-api.keybuzz-api-dev.svc.cluster.local:3001"
         - name: STRIPE_PRODUCT_ADDON_CHANNEL
           value: "prod_TjrtcvXp3I6fJR"
-        # ROLLBACK: v3.5.60-channels-billing-secure-dev
-        # PH90: Cost Awareness Engine (resolution cost estimation, no LLM, no KBActions)
-        image: ghcr.io/keybuzzio/keybuzz-api:v3.5.61-ph90-cost-awareness-dev
+        # ROLLBACK: v3.5.61-ph90-cost-awareness-dev
+        # PH91: Buyer Reputation Engine (persistent buyer reputation analytics, no LLM, no KBActions)
+        image: ghcr.io/keybuzzio/keybuzz-api:v3.5.92-ph91-buyer-reputation-dev
         livenessProbe:
           httpGet:
             path: /health
