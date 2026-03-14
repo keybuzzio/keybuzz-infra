@@ -22,9 +22,9 @@ spec:
         - name: ghcr-cred
       containers:
         - name: keybuzz-api
-          # ROLLBACK: v3.5.59-channels-billing-secure-prod
-          # PH-CHANNELS-ANTIFRAUD-PROD-ON: Anti-fraud activated (activated_at, billable_until, 15min grace)
-          image: ghcr.io/keybuzzio/keybuzz-api:v3.5.60-channels-billing-secure-prod
+          # ROLLBACK: v3.5.60-channels-billing-secure-prod
+          # PH90: Cost Awareness Engine (resolution cost estimation, no LLM, no KBActions)
+          image: ghcr.io/keybuzzio/keybuzz-api:v3.5.61-ph90-cost-awareness-prod
           imagePullPolicy: Always
           ports:
             - containerPort: 3001
