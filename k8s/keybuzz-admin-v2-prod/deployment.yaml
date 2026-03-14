@@ -2,16 +2,16 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   annotations:
-    deployment.kubernetes.io/revision: "39"
+    deployment.kubernetes.io/revision: "40"
     kubectl.kubernetes.io/last-applied-configuration: |
       {"apiVersion":"apps/v1","kind":"Deployment","metadata":{"annotations":{},"labels":{"app":"keybuzz-admin-v2"},"name":"keybuzz-admin-v2","namespace":"keybuzz-admin-v2-prod"},"spec":{"replicas":1,"selector":{"matchLabels":{"app":"keybuzz-admin-v2"}},"template":{"metadata":{"labels":{"app":"keybuzz-admin-v2"}},"spec":{"containers":[{"env":[{"name":"NODE_ENV","value":"production"},{"name":"NEXT_PUBLIC_API_URL","value":"https://api.keybuzz.io"},{"name":"NEXT_PUBLIC_APP_ENV","value":"production"},{"name":"NEXTAUTH_URL","value":"https://admin.keybuzz.io"},{"name":"NEXTAUTH_SECRET","valueFrom":{"secretKeyRef":{"key":"NEXTAUTH_SECRET","name":"keybuzz-admin-v2-auth","optional":true}}},{"name":"KEYBUZZ_API_INTERNAL_URL","value":"http://keybuzz-api.keybuzz-api-prod.svc.cluster.local:3001"},{"name":"ADMIN_BOOTSTRAP_EMAIL","valueFrom":{"secretKeyRef":{"key":"ADMIN_BOOTSTRAP_EMAIL","name":"keybuzz-admin-v2-bootstrap"}}},{"name":"ADMIN_BOOTSTRAP_PASSWORD_HASH","valueFrom":{"secretKeyRef":{"key":"ADMIN_BOOTSTRAP_PASSWORD_HASH","name":"keybuzz-admin-v2-bootstrap"}}},{"name":"PGHOST","valueFrom":{"secretKeyRef":{"key":"PGHOST","name":"keybuzz-admin-v2-postgres"}}},{"name":"PGPORT","valueFrom":{"secretKeyRef":{"key":"PGPORT","name":"keybuzz-admin-v2-postgres"}}},{"name":"PGDATABASE","valueFrom":{"secretKeyRef":{"key":"PGDATABASE","name":"keybuzz-admin-v2-postgres"}}},{"name":"PGUSER","valueFrom":{"secretKeyRef":{"key":"PGUSER","name":"keybuzz-admin-v2-postgres"}}},{"name":"PGPASSWORD","valueFrom":{"secretKeyRef":{"key":"PGPASSWORD","name":"keybuzz-admin-v2-postgres"}}}],"image":"ghcr.io/keybuzzio/keybuzz-admin-v2:v0.5.0-ph86.1d-user-management-prod","imagePullPolicy":"Always","livenessProbe":{"httpGet":{"path":"/login","port":3000},"initialDelaySeconds":15,"periodSeconds":30},"name":"keybuzz-admin-v2","ports":[{"containerPort":3000,"name":"http"}],"readinessProbe":{"httpGet":{"path":"/login","port":3000},"initialDelaySeconds":5,"periodSeconds":10},"resources":{"limits":{"cpu":"300m","memory":"384Mi"},"requests":{"cpu":"100m","memory":"128Mi"}}}],"imagePullSecrets":[{"name":"ghcr-secret"}]}}}}
   creationTimestamp: "2026-03-12T21:32:55Z"
-  generation: 39
+  generation: 40
   labels:
     app: keybuzz-admin-v2
   name: keybuzz-admin-v2
   namespace: keybuzz-admin-v2-prod
-  resourceVersion: "37870512"
+  resourceVersion: "37880698"
   uid: 0d828598-1618-4926-8096-ec2859707db8
 spec:
   progressDeadlineSeconds: 600
@@ -86,7 +86,7 @@ spec:
             secretKeyRef:
               key: PGPASSWORD
               name: keybuzz-admin-v2-postgres
-        image: ghcr.io/keybuzzio/keybuzz-admin-v2:v0.22.0-ph87.6a-finance-dashboard
+        image: ghcr.io/keybuzzio/keybuzz-admin-v2:v0.23.0-ph87.6b-ai-cost-monitoring
         imagePullPolicy: Always
         livenessProbe:
           failureThreshold: 3
@@ -139,12 +139,12 @@ status:
     status: "True"
     type: Available
   - lastTransitionTime: "2026-03-12T21:32:55Z"
-    lastUpdateTime: "2026-03-14T15:23:51Z"
-    message: ReplicaSet "keybuzz-admin-v2-78c459b465" has successfully progressed.
+    lastUpdateTime: "2026-03-14T15:52:45Z"
+    message: ReplicaSet "keybuzz-admin-v2-558547bb67" has successfully progressed.
     reason: NewReplicaSetAvailable
     status: "True"
     type: Progressing
-  observedGeneration: 39
+  observedGeneration: 40
   readyReplicas: 1
   replicas: 1
   updatedReplicas: 1
