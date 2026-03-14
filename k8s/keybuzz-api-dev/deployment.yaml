@@ -174,9 +174,9 @@ spec:
           value: "http://keybuzz-api.keybuzz-api-dev.svc.cluster.local:3001"
         - name: STRIPE_PRODUCT_ADDON_CHANNEL
           value: "prod_TjrtcvXp3I6fJR"
-        # ROLLBACK: v3.5.93-ph92-marketplace-policy-dev
+        # ROLLBACK: v3.5.94-ph93-customer-patience-dev
         # PH93: Customer Patience Predictor (patience estimation, no LLM, no KBActions)
-        image: ghcr.io/keybuzzio/keybuzz-api:v3.5.94-ph93-customer-patience-dev
+        image: ghcr.io/keybuzzio/keybuzz-api:v3.5.95-ph94-resolution-cost-optimizer-dev
         livenessProbe:
           httpGet:
             path: /health
