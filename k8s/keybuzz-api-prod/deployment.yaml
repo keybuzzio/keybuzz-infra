@@ -22,9 +22,9 @@ spec:
         - name: ghcr-cred
       containers:
         - name: keybuzz-api
-          # ROLLBACK: v3.5.61-ph90-cost-awareness-prod
-          # PH91: Buyer Reputation Engine (historical buyer analytics, no LLM, no KBActions)
-          image: ghcr.io/keybuzzio/keybuzz-api:v3.5.92-ph91-buyer-reputation-prod
+          # ROLLBACK: v3.5.92-ph91-buyer-reputation-prod
+          # PH92: Marketplace Policy Engine (marketplace-specific SAV policies, no LLM, no KBActions)
+          image: ghcr.io/keybuzzio/keybuzz-api:v3.5.93-ph92-marketplace-policy-prod
           imagePullPolicy: Always
           ports:
             - containerPort: 3001
