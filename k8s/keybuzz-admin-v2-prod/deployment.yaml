@@ -1,97 +1,150 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: keybuzz-admin-v2
-  namespace: keybuzz-admin-v2-prod
+  annotations:
+    deployment.kubernetes.io/revision: "38"
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"apps/v1","kind":"Deployment","metadata":{"annotations":{},"labels":{"app":"keybuzz-admin-v2"},"name":"keybuzz-admin-v2","namespace":"keybuzz-admin-v2-prod"},"spec":{"replicas":1,"selector":{"matchLabels":{"app":"keybuzz-admin-v2"}},"template":{"metadata":{"labels":{"app":"keybuzz-admin-v2"}},"spec":{"containers":[{"env":[{"name":"NODE_ENV","value":"production"},{"name":"NEXT_PUBLIC_API_URL","value":"https://api.keybuzz.io"},{"name":"NEXT_PUBLIC_APP_ENV","value":"production"},{"name":"NEXTAUTH_URL","value":"https://admin.keybuzz.io"},{"name":"NEXTAUTH_SECRET","valueFrom":{"secretKeyRef":{"key":"NEXTAUTH_SECRET","name":"keybuzz-admin-v2-auth","optional":true}}},{"name":"KEYBUZZ_API_INTERNAL_URL","value":"http://keybuzz-api.keybuzz-api-prod.svc.cluster.local:3001"},{"name":"ADMIN_BOOTSTRAP_EMAIL","valueFrom":{"secretKeyRef":{"key":"ADMIN_BOOTSTRAP_EMAIL","name":"keybuzz-admin-v2-bootstrap"}}},{"name":"ADMIN_BOOTSTRAP_PASSWORD_HASH","valueFrom":{"secretKeyRef":{"key":"ADMIN_BOOTSTRAP_PASSWORD_HASH","name":"keybuzz-admin-v2-bootstrap"}}},{"name":"PGHOST","valueFrom":{"secretKeyRef":{"key":"PGHOST","name":"keybuzz-admin-v2-postgres"}}},{"name":"PGPORT","valueFrom":{"secretKeyRef":{"key":"PGPORT","name":"keybuzz-admin-v2-postgres"}}},{"name":"PGDATABASE","valueFrom":{"secretKeyRef":{"key":"PGDATABASE","name":"keybuzz-admin-v2-postgres"}}},{"name":"PGUSER","valueFrom":{"secretKeyRef":{"key":"PGUSER","name":"keybuzz-admin-v2-postgres"}}},{"name":"PGPASSWORD","valueFrom":{"secretKeyRef":{"key":"PGPASSWORD","name":"keybuzz-admin-v2-postgres"}}}],"image":"ghcr.io/keybuzzio/keybuzz-admin-v2:v0.5.0-ph86.1d-user-management-prod","imagePullPolicy":"Always","livenessProbe":{"httpGet":{"path":"/login","port":3000},"initialDelaySeconds":15,"periodSeconds":30},"name":"keybuzz-admin-v2","ports":[{"containerPort":3000,"name":"http"}],"readinessProbe":{"httpGet":{"path":"/login","port":3000},"initialDelaySeconds":5,"periodSeconds":10},"resources":{"limits":{"cpu":"300m","memory":"384Mi"},"requests":{"cpu":"100m","memory":"128Mi"}}}],"imagePullSecrets":[{"name":"ghcr-secret"}]}}}}
+  creationTimestamp: "2026-03-12T21:32:55Z"
+  generation: 38
   labels:
     app: keybuzz-admin-v2
+  name: keybuzz-admin-v2
+  namespace: keybuzz-admin-v2-prod
+  resourceVersion: "37849829"
+  uid: 0d828598-1618-4926-8096-ec2859707db8
 spec:
+  progressDeadlineSeconds: 600
   replicas: 1
+  revisionHistoryLimit: 10
   selector:
     matchLabels:
       app: keybuzz-admin-v2
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
   template:
     metadata:
+      annotations:
+        kubectl.kubernetes.io/restartedAt: "2026-03-14T02:03:31Z"
+      creationTimestamp: null
       labels:
         app: keybuzz-admin-v2
     spec:
-      imagePullSecrets:
-        - name: ghcr-secret
       containers:
-        - name: keybuzz-admin-v2
-          image: ghcr.io/keybuzzio/keybuzz-admin-v2:v0.20.0-ph87.4a-queue-inspector
-          imagePullPolicy: Always
-          ports:
-            - containerPort: 3000
-              name: http
-          env:
-            - name: NODE_ENV
-              value: "production"
-            - name: NEXT_PUBLIC_API_URL
-              value: "https://api.keybuzz.io"
-            - name: NEXT_PUBLIC_APP_ENV
-              value: "production"
-            - name: NEXTAUTH_URL
-              value: "https://admin.keybuzz.io"
-            - name: NEXTAUTH_SECRET
-              valueFrom:
-                secretKeyRef:
-                  name: keybuzz-admin-v2-auth
-                  key: NEXTAUTH_SECRET
-                  optional: true
-            - name: KEYBUZZ_API_INTERNAL_URL
-              value: "http://keybuzz-api.keybuzz-api-prod.svc.cluster.local:3001"
-            - name: ADMIN_BOOTSTRAP_EMAIL
-              valueFrom:
-                secretKeyRef:
-                  name: keybuzz-admin-v2-bootstrap
-                  key: ADMIN_BOOTSTRAP_EMAIL
-            - name: ADMIN_BOOTSTRAP_PASSWORD_HASH
-              valueFrom:
-                secretKeyRef:
-                  name: keybuzz-admin-v2-bootstrap
-                  key: ADMIN_BOOTSTRAP_PASSWORD_HASH
-            - name: PGHOST
-              valueFrom:
-                secretKeyRef:
-                  name: keybuzz-admin-v2-postgres
-                  key: PGHOST
-            - name: PGPORT
-              valueFrom:
-                secretKeyRef:
-                  name: keybuzz-admin-v2-postgres
-                  key: PGPORT
-            - name: PGDATABASE
-              valueFrom:
-                secretKeyRef:
-                  name: keybuzz-admin-v2-postgres
-                  key: PGDATABASE
-            - name: PGUSER
-              valueFrom:
-                secretKeyRef:
-                  name: keybuzz-admin-v2-postgres
-                  key: PGUSER
-            - name: PGPASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: keybuzz-admin-v2-postgres
-                  key: PGPASSWORD
-          resources:
-            requests:
-              cpu: "100m"
-              memory: "128Mi"
-            limits:
-              cpu: "300m"
-              memory: "384Mi"
-          livenessProbe:
-            httpGet:
-              path: /login
-              port: 3000
-            initialDelaySeconds: 15
-            periodSeconds: 30
-          readinessProbe:
-            httpGet:
-              path: /login
-              port: 3000
-            initialDelaySeconds: 5
-            periodSeconds: 10
+      - env:
+        - name: NODE_ENV
+          value: production
+        - name: NEXT_PUBLIC_API_URL
+          value: https://api.keybuzz.io
+        - name: NEXT_PUBLIC_APP_ENV
+          value: production
+        - name: NEXTAUTH_URL
+          value: https://admin.keybuzz.io
+        - name: NEXTAUTH_SECRET
+          valueFrom:
+            secretKeyRef:
+              key: NEXTAUTH_SECRET
+              name: keybuzz-admin-v2-auth
+              optional: true
+        - name: KEYBUZZ_API_INTERNAL_URL
+          value: http://keybuzz-api.keybuzz-api-prod.svc.cluster.local:3001
+        - name: ADMIN_BOOTSTRAP_EMAIL
+          valueFrom:
+            secretKeyRef:
+              key: ADMIN_BOOTSTRAP_EMAIL
+              name: keybuzz-admin-v2-bootstrap
+        - name: ADMIN_BOOTSTRAP_PASSWORD_HASH
+          valueFrom:
+            secretKeyRef:
+              key: ADMIN_BOOTSTRAP_PASSWORD_HASH
+              name: keybuzz-admin-v2-bootstrap
+        - name: PGHOST
+          valueFrom:
+            secretKeyRef:
+              key: PGHOST
+              name: keybuzz-admin-v2-postgres
+        - name: PGPORT
+          valueFrom:
+            secretKeyRef:
+              key: PGPORT
+              name: keybuzz-admin-v2-postgres
+        - name: PGDATABASE
+          valueFrom:
+            secretKeyRef:
+              key: PGDATABASE
+              name: keybuzz-admin-v2-postgres
+        - name: PGUSER
+          valueFrom:
+            secretKeyRef:
+              key: PGUSER
+              name: keybuzz-admin-v2-postgres
+        - name: PGPASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: PGPASSWORD
+              name: keybuzz-admin-v2-postgres
+        image: ghcr.io/keybuzzio/keybuzz-admin-v2:v0.21.0-ph87.5a-ai-evaluations
+        imagePullPolicy: Always
+        livenessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /login
+            port: 3000
+            scheme: HTTP
+          initialDelaySeconds: 15
+          periodSeconds: 30
+          successThreshold: 1
+          timeoutSeconds: 1
+        name: keybuzz-admin-v2
+        ports:
+        - containerPort: 3000
+          name: http
+          protocol: TCP
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /login
+            port: 3000
+            scheme: HTTP
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 1
+        resources:
+          limits:
+            cpu: 300m
+            memory: 384Mi
+          requests:
+            cpu: 100m
+            memory: 128Mi
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+      dnsPolicy: ClusterFirst
+      imagePullSecrets:
+      - name: ghcr-secret
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+status:
+  availableReplicas: 1
+  conditions:
+  - lastTransitionTime: "2026-03-12T21:33:16Z"
+    lastUpdateTime: "2026-03-12T21:33:16Z"
+    message: Deployment has minimum availability.
+    reason: MinimumReplicasAvailable
+    status: "True"
+    type: Available
+  - lastTransitionTime: "2026-03-12T21:32:55Z"
+    lastUpdateTime: "2026-03-14T14:23:30Z"
+    message: ReplicaSet "keybuzz-admin-v2-54f79d668b" has successfully progressed.
+    reason: NewReplicaSetAvailable
+    status: "True"
+    type: Progressing
+  observedGeneration: 38
+  readyReplicas: 1
+  replicas: 1
+  updatedReplicas: 1
