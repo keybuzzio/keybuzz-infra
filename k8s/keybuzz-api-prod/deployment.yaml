@@ -22,9 +22,9 @@ spec:
         - name: ghcr-cred
       containers:
         - name: keybuzz-api
-          # ROLLBACK: v3.5.96-ph95-global-learning-prod
+          # ROLLBACK: v3.5.97-ph96-seller-dna-prod
           # PH93: Customer Patience Predictor (patience estimation, no LLM, no KBActions)
-          image: ghcr.io/keybuzzio/keybuzz-api:v3.5.97-ph96-seller-dna-prod
+          image: ghcr.io/keybuzzio/keybuzz-api:v3.5.98-ph97-multi-order-context-prod
           imagePullPolicy: Always
           ports:
             - containerPort: 3001
