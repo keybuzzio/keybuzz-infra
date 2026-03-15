@@ -69,13 +69,16 @@ spec:
               value: "production"
             # PH30.5: Backend API URLs (server-side BFF only)
             - name: BACKEND_URL
-              value: "http://keybuzz-api.keybuzz-api-prod.svc.cluster.local:3001"
+              value: "http://keybuzz-api.keybuzz-api-prod.svc.cluster.local:80"
             - name: API_URL
               value: "https://api.keybuzz.io"
+            # FIX: Was pointing to backend (4000) which returns connected:false
+            # because MarketplaceConnection table is empty in backend DB.
+            # Must point to API which has the real Amazon connection data.
             - name: AMAZON_BACKEND_URL
-              value: "http://keybuzz-backend.keybuzz-backend-prod.svc.cluster.local:4000"
+              value: "http://keybuzz-api.keybuzz-api-prod.svc.cluster.local:80"
             - name: API_URL_INTERNAL
-              value: "http://keybuzz-api.keybuzz-api-prod.svc.cluster.local:3001"
+              value: "http://keybuzz-api.keybuzz-api-prod.svc.cluster.local:80"
             - name: KEYBUZZ_INTERNAL_PROXY_TOKEN
               value: "a0b9714c287bd18577f2e430770169e4b969bcfbbcedccdcf420cd09acd09147"
           resources:
