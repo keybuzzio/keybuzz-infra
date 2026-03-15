@@ -1,8 +1,8 @@
 # KeyBuzz V3 — Matrice de Duplication Tables DB
 
 > Date : 15 mars 2026
-> Phase : PH-TD-01D
-> Dernière vérification : audit runtime 15 mars 2026
+> Phase : PH-TD-01E (mis à jour)
+> Dernière vérification : post-cleanup PH-TD-01E 15 mars 2026
 
 ---
 
@@ -10,7 +10,7 @@
 
 | Base | Env | Tables | Tables avec données |
 |------|-----|--------|---------------------|
-| `keybuzz_prod` | PROD | 87 | ~50 |
+| `keybuzz_prod` | PROD | **84** (3 legacy supprimées PH-TD-01E) | ~50 |
 | `keybuzz_backend_prod` | PROD | 42 | 2 (ExternalMessage + _prisma_migrations) |
 | `keybuzz` | DEV | 85 | ~55 |
 | `keybuzz_backend` | DEV | 39 | ~15 |
@@ -21,12 +21,12 @@
 
 Tables créées par d'anciennes migrations Prisma qui ont laissé des traces dans la DB API.
 
-| Table | keybuzz_prod (PROD) | keybuzz_backend_prod (PROD) | keybuzz (DEV) | keybuzz_backend (DEV) | Action |
+| Table | keybuzz_prod (PROD) | keybuzz_backend_prod (PROD) | keybuzz (DEV) | keybuzz_backend (DEV) | Statut |
 |-------|--------------------|-----------------------------|---------------|----------------------|--------|
-| `ExternalMessage` | 4 rows | 3 rows | N/A | 41046 rows | **CONSERVER** — données actives, delta 1 row |
-| `MessageAttachment` | 0 rows | N/A | 0 rows | N/A | Candidate DROP PH-TD-01E |
-| `Order` | 0 rows | 0 rows | N/A | 22891 rows | Candidate DROP dans keybuzz_prod PH-TD-01E |
-| `OrderItem` | 0 rows | 0 rows | N/A | 23290 rows | Candidate DROP dans keybuzz_prod PH-TD-01E |
+| `ExternalMessage` | 4 rows | 3 rows | N/A | 41046 rows | **CONSERVÉE** — données actives |
+| ~~`MessageAttachment`~~ | — | N/A | 0 rows | N/A | **SUPPRIMÉE** PH-TD-01E (0 rows, 0 refs) |
+| ~~`Order`~~ | — | 0 rows | N/A | 22891 rows | **SUPPRIMÉE** PH-TD-01E (0 rows, 0 refs) |
+| ~~`OrderItem`~~ | — | 0 rows | N/A | 23290 rows | **SUPPRIMÉE** PH-TD-01E (0 rows, FK to Order) |
 
 ---
 
@@ -111,13 +111,13 @@ Catégorie **Infra** : `feature_flags`, `cancel_reasons`, `channel_rules`, `conv
 | `keybuzz_backend` Order/OrderItem | 22891/23290 | 0/0 | PROD utilise `orders` snake_case dans keybuzz_prod |
 | `keybuzz_backend` OAuthState | 103 | 0 | États OAuth DEV accumulés |
 | `keybuzz` (DEV) orders | 11591 | N/A | Plus de commandes en DEV |
-| `MessageAttachment` PascalCase | DEV keybuzz: 0 | PROD keybuzz_prod: 0 | Legacy, candidate suppression |
+| ~~`MessageAttachment` PascalCase~~ | DEV keybuzz: 0 | — | **SUPPRIMÉE** PH-TD-01E |
 
 ---
 
-## 7. Recommandations PH-TD-01E
+## 7. Statut Post PH-TD-01E
 
-1. **Supprimer** de `keybuzz_prod` : `MessageAttachment`, `Order`, `OrderItem` (0 rows, Prisma fantômes)
-2. **Investiguer** `ExternalMessage` dans `keybuzz_prod` : 4 rows vs 3 dans backend_prod — synchroniser
-3. **Supprimer** copies snake_case vides dans `keybuzz_backend_prod` qui ont leur source dans keybuzz_prod
-4. **Garder** les `amazon_backfill_*` dans les deux DBs (backend les utilise via Prisma)
+1. **FAIT** : `MessageAttachment`, `Order`, `OrderItem` supprimées de `keybuzz_prod` (PH-TD-01E)
+2. **À investiguer** : `ExternalMessage` dans `keybuzz_prod` : 4 rows vs 3 dans backend_prod — delta 1 row
+3. **À évaluer** : copies snake_case vides dans `keybuzz_backend_prod` qui ont leur source dans keybuzz_prod
+4. **Conserver** : les `amazon_backfill_*` dans les deux DBs (backend les utilise via Prisma)

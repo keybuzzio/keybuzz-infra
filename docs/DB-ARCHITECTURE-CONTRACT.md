@@ -184,16 +184,16 @@ Le système KeyBuzz utilise une architecture **dual-DB** :
 
 ## 4. Tables Legacy (Prisma fantômes dans `keybuzz_prod`)
 
-Ces tables PascalCase existent dans `keybuzz_prod` mais ne devraient être utilisées que depuis `keybuzz_backend_prod` :
+Après PH-TD-01E, seule `ExternalMessage` reste en PascalCase dans `keybuzz_prod` :
 
-| Table | Rows dans keybuzz_prod | Rows dans keybuzz_backend_prod | Action recommandée |
-|-------|------------------------|-------------------------------|-------------------|
-| `ExternalMessage` | 4 | 3 | **CONSERVER** — 1 row supplémentaire dans PROD (migration incomplète possible) |
-| `MessageAttachment` | 0 | N/A | Candidate suppression PH-TD-01E |
-| `Order` | 0 | 0 | Candidate suppression PH-TD-01E |
-| `OrderItem` | 0 | 0 | Candidate suppression PH-TD-01E |
+| Table | Statut | Raison |
+|-------|--------|--------|
+| `ExternalMessage` | **CONSERVÉE** | 4 rows actives (delta 1 row vs backend_prod) |
+| ~~`MessageAttachment`~~ | **SUPPRIMÉE** (PH-TD-01E) | 0 rows, 0 refs code, 0 refs runtime |
+| ~~`Order`~~ | **SUPPRIMÉE** (PH-TD-01E) | 0 rows, 0 refs code, 0 refs runtime |
+| ~~`OrderItem`~~ | **SUPPRIMÉE** (PH-TD-01E) | 0 rows, FK to Order, 0 refs code |
 
-**Aucune suppression dans PH-TD-01D.** Toute suppression sera faite en PH-TD-01E après validation.
+`keybuzz_prod` : 87 tables → **84 tables** après cleanup.
 
 ---
 
