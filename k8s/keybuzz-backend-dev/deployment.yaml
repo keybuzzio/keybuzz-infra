@@ -29,7 +29,7 @@ spec:
     spec:
       containers:
         - name: keybuzz-backend
-          image: ghcr.io/keybuzzio/keybuzz-backend:v1.0.41-ph263b-scheduler-dev
+          image: ghcr.io/keybuzzio/keybuzz-backend:v1.0.43-ph-tracking-01-dev
           imagePullPolicy: Always
           ports:
             - name: http
