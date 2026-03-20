@@ -6,6 +6,8 @@ metadata:
   labels:
     app: keybuzz-client
     environment: production
+  annotations:
+    argocd.argoproj.io/tracking-id: "keybuzz-client-prod:apps/Deployment:keybuzz-client-prod/keybuzz-client"
 spec:
   replicas: 1
   selector:
@@ -22,14 +24,22 @@ spec:
         - name: ghcr-cred
       containers:
         - name: keybuzz-client
-          # ROLLBACK: v3.5.58-channels-billing-prod
-          # PH-CHANNELS-STRIPE-SYNC-ON: Real Stripe channel addon sync
-          image: ghcr.io/keybuzzio/keybuzz-client:v3.5.59-channels-stripe-sync-prod
+          # RESTORE PROD to last known good client (2026-03-20)
+          # PREVIOUS: v3.5.59-channels-stripe-sync-prod (focus mode ON regression)
+          # RESTORED: v3.5.58-channels-billing-prod (focus mode OFF, paywall OK)
+          # ROLLBACK: v3.5.59-channels-stripe-sync-prod
+          image: ghcr.io/keybuzzio/keybuzz-client:v3.5.58-channels-billing-prod
           imagePullPolicy: Always
           ports:
             - containerPort: 3000
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
           env:
-            # NextAuth runtime config
             - name: NEXTAUTH_URL
               value: "https://client.keybuzz.io"
             - name: NEXTAUTH_SECRET
@@ -37,7 +47,6 @@ spec:
                 secretKeyRef:
                   name: keybuzz-auth-secrets
                   key: NEXTAUTH_SECRET
-            # Google OAuth
             - name: GOOGLE_CLIENT_ID
               valueFrom:
                 secretKeyRef:
@@ -48,7 +57,6 @@ spec:
                 secretKeyRef:
                   name: keybuzz-auth-secrets
                   key: GOOGLE_CLIENT_SECRET
-            # Azure AD OAuth
             - name: AZURE_AD_CLIENT_ID
               valueFrom:
                 secretKeyRef:
@@ -64,31 +72,15 @@ spec:
                 secretKeyRef:
                   name: keybuzz-auth-secrets
                   key: AZURE_AD_TENANT_ID
-            # Environment marker
             - name: NEXT_PUBLIC_APP_ENV
               value: "production"
-            # PH30.5: Backend API URLs (server-side BFF only)
             - name: BACKEND_URL
               value: "http://keybuzz-api.keybuzz-api-prod.svc.cluster.local:80"
             - name: API_URL
               value: "https://api.keybuzz.io"
-            # FIX: Was pointing to backend (4000) which returns connected:false
-            # because MarketplaceConnection table is empty in backend DB.
-            # Must point to API which has the real Amazon connection data.
             - name: AMAZON_BACKEND_URL
-              value: "http://keybuzz-api.keybuzz-api-prod.svc.cluster.local:80"
+              value: "http://keybuzz-backend.keybuzz-backend-prod.svc.cluster.local:4000"
             - name: API_URL_INTERNAL
               value: "http://keybuzz-api.keybuzz-api-prod.svc.cluster.local:80"
             - name: KEYBUZZ_INTERNAL_PROXY_TOKEN
               value: "a0b9714c287bd18577f2e430770169e4b969bcfbbcedccdcf420cd09acd09147"
-          resources:
-            requests:
-              cpu: "100m"
-              memory: "256Mi"
-            limits:
-              cpu: "500m"
-              memory: "512Mi"
-
-
-
-
