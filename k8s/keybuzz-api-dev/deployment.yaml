@@ -176,7 +176,7 @@ spec:
           value: "prod_TjrtcvXp3I6fJR"
         # ROLLBACK: v3.5.97-ph96-seller-dna-dev
         # PH97: Multi-Order Context Engine (cross-order pattern detection, no LLM, no KBActions)
-        image: ghcr.io/keybuzzio/keybuzz-api:v3.5.98-ph97-multi-order-context-dev
+        image: ghcr.io/keybuzzio/keybuzz-api:v3.6.18-ph116-real-execution-monitoring-dev
         livenessProbe:
           httpGet:
             path: /health
