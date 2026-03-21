@@ -20,7 +20,7 @@ spec:
       containers:
       - name: keybuzz-client
         # ROLLBACK: v3.5.58-channels-billing-dev
-        image: ghcr.io/keybuzzio/keybuzz-client:v3.5.63-onboarding-oauth-continuity-dev
+        image: ghcr.io/keybuzzio/keybuzz-client:v3.5.64-billing-gate-dev
         imagePullPolicy: Always
         ports:
         - containerPort: 3000
