@@ -5,6 +5,9 @@ metadata:
   namespace: keybuzz-client-dev
   labels:
     app: keybuzz-client
+    environment: development
+  annotations:
+    argocd.argoproj.io/tracking-id: "keybuzz-client-dev:apps/Deployment:keybuzz-client-dev/keybuzz-client"
 spec:
   replicas: 1
   selector:
@@ -14,99 +17,66 @@ spec:
     metadata:
       labels:
         app: keybuzz-client
+      annotations:
+        reloader.stakater.com/auto: "true"
     spec:
       imagePullSecrets:
-      - name: ghcr-secret
+        - name: ghcr-cred
       containers:
-      - name: keybuzz-client
-        # ROLLBACK: v3.5.58-channels-billing-dev
-        image: ghcr.io/keybuzzio/keybuzz-client:v3.5.64-billing-gate-dev
-        imagePullPolicy: Always
-        ports:
-        - containerPort: 3000
-          name: http
-        env:
-        - name: NODE_ENV
-          value: production
-        - name: NEXT_PUBLIC_API_URL
-          value: https://api-dev.keybuzz.io
-        - name: BACKEND_URL
-          value: http://keybuzz-api.keybuzz-api-dev.svc.cluster.local:3001
-        - name: AMAZON_BACKEND_URL
-          value: http://keybuzz-backend.keybuzz-backend-dev.svc.cluster.local:4000
-        - name: API_URL_INTERNAL
-          value: http://keybuzz-api.keybuzz-api-dev.svc.cluster.local:3001
-        - name: API_URL
-          value: https://api-dev.keybuzz.io
-        - name: NEXTAUTH_URL
-          value: https://client-dev.keybuzz.io
-        - name: NEXTAUTH_SECRET
-          valueFrom:
-            secretKeyRef:
-              name: keybuzz-auth
-              key: NEXTAUTH_SECRET
-              optional: true
-        - name: GOOGLE_CLIENT_ID
-          valueFrom:
-            secretKeyRef:
-              name: keybuzz-auth
-              key: GOOGLE_CLIENT_ID
-              optional: true
-        - name: GOOGLE_CLIENT_SECRET
-          valueFrom:
-            secretKeyRef:
-              name: keybuzz-auth
-              key: GOOGLE_CLIENT_SECRET
-              optional: true
-        - name: AZURE_AD_CLIENT_ID
-          valueFrom:
-            secretKeyRef:
-              name: keybuzz-auth
-              key: AZURE_AD_CLIENT_ID
-              optional: true
-        - name: AZURE_AD_CLIENT_SECRET
-          valueFrom:
-            secretKeyRef:
-              name: keybuzz-auth
-              key: AZURE_AD_CLIENT_SECRET
-              optional: true
-        - name: AZURE_AD_TENANT_ID
-          valueFrom:
-            secretKeyRef:
-              name: keybuzz-auth
-              key: AZURE_AD_TENANT_ID
-              optional: true
-        # SMTP for OTP emails
-        - name: SMTP_HOST
-          value: "49.13.35.167"
-        - name: SMTP_PORT
-          value: "25"
-        - name: SMTP_SECURE
-          value: "false"
-        - name: SMTP_FROM
-          value: "KeyBuzz <noreply@keybuzz.io>"
-        - name: KEYBUZZ_INTERNAL_PROXY_TOKEN
-          value: "a0b9714c287bd18577f2e430770169e4b969bcfbbcedccdcf420cd09acd09147"
-        resources:
-          requests:
-            memory: 128Mi
-            cpu: 100m
-          limits:
-            memory: 512Mi
-            cpu: 500m
-        livenessProbe:
-          httpGet:
-            path: /api/auth/config
-            port: 3000
-          initialDelaySeconds: 15
-          periodSeconds: 30
-        readinessProbe:
-          httpGet:
-            path: /api/auth/config
-            port: 3000
-          initialDelaySeconds: 10
-          periodSeconds: 10
-
-
-
-
+        - name: keybuzz-client
+          # ROLLBACK DEV to PH116 stable baseline (2026-03-20)
+          # PREVIOUS: v3.5.60-ph117-aligned-dev
+          image: ghcr.io/keybuzzio/keybuzz-client:v3.5.59-channels-stripe-sync-dev
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 3000
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+          env:
+            - name: NEXTAUTH_URL
+              value: "https://client-dev.keybuzz.io"
+            - name: NEXTAUTH_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: keybuzz-auth
+                  key: NEXTAUTH_SECRET
+            - name: GOOGLE_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: keybuzz-auth
+                  key: GOOGLE_CLIENT_ID
+            - name: GOOGLE_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: keybuzz-auth
+                  key: GOOGLE_CLIENT_SECRET
+            - name: AZURE_AD_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: keybuzz-auth
+                  key: AZURE_AD_CLIENT_ID
+            - name: AZURE_AD_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: keybuzz-auth
+                  key: AZURE_AD_CLIENT_SECRET
+            - name: AZURE_AD_TENANT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: keybuzz-auth
+                  key: AZURE_AD_TENANT_ID
+            - name: BACKEND_URL
+              value: "http://keybuzz-api.keybuzz-api-dev.svc.cluster.local:3001"
+            - name: API_URL
+              value: "https://api-dev.keybuzz.io"
+            - name: AMAZON_BACKEND_URL
+              value: "http://keybuzz-backend.keybuzz-backend-dev.svc.cluster.local:4000"
+            - name: API_URL_INTERNAL
+              value: "http://keybuzz-api.keybuzz-api-dev.svc.cluster.local:3001"
+            - name: KEYBUZZ_INTERNAL_PROXY_TOKEN
+              value: "a0b9714c287bd18577f2e430770169e4b969bcfbbcedccdcf420cd09acd09147"

@@ -1,8 +1,8 @@
 # KeyBuzz V3 — Matrice de Duplication Tables DB
 
-> Date : 15 mars 2026
-> Phase : PH-TD-01E (mis à jour)
-> Dernière vérification : post-cleanup PH-TD-01E 15 mars 2026
+> Date : 16 mars 2026
+> Phase : PH-TD-05 (ExternalMessage Unification)
+> Dernière vérification : post-unification PH-TD-05 16 mars 2026
 
 ---
 
@@ -11,7 +11,7 @@
 | Base | Env | Tables | Tables avec données |
 |------|-----|--------|---------------------|
 | `keybuzz_prod` | PROD | **84** (3 legacy supprimées PH-TD-01E) | ~50 |
-| `keybuzz_backend_prod` | PROD | 42 | 2 (ExternalMessage + _prisma_migrations) |
+| `keybuzz_backend_prod` | PROD | **41** (ExternalMessage supprimée PH-TD-05) | 1 (_prisma_migrations) |
 | `keybuzz` | DEV | 85 | ~55 |
 | `keybuzz_backend` | DEV | 39 | ~15 |
 
@@ -23,7 +23,7 @@ Tables créées par d'anciennes migrations Prisma qui ont laissé des traces dan
 
 | Table | keybuzz_prod (PROD) | keybuzz_backend_prod (PROD) | keybuzz (DEV) | keybuzz_backend (DEV) | Statut |
 |-------|--------------------|-----------------------------|---------------|----------------------|--------|
-| `ExternalMessage` | 4 rows | 3 rows | N/A | 41046 rows | **CONSERVÉE** — données actives |
+| `ExternalMessage` | 5 rows | **SUPPRIMÉE** (PH-TD-05) | 41655 rows | **SUPPRIMÉE** (PH-TD-05) | **UNIFIÉE** — source unique = keybuzz_prod/keybuzz |
 | ~~`MessageAttachment`~~ | — | N/A | 0 rows | N/A | **SUPPRIMÉE** PH-TD-01E (0 rows, 0 refs) |
 | ~~`Order`~~ | — | 0 rows | N/A | 22891 rows | **SUPPRIMÉE** PH-TD-01E (0 rows, 0 refs) |
 | ~~`OrderItem`~~ | — | 0 rows | N/A | 23290 rows | **SUPPRIMÉE** PH-TD-01E (0 rows, FK to Order) |
@@ -115,9 +115,14 @@ Catégorie **Infra** : `feature_flags`, `cancel_reasons`, `channel_rules`, `conv
 
 ---
 
-## 7. Statut Post PH-TD-01E
+## 7. Statut Post PH-TD-05
 
 1. **FAIT** : `MessageAttachment`, `Order`, `OrderItem` supprimées de `keybuzz_prod` (PH-TD-01E)
-2. **À investiguer** : `ExternalMessage` dans `keybuzz_prod` : 4 rows vs 3 dans backend_prod — delta 1 row
+2. **FAIT** : `ExternalMessage` unifiée — supprimée de `keybuzz_backend_prod` et `keybuzz_backend`, source unique dans `keybuzz_prod` et `keybuzz` (PH-TD-05)
 3. **À évaluer** : copies snake_case vides dans `keybuzz_backend_prod` qui ont leur source dans keybuzz_prod
 4. **Conserver** : les `amazon_backfill_*` dans les deux DBs (backend les utilise via Prisma)
+
+### Changements PH-TD-05
+- Backend utilise `externalMessageStore.ts` (raw SQL via `productDb`) au lieu de `prisma.externalMessage`
+- Image backend : `v1.0.39-td05-externalmsg-dev` / `v1.0.39-td05-externalmsg-prod`
+- Backups : `/opt/keybuzz/backups/td05/`

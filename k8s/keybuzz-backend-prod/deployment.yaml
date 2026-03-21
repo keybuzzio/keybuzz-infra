@@ -21,7 +21,8 @@ spec:
         - name: ghcr-cred
       containers:
         - name: keybuzz-backend
-          image: ghcr.io/keybuzzio/keybuzz-backend:v1.0.41-ph263b-scheduler-prod
+          # ROLLBACK: v1.0.39-td05-externalmsg-prod
+          image: ghcr.io/keybuzzio/keybuzz-backend:v1.0.40-pj-fix-prod
           ports:
             - containerPort: 4000
           envFrom:

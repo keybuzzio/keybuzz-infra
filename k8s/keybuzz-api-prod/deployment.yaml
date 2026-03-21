@@ -22,9 +22,20 @@ spec:
         - name: ghcr-cred
       containers:
         - name: keybuzz-api
-          # ROLLBACK: v3.5.97-ph96-seller-dna-prod
-          # PH93: Customer Patience Predictor (patience estimation, no LLM, no KBActions)
-          image: ghcr.io/keybuzzio/keybuzz-api:v3.6.19-billing-payment-first-prod
+          # ROLLBACK: v3.6.06-ph104-cross-tenant-intelligence-prod
+          # ROLLBACK: v3.6.07-ph105-autonomous-ops-prod
+          # ROLLBACK: v3.6.08-ph106-action-dispatcher-prod
+          # ROLLBACK: v3.6.09-ph107-connector-abstraction-prod
+          # ROLLBACK: v3.6.10-ph108-case-manager-prod
+          # ROLLBACK: v3.6.11-ph109-case-state-persistence-prod
+          # ROLLBACK: v3.6.12-ph110-controlled-execution-prod
+          # ROLLBACK: v3.6.13-ph111-controlled-activation-prod
+          # ROLLBACK: v3.6.15-ph113-real-connector-prod
+          # ROLLBACK: v3.6.16-ph114-real-scaling-prod
+          # ROLLBACK: v3.6.17-ph115-real-execution-prod
+          # ROLLBACK PROD to PH115 stable isolation baseline (2026-03-20)
+          # PREVIOUS: v3.6.18-ph116-real-execution-monitoring-prod
+          image: ghcr.io/keybuzzio/keybuzz-api:v3.6.17-ph115-real-execution-prod
           imagePullPolicy: Always
           ports:
             - containerPort: 3001
