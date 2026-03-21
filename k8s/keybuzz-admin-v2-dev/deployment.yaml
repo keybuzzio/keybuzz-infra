@@ -86,7 +86,8 @@ spec:
             secretKeyRef:
               key: PGPASSWORD
               name: keybuzz-admin-v2-postgres
-        image: ghcr.io/keybuzzio/keybuzz-admin-v2:v0.23.0-ph87.6b-ai-cost-monitoring
+        # ROLLBACK: v0.23.0-ph87.6b-ai-cost-monitoring
+        image: ghcr.io/keybuzzio/keybuzz-admin:v2.1.4-ph112-ai-control-center
         imagePullPolicy: Always
         livenessProbe:
           failureThreshold: 3

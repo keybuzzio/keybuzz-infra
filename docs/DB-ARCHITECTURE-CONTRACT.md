@@ -1,9 +1,9 @@
 # KeyBuzz V3 — Contrat Architecture Base de Données
 
-> Date : 15 mars 2026
+> Date : 16 mars 2026
 > Statut : ACTIF — Source de vérité officielle
-> Phase : PH-TD-01D
-> Prérequis : PH-TD-01C (Safe DB Split)
+> Phase : PH-TD-05 (ExternalMessage Unification)
+> Prérequis : PH-TD-01C (Safe DB Split), PH-TD-01E (Legacy Cleanup)
 
 ---
 
@@ -104,6 +104,7 @@ Le système KeyBuzz utilise une architecture **dual-DB** :
 | `tenant_profile_extra` | 1 | API | R/W |
 | `tenant_settings` | 0 | API | R/W |
 | `agents` | 0 | API | R/W |
+| `ExternalMessage` | 5 | Backend (externalMessageStore via productDb) | R/W |
 | `amazon_returns` | 0 | Backend (Amazon worker) | R/W |
 | `amazon_returns_sync_status` | 0 | Backend (Amazon worker) | R/W |
 | `amazon_backfill_locks` | 0 | Backend | R/W |
@@ -146,7 +147,7 @@ Le système KeyBuzz utilise une architecture **dual-DB** :
 | `AiRuleExecution` | 0 | Exécutions règles IA |
 | `AiUsageLog` | 0 | Log usage IA |
 | `ApiKey` | 0 | Clés API |
-| `ExternalMessage` | 3 | Messages externes SP-API |
+| ~~`ExternalMessage`~~ | **SUPPRIMÉE** (PH-TD-05) | Migré vers keybuzz_prod |
 | `Job` | 0 | Jobs asynchrones |
 | `MarketplaceConnection` | 0 | Connexions marketplace |
 | `MarketplaceOutboundMessage` | 0 | Messages sortants marketplace |
@@ -182,18 +183,19 @@ Le système KeyBuzz utilise une architecture **dual-DB** :
 
 ---
 
-## 4. Tables Legacy (Prisma fantômes dans `keybuzz_prod`)
+## 4. Tables Legacy PascalCase dans `keybuzz_prod`
 
-Après PH-TD-01E, seule `ExternalMessage` reste en PascalCase dans `keybuzz_prod` :
+Après PH-TD-05, `ExternalMessage` est la **source de vérité unique** dans `keybuzz_prod`.
+Elle a été supprimée de `keybuzz_backend_prod` (PH-TD-05).
 
 | Table | Statut | Raison |
 |-------|--------|--------|
-| `ExternalMessage` | **CONSERVÉE** | 4 rows actives (delta 1 row vs backend_prod) |
+| `ExternalMessage` | **SOURCE DE VÉRITÉ UNIQUE** (PH-TD-05) | 5 rows PROD, backend y accède via `externalMessageStore` + `productDb` |
 | ~~`MessageAttachment`~~ | **SUPPRIMÉE** (PH-TD-01E) | 0 rows, 0 refs code, 0 refs runtime |
 | ~~`Order`~~ | **SUPPRIMÉE** (PH-TD-01E) | 0 rows, 0 refs code, 0 refs runtime |
 | ~~`OrderItem`~~ | **SUPPRIMÉE** (PH-TD-01E) | 0 rows, FK to Order, 0 refs code |
 
-`keybuzz_prod` : 87 tables → **84 tables** après cleanup.
+`keybuzz_prod` : 84 tables (inchangé). `keybuzz_backend_prod` : 41 tables (ExternalMessage supprimée).
 
 ---
 
@@ -289,3 +291,5 @@ curl -s https://backend.keybuzz.io/health
 | 1 mars 2026 | PH-TD-01B | Mapping accès DB |
 | 15 mars 2026 | PH-TD-01C | Split DB sécurisé |
 | 15 mars 2026 | PH-TD-01D | Alignement secrets + contrat |
+| 15 mars 2026 | PH-TD-01E | Cleanup tables legacy PascalCase |
+| 16 mars 2026 | PH-TD-05 | ExternalMessage unification (source unique dans keybuzz_prod) |
