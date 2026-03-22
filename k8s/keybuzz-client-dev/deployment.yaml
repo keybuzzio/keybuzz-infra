@@ -26,7 +26,7 @@ spec:
         - name: keybuzz-client
           # ROLLBACK DEV to PH116 stable baseline (2026-03-20)
           # PREVIOUS: v3.5.60-ph117-aligned-dev
-          image: ghcr.io/keybuzzio/keybuzz-client:v3.5.65-onboarding-oauth-plan-continuity-dev
+          image: ghcr.io/keybuzzio/keybuzz-client:v3.5.66-billing-hard-gate-dev
           imagePullPolicy: Always
           ports:
             - containerPort: 3000
