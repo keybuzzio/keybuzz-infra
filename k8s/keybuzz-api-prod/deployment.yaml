@@ -35,7 +35,7 @@ spec:
           # ROLLBACK: v3.6.17-ph115-real-execution-prod
           # ROLLBACK PROD to PH115 stable isolation baseline (2026-03-20)
           # PREVIOUS: v3.6.18-ph116-real-execution-monitoring-prod
-          image: ghcr.io/keybuzzio/keybuzz-api:v3.6.20-ph116-integration-fix-prod
+          image: ghcr.io/keybuzzio/keybuzz-api:v3.5.49-amz-orders-list-sync-fix-prod
           imagePullPolicy: Always
           ports:
             - containerPort: 3001
