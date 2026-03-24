@@ -13,6 +13,12 @@ spec:
   selector:
     matchLabels:
       app: keybuzz-client
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+  minReadySeconds: 5
   template:
     metadata:
       labels:
@@ -24,12 +30,24 @@ spec:
         - name: ghcr-cred
       containers:
         - name: keybuzz-client
-          # ROLLBACK DEV to PH116 stable baseline (2026-03-20)
-          # PREVIOUS: v3.5.60-ph117-aligned-dev
+          # PH-HARD-REFRESH-FIRST-HIT-STABILITY-01: readiness probe + zero-downtime strategy
           image: ghcr.io/keybuzzio/keybuzz-client:v3.5.77-ph119-role-access-guard-dev
           imagePullPolicy: Always
           ports:
             - containerPort: 3000
+          readinessProbe:
+            tcpSocket:
+              port: 3000
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            failureThreshold: 3
+            successThreshold: 1
+          livenessProbe:
+            tcpSocket:
+              port: 3000
+            initialDelaySeconds: 15
+            periodSeconds: 20
+            failureThreshold: 3
           resources:
             requests:
               cpu: 100m
