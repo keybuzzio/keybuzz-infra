@@ -185,7 +185,7 @@ spec:
           value: "ecomlg-001"
         # ROLLBACK DEV to PH116 stable baseline (2026-03-20)
         # PREVIOUS: v3.6.20-ph116-integration-fix-dev
-        image: ghcr.io/keybuzzio/keybuzz-api:v3.5.48-amz-prod-truth-fix-dev
+        image: ghcr.io/keybuzzio/keybuzz-api:v3.5.50-ph123-escalation-foundation-dev
         livenessProbe:
           httpGet:
             path: /health
