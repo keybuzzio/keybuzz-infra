@@ -31,7 +31,7 @@ spec:
       containers:
         - name: keybuzz-client
           # PH-HARD-REFRESH-FIRST-HIT-STABILITY-01: readiness probe + zero-downtime strategy
-          image: ghcr.io/keybuzzio/keybuzz-client:v3.5.100-ph131-fix-kbactions-dev
+          image: ghcr.io/keybuzzio/keybuzz-client:v3.5.101-billing-fix-b1-dev
           imagePullPolicy: Always
           ports:
             - containerPort: 3000
