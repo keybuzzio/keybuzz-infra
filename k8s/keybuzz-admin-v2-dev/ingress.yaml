@@ -5,21 +5,24 @@ metadata:
   namespace: keybuzz-admin-v2-dev
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt-prod
-    nginx.ingress.kubernetes.io/proxy-body-size: "10m"
+    nginx.ingress.kubernetes.io/proxy-body-size: 10m
+    nginx.ingress.kubernetes.io/limit-connections: '50'
+    nginx.ingress.kubernetes.io/limit-rps: '25'
+    nginx.ingress.kubernetes.io/limit-burst-multiplier: '3'
 spec:
   ingressClassName: nginx
   tls:
-    - hosts:
-        - admin-dev.keybuzz.io
-      secretName: keybuzz-admin-v2-tls
+  - hosts:
+    - admin-dev.keybuzz.io
+    secretName: keybuzz-admin-v2-tls
   rules:
-    - host: admin-dev.keybuzz.io
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: keybuzz-admin-v2
-                port:
-                  number: 3000
+  - host: admin-dev.keybuzz.io
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: keybuzz-admin-v2
+            port:
+              number: 3000

@@ -5,20 +5,23 @@ metadata:
   namespace: keybuzz-api-dev
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/limit-connections: '50'
+    nginx.ingress.kubernetes.io/limit-rps: '25'
+    nginx.ingress.kubernetes.io/limit-burst-multiplier: '3'
 spec:
   ingressClassName: nginx
   tls:
-    - hosts:
-        - api-dev.keybuzz.io
-      secretName: api-dev-tls
+  - hosts:
+    - api-dev.keybuzz.io
+    secretName: api-dev-tls
   rules:
-    - host: api-dev.keybuzz.io
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: keybuzz-api
-                port:
-                  number: 3001
+  - host: api-dev.keybuzz.io
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: keybuzz-api
+            port:
+              number: 3001
