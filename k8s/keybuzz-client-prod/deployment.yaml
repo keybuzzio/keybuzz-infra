@@ -32,7 +32,8 @@ spec:
         - name: keybuzz-client
           # PH-HARD-REFRESH-FIRST-HIT-STABILITY-01: readiness probe + zero-downtime strategy
           # PREVIOUS: v3.5.106-ph131-starter-upsell-prod
-          image: ghcr.io/keybuzzio/keybuzz-client:v3.5.107-ph131-autopilot-engine-prod
+          # PREVIOUS: v3.5.107-ph131-autopilot-engine-prod
+          image: ghcr.io/keybuzzio/keybuzz-client:v3.5.108-ph-amz-inbound-address-prod
           imagePullPolicy: Always
           ports:
             - containerPort: 3000
