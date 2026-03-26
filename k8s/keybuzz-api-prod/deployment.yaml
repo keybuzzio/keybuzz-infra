@@ -37,7 +37,7 @@ spec:
           # PREVIOUS: v3.6.20-ph116-integration-fix-prod
           # PREVIOUS: v3.5.104-ph131-autopilot-settings-prod
           # PREVIOUS: v3.5.107b-ph131-autopilot-engine-prod
-          image: ghcr.io/keybuzzio/keybuzz-api:v3.5.108-ph-amz-inbound-address-prod
+          image: ghcr.io/keybuzzio/keybuzz-api:v3.5.109-ph-amz-inbound-truth02-prod
           imagePullPolicy: Always
           ports:
             - containerPort: 3001
