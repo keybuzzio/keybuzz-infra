@@ -35,7 +35,8 @@ spec:
           # ROLLBACK: v3.6.17-ph115-real-execution-prod
           # ROLLBACK PROD to PH115 stable isolation baseline (2026-03-20)
           # PREVIOUS: v3.6.20-ph116-integration-fix-prod
-          image: ghcr.io/keybuzzio/keybuzz-api:v3.5.104-ph131-autopilot-settings-prod
+          # PREVIOUS: v3.5.104-ph131-autopilot-settings-prod
+          image: ghcr.io/keybuzzio/keybuzz-api:v3.5.107b-ph131-autopilot-engine-prod
           imagePullPolicy: Always
           ports:
             - containerPort: 3001
