@@ -3,7 +3,7 @@
 > Date : 28 mars 2026
 > Phase : PH-PLAYBOOKS-SUGGESTIONS-LIVE-04
 > Type : Activation produit — Suggestions Playbooks live dans Inbox
-> Statut : **DEV VALIDE — STOP AVANT PROD**
+> Statut : **DEV + PROD DEPLOYES — Validation Ludovic obtenue**
 
 ---
 
@@ -188,12 +188,12 @@ PlaybookSuggestionBanner (Inbox UI)
 | API | `ghcr.io/keybuzzio/keybuzz-api:v3.5.51-playbooks-suggestions-live-dev` |
 | Client | `ghcr.io/keybuzzio/keybuzz-client:v3.5.126-playbooks-suggestions-live-dev` |
 
-### PROD (non touche)
+### PROD (deploye — validation Ludovic 28 mars 2026)
 
 | Service | Tag |
 |---|---|
-| API | `ghcr.io/keybuzzio/keybuzz-api:v3.5.50-ph-tenant-iso-prod` |
-| Client | `ghcr.io/keybuzzio/keybuzz-client:v3.5.125-playbooks-engine-alignment-prod` |
+| API | `ghcr.io/keybuzzio/keybuzz-api:v3.5.51-playbooks-suggestions-live-prod` |
+| Client | `ghcr.io/keybuzzio/keybuzz-client:v3.5.126-playbooks-suggestions-live-prod` |
 
 ---
 
@@ -242,9 +242,22 @@ Le composant existe depuis PH27 mais n'avait jamais ete branche dans l'Inbox.
 
 ## 9. Etat PROD
 
-**PROD NON TOUCHE**
+**PROD PROMU — Validation Ludovic obtenue le 28 mars 2026**
 
-Attente validation explicite de Ludovic : "Tu peux push PROD"
+Verification post-deploiement PROD :
+- API PROD Health : OK (`{"status":"ok"}`, port 3001)
+- Dedup patch PROD : PRESENT (MAX_SUGGESTIONS_PER_EVAL, existingRuleIds, MAX_PENDING_PER_CONV confirmes)
+- Pods PROD : Running (API + Client)
+
+### Rollback PROD
+
+```bash
+kubectl set image deployment/keybuzz-api keybuzz-api=ghcr.io/keybuzzio/keybuzz-api:v3.5.50-ph-tenant-iso-prod -n keybuzz-api-prod
+kubectl rollout status deployment/keybuzz-api -n keybuzz-api-prod
+
+kubectl set image deployment/keybuzz-client keybuzz-client=ghcr.io/keybuzzio/keybuzz-client:v3.5.125-playbooks-engine-alignment-prod -n keybuzz-client-prod
+kubectl rollout status deployment/keybuzz-client -n keybuzz-client-prod
+```
 
 ---
 
