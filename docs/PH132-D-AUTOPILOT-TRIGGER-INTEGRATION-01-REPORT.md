@@ -3,7 +3,7 @@
 > Date : 2026-03-28
 > Phase : PH132-D-AUTOPILOT-TRIGGER-INTEGRATION-01
 > Type : correction critique integration cross-service
-> Environnement : DEV deploye | PROD en attente validation
+> Environnement : DEV + PROD deployes et valides
 
 ---
 
@@ -15,11 +15,13 @@
 
 ## 1. VERSIONS
 
-| Service | DEV (avant) | DEV (apres) | PROD (inchange) |
-|---------|-------------|-------------|-----------------|
-| API | `v3.5.128-autopilot-critical-fixes-dev` | **`v3.5.129-autopilot-trigger-fix-dev`** | `v3.5.128-autopilot-critical-fixes-prod` |
+| Service | DEV | PROD |
+|---------|-----|------|
+| API | **`v3.5.129-autopilot-trigger-fix-dev`** | **`v3.5.129-autopilot-trigger-fix-prod`** |
+| Backend | `v1.0.42-ph-oauth-persist-dev` (env var ajoute) | `v1.0.42-ph-oauth-persist-prod` (env var ajoute) |
 
-**Rollback DEV :** `kubectl set image deployment/keybuzz-api keybuzz-api=ghcr.io/keybuzzio/keybuzz-api:v3.5.128-autopilot-critical-fixes-dev -n keybuzz-api-dev`
+**Rollback API PROD :** `kubectl set image deployment/keybuzz-api keybuzz-api=ghcr.io/keybuzzio/keybuzz-api:v3.5.128-autopilot-critical-fixes-prod -n keybuzz-api-prod`
+**Rollback Backend PROD env :** `kubectl set env deployment/keybuzz-backend API_INTERNAL_URL- -n keybuzz-backend-prod`
 
 ---
 
@@ -85,7 +87,7 @@ evaluateAndExecute(convId, tenantId, 'inbound')
   value: "http://keybuzz-api.keybuzz-api-prod.svc.cluster.local:3001"
 ```
 
-**Non applique au cluster** (en attente validation PROD).
+**Applique au cluster PROD** via `kubectl set env` le 2026-03-28.
 
 ---
 
@@ -157,22 +159,36 @@ Backend DEV `API_INTERNAL_URL` : correctement configure vers l'API DEV.
 
 ---
 
-## 7. ACTIONS PROD (en attente validation)
+## 7. DEPLOIEMENT PROD COMPLETE (2026-03-28)
 
-1. **Build + deploy API PROD** :
-   ```bash
-   cd /opt/keybuzz/keybuzz-api
-   docker build --no-cache -t ghcr.io/keybuzzio/keybuzz-api:v3.5.129-autopilot-trigger-fix-prod .
-   docker push ghcr.io/keybuzzio/keybuzz-api:v3.5.129-autopilot-trigger-fix-prod
-   kubectl set image deployment/keybuzz-api keybuzz-api=ghcr.io/keybuzzio/keybuzz-api:v3.5.129-autopilot-trigger-fix-prod -n keybuzz-api-prod
-   ```
+### API PROD
+- **Image :** `ghcr.io/keybuzzio/keybuzz-api:v3.5.129-autopilot-trigger-fix-prod`
+- **Health :** `{"status":"ok"}` confirme
+- **Octopia trigger :** `evaluateAndExecute` present dans le code compile PROD (ligne 150)
+- **Plan guard PRO→autonomous :** 403 BLOCKED (correct)
 
-2. **Ajouter `API_INTERNAL_URL` au backend PROD** :
-   ```bash
-   kubectl set env deployment/keybuzz-backend API_INTERNAL_URL=http://keybuzz-api.keybuzz-api-prod.svc.cluster.local:3001 -n keybuzz-backend-prod
-   ```
+### Backend PROD
+- **Env var :** `API_INTERNAL_URL=http://keybuzz-api.keybuzz-api-prod.svc.cluster.local:3001` confirme dans le pod
+- **Webhook trigger :** `autopilot/evaluate` present dans le code compile (ligne 176)
 
-3. **Verifier** : health, non-regressions, autopilot evaluate
+### Non-regressions PROD
+
+| Endpoint | Status |
+|----------|--------|
+| Health | 200 OK |
+| Billing | 200 OK |
+| AI settings | 200 OK |
+| Conversations | 200 OK |
+| Autopilot settings | 200 OK |
+
+### Trigger paths PROD (verifies dans le code compile)
+
+| Source | Fichier compile | Count evaluateAndExecute/autopilot |
+|--------|----------------|-------------------------------------|
+| Inbound routes (email + amazon) | `inbound/routes.js` | 2 |
+| Octopia import | `octopia/octopiaImport.service.js` | 1 |
+| Autopilot routes (manual) | `autopilot/routes.js` | 1 |
+| Backend webhook (HTTP) | `inboundEmailWebhook.routes.js` | 1 (autopilot/evaluate) |
 
 ---
 
@@ -183,6 +199,7 @@ Backend DEV `API_INTERNAL_URL` : correctement configure vers l'API DEV.
 | `keybuzz-api/src/modules/marketplaces/octopia/octopiaImport.service.ts` | FIX | Import evaluateAndExecute + trigger fire-and-forget |
 | `keybuzz-infra/k8s/keybuzz-api-dev/deployment.yaml` | GITOPS | Image tag v3.5.129 |
 | `keybuzz-infra/k8s/keybuzz-backend-prod/deployment.yaml` | GITOPS | Ajout API_INTERNAL_URL + image tag aligne |
+| `keybuzz-infra/k8s/keybuzz-api-prod/deployment.yaml` | GITOPS | Image tag v3.5.129-autopilot-trigger-fix-prod |
 
 ---
 
@@ -204,13 +221,13 @@ kubectl set env deployment/keybuzz-backend API_INTERNAL_URL- -n keybuzz-backend-
 ## VERDICT FINAL
 
 ```
-AUTOPILOT TRIGGER FIXED — DEV DEPLOYE — PROD EN ATTENTE
+AUTOPILOT TRIGGER FIXED — DEV + PROD DEPLOYES ET VALIDES
 
+API PROD : v3.5.129-autopilot-trigger-fix-prod (health OK, plan guard OK)
+Backend PROD : API_INTERNAL_URL configure vers API PROD (confirme dans pod)
 Trigger paths : 5/5 couverts (email, amazon-forward, octopia, webhook, manual)
-Root cause PROD : env var API_INTERNAL_URL manquante (prepare dans manifest)
-Octopia trigger : ajoute dans importSingleDiscussion (fire-and-forget)
+Octopia trigger : evaluateAndExecute present dans code compile PROD
 Securite : anti-double + anti-loop + anti-replay valides
-Multi-tenant : 4 tenants AUTOPILOT fonctionnels
-Non-regressions : tous endpoints 200 OK
+Non-regressions PROD : health/billing/ai/conversations/autopilot = 200 OK
 Rollback : documente et pret
 ```
