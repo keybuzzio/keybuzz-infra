@@ -39,7 +39,8 @@ spec:
           # PREVIOUS: v3.5.107b-ph131-autopilot-engine-prod
           # PREVIOUS: v3.5.51-playbooks-suggestions-live-prod
           # PH132-C: Plan guard + engine logging + DB cleanup (2026-03-28)
-          image: ghcr.io/keybuzzio/keybuzz-api:v3.5.128-autopilot-critical-fixes-prod
+          # PH132-D: Octopia autopilot trigger + backend env var (2026-03-28)
+          image: ghcr.io/keybuzzio/keybuzz-api:v3.5.129-autopilot-trigger-fix-prod
           imagePullPolicy: Always
           ports:
             - containerPort: 3001
