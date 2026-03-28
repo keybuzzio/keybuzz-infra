@@ -149,26 +149,36 @@ C'est le comportement **exact** du backend `playbook-engine.service.ts`.
 
 | Service | DEV | PROD |
 |---------|-----|------|
-| Client DEV | `v3.5.125-playbooks-engine-alignment-dev` | NON TOUCHÉ |
-| Client PROD | `v3.5.124-playbooks-backend-migration-prod` | NON TOUCHÉ |
-| API DEV | `v3.5.50-ph-tenant-iso-dev` | NON TOUCHÉ |
-| API PROD | `v3.5.50-ph-tenant-iso-prod` | NON TOUCHÉ |
+| Client DEV | `v3.5.125-playbooks-engine-alignment-dev` | — |
+| Client PROD | — | `v3.5.125-playbooks-engine-alignment-prod` |
+| API DEV | `v3.5.50-ph-tenant-iso-dev` | — |
+| API PROD | — | `v3.5.50-ph-tenant-iso-prod` |
 
 ---
 
 ## 6. Rollback
 
+### DEV
 ```bash
 kubectl set image deployment/keybuzz-client \
   keybuzz-client=ghcr.io/keybuzzio/keybuzz-client:v3.5.124-playbooks-backend-migration-dev \
   -n keybuzz-client-dev
 ```
 
+### PROD
+```bash
+kubectl set image deployment/keybuzz-client \
+  keybuzz-client=ghcr.io/keybuzzio/keybuzz-client:v3.5.124-playbooks-backend-migration-prod \
+  -n keybuzz-client-prod
+```
+
 ---
 
 ## 7. État PROD
 
-**PROD NON TOUCHÉ** — En attente de validation Ludovic.
+**PROD PROMU** — Validation Ludovic obtenue le 28 mars 2026.
+
+Image PROD : `ghcr.io/keybuzzio/keybuzz-client:v3.5.125-playbooks-engine-alignment-prod`
 
 ---
 
@@ -196,9 +206,9 @@ Les `TRIGGER_DEFS` sont répliquées dans le BFF (`route.ts`) depuis le backend 
 | Non-régression orders | ✅ HTTP 200 |
 | Non-régression billing | ✅ HTTP 200 |
 | Non-régression autopilot | ✅ Aucune modification |
-| PROD | ✅ NON TOUCHÉ |
+| PROD | ✅ PROMU — v3.5.125-playbooks-engine-alignment-prod |
 | Rollback | ✅ PRÊT (v3.5.124-playbooks-backend-migration-dev) |
 
 ---
 
-**DEV audité et déployé. STOP avant PROD. En attente de validation Ludovic : "Tu peux push PROD".**
+**DEV et PROD déployés. Validation Ludovic obtenue. Phase terminée.**
