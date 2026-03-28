@@ -173,9 +173,36 @@ WHERE is_starter = true
 
 ## 8. État PROD
 
-**PROD NON TOUCHÉ** — En attente de validation Ludovic.
+**PROD PROMU** — Validation Ludovic obtenue le 28 mars 2026.
 
-Pour appliquer en PROD, le même SQL sera exécuté sur la DB PROD (`keybuzz_prod`) via le pod API PROD.
+### PROD — 5 tenants, 40 starters activés
+
+| Tenant PROD | Active | Disabled |
+|-------------|--------|----------|
+| ecomlg-001 | 8 | 7 |
+| ecomlg-mn3rdmf6 | 8 | 7 |
+| ecomlg-mn3roi1v | 8 | 7 |
+| romruais-gmail-com-mn7mc6xl | 8 | 7 |
+| switaa-sasu-mn9c3eza | 8 | 7 |
+
+**Sécurité PROD confirmée :**
+- Auto-exécution : 0 (SÉCURITÉ OK)
+- Actions IA payantes actives : 0 (SÉCURITÉ OK)
+- Mode : 100% `suggest`
+
+### Rollback PROD
+
+```sql
+UPDATE ai_rules
+SET status = 'disabled', updated_at = NOW()
+WHERE is_starter = true
+  AND trigger_type IN (
+    'tracking_request', 'delivery_delay', 'return_request',
+    'defective_product', 'payment_declined', 'invoice_request',
+    'order_cancelled'
+  )
+  AND status = 'active';
+```
 
 ---
 
@@ -193,9 +220,9 @@ Pour appliquer en PROD, le même SQL sera exécuté sur la DB PROD (`keybuzz_pro
 | Non-régression inbox | ✅ HTTP 200 |
 | Non-régression autopilot | ✅ Aucun impact |
 | Non-régression billing | ✅ HTTP 200 |
-| PROD | ✅ NON TOUCHÉ |
+| PROD | ✅ PROMU — 40 starters activés (8 × 5 tenants) |
 | Rollback | ✅ SQL ready |
 
 ---
 
-**DEV validé. STOP avant PROD. J'attends la validation explicite de Ludovic : "Tu peux push PROD".**
+**DEV et PROD déployés. Validation Ludovic obtenue. Phase terminée.**
