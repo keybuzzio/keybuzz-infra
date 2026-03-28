@@ -33,9 +33,9 @@ spec:
           # PH-HARD-REFRESH-FIRST-HIT-STABILITY-01: readiness probe + zero-downtime strategy
           # PREVIOUS: v3.5.106-ph131-starter-upsell-prod
           # PREVIOUS: v3.5.107-ph131-autopilot-engine-prod
-          # PREVIOUS: v3.5.123-playbooks-truth-recovery-prod
           # PREVIOUS: v3.5.124-playbooks-backend-migration-prod
-          image: ghcr.io/keybuzzio/keybuzz-client:v3.5.126-playbooks-suggestions-live-prod
+          # PREVIOUS: v3.5.126-playbooks-suggestions-live-prod
+          image: ghcr.io/keybuzzio/keybuzz-client:v3.5.127-kba-checkout-fix-prod
           imagePullPolicy: Always
           ports:
             - containerPort: 3000

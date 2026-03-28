@@ -3,7 +3,7 @@
 **Date** : 28 mars 2026
 **Phase** : PH132-A-KBA-PROD-CHECKOUT-TRUTH-RECOVERY-01
 **Type** : audit + fix cible business critique (checkout KBActions)
-**Environnement** : DEV valide, PROD non touche
+**Environnement** : DEV + PROD valides
 
 ---
 
@@ -189,7 +189,7 @@ Le `handlePurchase` utilise exactement le meme pattern que la page principale (P
 |---|---|---|
 | **DEV** | Client | `ghcr.io/keybuzzio/keybuzz-client:v3.5.127-kba-checkout-fix-dev` |
 | **DEV** | API | `ghcr.io/keybuzzio/keybuzz-api:v3.5.51-playbooks-suggestions-live-dev` (non modifie) |
-| **PROD** | Client | `ghcr.io/keybuzzio/keybuzz-client:v3.5.126-playbooks-suggestions-live-prod` (NON TOUCHE) |
+| **PROD** | Client | `ghcr.io/keybuzzio/keybuzz-client:v3.5.127-kba-checkout-fix-prod` |
 | **PROD** | API | `ghcr.io/keybuzzio/keybuzz-api:v3.5.51-playbooks-suggestions-live-prod` (NON TOUCHE) |
 
 ### Rollback DEV
@@ -209,7 +209,7 @@ kubectl set image deployment/keybuzz-client keybuzz-client=ghcr.io/keybuzzio/key
 | Fichier | Statut |
 |---|---|
 | `keybuzz-infra/k8s/keybuzz-client-dev/deployment.yaml` | Mis a jour (v3.5.127-kba-checkout-fix-dev) |
-| `keybuzz-infra/k8s/keybuzz-client-prod/deployment.yaml` | NON TOUCHE |
+| `keybuzz-infra/k8s/keybuzz-client-prod/deployment.yaml` | Mis a jour (v3.5.127-kba-checkout-fix-prod) |
 
 ---
 
@@ -227,11 +227,17 @@ kubectl set image deployment/keybuzz-client keybuzz-client=ghcr.io/keybuzzio/key
 
 ---
 
-## 13. Statut PROD
+## 13. Promotion PROD
 
-**PROD = NON TOUCHE**
+**PROD = DEPLOYE ET VALIDE** (28 mars 2026)
 
-En attente de validation explicite de Ludovic pour promotion PROD.
+| Verification | Resultat |
+|---|---|
+| Image PROD | `v3.5.127-kba-checkout-fix-prod` |
+| Rollout | Successfully rolled out |
+| Fix present dans build | OUI (`Recharger mes KBActions` confirme) |
+| API PROD health | 200 OK |
+| Pod status | Running |
 
 ---
 
