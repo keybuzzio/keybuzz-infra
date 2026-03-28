@@ -35,7 +35,7 @@ spec:
           # PREVIOUS: v3.5.107-ph131-autopilot-engine-prod
           # PREVIOUS: v3.5.123-playbooks-truth-recovery-prod
           # PREVIOUS: v3.5.124-playbooks-backend-migration-prod
-          image: ghcr.io/keybuzzio/keybuzz-client:v3.5.125-playbooks-engine-alignment-prod
+          image: ghcr.io/keybuzzio/keybuzz-client:v3.5.126-playbooks-suggestions-live-prod
           imagePullPolicy: Always
           ports:
             - containerPort: 3000
