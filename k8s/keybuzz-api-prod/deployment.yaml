@@ -37,7 +37,9 @@ spec:
           # PREVIOUS: v3.6.20-ph116-integration-fix-prod
           # PREVIOUS: v3.5.104-ph131-autopilot-settings-prod
           # PREVIOUS: v3.5.107b-ph131-autopilot-engine-prod
-          image: ghcr.io/keybuzzio/keybuzz-api:v3.5.51-playbooks-suggestions-live-prod
+          # PREVIOUS: v3.5.51-playbooks-suggestions-live-prod
+          # PH132-C: Plan guard + engine logging + DB cleanup (2026-03-28)
+          image: ghcr.io/keybuzzio/keybuzz-api:v3.5.128-autopilot-critical-fixes-prod
           imagePullPolicy: Always
           ports:
             - containerPort: 3001

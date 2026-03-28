@@ -3,7 +3,7 @@
 > Date : 2026-03-28
 > Phase : PH132-C-AUTOPILOT-CRITICAL-FIXES-01
 > Type : corrections critiques (plan guard + engine logging + DB cleanup)
-> Environnement : DEV deploye | PROD en attente validation
+> Environnement : DEV + PROD deployes et valides
 
 ---
 
@@ -15,11 +15,12 @@
 
 ## 1. VERSIONS
 
-| Service | DEV (avant) | DEV (apres) | PROD (inchange) |
-|---------|-------------|-------------|-----------------|
-| API | `v3.5.51-playbooks-suggestions-live-dev` | **`v3.5.128-autopilot-critical-fixes-dev`** | `v3.5.51-playbooks-suggestions-live-prod` |
+| Service | DEV (avant) | DEV (apres) | PROD (avant) | PROD (apres) |
+|---------|-------------|-------------|--------------|--------------|
+| API | `v3.5.51-...-dev` | **`v3.5.128-autopilot-critical-fixes-dev`** | `v3.5.51-...-prod` | **`v3.5.128-autopilot-critical-fixes-prod`** |
 
 **Rollback DEV :** `kubectl set image deployment/keybuzz-api keybuzz-api=ghcr.io/keybuzzio/keybuzz-api:v3.5.51-playbooks-suggestions-live-dev -n keybuzz-api-dev`
+**Rollback PROD :** `kubectl set image deployment/keybuzz-api keybuzz-api=ghcr.io/keybuzzio/keybuzz-api:v3.5.51-playbooks-suggestions-live-prod -n keybuzz-api-prod`
 
 ---
 
@@ -70,10 +71,11 @@
 
 ### PARTIE 3 — GitOps Alignment ✅
 
-**Manifest DEV mis a jour :**
+**Manifests mis a jour :**
 - `keybuzz-infra/k8s/keybuzz-api-dev/deployment.yaml` → `v3.5.128-autopilot-critical-fixes-dev`
+- `keybuzz-infra/k8s/keybuzz-api-prod/deployment.yaml` → `v3.5.128-autopilot-critical-fixes-prod`
 
-**PROD :** non modifie (en attente validation)
+**DEV + PROD alignes.**
 
 **Note historique :** La version precedente dans les manifests etait `v3.5.110-ph-amz-multi-country-dev` mais le cluster executait `v3.5.51-playbooks-suggestions-live-dev`. Ce drift provenait d'un rollback non documente. L'historique est maintenant trace dans les commentaires du manifest.
 
@@ -101,11 +103,18 @@
 | Wallet `tenant_id="null"` | 1 row | **0** ✅ |
 | Autopilot settings orphelin `switaa-sasu-mn9fjcvk` | 1 row | **0** ✅ |
 
-**PROD :** Non nettoye (en attente validation). Le wallet `tenant_id="null"` existe aussi en PROD.
+**PROD :**
+
+| Nettoyage | Avant | Apres |
+|-----------|-------|-------|
+| Wallet `tenant_id="null"` | 1 row | **0** ✅ |
+| Autopilot settings orphelins | 0 rows | **0** ✅ |
 
 ---
 
 ## 3. NON-REGRESSIONS
+
+**DEV :**
 
 | Service | Status | Resultat |
 |---------|--------|----------|
@@ -115,6 +124,22 @@
 | Conversations | 200 | 3 conversations retournees ✅ |
 | Wallet | 200 | Endpoint repond ✅ |
 
+**PROD :**
+
+| Service | Status | Resultat |
+|---------|--------|----------|
+| Health | 200 | `{"status":"ok"}` ✅ |
+| Billing | 200 | OK ✅ |
+| AI settings | 200 | OK ✅ |
+| Conversations | 200 | OK ✅ |
+
+**Plan Guard PROD (re-test post-stabilisation) :**
+
+| Test | Tenant | Plan | Action | Resultat |
+|------|--------|------|--------|----------|
+| PRO → autonomous | ecomlg-001 | PRO | PATCH | **403 PLAN_REQUIRED** ✅ |
+| AUTOPILOT → autonomous | switaa-sasu-mn9c3eza | AUTOPILOT | PATCH | **200 OK** ✅ |
+
 ---
 
 ## 4. RESUME DES ANOMALIES PH132-B ET CORRECTIONS
@@ -123,31 +148,34 @@
 |---|------------------|----------|-------------|--------|
 | 1 | Plan guard absent PATCH | CRITIQUE | Guards POST + PATCH + helper | **FIXE** ✅ |
 | 2 | Moteur PROD inactif | MAJEUR | Root cause identifie + logging ajoute | **DIAGNOSTIQUE** ⚠️ |
-| 3 | GitOps drift | CRITIQUE | Manifest DEV aligne | **FIXE DEV** ✅ |
+| 3 | GitOps drift | CRITIQUE | Manifests DEV + PROD alignes | **FIXE** ✅ |
 | 4 | safe_mode toujours true | MAJEUR | Test controle valide | **VALIDE** ✅ |
-| 5 | Donnees orphelines | MOYEN | Null wallet + orphan supprimes | **FIXE DEV** ✅ |
+| 5 | Donnees orphelines | MOYEN | Null wallet + orphan supprimes DEV + PROD | **FIXE** ✅ |
 
 ---
 
-## 5. ACTIONS RESTANTES POUR PROD
+## 5. DEPLOIEMENT PROD COMPLETE
 
-1. **Build et deploiement PROD** (en attente validation) :
-   ```bash
-   cd /opt/keybuzz/keybuzz-api
-   docker build --no-cache -t ghcr.io/keybuzzio/keybuzz-api:v3.5.128-autopilot-critical-fixes-prod .
-   docker push ghcr.io/keybuzzio/keybuzz-api:v3.5.128-autopilot-critical-fixes-prod
-   kubectl set image deployment/keybuzz-api keybuzz-api=ghcr.io/keybuzzio/keybuzz-api:v3.5.128-autopilot-critical-fixes-prod -n keybuzz-api-prod
-   ```
+**Image PROD :** `ghcr.io/keybuzzio/keybuzz-api:v3.5.128-autopilot-critical-fixes-prod`
+**Deploye le :** 2026-03-28 16:35 UTC
+**Health check :** OK
+**Plan guard :** Verifie (403 pour PRO, 200 pour AUTOPILOT)
+**DB cleanup :** wallet `tenant_id="null"` supprime (1 row)
+**Non-regressions :** billing, ai-settings, conversations = 200
 
-2. **Nettoyage DB PROD** :
-   ```sql
-   DELETE FROM ai_actions_wallet WHERE tenant_id = 'null';
-   ```
+**Tenants PROD autopilot state (post-deploiement, nettoye) :**
 
-3. **Phase future : Trigger autopilot pour messages Amazon SP-API**
-   - Option A : HTTP callback depuis backend Python apres INSERT message
-   - Option B : CronJob polling conversations non-evaluees
-   - Recommandation : Option A (plus reactif, moins de latence)
+| Tenant | Plan | Mode | Safe mode |
+|--------|------|------|-----------|
+| ecomlg-001 | PRO | supervised | true |
+| romruais-gmail-com-mn7mc6xl | AUTOPILOT | off | true |
+| switaa-sasu-mn9c3eza | AUTOPILOT | supervised | true |
+
+**Action restante pour une phase future :**
+- Trigger autopilot pour messages Amazon SP-API
+  - Option A : HTTP callback depuis backend Python apres INSERT message
+  - Option B : CronJob polling conversations non-evaluees
+  - Recommandation : Option A (plus reactif, moins de latence)
 
 ---
 
@@ -157,7 +185,8 @@
 |---------|------|-------------|
 | `keybuzz-api/src/modules/autopilot/routes.ts` | FIX | Plan guard POST/PATCH + helper |
 | `keybuzz-api/src/modules/autopilot/engine.ts` | DIAG | Console.log early exits |
-| `keybuzz-infra/k8s/keybuzz-api-dev/deployment.yaml` | GITOPS | Image tag mise a jour |
+| `keybuzz-infra/k8s/keybuzz-api-dev/deployment.yaml` | GITOPS | Image tag DEV mise a jour |
+| `keybuzz-infra/k8s/keybuzz-api-prod/deployment.yaml` | GITOPS | Image tag PROD mise a jour |
 
 ---
 
@@ -176,13 +205,13 @@ kubectl set image deployment/keybuzz-api keybuzz-api=ghcr.io/keybuzzio/keybuzz-a
 ## VERDICT FINAL
 
 ```
-AUTOPILOT FIXED — PLAN SAFE — ENGINE VALIDATED — DATA CLEAN — ROLLBACK READY
+AUTOPILOT FIXED — DEV + PROD DEPLOYES — PLAN SAFE — ENGINE VALIDATED — DATA CLEAN
 
-Plan guard : ACTIVE (PRO/STARTER → 403, AUTOPILOT/ENTERPRISE → 200)
+Plan guard : ACTIVE DEV + PROD (PRO/STARTER → 403, AUTOPILOT/ENTERPRISE → 200)
 Engine : FONCTIONNEL (escalation executee, KBA debite)
 Safe mode : TESTE (safe_mode=false → execution reelle)
-PROD motor : ROOT CAUSE IDENTIFIE (Amazon SP-API bypass)
-GitOps DEV : ALIGNE
-DB DEV : NETTOYEE
-PROD : EN ATTENTE VALIDATION LUDOVIC
+PROD motor : ROOT CAUSE IDENTIFIE (Amazon SP-API bypass → phase future)
+GitOps : ALIGNE DEV + PROD
+DB : NETTOYEE DEV + PROD (wallet null supprime, orphans supprimes)
+Rollback PROD : kubectl set image deployment/keybuzz-api keybuzz-api=ghcr.io/keybuzzio/keybuzz-api:v3.5.51-playbooks-suggestions-live-prod -n keybuzz-api-prod
 ```
