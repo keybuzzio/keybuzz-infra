@@ -31,9 +31,9 @@ spec:
       containers:
         - name: keybuzz-client
           # PH-HARD-REFRESH-FIRST-HIT-STABILITY-01: readiness probe + zero-downtime strategy
-          # PREVIOUS: v3.5.109-ph-amz-inbound-truth02-dev
           # PREVIOUS: v3.5.123-playbooks-truth-recovery-dev
-          image: ghcr.io/keybuzzio/keybuzz-client:v3.5.124-playbooks-backend-migration-dev
+          # PREVIOUS: v3.5.124-playbooks-backend-migration-dev
+          image: ghcr.io/keybuzzio/keybuzz-client:v3.5.125-playbooks-engine-alignment-dev
           imagePullPolicy: Always
           ports:
             - containerPort: 3000
