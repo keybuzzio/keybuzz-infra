@@ -40,7 +40,8 @@ spec:
           # PREVIOUS: v3.5.51-playbooks-suggestions-live-prod
           # PH132-C: Plan guard + engine logging + DB cleanup (2026-03-28)
           # PH132-D: Octopia autopilot trigger + backend env var (2026-03-28)
-          image: ghcr.io/keybuzzio/keybuzz-api:v3.5.129-autopilot-trigger-fix-prod
+          # PH132-E: Bootstrap fix — seed starters 8 active / 7 disabled (2026-03-29)
+          image: ghcr.io/keybuzzio/keybuzz-api:v3.5.130-bootstrap-fix-prod
           imagePullPolicy: Always
           ports:
             - containerPort: 3001
