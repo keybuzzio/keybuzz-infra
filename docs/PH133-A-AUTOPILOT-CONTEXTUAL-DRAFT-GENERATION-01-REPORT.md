@@ -1,7 +1,7 @@
 # PH133-A — Autopilot Contextual Draft Generation
 
 > Date : 2026-03-29
-> Statut : **DEV VALIDE — STOP AVANT PROD**
+> Statut : **DEV + PROD DEPLOYE ET VALIDE**
 > Phase : PH133-A-AUTOPILOT-CONTEXTUAL-DRAFT-GENERATION-01
 
 ---
@@ -185,12 +185,21 @@ kbActionsDebited: 0
 
 ## 7. Versions deployees
 
+### DEV
+
 | Service | Image DEV |
 |---------|-----------|
 | API | `ghcr.io/keybuzzio/keybuzz-api:v3.5.131-autopilot-contextual-draft-dev` |
 | Client | `ghcr.io/keybuzzio/keybuzz-client:v3.5.131-autopilot-contextual-draft-dev` |
 
-### Rollback
+### PROD
+
+| Service | Image PROD |
+|---------|-----------|
+| API | `ghcr.io/keybuzzio/keybuzz-api:v3.5.131-autopilot-contextual-draft-prod` |
+| Client | `ghcr.io/keybuzzio/keybuzz-client:v3.5.131-autopilot-contextual-draft-prod` |
+
+### Rollback DEV
 
 | Service | Image rollback |
 |---------|---------------|
@@ -202,6 +211,18 @@ kubectl set image deploy/keybuzz-api keybuzz-api=ghcr.io/keybuzzio/keybuzz-api:v
 kubectl set image deploy/keybuzz-client keybuzz-client=ghcr.io/keybuzzio/keybuzz-client:v3.5.48-white-bg-dev -n keybuzz-client-dev
 ```
 
+### Rollback PROD
+
+| Service | Image rollback |
+|---------|---------------|
+| API | `ghcr.io/keybuzzio/keybuzz-api:v3.5.130-bootstrap-fix-prod` |
+| Client | `ghcr.io/keybuzzio/keybuzz-client:v3.5.127-kba-checkout-fix-prod` |
+
+```bash
+kubectl set image deploy/keybuzz-api keybuzz-api=ghcr.io/keybuzzio/keybuzz-api:v3.5.130-bootstrap-fix-prod -n keybuzz-api-prod
+kubectl set image deploy/keybuzz-client keybuzz-client=ghcr.io/keybuzzio/keybuzz-client:v3.5.127-kba-checkout-fix-prod -n keybuzz-client-prod
+```
+
 ---
 
 ## 8. GitOps
@@ -210,6 +231,8 @@ kubectl set image deploy/keybuzz-client keybuzz-client=ghcr.io/keybuzzio/keybuzz
 |---------|--------------|
 | `k8s/keybuzz-api-dev/deployment.yaml` | Image → v3.5.131-autopilot-contextual-draft-dev |
 | `k8s/keybuzz-client-dev/deployment.yaml` | Image → v3.5.131-autopilot-contextual-draft-dev |
+| `k8s/keybuzz-api-prod/deployment.yaml` | Image → v3.5.131-autopilot-contextual-draft-prod |
+| `k8s/keybuzz-client-prod/deployment.yaml` | Image → v3.5.131-autopilot-contextual-draft-prod |
 
 ---
 
@@ -232,12 +255,27 @@ kubectl set image deploy/keybuzz-client keybuzz-client=ghcr.io/keybuzzio/keybuzz
 
 ## 10. PROD
 
-**STATUT : NON TOUCHE**
+**STATUT : DEPLOYE ET VALIDE (2026-03-29)**
 
-En attente de validation explicite de Ludovic : "Tu peux push PROD"
+### Validation PROD
+
+| Endpoint | Status |
+|----------|--------|
+| `GET /health` | 200 |
+| `GET /billing/current` | 200 |
+| `GET /ai/settings` | 200 |
+| `GET /messages/conversations` | 200 |
+| `GET /ai/rules` (playbooks) | 200 |
+| `GET /autopilot/settings` | 200 |
+| `GET /ai/wallet/status` | 200 |
+| `GET /autopilot/draft` | 200 |
+| External `https://api.keybuzz.io/health` | 200 |
+| External `https://client.keybuzz.io/` | 200 |
+
+**Non-regressions : 8/8 OK**
 
 ---
 
 ## 11. Verdict
 
-**AUTOPILOT CONTEXTUAL DRAFT READY — REAL ORDER/TRACKING CONTEXT — TIME AWARE — HUMAN VALIDATION LOOP ENABLED — ROLLBACK READY**
+**AUTOPILOT CONTEXTUAL DRAFT LIVE — REAL ORDER/TRACKING CONTEXT — TIME AWARE — HUMAN VALIDATION LOOP ENABLED — DEV+PROD ALIGNED — ROLLBACK READY**
