@@ -3,7 +3,7 @@
 > Date : 2026-03-29
 > Phase : PH132-E-NEW-TENANT-AUTOPILOT-BOOTSTRAP-TRUTH-RECOVERY-01
 > Type : correction critique bootstrap nouveaux tenants
-> Environnement : DEV deploye et valide | PROD en attente validation
+> Environnement : DEV + PROD deployes et valides
 
 ---
 
@@ -15,13 +15,14 @@
 
 ## 1. VERSIONS
 
-| Service | DEV (avant) | DEV (apres) | PROD (inchange) |
-|---------|-------------|-------------|-----------------|
-| API | `v3.5.129-autopilot-trigger-fix-dev` | **`v3.5.130-bootstrap-fix-dev`** | `v3.5.129-autopilot-trigger-fix-prod` |
-| Client | `v3.5.127-kba-checkout-fix-dev` | (inchange) | `v3.5.127-kba-checkout-fix-prod` |
-| Backend | `v1.0.42-ph-oauth-persist-dev` | (inchange) | `v1.0.42-ph-oauth-persist-prod` |
+| Service | DEV | PROD |
+|---------|-----|------|
+| API | **`v3.5.130-bootstrap-fix-dev`** | **`v3.5.130-bootstrap-fix-prod`** |
+| Client | `v3.5.127-kba-checkout-fix-dev` | `v3.5.127-kba-checkout-fix-prod` |
+| Backend | `v1.0.42-ph-oauth-persist-dev` | `v1.0.42-ph-oauth-persist-prod` |
 
 **Rollback DEV :** `kubectl set image deployment/keybuzz-api keybuzz-api=ghcr.io/keybuzzio/keybuzz-api:v3.5.129-autopilot-trigger-fix-dev -n keybuzz-api-dev`
+**Rollback PROD :** `kubectl set image deployment/keybuzz-api keybuzz-api=ghcr.io/keybuzzio/keybuzz-api:v3.5.129-autopilot-trigger-fix-prod -n keybuzz-api-prod`
 
 ---
 
@@ -217,41 +218,46 @@ PRO → autonomous = 403 BLOCKED (correct)
 
 ---
 
-## 8. ACTIONS PROD (en attente validation)
+## 8. DEPLOIEMENT PROD COMPLETE (2026-03-29)
 
-### 1. Build + deploy API PROD
+### API PROD
+- **Image :** `ghcr.io/keybuzzio/keybuzz-api:v3.5.130-bootstrap-fix-prod`
+- **Health :** `{"status":"ok"}` confirme
+- **CASE WHEN :** present dans le code compile (ligne 249)
 
-```bash
-cd /opt/keybuzz/keybuzz-api
-docker build --no-cache -t ghcr.io/keybuzzio/keybuzz-api:v3.5.130-bootstrap-fix-prod .
-docker push ghcr.io/keybuzzio/keybuzz-api:v3.5.130-bootstrap-fix-prod
-kubectl set image deployment/keybuzz-api keybuzz-api=ghcr.io/keybuzzio/keybuzz-api:v3.5.130-bootstrap-fix-prod -n keybuzz-api-prod
-```
+### Backfill PROD
+- **Tenant backfille :** `switaa-sasu-mnc1ouqu` (AUTOPILOT) — 0 active → 8 active
+- **Rows updated :** 8
 
-### 2. Backfill PROD (1 tenant)
+### Etat final PROD
 
-```sql
-UPDATE ai_rules
-SET status = 'active', updated_at = NOW()
-WHERE is_starter = true
-  AND trigger_type IN (
-    'tracking_request', 'delivery_delay', 'return_request',
-    'defective_product', 'payment_declined', 'invoice_request',
-    'order_cancelled'
-  )
-  AND status = 'disabled'
-  AND tenant_id IN (
-    SELECT ar2.tenant_id
-    FROM ai_rules ar2
-    WHERE ar2.is_starter = true
-    GROUP BY ar2.tenant_id
-    HAVING COUNT(*) FILTER (WHERE ar2.status = 'active') = 0
-  );
-```
+| Tenant | Plan | Active | Disabled | Status |
+|--------|------|--------|----------|--------|
+| ecomlg-001 | PRO | 8 | 7 | OK |
+| ecomlg-mn3rdmf6 | AUTOPILOT | 8 | 7 | OK |
+| ecomlg-mn3roi1v | PRO | 8 | 7 | OK |
+| romruais-gmail-com-mn7mc6xl | AUTOPILOT | 8 | 7 | OK |
+| switaa-sasu-mn9c3eza | AUTOPILOT | 8 | 7 | OK |
+| switaa-sasu-mnc1ouqu | AUTOPILOT | 8 | 7 | OK |
 
-### 3. Verifier
+**6/6 tenants PROD corrects. Distribution uniforme.**
 
-Health, non-regressions, distribution 8/7 pour tous tenants PROD.
+### Non-regressions PROD
+
+| Endpoint | Status |
+|----------|--------|
+| Health | 200 OK |
+| Billing | 200 OK |
+| AI settings | 200 OK |
+| Conversations | 200 OK |
+| Autopilot settings | 200 OK |
+| Playbooks | 200 OK |
+
+### Plan guard PROD
+PRO → autonomous = 403 BLOCKED (correct)
+
+### Playbooks PROD
+ecomlg-001 : 8 active, 7 disabled (correct)
 
 ---
 
@@ -261,6 +267,7 @@ Health, non-regressions, distribution 8/7 pour tous tenants PROD.
 |---------|------|-------------|
 | `keybuzz-api/src/services/playbook-seed.service.ts` | FIX | CASE WHEN sur trigger_type: 8 active, 7 disabled |
 | `keybuzz-infra/k8s/keybuzz-api-dev/deployment.yaml` | GITOPS | Image tag v3.5.130-bootstrap-fix-dev |
+| `keybuzz-infra/k8s/keybuzz-api-prod/deployment.yaml` | GITOPS | Image tag v3.5.130-bootstrap-fix-prod |
 
 ---
 
@@ -285,16 +292,19 @@ kubectl set image deployment/keybuzz-api keybuzz-api=ghcr.io/keybuzzio/keybuzz-a
 ## VERDICT FINAL
 
 ```
-NEW TENANT AUTOPILOT BOOTSTRAP RECOVERED — DEV DEPLOYE — PROD EN ATTENTE
+NEW TENANT AUTOPILOT BOOTSTRAP RECOVERED — DEV + PROD DEPLOYES ET VALIDES
 
 Cause racine : seedStarterPlaybooks() creait 15 starters 'disabled'
 Fix : CASE WHEN sur trigger_type -> 8 active, 7 disabled (durable)
+API DEV : v3.5.130-bootstrap-fix-dev (health OK)
+API PROD : v3.5.130-bootstrap-fix-prod (health OK, CASE WHEN confirme)
 Backfill DEV : 2 tenants corriges (switaa-sasu-mnc1x4eq + test-amz)
+Backfill PROD : 1 tenant corrige (switaa-sasu-mnc1ouqu, 8 rows)
 Distribution DEV : 9/9 tenants = 8 active + 7 disabled (uniforme)
-PROD : 1 tenant a backfiller (switaa-sasu-mnc1ouqu)
+Distribution PROD : 6/6 tenants = 8 active + 7 disabled (uniforme)
 Aucun hardcode tenant
 Comportement identique anciens / nouveaux tenants
-Non-regressions : tous endpoints 200 OK
-Plan guard : PRO->autonomous 403 BLOCKED
+Non-regressions DEV + PROD : tous endpoints 200 OK
+Plan guard PROD : PRO->autonomous 403 BLOCKED
 Rollback : documente et pret
 ```
