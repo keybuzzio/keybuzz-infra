@@ -189,7 +189,7 @@ spec:
         # PH132-C: Autopilot critical fixes (plan guard + engine logging + safe mode)
         # PH132-D: Autopilot trigger for Octopia import (2026-03-28)
         # PH132-E: Bootstrap fix — seed starters with correct 8 active / 7 disabled
-        image: ghcr.io/keybuzzio/keybuzz-api:v3.5.130-bootstrap-fix-dev
+        image: ghcr.io/keybuzzio/keybuzz-api:v3.5.131-autopilot-contextual-draft-dev
         livenessProbe:
           httpGet:
             path: /health
