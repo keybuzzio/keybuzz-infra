@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: keybuzz-studio
+  namespace: keybuzz-studio-prod
+  labels:
+    app: keybuzz-studio
+    environment: production
+  annotations:
+    argocd.argoproj.io/tracking-id: "keybuzz-studio-prod:apps/Deployment:keybuzz-studio-prod/keybuzz-studio"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: keybuzz-studio
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+  minReadySeconds: 5
+  template:
+    metadata:
+      labels:
+        app: keybuzz-studio
+      annotations:
+        reloader.stakater.com/auto: "true"
+    spec:
+      imagePullSecrets:
+        - name: ghcr-cred
+      containers:
+        - name: keybuzz-studio
+          image: ghcr.io/keybuzzio/keybuzz-studio:v0.1.0-prod
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 3000
+          readinessProbe:
+            tcpSocket:
+              port: 3000
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            failureThreshold: 3
+            successThreshold: 1
+          livenessProbe:
+            tcpSocket:
+              port: 3000
+            initialDelaySeconds: 15
+            periodSeconds: 20
+            failureThreshold: 3
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+          env:
+            - name: NEXT_PUBLIC_APP_ENV
+              value: "production"
+            - name: NEXT_PUBLIC_STUDIO_API_URL
+              value: "https://studio-api.keybuzz.io"

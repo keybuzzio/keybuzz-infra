@@ -33,7 +33,10 @@ spec:
           # PH-HARD-REFRESH-FIRST-HIT-STABILITY-01: readiness probe + zero-downtime strategy
           # PREVIOUS: v3.5.106-ph131-starter-upsell-prod
           # PREVIOUS: v3.5.107-ph131-autopilot-engine-prod
-          image: ghcr.io/keybuzzio/keybuzz-client:v3.5.109-ph-amz-inbound-truth02-prod
+          # PREVIOUS: v3.5.124-playbooks-backend-migration-prod
+          # PREVIOUS: v3.5.126-playbooks-suggestions-live-prod
+          # PH133-A: Autopilot contextual draft generation (2026-03-29)
+          image: ghcr.io/keybuzzio/keybuzz-client:v3.5.131-autopilot-contextual-draft-prod
           imagePullPolicy: Always
           ports:
             - containerPort: 3000

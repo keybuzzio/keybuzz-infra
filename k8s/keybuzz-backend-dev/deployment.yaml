@@ -29,7 +29,7 @@ spec:
     spec:
       containers:
         - name: keybuzz-backend
-          image: ghcr.io/keybuzzio/keybuzz-backend:v1.0.40-pj-fix-dev
+          image: ghcr.io/keybuzzio/keybuzz-backend:v1.0.42-ph-oauth-persist-dev
           imagePullPolicy: Always
           ports:
             - name: http

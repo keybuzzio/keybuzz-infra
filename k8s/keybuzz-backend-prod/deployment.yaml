@@ -22,7 +22,9 @@ spec:
       containers:
         - name: keybuzz-backend
           # ROLLBACK: v1.0.39-td05-externalmsg-prod
-          image: ghcr.io/keybuzzio/keybuzz-backend:v1.0.40-pj-fix-prod
+          # PREVIOUS: v1.0.40-pj-fix-prod
+          # PH132-D: Updated to match cluster + added API_INTERNAL_URL
+          image: ghcr.io/keybuzzio/keybuzz-backend:v1.0.42-ph-oauth-persist-prod
           ports:
             - containerPort: 4000
           envFrom:
@@ -60,6 +62,9 @@ spec:
                   key: token
             - name: AMAZON_SPAPI_REDIRECT_URI
               value: "https://backend.keybuzz.io/api/v1/marketplaces/amazon/oauth/callback"
+            # PH132-D: Required for autopilot trigger from backend to API
+            - name: API_INTERNAL_URL
+              value: "http://keybuzz-api.keybuzz-api-prod.svc.cluster.local:3001"
             - name: VAULT_TOKEN
               valueFrom:
                 secretKeyRef:
