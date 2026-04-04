@@ -1,0 +1,70 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: keybuzz-studio-api
+  namespace: keybuzz-studio-api-dev
+  labels:
+    app: keybuzz-studio-api
+    environment: development
+  annotations:
+    argocd.argoproj.io/tracking-id: "keybuzz-studio-api-dev:apps/Deployment:keybuzz-studio-api-dev/keybuzz-studio-api"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: keybuzz-studio-api
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+  minReadySeconds: 5
+  template:
+    metadata:
+      labels:
+        app: keybuzz-studio-api
+      annotations:
+        reloader.stakater.com/auto: "true"
+    spec:
+      imagePullSecrets:
+        - name: ghcr-cred
+      containers:
+        - name: keybuzz-studio-api
+          image: ghcr.io/keybuzzio/keybuzz-studio-api:v0.1.0-dev
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 4010
+          readinessProbe:
+            tcpSocket:
+              port: 4010
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            failureThreshold: 3
+            successThreshold: 1
+          livenessProbe:
+            tcpSocket:
+              port: 4010
+            initialDelaySeconds: 15
+            periodSeconds: 20
+            failureThreshold: 3
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+          env:
+            - name: NODE_ENV
+              value: "development"
+            - name: PORT
+              value: "4010"
+            - name: LOG_LEVEL
+              value: "debug"
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: keybuzz-studio-api-db
+                  key: DATABASE_URL
+            - name: CORS_ORIGIN
+              value: "https://studio-dev.keybuzz.io"

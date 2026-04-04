@@ -1,0 +1,28 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: keybuzz-studio-api
+  namespace: keybuzz-studio-api-prod
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/proxy-body-size: 50m
+    nginx.ingress.kubernetes.io/limit-connections: '100'
+    nginx.ingress.kubernetes.io/limit-rps: '50'
+    nginx.ingress.kubernetes.io/limit-burst-multiplier: '5'
+spec:
+  ingressClassName: nginx
+  tls:
+  - hosts:
+    - studio-api.keybuzz.io
+    secretName: keybuzz-studio-api-tls
+  rules:
+  - host: studio-api.keybuzz.io
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: keybuzz-studio-api
+            port:
+              number: 80

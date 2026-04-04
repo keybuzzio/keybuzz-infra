@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: keybuzz-studio-prod
+  labels:
+    app: keybuzz-studio
+    environment: production

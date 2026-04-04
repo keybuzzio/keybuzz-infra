@@ -20,7 +20,8 @@ spec:
       containers:
       - name: worker
         # v3.3.6-ph324b: + PATCH sav-status route
-        image: ghcr.io/keybuzzio/keybuzz-api:v3.5.96-ph85-ops-action-center-dev
+        # PH136-B: Multi-carrier tracking aggregator (2026-03-30)
+        image: ghcr.io/keybuzzio/keybuzz-api:v3.5.145b-tracking-aggregator-dev
         command: ["node", "dist/workers/outboundWorker.js"]
         env:
         - name: OUTBOUND_POLL_INTERVAL_MS
