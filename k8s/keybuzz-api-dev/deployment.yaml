@@ -190,8 +190,7 @@ spec:
         # PH132-D: Autopilot trigger for Octopia import (2026-03-28)
         # PH132-E: Bootstrap fix — seed starters with correct 8 active / 7 disabled
         # PH133-B: Delivery tracking truth recovery (2026-03-29)
-        # PH136-B: Multi-carrier tracking aggregator (2026-03-30)
-        image: ghcr.io/keybuzzio/keybuzz-api:v3.5.145b-tracking-aggregator-dev
+        image: ghcr.io/keybuzzio/keybuzz-api:v3.5.132-delivery-tracking-truth-dev
         livenessProbe:
           httpGet:
             path: /health
