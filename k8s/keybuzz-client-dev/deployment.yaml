@@ -33,7 +33,7 @@ spec:
           # PH-HARD-REFRESH-FIRST-HIT-STABILITY-01: readiness probe + zero-downtime strategy
           # PREVIOUS: v3.5.124-playbooks-backend-migration-dev
           # PREVIOUS: v3.5.126-playbooks-suggestions-live-dev
-          image: ghcr.io/keybuzzio/keybuzz-client:v3.5.131-autopilot-contextual-draft-dev
+          image: ghcr.io/keybuzzio/keybuzz-client:v3.5.210-ph143-real-browser-escalation-fix-dev
           imagePullPolicy: Always
           ports:
             - containerPort: 3000

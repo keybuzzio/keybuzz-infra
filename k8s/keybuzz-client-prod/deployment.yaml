@@ -36,7 +36,7 @@ spec:
           # PREVIOUS: v3.5.124-playbooks-backend-migration-prod
           # PREVIOUS: v3.5.126-playbooks-suggestions-live-prod
           # PH133-A: Autopilot contextual draft generation (2026-03-29)
-          image: ghcr.io/keybuzzio/keybuzz-client:v3.5.131-autopilot-contextual-draft-prod
+          image: ghcr.io/keybuzzio/keybuzz-client:v3.5.211-ph143-final-prod
           imagePullPolicy: Always
           ports:
             - containerPort: 3000
