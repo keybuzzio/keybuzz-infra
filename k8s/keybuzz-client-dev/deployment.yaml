@@ -30,10 +30,20 @@ spec:
         - name: ghcr-cred
       containers:
         - name: keybuzz-client
-          # PH-HARD-REFRESH-FIRST-HIT-STABILITY-01: readiness probe + zero-downtime strategy
-          # PREVIOUS: v3.5.124-playbooks-backend-migration-dev
-          # PREVIOUS: v3.5.126-playbooks-suggestions-live-dev
-          image: ghcr.io/keybuzzio/keybuzz-client:v3.5.216-ph143-francisation-dev
+          # PH140-D: Agent invite/activate/login unification
+          # PREVIOUS: v3.5.167-agent-auth-scope-dev
+          # PREVIOUS: v3.5.170-agent-invite-e2e-trace-recovery-dev  # PH140-F
+          # PREVIOUS: v3.5.171-real-browser-invite-loop-fix-dev  # PH140-G
+          # PREVIOUS: v3.5.173-invite-login-ux-polish-dev  # PH140-I
+          # PREVIOUS: v3.5.174-agent-hard-access-lockdown-dev  # PH140-J
+          # PREVIOUS: v3.5.175-assignment-semantics-dev  # PH140-K
+          # PREVIOUS: v3.5.176-agent-supervision-dev  # PH140-L
+          # PREVIOUS: v3.5.177-sla-priority-dev  # PH140-M
+          # PREVIOUS: v3.5.178-agent-limits-dev  # PH141-A
+          # PREVIOUS: v3.5.181-critical-polish-dev  # PH141-E
+          # PREVIOUS: v3.5.183-ai-quality-loop-dev  # PH142-A
+          # PREVIOUS: v3.5.184-ai-error-clustering-dev  # PH142-B
+          image: ghcr.io/keybuzzio/keybuzz-client:v3.5.217-ph143-fr-fix-dev  # PH143-FR.2
           imagePullPolicy: Always
           ports:
             - containerPort: 3000
