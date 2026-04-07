@@ -43,7 +43,7 @@ spec:
           # PREVIOUS: v3.5.181-critical-polish-dev  # PH141-E
           # PREVIOUS: v3.5.183-ai-quality-loop-dev  # PH142-A
           # PREVIOUS: v3.5.184-ai-error-clustering-dev  # PH142-B
-          image: ghcr.io/keybuzzio/keybuzz-client:v3.5.217-ph143-fr-fix-dev  # PH143-FR.2
+          image: ghcr.io/keybuzzio/keybuzz-client:v3.5.218-ph143-fr-real-fix-dev  # PH143-FR.3
           imagePullPolicy: Always
           ports:
             - containerPort: 3000
