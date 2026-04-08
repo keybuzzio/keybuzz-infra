@@ -221,7 +221,9 @@ spec:
                 # PREVIOUS: v3.5.184-ai-error-clustering-dev  # PH142-B
                 # PREVIOUS: v3.5.185-ai-action-consistency-dev  # PH142-C
                 # PREVIOUS: v3.5.189-draft-lifecycle-kbactions-dev  # PH142-G
-                image: ghcr.io/keybuzzio/keybuzz-api:v3.5.48-ph143-agents-fix-dev  # PH143-AGENTS
+                # PH-SHOPIFY-01.1: Réalignement DEV sur base PROD validée
+                # ROLLBACK: v3.5.48-ph143-agents-fix-dev
+                image: ghcr.io/keybuzzio/keybuzz-api:v3.5.224-ph143-agents-ia-prod
         livenessProbe:
           httpGet:
             path: /health
