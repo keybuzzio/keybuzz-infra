@@ -225,6 +225,140 @@
 
 ---
 
+## PH118 à PH126 (Role Access, Agent Foundations, Escalation, Workbench)
+
+| Phase | Description — éléments essentiels |
+|-------|----------------------------------|
+| **PH118-ONBOARDING-HARDENING-01** | **Durcissement onboarding** : annulation Stripe sans spinner bloquant, étape `payment_cancelled`, reprise du paiement depuis `/register` et `/locked` (checkout Stripe direct pour `PENDING_PAYMENT`). |
+| **PH119-ROLE-ACCESS-GUARD-01** | **Contrôle d'accès centralisé** — `routeAccessGuard.ts` source unique pour routes publiques, sans tenant, exemptées billing, shell, admin. Correction écarts (`/invite`, `/workspace-setup`, `/ai-dashboard`). |
+| **PH120-TENANT-CONTEXT-STABILIZATION-01** | **Stabilisation contexte tenant** — `TenantProvider` source de vérité, correction hook `useTenantId`, migration depuis `getCurrentTenantId` déprécié. |
+| **PH120-MINIMAL-FIX-REINTRO-05** | Correction lenteur post-PH120 en rétablissant lectures synchrones (revert ciblé `useTenantId`/`ClientLayout`), timeouts AuthGuard réduits, cookie paywall réaligné. |
+| **PH120-DIFF-AUDIT-RECOVERY-03** | Audit différentiel lecture seule — cause racine de la régression PH120 : initialisation asynchrone du focus mode / `currentTenantId` dans `ClientLayout` vs localStorage synchrone. |
+| **PH121-ROLE-AGENT-FOUNDATION-01** | **Fondation rôles et agents** — rôle `viewer`, matrice permissions, hooks `useRole`/`usePermissions`, `PermissionGate`, `RoleBadge`, endpoints BFF `/api/roles/*`, types préparés pour l'escalade. |
+| **PH122-ESCALATION-ASSIGNMENT-FOUNDATION-01** | **Fondation assignation** IA vs humain — BFF assign/unassign, hook et UI `AssignmentPanel`/badges inbox, mapping `assignedAgentId`/`assignedType`, structure `EscalationRecord`. |
+| **PH122-DIFF-AUDIT-RECOVERY-02** | Audit régressions PH122 — réécriture massive `InboxTripane`, signatures `conversations.service` sans `tenantId`, perte fournisseurs/stats. Plan correctif strictement additif. |
+| **PH122-SAFE-REBUILD-03** | Reconstruction safe PH122 sur base PH121 — diff uniquement additif (~+30 lignes, 0 suppression), conservation fonctionnalités existantes, validation DEV/PROD. |
+| **PH122-ASSIGNMENT-SELF-AGENT-FIX-04** | Correction du 400 au clic « Prendre » — envoi du `tenantId` au BFF et en-tête `X-Tenant-Id` vers l'API pour assign/unassign. |
+| **PH123-ESCALATION-INTELLIGENCE-FOUNDATION-01** | **Fondation escalade** — colonnes DB `escalation_*`, routes API Fastify + BFF escalate/deescalate/status, panneau et hook d'escalade côté client. |
+| **PH124-AGENT-WORKBENCH-FOUNDATION-01** | **Workbench agent** — barre filtres rapides (`AgentWorkbenchBar`) et panneau synthèse traitement (`TreatmentStatusPanel`), patch additif sur `InboxTripane`. |
+| **PH124-AGENT-FILTERS-ACTION-FIX-02** | Correction filtres workbench inopérants — ajout `agentFilter` et `currentUser` aux dépendances du `useMemo` `filteredConversations`. |
+| **PH125-AGENT-QUEUE-MY-WORK-01** | **File « Mon travail »** — filtre « À reprendre » (escalade/recommandé sans assignation), résumé compact, tri par priorité. |
+| **PH126-AGENT-PRIORITY-LAYER-01** | **Couche priorité** — scoring multi-critères (`conversationPriority.ts`), `PriorityBadge`, synthèse urgents, toggle « Prioritaires d'abord ». |
+
+---
+
+## PH127 à PH135 (AI Assist, Plans, Autopilot, Email Pipeline)
+
+| Phase | Description — éléments essentiels |
+|-------|----------------------------------|
+| **PH127-SAFE-AI-ASSIST-01** | **Suggestions IA déterministes** (assign, escalade, statut, brouillon) dans panneau dédié, validation humaine obligatoire, sans endpoint IA opaque ni envoi automatique. |
+| **PH128-AI-SUPERVISION-FOUNDATION-01** | **Fondation supervision IA** — table `ai_suggestion_events`, routes API + BFF tracking/stats, hook `useAISupervision` pour tracer affichage/application/rejet des suggestions. |
+| **PH129-PLAN-AUDIT-01** | **Audit système de plans** (code, DB, Stripe) — inventaire incohérences (`free`, casse mixte, `STARTER` absent en prod). Verdict : PLAN SYSTEM INCONSISTENT — FIX REQUIRED. |
+| **PH129-PLAN-NORMALIZATION-BUSINESS-02** | **Normalisation plans** — plan canonique en MAJUSCULE, alignement tenants/SLA/KBActions/wallet/Stripe, corrections des écarts identifiés. |
+| **PH130-PLAN-GATING-ACTIVATION-01** | **Gating par plan** (frontend + API) — features IA réservées PRO+, modes suggestion/supervisé/autonome selon plan, `403 PLAN_REQUIRED`. |
+| **PH131-B-AUTOPILOT-SETTINGS-01** | **Modèle DB `autopilot_settings`** — API CRUD, intégration gating PH130 et UI pour configurer autonomie, actions et escalade sans activer l'automatisation. |
+| **PH131-C-AUTOPILOT-ENGINE-SAFE-01** | **Moteur `evaluateAndExecute`** — pipeline contrôlé (plan, mode, safe_mode, LLM, confiance, logs KBA) pour exécution autopilot en environnement sûr (DEV). |
+| **PH132-C-AUTOPILOT-CRITICAL-FIXES-01** | Garde plan sur mode `autonomous`, diagnostic contournement Amazon par worker Python, alignement GitOps, logs sorties anticipées du moteur. |
+| **PH133-A-AUTOPILOT-CONTEXTUAL-DRAFT-01** | **Autopilot brouillons contextualisés** — alimentation contexte commande (order_ref → `orders`) et temporel pour générer brouillons tracking/retard sans envoi auto. |
+| **PH133-B-DELIVERY-TRACKING-TRUTH-RECOVERY-01** | **Récupération vérité suivi livraison** — colonnes dates, backfill `raw_data`, timeline dates Amazon, statuts delivered/in_transit exploitables par IA. |
+| **PH133-C-CARRIER-LIVE-TRACKING-TRUTH-RECOVERY-01** | Réduction écart Amazon vs données transporteur (UPS) — table `tracking_events`, enrichissement. DEV validé, arrêt avant PROD. |
+| **PH133-D-AMAZON-OUTBOUND-PIPELINE-TRUTH-RECOVERY-01** | Diagnostic et correction **régression pipeline sortant Amazon** (HTML, encodage, chemin worker/SMTP) pour messages correctement formatés. |
+| **PH133-F-AMAZON-LINE-BREAK-FIDELITY-01** | Fidélité sauts de ligne Amazon — abandon `<p>` (mal rendus) au profit de `<br>` dans `textToHtmlAmazon()`. |
+| **PH133-G-AMAZON-VISUAL-LINE-PRESERVATION-01** | Préservation visuelle paragraphes Amazon — `\n\n` → `<br>&nbsp;<br>` contre compression `<br>` multiples par messagerie acheteur. |
+| **PH134-A-AUTOPILOT-DRAFT-BILLING-01** | Correction facturation brouillons autopilot en safe mode — poids `autopilot_draft` et débit KBActions sur chemin `DRAFT_GENERATED`. |
+| **PH135-A-AUTOPILOT-BEHAVIOR-CONTROL-01** | **Comportement Autopilot prévisible** — seuil confiance abaissé, prompt « draft-first », brouillons basse confiance, conversion actions none vers reply/escalade. |
+| **PH135-B-EMAIL-PIPELINE-SANITY-01** | **Sanity canal email** — dédup inbound (hash + fenêtre), Reply-To sortant via adresses inbound/tenant, stripping citations body. |
+| **PH135-C-AMAZON-INBOUND-THREAD-SANITY-01** | **Fils Amazon inbound** — nettoyage relay (`stripAmazonRelay`), dédup sur `amazon-forward`, règles anti-placeholders `[Votre Nom]` dans prompt Autopilot. |
+| **PH135-D-INBOUND-BODY-AND-EMAIL-DELIVERY-TRUTH-RECOVERY-01** | Vérité body inbound (ordre strip vs MIME) et réponses Autopilot — création `outbound_deliveries` dans `executeReply` pour livraison réelle. |
+| **PH135-E-REPLYTO-SUBJECT-ENCODING-01** | Reply-To Amazon SMTP avec repli adresse inbound validée + décodage MIME sujets (charset ISO/Latin1/UTF-8, pliage RFC 2047). |
+
+---
+
+## PH136 à PH139 (GitOps, Carrier, IA Consistency, Signature)
+
+| Phase | Description — éléments essentiels |
+|-------|----------------------------------|
+| **PH136-A-GITOPS-ROLLBACK-HARDENING-01** | **Durcissement GitOps** — scripts rollback et détection drift, alignement manifests/cluster, règles pour éviter `kubectl set image` comme source de vérité. |
+| **PH136-B-MULTI-CARRIER-TRACKING-AGGREGATOR-01** | **Chaîne providers suivi** (17track + fallback UPS) pour alimenter statut transporteur au-delà d'un seul adaptateur vendeur. |
+| **PH137-B-AUTOPILOT-SMART-RESPONSE-PROD-VALIDATION** | Validation PROD « smart response » autopilot sur 10 conversations réelles (scénarios, confiance, safety, logs API/worker). |
+| **PH137-B-UX-DRAFT-CLARITY-01** | **Refonte UX bandeau brouillon IA** — libellés clairs, envoi 1 clic, modifier/ignorer, toasts, auto-scroll, intégration envoi direct depuis inbox. |
+| **PH137-C-IA-CONSISTENCY-ENGINE-01** | **Moteur cohérence IA** — module `shared-ai-context.ts` pour unifier prompt, contexte commande/tracking et règles entre Autopilot et Aide IA (PRO). |
+| **PH138-E-BILLING-FALLBACK-UX-01** | UX de secours — si `change-plan` échoue (pas d'abonnement Stripe), redirection vers checkout au lieu de dead-end pour tenants exempt ou sans souscription. |
+| **PH138-F-BILLING-STATE-SYNC-AND-EFFECTIVE-PLAN-UX** | Synchro UI après retour Stripe (refetch), réglage auto mode IA selon plan, CTA « Agent KeyBuzz » activable. |
+| **PH138-I-AUTOPILOT-SETTINGS-CTA-FINALIZATION-01** | Finalisation CTA Paramètres IA — correction boutons désactivés bloquant clics sur cartes verrouillées, audit zones cliquables. |
+| **PH138-K-STRIPE-CHECKOUT-ENFORCEMENT-FINAL-01** | **Enforcement Stripe** — activation Agent KeyBuzz uniquement via session Checkout (plus d'update directe), affichage prix, préservation trial. |
+| **PH139-SIGNATURE-IDENTITY-01** | **Identité et signature unifiées** — champs `tenant_settings`, `signatureResolver`, injection worker/outbound, prompts IA et endpoints/UI. DEV validé. |
+| **PH139-B-AGENT-DEFAULT-AND-CLEAN-MODEL-01** | Création automatique agent admin « client » à l'inscription tenant, blocage type `keybuzz`, résolution signature avec fallback nom agent admin actif. |
+| **PH139-C-SIGNATURE-UX-FINALIZATION-01** | Onglet Paramètres « Signature » (aperçu live, `resolvedPreview`, sauvegarde autonome), priorité settings → agent → tenant, route BFF/API. |
+
+---
+
+## PH140 (Agents, Escalation, Invitation, Supervision)
+
+| Phase | Description — éléments essentiels |
+|-------|----------------------------------|
+| **PH140-A-ESCALATION-REAL-FLOW-01** | **Escalade exploitable** — `escalation_target`, statut `escalated`, assignation qui repasse en open/in_progress, filtre `?escalated=true`, inbox filtre « Escalade » et bouton « Prendre en charge ». |
+| **PH140-B-AGENT-WORKSPACE-01** | **Workspace agent** — `AgentWorkbenchBar` (4 vues), `ConversationActionBar` (actions 1 clic), badges et en-tête conversation, correction affichage Unicode. |
+| **PH140-C-AGENT-AUTH-ROLE-SCOPING-01** | **Mode agent sécurisé** — garde BFF sur POST `/api/agents`, menu « Paramètres » masqué pour agents, toast RBAC, bandeau « Mode Agent ». |
+| **PH140-D-AGENT-INVITE-ACTIVATE-LOGIN-UNIFICATION-01** | Unifier agents et space-invites — création agent déclenche email invitation, statuts UI, redirection post-accept vers `/inbox` pour agents. |
+| **PH140-E-AGENT-INVITE-AUTH-TENANT-RECOVERY-01** | Corriger E2E invite — bypass `check-email` si invite, redirect post-OTP vers `/invite/continue`, cookies `currentTenantRole`, routes publiques `/api/invite`. |
+| **PH140-F-AGENT-INVITE-E2E-TRACE-RECOVERY-01** | Réparation acceptation invitation (middleware `/api/space-invites` public, flux simplifié `login?invite_token`, `credentials: 'include'`, logs BFF). |
+| **PH140-G-REAL-BROWSER-INVITE-LOOP-ROOT-CAUSE-01** | Élimination boucle login post-OTP — `SessionProvider` stale → `window.location.href`, retry `getSession()` sur `/invite/continue`, fix `magic/start` (APP_ENV). |
+| **PH140-H-OTP-GATED-REAL-INVITE-FIX-01** | Post-invite OTP — reload complet post-accept (`window.location.href`), backend lie `agents.user_id` à l'accept, sidebar agent correcte. |
+| **PH140-I-INVITE-LOGIN-UX-POLISH-01** | **UX invitation** — `GET /space-invites/resolve`, email prérempli, bandeau tenant, titre dédié, envoi OTP automatique. |
+| **PH140-J-AGENT-HARD-ACCESS-LOCKDOWN-01** | **Verrouillage dur agent** — garde `ClientLayout` + middleware `/no-access` + 403 API admin-only pour empêcher accès direct pages réservées. |
+| **PH140-K-ASSIGNMENT-SEMANTICS-01** | Clarification assignation — libellés « Remettre en file », « Prendre en charge », « Responsable », filtres workbench, `canTakeOver` sans blocage IA. |
+| **PH140-L-AGENT-SUPERVISION-01** | **Panneau supervision** — KPIs file/assignés/escalade/résolus, alertes, charge par agent, lien vers inbox filtré. |
+| **PH140-M-SLA-PRIORITY-01** | **Priorité/urgence** par ancienneté dernier message (badges +4h/+24h), tri prioritaire par défaut, KPIs enrichis supervision. |
+
+---
+
+## PH141 à PH142 (Agent Limits, Feature Registry, Validation)
+
+| Phase | Description — éléments essentiels |
+|-------|----------------------------------|
+| **PH141-A-AGENT-LIMITS-GATING-01** | **Plafonds agents par plan** (client + API 403 `AGENT_LIMIT_REACHED`), compteur, masquage bouton Ajouter, bannière upsell. |
+| **PH141-B-AGENT-LIMITS-ALIGNMENT-01** | Alignement limites produit (Pro 2, Autopilot 3), exclusion agent KeyBuzz du plafond interne, `KEYBUZZ_AGENT_LIMITS` + type `keybuzz`. |
+| **PH141-F-AI-CONTEXT-UTILIZATION-01** | Correction prompts IA pour utiliser infos déjà présentes dans le message client — règle prioritaire + ajustements `shared-ai-context`/`ai-assist-routes`. |
+| **PH142-O0-FEATURE-REGISTRY-TRUTH-MATRIX-01** | **Audit documentaire** — matrice de vérité et registre features (36–40 features, domaines, `FEATURE_TRUTH_MATRIX`/`feature_registry.json`) — sans code. |
+| **PH142-O1-FEATURE-MATRIX-EXECUTION-01** | **Exécution validation produit** sur matrice en DEV (API/DB/scripts/navigateur) — statuts GREEN/ORANGE/RED pour 40 features. |
+| **PH142-O1.2-MULTI-PLAN-VALIDATION-01** | Validation multi-plans (STARTER, PRO, AUTOPILOT) — tests navigateur réels et API/DB pour comparer comportements selon plan. |
+| **PH142-O2-FIX-CRITICAL-RED-ONLY-01** | **Correctifs P0 uniquement** — RBAC agent (middleware Docker + cookie `currentTenantRole`), scripts bastion `pre-prod-check-v2`/`assert-git-committed`, cohérence import `shared-ai-context` Autopilot. |
+
+---
+
+## PH143 (Rebuild, Francisation, Release Line, Agents, IA, PROD Promotion)
+
+| Phase | Description — éléments essentiels |
+|-------|----------------------------------|
+| **PH143-B-BILLING-PLANS-ADDON-01** | **Reconstruction facturation** (BILL-01 à BILL-06) sur branches rebuild — CTAs upgrade, addon Agent KeyBuzz, `hasAgentKeybuzzAddon`, gating, `billing/current` cohérent. |
+| **PH143-C-AGENTS-RBAC-REBUILD-01** | **Reconstruction agents + RBAC** — limites par plan, rejet type `keybuzz`, cookie/middleware, routes admin bloquées pour agents, Dockerfile avec `middleware.ts`. |
+| **PH143-E.5-AUTOPILOT-ESCALATION-VISIBILITY-AND-HANDOFF-01** | Exposition `escalation_target` en API et UI (badge/panel escalade), alignement avec prise en main « Prendre la main ». |
+| **PH143-E.6-AUTOPILOT-REPLY-PLUS-ESCALATION-FIX-01** | Correction bug : valider brouillon escalade envoyait message sans déclencher escalade réelle — logique dans `POST /autopilot/draft/consume` pour `ESCALATION_DRAFT`. |
+| **PH143-E.8-UNIFY-HUMAN-ACTION-SEND-PATHS-01** | **Filet serveur** sur `POST /conversations/:id/reply` — détection « fausses promesses » et escalade auto pour tous chemins d'envoi (pas seulement consume). |
+| **PH143-FR-FULL-FRANCISATION-01** | **Francisation client** — séquences Unicode → caractères accentués, mojibake, derniers libellés anglais → français, sans changement logique métier. |
+| **PH143-FR.2-FULL-FRANCISATION-AND-REGRESSION-FIX-01** | Suite francisation + correctifs UX — accents/unicode résiduels, playbooks visibles (guard `tenantId`), suppression option « Agent KeyBuzz » au formulaire création. |
+| **PH143-FR.3-IA-ACCENTS-AND-PLAYBOOKS-REAL-FIX-01** | Accents manquants `LearningControlSection` (et FAQ pricing) ; playbooks via `getPlaybooks(overrideTenantId)` pour utiliser tenant session plutôt que localStorage. |
+| **PH143-FR.4-PLAYBOOKS-REAL-SESSION-FIX-01** | Correction page Playbooks vide (Total 0) — merge `main` pour `usePlaybooks` + API ; diagnostic `useTenantId()` vide car `tenantId` absent du JWT. |
+| **PH143-R1-RELEASE-LINE-RECOVERY-AUDIT-01** | **Audit ligne release** — cartographie branches, identification base saine (`e87da0e`), contamination Studio via merge FR.4, delta DEV/PROD/branche polluée. |
+| **PH143-R2-CLEAN-RELEASE-BRANCH-REBUILD-01** | **Reconstruction release propre** — branche `release/client-v3.5.220` depuis base saine, cherry-picks playbooks (API backend + engine), `.dockerignore` anti-Studio. |
+| **PH143-R3-CLEAN-RELEASE-PROD-PROMOTION-01** | **Promotion PROD contrôlée** — image `v3.5.220-ph143-clean-release-prod` depuis `release/client-v3.5.220`, GitOps, rollout cluster, pre-prod check. |
+| **PH143-ROLLBACK-URGENT-01** | Rollback urgence DEV client `v3.5.219` → `v3.5.218` via script GitOps ; PROD inchangée. |
+| **PH143-J-GLOBAL-VALIDATION-REBUILD-01** | **Validation globale finale** ligne rebuild PH143 (matrice rejouée en DEV) — 38/40 GREEN, synthèse par domaine et deltas vs PH143-G/H/I. |
+| **PH143-J.1-FINAL-PROD-GATE-01** | **Gate PROD finale** — tests exhaustifs chemins critiques envoi (promesses/consume), pre-prod-check 25/25, avant autorisation PROD. |
+| **PH143-UX-ESCALATION-CLEAN-01** | Refonte UX escalade — remplacement gros encadré par badge compact inline, tooltip au clic, alignement Metronic. |
+| **PH143-UX-REGRESSION-GATE-01** | Gate non-régression DEV (API, routes, accessibilité, données) avant promotion PROD des polish UX Escalade et Mon travail. |
+| **PH143-UX-PROD-PROMOTION-01** | Déploiement PROD deux polish UX (badge escalade + filtres « Mon travail »), image `v3.5.215-ph143-ux-polish-prod`, API inchangée. |
+| **PH143-AGENTS-INVITE-RECOVERY-01** | **Audit flux agents/invitations** — chaîne UI→BFF→API, limites plan, bypass billing-exempt, linkage `agents.user_id` à l'acceptation. |
+| **PH143-AGENTS-R2-FULL-MODULE-TRUTH-RECOVERY-01** | Réalignement module Agents sur vérité historique — quota x/y, bannière limite, `sendAgentInvite` auto, renvoi invite, statuts détaillés. |
+| **PH143-AGENTS-R3-REAL-FLOW-AND-QUOTA-FIX-01** | Correction compteur quota erroné, flux invitation renvoyant vers « Créer un compte », message upsell trompeur AUTOPILOT ; règles métier quota + redirection `login?invite_token=`. |
+| **PH143-AGENTS-R4-HISTORICAL-FLOW-RESTORE-01** | **Restauration règles validées historiquement** — quota avec owner inclus total, libellés simples, suppression écrans/flows inventés en R3 pour invite. |
+| **PH143-AGENTS-R5-REAL-OTP-SESSION-COMPLETION-01** | **Correction post-OTP invités** — `window.location.href` vers `/invite/continue` pour forcer reload et que `SessionProvider` lise la session après OTP. |
+| **PH143-IA-TRUTH-GATE-01** | **Audit vérité fonctionnelle IA** — phases sources, matrice 24 features (code, API, DB, UI), statuts GREEN/ORANGE/RED. Résultat : 23 GREEN / 1 ORANGE / 0 RED. |
+| **PH143-P2-PROD-PROMOTION-AGENTS-IA-01** | **Promotion PROD finale** client + API `v3.5.224-ph143-agents-ia-prod` (client SHA R5, API avec linkage `user_id` accept invite), smoke tests, GitOps. |
+
+---
+
 # Partie 2 — Phases PH- (préfixe tiret)
 
 ## PH-AI
@@ -232,15 +366,18 @@
 | Phase | Description — éléments essentiels |
 |-------|----------------------------------|
 | **PH-AI-N1-ENTERPRISE-01** | **Objectif** : Remplacer le mock par LiteLLM Enterprise. **Livrables** : Tracking tokens/€ par tenant ; budgets quotidiens par plan (starter/pro/autopilot) ; UI consommation IA ; guardrails (global_kill_switch, tenant_kill_switch, budget check) ; rollback documenté. Architecture : checkGuardrails() → getTenantPlan() avant chaque appel LLM. |
+| **PH-AI-ASSIST-RELIABILITY-01** | **Fiabilité `POST /ai/assist`** (inbox) — le backend renvoyait `status: "limited"` avec fallback alors que le client ne traitait que `success` → affichage « Impossible de générer ». Correction chemin frontend et logique associée. |
 
 ---
 
-## PH-AMAZON
+## PH-AMAZON / PH-AMZ
 
 | Phase | Description — éléments essentiels |
 |-------|----------------------------------|
 | **PH-AMAZON-OUTBOUND-SOURCE-OF-TRUTH-LOCK-01** | **Source de vérité** outbound Amazon. `determineAmazonProvider.ts` : channel≠amazon → erreur ; orderId → SPAPI_ORDER ; sinon SMTP. Jest 6 suites, healthcheck, 9 deliveries E2E 250 OK. |
 | **PH-AMAZON-OUTBOUND-TRUTH-03** | **Problème** : Messages outbound (sans commande) acceptés par Postfix (250 OK) mais invisibles dans Seller Central. **Cause** : From `noreply@keybuzz.io` non reconnu par Amazon. **Solution** : `getInboundAddressForTenant()` — récupération adresse inbound validée depuis `inbound_addresses` ; envoi depuis cette adresse pour que Amazon associe au vendeur. Worker modifié, validation 9 deliveries visibles Seller Central. |
+| **PH-AMZ-UI-STATE-TRUTH-01** | Bouton « Synchroniser Amazon » (Commandes) affiché uniquement si canal Amazon réellement `active` (croisement `/api/channels/list`), et plus sur la base `has_messages` / statut trompeur. |
+| **PH-AMZ-INBOUND-ADDRESS-TRUTH-01** | Audit et correctifs génération/affichage adresse inbound Amazon — provisioning API (compat), sync `tenant_channels`, BFF URL correcte, appel post-OAuth pour activer le flux. |
 
 ---
 
@@ -260,6 +397,23 @@
 | **PH-AUDIT-DETTES-01** | **Constats** : Infra Stripe V1 complète ; UI Billing OK ; ~50+ mocks non câblés ; tenantId "kbz-001" hardcodé ; Admin UI shell only ; Auth social mock (pas OAuth réel) ; aucun secret exposé. Tableau PH par PH. |
 | **PH-AUDIT-FEATURES-RUNTIME-REPORT** | **Audit runtime** : Conversations DEV/PROD testées, /ai/policy/effective — couches active (historicalContext, decisionTree, refundProtection, etc.). Validation conditions réelles PH41-PH117. |
 | **PH-AUDIT-FIX-CLIENT-DEV-ALIGNMENT-REPORT** | **Problème** : Client DEV buildé avant sync fichiers PH117 sur bastion → features AI Dashboard absentes. **Solution** : Rebuild avec fichiers confirmés (app/ai-dashboard, api/ai/dashboard, ClientLayout, I18nProvider). Image v3.5.60-ph117-aligned-dev. |
+
+---
+
+## PH-AUTH
+
+| Phase | Description — éléments essentiels |
+|-------|----------------------------------|
+| **PH-AUTH-RATELIMIT-AUDIT-CONSOLIDATION-01** | Audit et consolidation limites (ingress NGINX, etc.) — assouplissement ciblé (client, API, admin) pour supprimer les 503 post-login dus au rate limiting trop strict, validation DEV/PROD. |
+| **PH-AUTH-SESSION-LOGOUT-STABILITY-02** | **Stabilité session/déconnexion** — réduction déconnexions intempestives (keep-alive, JWT, double polling), simplification flux logout et allègement chaîne d'appels au chargement. |
+
+---
+
+## PH-AUTOPILOT
+
+| Phase | Description — éléments essentiels |
+|-------|----------------------------------|
+| **PH-AUTOPILOT-UI-FEEDBACK-01** | Visibilité actions autopilot dans l'inbox (historique filtré par conversation, badge, injection suggestion) — uniquement frontend / DEV, sans toucher au moteur backend. |
 
 ---
 
@@ -288,12 +442,20 @@
 
 ---
 
-## PH-DEPLOY / PH-EMERGENCY / PH-I18N
+## PH-DEPLOY / PH-EMERGENCY / PH-ENV
 
 | Phase | Description — éléments essentiels |
 |-------|----------------------------------|
 | **PH-DEPLOY-PROCESS-ROOTCAUSE-01** | **5 causes** : SCP sans commit ; COPY . . Dockerfile ; pas verify-image ; release gate absent ; ArgoCD PROD cassé. Timeline PH117/signup-fix. |
 | **PH-EMERGENCY-CLIENT-RESTORE-DEV-PROD** | v3.5.60-signup-fix cassé (menu, focus, paywall). Snapshots ; GitOps ; DEV→v3.5.59, PROD→v3.5.58. Service restored. |
+| **PH-ENV-ALIGNMENT-STRICT-01** | **Réalignement strict DEV/PROD** — commits code « dirty » du bastion dans Git, puis build et déploiement images API + client `v3.5.120-env-aligned-*` depuis dépôt propre. |
+
+---
+
+## PH-I18N
+
+| Phase | Description — éléments essentiels |
+|-------|----------------------------------|
 | **PH-I18N-ESCAPED-STRINGS-01** | **Problème** : "\u00e9" affiché littéralement (ex: "activ\u00e9"). **Cause** : Séquences Unicode dans JSX text. **Fix** : Remplacer par caractères UTF-8 directs (é). |
 
 ---
@@ -303,6 +465,7 @@
 | Phase | Description — éléments essentiels |
 |-------|----------------------------------|
 | **PH-INBOUND-TRUTH-VERIFY-02** | Vérification adresse inbound ecomlg-001 : `amazon.ecomlg-001.fr.3jcpvk@inbound.keybuzz.io`. Preuves logs MX (status=sent), mail-core (INBOUND_RECEIVED). SEULE valide pour ecomlg-001/Amazon/FR. |
+| **PH-INBOUND-PIPELINE-TRUTH-04** | **Correction pipeline inbound E2E** — déclenchement autopilot depuis backend après création conversation, alignement casse marketplace pour `lastInboundAt`, mise à jour bonne base pour adresses inbound. |
 | **PH-INFRA-01-HETZNER-FIREWALL-AUDIT** | **Audit uniquement** — inventaire 48 serveurs Hetzner. 5 risques CRITIQUES : PG 5432, Redis 6379, RMQ 5672/15672, etcd 2379/2380 exposés Internet. Score 2/10. Plan hardening 6 phases. |
 | **PH-INFRA-02-HETZNER-FIREWALL-HARDENING** | 4 firewalls créés : keybuzz-public-firewall (80,443), keybuzz-bastion-firewall (22), keybuzz-internal-firewall (réseau privé only), keybuzz-mail-firewall. PG/Redis/RMQ/MinIO fermés. SSH 47→2 bastions. Score 7/10. Rollback possible. |
 | **PH-INFRA-03-K8S-MASTERS-HARDENING** | Firewall keybuzz-k8s-masters-secure : whitelist 6443, etcd/kubelet fermés. fw-k3s-masters décommissionné. Score 8.5/10. |
@@ -327,6 +490,16 @@
 
 ---
 
+## PH-MAIL (compléments)
+
+| Phase | Description — éléments essentiels |
+|-------|----------------------------------|
+| **PH-MAIL-AUDIT-DELIVERABILITY-01** | **Audit délivrabilité** `@keybuzz.io` — TLS, MX, SPF, réputation IP, alignement From/myorigin. Liste causes critiques (spam/reports). |
+| **PH-MAIL-FIX-DELIVERABILITY-02A** | Correctifs « safe » sur `mail-core-01` — TLS Let's Encrypt (`mail.keybuzz.io`), alignement `myorigin`/Return-Path ; SPF `-all` en action DNS manuelle ; MX/pipeline Amazon non modifiés. |
+| **PH-MAIL-OBSERVE-07** | **Validation réelle délivrabilité** (SPF/DKIM/DMARC/TLS OK sur Gmail) ; constat que messages peuvent finir en spam à cause de la réputation historique domaine/IP. |
+
+---
+
 ## PH-ONBOARDING
 
 | Phase | Description — éléments essentiels |
@@ -334,6 +507,23 @@
 | **PH-ONBOARDING-OAUTH-CONTINUITY-01** | **Problème** : OAuth Google → /register affiche formulaire email + bouton Google → clic boucle vers /login. **Fixes** : callback vers /register avec ?oauth=google ; Register détecte session OAuth, saute formulaire. |
 | **PH-ONBOARDING-OAUTH-PLAN-CONTINUITY-01** | **Problème** : Plan choisi + "Continuer Google" → redirect /login, plan perdu. **Cause** : /api/auth/signin sans provider → NextAuth pages.signIn. **Fix** : signIn('google', { callbackUrl }) avec plan/cycle/step. |
 | **PH-ONBOARDING-PLAN-STATE-CONTINUITY-01** | **Problème** : Mode annuel + plan PRO + "Continuer Google" → retour sélection forfait, annuel perdu. **Cause** : redirect NextAuth compare url relative avec baseUrl → startsWith échoue. **Fix** : resolved = url.startsWith('/') ? baseUrl+url : url ; + sessionStorage fallback plan/cycle. |
+
+---
+
+## PH-ORDER-IMPORT
+
+| Phase | Description — éléments essentiels |
+|-------|----------------------------------|
+| **PH-ORDER-IMPORT-TENANT-ISOLATION-CRITICAL-02** | **Correction critique fuite commandes Amazon entre tenants** — credentials Vault partagées + `import-one`/`sync-all` sans vérification canal Amazon actif. Isolation rétablie. |
+
+---
+
+## PH-PLAYBOOKS
+
+| Phase | Description — éléments essentiels |
+|-------|----------------------------------|
+| **PH-PLAYBOOKS-TRUTH-RECOVERY-01** | **Audit technique** — constat que playbooks stockés uniquement en `localStorage` (pas de vérité serveur), risques liés à `lastTenantId` / page vide. |
+| **PH-PLAYBOOKS-BACKEND-MIGRATION-02** | **Unification Playbooks** — page `/playbooks` passe du localStorage à l'API/backend (`ai_rules`) via hook unifié pour aligner UI, inbox et moteur IA. |
 
 ---
 
@@ -348,6 +538,7 @@
 | **PH-PROD-LAST-KNOWN-GOOD-RESTORE** | Restauration PROD v3.5.58 (last known good) — preuve régression focus mode, rollback validé. |
 | **PH-PROD-MINIO-HA-01** | MinIO HA prod — cluster 3 nœuds, HAProxy LB, credentials Vault/ESO. Résilience. |
 | **PH-PROD-MINIO-HA-02** | MinIO interne only — 0 accès public, PJ via API KeyBuzz authentifiée uniquement. |
+| **PH-PROD-ALIGNMENT-FROM-DEV-01** | **Audit et alignement PROD sur DEV** — images, routes API/BFF, bundles PH122–PH125, variables d'environnement pour valider comportement attendu en production. |
 
 ---
 
@@ -467,6 +658,21 @@
 
 ---
 
+## PH-STUDIO
+
+| Phase | Description — éléments essentiels |
+|-------|----------------------------------|
+| **PH-STUDIO-02-DEV-BOOTSTRAP** | **Bootstrap DEV Studio** — images Docker (`keybuzz-studio`/`keybuzz-studio-api`), déploiement K8s (`keybuzz-studio-dev`, `keybuzz-studio-api-dev`), ingress, secrets Vault/DB, tests runtime `/health`. |
+| **PH-STUDIO-04C-PROD-AUTH-RUNTIME-FIX** | Correctif auth PROD — frontend PROD appelait API DEV à cause de `NEXT_PUBLIC_STUDIO_API_URL` figé au build. Rebuild image PROD avec URL API PROD pour lever échec CORS. |
+| **PH-STUDIO-07A-STUDIO-AI-GATEWAY-TEXT-ONLY** | **Passerelle IA Studio texte uniquement** — module `ai/` dédié (providers OpenAI/Anthropic, fallback heuristique), secrets Vault `studio-llm`, routes Fastify et table `ai_generations`. |
+| **PH-STUDIO-07C-CLIENT-INTELLIGENCE** | **Moteur Client Intelligence** — profils, sources, analyse LLM (ICP, SWOT, etc.), stratégie marketing et génération automatique d'idées vers table `ideas`. |
+| **PH-STUDIO-07D-QUALITY-ENGINE** | **Quality Engine SaaS-ready** — prompts dynamiques v3 (FR), anti-généricité et scoring, réinjection client, feedback utilisateur, templates par workspace, badges qualité UI. |
+| **PH-STUDIO-08-FEEDBACK-LEARNING** | **Boucle feedback et apprentissage** — tables `learning_adjustments`/`workspace_ai_preferences`, catégorisation feedback, injection « ADAPTATIONS APPRISES » dans prompts suivants. |
+| **PH-STUDIO-08.2-KEYBUZZ-GROWTH-INIT** | Parcours « growth » KeyBuzz en DEV — profil enrichi, sources, analyse, stratégie, idées et contenu pour valider E2E les briques 07A/07C/07D et 08. |
+| **PH-STUDIO-08.2B-PROD-VALIDATION** | **Validation PROD post-promotion** — images/pods, schéma DB (migration 009), cohérence données KeyBuzz et usage réel UI sur `studio.keybuzz.io`. |
+
+---
+
 ## PH-UI
 
 | Phase | Description — éléments essentiels |
@@ -486,4 +692,4 @@
 
 ---
 
-*Document généré à partir des rapports présents dans `keybuzz-infra/docs`. Dernière mise à jour : 17 mars 2026.*
+*Document généré à partir des rapports présents dans `keybuzz-infra/docs`. Dernière mise à jour : 1er mars 2026.*
