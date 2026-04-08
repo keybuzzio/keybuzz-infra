@@ -223,9 +223,11 @@ spec:
                 # PREVIOUS: v3.5.189-draft-lifecycle-kbactions-dev  # PH142-G
                 # PH-SHOPIFY-01.1: Réalignement DEV sur base PROD validée
                 # ROLLBACK: v3.5.48-ph143-agents-fix-dev
+                # PH-PLAYBOOKS-V2: triggers fix + auto-seed + days_late
+                # ROLLBACK: v3.5.224-ph143-agents-ia-prod
         - name: LEGACY_BACKEND_URL
           value: "http://keybuzz-backend.keybuzz-backend-dev.svc.cluster.local:4000"
-        image: ghcr.io/keybuzzio/keybuzz-api:v3.5.224-ph143-agents-ia-prod
+        image: ghcr.io/keybuzzio/keybuzz-api:v3.5.225-ph-playbooks-v2-dev
         livenessProbe:
           httpGet:
             path: /health
