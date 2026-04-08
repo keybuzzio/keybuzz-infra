@@ -227,7 +227,17 @@ spec:
                 # ROLLBACK: v3.5.224-ph143-agents-ia-prod
         - name: LEGACY_BACKEND_URL
           value: "http://keybuzz-backend.keybuzz-backend-dev.svc.cluster.local:4000"
-        image: ghcr.io/keybuzzio/keybuzz-api:v3.5.225-ph-playbooks-v2-dev
+        - name: SHOPIFY_CLIENT_ID
+          value: ""
+        - name: SHOPIFY_CLIENT_SECRET
+          value: ""
+        - name: SHOPIFY_ENCRYPTION_KEY
+          value: "0c332271a130226ffdc5a0a2f9092474e92aeff6ed584814dfa998ac414880fc"
+        - name: SHOPIFY_REDIRECT_URI
+          value: "https://api-dev.keybuzz.io/shopify/callback"
+        - name: SHOPIFY_CLIENT_REDIRECT_URL
+          value: "https://client-dev.keybuzz.io/channels"
+        image: ghcr.io/keybuzzio/keybuzz-api:v3.5.226-ph-shopify-02-dev  # PH-SHOPIFY-02 | rollback: v3.5.225-ph-playbooks-v2-dev
         livenessProbe:
           httpGet:
             path: /health
