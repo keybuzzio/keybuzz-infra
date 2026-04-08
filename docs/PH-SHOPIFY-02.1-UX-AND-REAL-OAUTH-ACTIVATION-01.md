@@ -2,7 +2,7 @@
 
 > Date : 2026-04-09
 > Env : DEV uniquement
-> Images : API `v3.5.227-ph-shopify-021-dev` | Client `v3.5.227-ph-shopify-021-dev`
+> Images : API `v3.5.228-ph-shopify-021-scopes-dev` | Client `v3.5.227-ph-shopify-021-dev`
 > PROD : inchangée (`v3.5.225-ph-playbooks-v2-prod`)
 
 ---
@@ -63,7 +63,7 @@ Le pattern opérationnel du projet utilise K8s Secrets comme mécanisme de livra
 ### App Shopify utilisée
 - Nom : **KeyBuzz DEV**
 - Redirect URL : `https://api-dev.keybuzz.io/shopify/callback`
-- Scopes : `read_orders,read_products,read_customers`
+- Scopes V1 : `read_orders,read_customers,read_fulfillments,read_returns`
 
 ### Flow testé (succès)
 1. `/channels` → "Ajouter une marketplace" → Shopify → modal s'ouvre
@@ -159,7 +159,7 @@ Total events : 1
 ### Si rollback nécessaire
 ```bash
 # API
-kubectl set image deploy/keybuzz-api keybuzz-api=ghcr.io/keybuzzio/keybuzz-api:v3.5.226-ph-shopify-02-dev -n keybuzz-api-dev
+kubectl set image deploy/keybuzz-api keybuzz-api=ghcr.io/keybuzzio/keybuzz-api:v3.5.227-ph-shopify-021-dev -n keybuzz-api-dev
 # Client
 kubectl set image deploy/keybuzz-client keybuzz-client=ghcr.io/keybuzzio/keybuzz-client:v3.5.226-ph-shopify-02-dev -n keybuzz-client-dev
 # Supprimer secret
@@ -174,9 +174,37 @@ UPDATE tenant_channels SET status='removed' WHERE tenant_id='keybuzz-mnqnjna8' A
 
 ---
 
-## 10. Verdict
+## 10. Reconnexion avec scopes V1
 
-**SHOPIFY UX NORMALIZED — REAL OAUTH ACTIVE — DEV READY FOR PH-SHOPIFY-03**
+### Correction scopes (v3.5.228)
+
+Les scopes initiaux (`read_orders,read_products,read_customers`) ont été mis à jour vers les scopes V1 demandés :
+
+```
+read_orders,read_customers,read_fulfillments,read_returns
+```
+
+- Image API : `v3.5.228-ph-shopify-021-scopes-dev`
+- Le user s'est reconnecté avec les nouveaux scopes via l'UI
+
+### Validation finale (2026-04-09 post-reconnexion)
+
+| Check | Résultat |
+|-------|---------|
+| shopify_connections | `keybuzz-dev.myshopify.com`, status=active, id=`8f980a4f` |
+| tenant_channels | `shopify-global`, status=active, connection_ref=`8f980a4f` |
+| Multi-tenant ecomlg-001 | `connected: false` — isolation OK |
+| Health | OK |
+| Conversations | OK |
+| Orders | OK |
+| AI Wallet | OK (KBA: 931.3) |
+| PROD | inchangée (`v3.5.225-ph-playbooks-v2-prod`) |
+
+---
+
+## 11. Verdict
+
+**SHOPIFY UX NORMALIZED — REAL OAUTH ACTIVE — SCOPES V1 OK — DEV READY FOR PH-SHOPIFY-03**
 
 ### Prochaine étape
 
@@ -184,7 +212,8 @@ UPDATE tenant_channels SET status='removed' WHERE tenant_id='keybuzz-mnqnjna8' A
 
 Prérequis remplis :
 - [x] Shopify App créée (KeyBuzz DEV)
-- [x] OAuth fonctionnel
+- [x] OAuth fonctionnel avec scopes V1 (`read_orders,read_customers,read_fulfillments,read_returns`)
 - [x] Webhook reception validée
 - [x] Connexion persistée en DB
 - [x] Multi-tenant prouvé
+- [x] UX Channels conforme (flow standard, pas de bloc dédié)
