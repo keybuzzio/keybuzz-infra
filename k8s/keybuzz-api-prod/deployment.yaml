@@ -43,7 +43,24 @@ spec:
           # PH132-E: Bootstrap fix — seed starters 8 active / 7 disabled (2026-03-29)
           # PH133-A: Autopilot contextual draft generation (2026-03-29)
           # PH133-B: Delivery tracking truth recovery (2026-03-29)
-          image: ghcr.io/keybuzzio/keybuzz-api:v3.5.211-ph143-final-prod
+          # PH136-B: Multi-carrier tracking aggregator (2026-03-30)
+          # PH136-D: 17TRACK v2.4 webhook + register + polling (2026-03-31)
+          # PH137-A: Autopilot smart response — improved prompts + history (2026-03-31)
+          # PH137-C: AI consistency engine — unified Autopilot/Assist logic (2026-03-31)
+          # PH137-D: AI mode orchestration — plan gating + mode engine (2026-03-31)
+          # PH138-A: Stripe addon billing — Agent KeyBuzz product + endpoints (2026-03-31)
+          # PH138-C: Stripe checkout enforced — no free activation (2026-03-31)
+          # PH138-K: Stripe Checkout obligatoire addon, findPlanItem fix, old sub cleanup (2026-04-01)
+          # PREVIOUS: v3.5.157-real-stripe-upgrade-e2e-prod
+          # PREVIOUS: v3.5.165-escalation-flow-prod  # PH140-A
+          # PREVIOUS: v3.5.173-invite-login-ux-polish-prod  # PH140-I
+          # PREVIOUS: v3.5.178-agent-limits-prod  # PH141-A
+          # PREVIOUS: v3.5.179-agent-limits-alignment-prod  # PH141-B
+          # PREVIOUS: v3.5.182-ai-context-fix-prod  # PH141-F
+          # PREVIOUS: v3.5.183-ai-quality-loop-prod  # PH142-A
+          # PREVIOUS: v3.5.184-ai-error-clustering-prod  # PH142-B
+          # PREVIOUS: v3.5.185-ai-action-consistency-prod  # PH142-C
+          image: ghcr.io/keybuzzio/keybuzz-api:v3.5.224-ph143-agents-ia-prod  # PH143-P2
           imagePullPolicy: Always
           ports:
             - containerPort: 3001
@@ -52,6 +69,12 @@ spec:
               value: "3001"
             - name: NODE_ENV
               value: production
+            - name: TRACKING_17TRACK_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: tracking-17track
+                  key: TRACKING_17TRACK_API_KEY
+                  optional: true
             - name: VAULT_ADDR
               value: 'http://vault.default.svc.cluster.local:8200'
             - name: VAULT_TOKEN
@@ -141,6 +164,13 @@ spec:
                   key: STRIPE_PRICE_ADDON_CHANNEL_ANNUAL
             - name: STRIPE_PRODUCT_ADDON_CHANNEL
               value: "prod_TpJTEELacYjLGG"
+            # PH138-M: Agent KeyBuzz addon — LIVE mode IDs (2026-04-01)
+            - name: STRIPE_PRODUCT_ADDON_AGENT_KEYBUZZ
+              value: "prod_UFtAMUaGMjxErY"
+            - name: STRIPE_PRICE_ADDON_AGENT_KEYBUZZ_MONTHLY
+              value: "price_1THNOUFC0QQLHISR1Tm7B8FW"
+            - name: STRIPE_PRICE_ADDON_AGENT_KEYBUZZ_ANNUAL
+              value: "price_1THNOVFC0QQLHISRmvYEis5A"
             - name: APP_BASE_URL
               value: "https://client.keybuzz.io"
             - name: API_BASE_URL
