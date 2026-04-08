@@ -60,7 +60,8 @@ spec:
           # PREVIOUS: v3.5.183-ai-quality-loop-prod  # PH142-A
           # PREVIOUS: v3.5.184-ai-error-clustering-prod  # PH142-B
           # PREVIOUS: v3.5.185-ai-action-consistency-prod  # PH142-C
-          image: ghcr.io/keybuzzio/keybuzz-api:v3.5.224-ph143-agents-ia-prod  # PH143-P2
+          # ROLLBACK: v3.5.224-ph143-agents-ia-prod
+          image: ghcr.io/keybuzzio/keybuzz-api:v3.5.225-ph-playbooks-v2-prod  # PH-PLAYBOOKS-V2-PROD
           imagePullPolicy: Always
           ports:
             - containerPort: 3001
