@@ -1,0 +1,35 @@
+# KeyBuzz PROD — Shopify App Configuration
+# This file is used by `shopify app deploy` to configure the PROD app in the Partner Dashboard.
+# It declares access scopes, redirect URLs, and mandatory compliance + orders webhooks.
+#
+# USAGE: cd keybuzz-infra/shopify-app-config && shopify app deploy --config shopify.app.prod.toml
+#
+# IMPORTANT: After deploying this config, the merchant must reinstall the app
+# for new scopes and webhooks to take effect.
+
+name = "KeyBuzz"
+client_id = "f3bdeaa03490add7e39c7dabb812d726"
+application_url = "https://api.keybuzz.io"
+embedded = false
+
+[access_scopes]
+scopes = "read_orders,read_customers,read_fulfillments,read_returns"
+use_legacy_install_flow = false
+
+[auth]
+redirect_urls = ["https://api.keybuzz.io/shopify/callback"]
+
+[webhooks]
+api_version = "2024-10"
+
+  [[webhooks.subscriptions]]
+  topics = ["app/uninstalled"]
+  uri = "https://api.keybuzz.io/webhooks/shopify"
+
+  [[webhooks.subscriptions]]
+  compliance_topics = ["customers/data_request", "customers/redact", "shop/redact"]
+  uri = "https://api.keybuzz.io/webhooks/shopify"
+
+  [[webhooks.subscriptions]]
+  topics = ["orders/create", "orders/updated"]
+  uri = "https://api.keybuzz.io/webhooks/shopify"

@@ -1,0 +1,27 @@
+# PH-SHOPIFY-PROD — Env vars block to ADD to keybuzz-api-prod deployment.yaml
+# Copy this block into spec.template.spec.containers[0].env at promotion time.
+#
+# DO NOT APPLY YET — this is preparation only.
+
+            # --- Shopify PROD (PH-SHOPIFY-PROD) ---
+            - name: SHOPIFY_REDIRECT_URI
+              value: "https://api.keybuzz.io/shopify/callback"
+            - name: SHOPIFY_CLIENT_REDIRECT_URL
+              value: "https://client.keybuzz.io/channels"
+            - name: SHOPIFY_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: keybuzz-shopify
+                  key: SHOPIFY_CLIENT_ID
+            - name: SHOPIFY_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: keybuzz-shopify
+                  key: SHOPIFY_CLIENT_SECRET
+            - name: SHOPIFY_ENCRYPTION_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: keybuzz-shopify
+                  key: SHOPIFY_ENCRYPTION_KEY
+            - name: SHOPIFY_WEBHOOK_URL
+              value: "https://api.keybuzz.io/webhooks/shopify"
