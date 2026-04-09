@@ -1,0 +1,28 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: migrate-08-job-prod
+  namespace: keybuzz-studio-api-prod
+spec:
+  backoffLimit: 1
+  ttlSecondsAfterFinished: 120
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: migrate
+        image: postgres:17-alpine
+        command: ["sh", "-c", "psql $DB_URL -f /sql/migration.sql"]
+        env:
+        - name: DB_URL
+          valueFrom:
+            secretKeyRef:
+              name: keybuzz-studio-api-db
+              key: DATABASE_URL
+        volumeMounts:
+        - name: sql
+          mountPath: /sql
+      volumes:
+      - name: sql
+        configMap:
+          name: migration-08-prod

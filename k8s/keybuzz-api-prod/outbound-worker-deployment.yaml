@@ -91,7 +91,13 @@ spec:
         # Rollback tag: v3.3.5-ph324b-smtp-supplier-prod
         # v3.3.6-ph324b: + PATCH sav-status route
         # PH136-B: Multi-carrier tracking aggregator (2026-03-30)
-        image: ghcr.io/keybuzzio/keybuzz-api:v3.5.145b-tracking-aggregator-prod
+        # PH136-D: 17TRACK v2.4 webhook + register + polling (2026-03-31)
+        # PH137-A: Autopilot smart response (2026-03-31)
+        # PH137-C: AI consistency engine (2026-03-31)
+        # PH137-D: AI mode orchestration (2026-03-31)
+        # PH138-A: Stripe addon billing — Agent KeyBuzz (2026-03-31)
+        # PH138-C: Stripe checkout enforced (2026-03-31)
+        image: ghcr.io/keybuzzio/keybuzz-api:v3.5.165-escalation-flow-prod  # PH140-A
         imagePullPolicy: IfNotPresent
         livenessProbe:
           exec:

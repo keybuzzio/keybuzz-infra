@@ -21,7 +21,8 @@ spec:
       - name: worker
         # v3.3.6-ph324b: + PATCH sav-status route
         # PH136-B: Multi-carrier tracking aggregator (2026-03-30)
-        image: ghcr.io/keybuzzio/keybuzz-api:v3.5.145b-tracking-aggregator-dev
+        # PH136-D: 17TRACK v2.4 webhook + register + polling (2026-03-31)
+        image: ghcr.io/keybuzzio/keybuzz-api:v3.5.165-escalation-flow-dev  # PH140-A
         command: ["node", "dist/workers/outboundWorker.js"]
         env:
         - name: OUTBOUND_POLL_INTERVAL_MS

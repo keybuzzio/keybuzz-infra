@@ -9,6 +9,7 @@ embedded = false
 
 [access_scopes]
 scopes = "read_orders,read_customers,read_fulfillments,read_returns"
+use_legacy_install_flow = false
 
 [auth]
 redirect_urls = ["https://api-dev.keybuzz.io/shopify/callback"]

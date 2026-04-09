@@ -1,0 +1,9 @@
+{
+  "business_name": "KeyBuzz",
+  "niche": "SaaS B2B - Aide a la decision SAV pour vendeurs e-commerce marketplaces (Amazon, Fnac, Cdiscount)",
+  "description": "KeyBuzz est un systeme d aide a la decision SAV qui permet aux vendeurs marketplaces de centraliser leurs messages clients, comprendre chaque situation (commande, tracking, litige), repondre plus vite, eviter les erreurs humaines, reduire les remboursements inutiles et proteger leurs marges. Positionnement : IA + Humain + Controle. Ce n est PAS un chatbot IA generique.",
+  "offer": "Plateforme SaaS unifiee : inbox multi-marketplace centralise, assistant IA contextuel (commande + tracking + historique), suggestions de reponse intelligentes, detection des clients abusifs, protection des marges, autopilot avec controle humain",
+  "target_customer": "Vendeurs Amazon FBM, e-commercants multi-marketplaces, responsables SAV, dirigeants PME e-commerce (50-5000 commandes/mois, equipe SAV 1-10 personnes)",
+  "pricing": "Starter 49EUR/mois, Pro 149EUR/mois, Enterprise sur devis",
+  "channels": ["linkedin", "reddit"]
+}
