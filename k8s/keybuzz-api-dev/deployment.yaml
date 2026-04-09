@@ -246,7 +246,7 @@ spec:
           value: "https://api-dev.keybuzz.io/shopify/callback"
         - name: SHOPIFY_CLIENT_REDIRECT_URL
           value: "https://client-dev.keybuzz.io/channels"
-        image: ghcr.io/keybuzzio/keybuzz-api:v3.5.237-ph-shopify-expiring-dev  # PH-SHOPIFY-02.2+03 | rollback: v3.5.228-ph-shopify-021-scopes-dev
+        image: ghcr.io/keybuzzio/keybuzz-api:v3.5.238-ph-shopify-04-ai-dev  # PH-SHOPIFY-04 | rollback: v3.5.237-ph-shopify-expiring-dev
         livenessProbe:
           httpGet:
             path: /health

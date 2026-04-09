@@ -44,7 +44,7 @@ spec:
           # PREVIOUS: v3.5.183-ai-quality-loop-dev  # PH142-A
           # PREVIOUS: v3.5.184-ai-error-clustering-dev  # PH142-B
           # ROLLBACK: v3.5.224-ph143-agents-otp-session-fix-dev
-          image: ghcr.io/keybuzzio/keybuzz-client:v3.5.227-ph-shopify-021-dev  # PH-SHOPIFY-02.1 | rollback: v3.5.226-ph-shopify-02-dev
+          image: ghcr.io/keybuzzio/keybuzz-client:v3.5.228-ph-shopify-04-dev  # PH-SHOPIFY-04 | rollback: v3.5.227-ph-shopify-021-dev
           imagePullPolicy: Always
           ports:
             - containerPort: 3000
