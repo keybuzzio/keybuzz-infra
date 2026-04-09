@@ -61,7 +61,8 @@ spec:
           # PREVIOUS: v3.5.184-ai-error-clustering-prod  # PH142-B
           # PREVIOUS: v3.5.185-ai-action-consistency-prod  # PH142-C
           # ROLLBACK: v3.5.224-ph143-agents-ia-prod
-          image: ghcr.io/keybuzzio/keybuzz-api:v3.5.225-ph-playbooks-v2-prod  # PH-PLAYBOOKS-V2-PROD
+          # PREVIOUS: v3.5.225-ph-playbooks-v2-prod  # PH-PLAYBOOKS-V2-PROD
+          image: ghcr.io/keybuzzio/keybuzz-api:v3.5.237-ph-shopify-expiring-prod  # PH-SHOPIFY-PROD-PROMOTION-01
           imagePullPolicy: Always
           ports:
             - containerPort: 3001
@@ -219,6 +220,28 @@ spec:
                   key: LITELLM_MASTER_KEY
             - name: BACKEND_INTERNAL_URL
               value: "http://keybuzz-api.keybuzz-api-prod.svc.cluster.local:3001"
+            # --- Shopify PROD (PH-SHOPIFY-PROD-PROMOTION-01) ---
+            - name: SHOPIFY_REDIRECT_URI
+              value: "https://api.keybuzz.io/shopify/callback"
+            - name: SHOPIFY_CLIENT_REDIRECT_URL
+              value: "https://client.keybuzz.io/channels"
+            - name: SHOPIFY_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: keybuzz-shopify
+                  key: SHOPIFY_CLIENT_ID
+            - name: SHOPIFY_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: keybuzz-shopify
+                  key: SHOPIFY_CLIENT_SECRET
+            - name: SHOPIFY_ENCRYPTION_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: keybuzz-shopify
+                  key: SHOPIFY_ENCRYPTION_KEY
+            - name: SHOPIFY_WEBHOOK_URL
+              value: "https://api.keybuzz.io/webhooks/shopify"
             - name: AMAZON_OUTBOUND_ATTACHMENTS_ENABLED
             - name: LEGACY_BACKEND_URL
               value: "http://keybuzz-backend.keybuzz-backend-dev.svc.cluster.local:4000"
