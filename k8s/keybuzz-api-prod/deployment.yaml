@@ -62,7 +62,7 @@ spec:
           # PREVIOUS: v3.5.185-ai-action-consistency-prod  # PH142-C
           # ROLLBACK: v3.5.224-ph143-agents-ia-prod
           # PREVIOUS: v3.5.225-ph-playbooks-v2-prod  # PH-PLAYBOOKS-V2-PROD
-          image: ghcr.io/keybuzzio/keybuzz-api:v3.5.237-ph-shopify-expiring-prod  # PH-SHOPIFY-PROD-PROMOTION-01
+          image: ghcr.io/keybuzzio/keybuzz-api:v3.5.238-ph-shopify-04-ai-prod  # PH-SHOPIFY-04-PROD-PROMOTION | rollback: v3.5.237-ph-shopify-expiring-prod
           imagePullPolicy: Always
           ports:
             - containerPort: 3001
