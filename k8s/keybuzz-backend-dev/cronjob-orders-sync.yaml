@@ -1,5 +1,5 @@
 # k8s/keybuzz-backend-dev/cronjob-orders-sync.yaml
-# PH15-AMAZON-ORDERS-SYNC-SCALE-02: Hardened global sync
+# PH145.3: Fixed auth — added X-Internal-Token for backend devAuthMiddleware
 apiVersion: batch/v1
 kind: CronJob
 metadata:
@@ -19,16 +19,22 @@ spec:
           restartPolicy: Never
           containers:
             - name: sync-runner
-              image: curlimages/curl:latest
+              image: curlimages/curl:8.12.1
+              env:
+                - name: INTERNAL_TOKEN
+                  valueFrom:
+                    secretKeyRef:
+                      name: keybuzz-internal-proxy
+                      key: token
               command:
                 - /bin/sh
                 - -c
                 - |
-                  echo "Starting Global Amazon Orders Sync (Hardened)..."
-                  echo "Processing ALL CONNECTED tenants with valid tokens"
+                  echo "Starting Global Amazon Orders Sync..."
                   curl -sk -X POST \
                     -H "X-User-Email: cron@system.keybuzz.io" \
                     -H "X-Tenant-Id: system-global" \
+                    -H "X-Internal-Token: $INTERNAL_TOKEN" \
                     https://backend-dev.keybuzz.io/api/v1/orders/sync/run/global
                   echo ""
                   echo "Global sync completed"
