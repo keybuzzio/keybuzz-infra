@@ -62,7 +62,8 @@ spec:
           # PREVIOUS: v3.5.185-ai-action-consistency-prod  # PH142-C
           # ROLLBACK: v3.5.224-ph143-agents-ia-prod
           # PREVIOUS: v3.5.225-ph-playbooks-v2-prod  # PH-PLAYBOOKS-V2-PROD
-          image: ghcr.io/keybuzzio/keybuzz-api:v3.5.239-ph-autopilot-shopify-prod  # PH-AUTOPILOT-SHOPIFY-PROD | rollback: v3.5.238-ph-shopify-04-ai-prod
+          # PREVIOUS: v3.5.239-ph-autopilot-shopify-prod  # PH-AUTOPILOT-SHOPIFY-PROD
+          image: ghcr.io/keybuzzio/keybuzz-api:v3.5.241-ph145.2-inbound-autopilot-prod  # PH145.2-INBOUND-AUTOPILOT | rollback: v3.5.240-ph145-guardrails-prod
           imagePullPolicy: Always
           ports:
             - containerPort: 3001
