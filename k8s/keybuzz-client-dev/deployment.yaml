@@ -44,7 +44,7 @@ spec:
           # PREVIOUS: v3.5.183-ai-quality-loop-dev  # PH142-A
           # PREVIOUS: v3.5.184-ai-error-clustering-dev  # PH142-B
           # ROLLBACK: v3.5.224-ph143-agents-otp-session-fix-dev
-          image: ghcr.io/keybuzzio/keybuzz-client:v3.5.255-ph146.1-channels-billing-sov-dev  # PH146.1 channels/billing source of truth | rollback: v3.5.254-ph145.9-billing-unified-dev
+          image: ghcr.io/keybuzzio/keybuzz-client:v3.5.256-ph146.2-billing-history-real-dev  # PH146.2 billing history real data | rollback: v3.5.255-ph146.1-channels-billing-sov-dev
           imagePullPolicy: Always
           ports:
             - containerPort: 3000
