@@ -247,7 +247,7 @@ spec:
         - name: SHOPIFY_CLIENT_REDIRECT_URL
           value: "https://client-dev.keybuzz.io/channels"
         # PREVIOUS: v3.5.239-ph-autopilot-shopify-dev  # PH-AUTOPILOT-SHOPIFY
-        image: ghcr.io/keybuzzio/keybuzz-api:v3.5.49-ph146.5-sub-sync-dev  # PH146.5 subscription period sync fix | rollback: v3.5.48-ph145.8-resolve-dev
+        image: ghcr.io/keybuzzio/keybuzz-api:v3.5.50-ph147-guardrails-biz-dev  # PH147 business guardrails (annulation, channel scoring, pre-LLM blocking) | rollback: v3.5.49-ph146.5-sub-sync-dev
         livenessProbe:
           httpGet:
             path: /health
