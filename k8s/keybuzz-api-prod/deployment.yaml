@@ -63,7 +63,7 @@ spec:
           # ROLLBACK: v3.5.224-ph143-agents-ia-prod
           # PREVIOUS: v3.5.225-ph-playbooks-v2-prod  # PH-PLAYBOOKS-V2-PROD
           # PREVIOUS: v3.5.239-ph-autopilot-shopify-prod  # PH-AUTOPILOT-SHOPIFY-PROD
-          image: ghcr.io/keybuzzio/keybuzz-api:v3.5.241-ph145.2-inbound-autopilot-prod  # PH145.2-INBOUND-AUTOPILOT | rollback: v3.5.240-ph145-guardrails-prod
+          image: ghcr.io/keybuzzio/keybuzz-api:v3.5.49-ph146.5-sub-sync-prod  # PH146.5 subscription period sync | rollback: v3.5.48-ph145.8-resolve-prod
           imagePullPolicy: Always
           ports:
             - containerPort: 3001

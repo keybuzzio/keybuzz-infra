@@ -24,7 +24,7 @@ spec:
           # ROLLBACK: v1.0.39-td05-externalmsg-prod
           # PREVIOUS: v1.0.40-pj-fix-prod
           # PH132-D: Updated to match cluster + added API_INTERNAL_URL
-          image: ghcr.io/keybuzzio/keybuzz-backend:v1.0.42-ph-oauth-persist-prod
+          image: ghcr.io/keybuzzio/keybuzz-backend:v1.0.43-ph145.6-amazon-prod  # PH145.6 Amazon full flow | rollback: v1.0.42-ph-oauth-persist-prod
           ports:
             - containerPort: 4000
           envFrom:
