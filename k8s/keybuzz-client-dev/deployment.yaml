@@ -45,7 +45,7 @@ spec:
           # PREVIOUS: v3.5.184-ai-error-clustering-dev  # PH142-B
           # ROLLBACK: v3.5.224-ph143-agents-otp-session-fix-dev
           # PREVIOUS: v3.5.258-ph146.4-billing-addons-dev  # PH146.4 billing addons
-          image: ghcr.io/keybuzzio/keybuzz-client:v3.5.62-ph151.1-inbox-clean-dev  # PH151.1 inbox declutter + sidebar intelligence | rollback: v3.5.61-ph151-inbox-ux-intelligence-dev
+          image: ghcr.io/keybuzzio/keybuzz-client:v3.5.63-ph151.2-case-summary-clean-dev  # PH151.2 data-driven case summary | rollback: v3.5.62-ph151.1-inbox-clean-dev
           imagePullPolicy: Always
           ports:
             - containerPort: 3000
