@@ -37,7 +37,8 @@ spec:
           # PREVIOUS: v3.5.126-playbooks-suggestions-live-prod
           # PH133-A: Autopilot contextual draft generation (2026-03-29)
           # ROLLBACK: v3.5.224-ph143-agents-ia-prod
-          image: ghcr.io/keybuzzio/keybuzz-client:v3.5.258-ph146.4-billing-addons-prod  # PH146.4 billing addons (Agent KeyBuzz) | rollback: v3.5.257-ph146.3-enterprise-profile-prod
+          # PREVIOUS: v3.5.258-ph146.4-billing-addons-prod  # PH146.4 billing addons
+          image: ghcr.io/keybuzzio/keybuzz-client:v3.5.63-ph151.2-case-summary-clean-prod  # PH151.2 case summary data-driven | rollback: v3.5.60-ph148-onboarding-activation-prod
           imagePullPolicy: Always
           ports:
             - containerPort: 3000
