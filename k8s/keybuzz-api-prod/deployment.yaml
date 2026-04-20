@@ -66,8 +66,9 @@ spec:
           # PREVIOUS: v3.5.52-ph147.2-guardrails-final-prod  # PH147.2 guardrails final
           # PREVIOUS: v3.5.53-ph147.3-encoding-cleanup-prod  # PH147.3 encoding cleanup
           # PREVIOUS: v3.5.79-tiktok-api-replay-prod  # PH147.4 tiktok API replay
-          # PH-T8.2E: PROD promotion — Meta real spend + EUR normalization + trial/paid metrics
-          image: ghcr.io/keybuzzio/keybuzz-api:v3.5.86-trial-vs-paid-metrics-prod  # PH-T8.2E metrics prod | rollback: v3.5.79-tiktok-api-replay-prod
+          # PREVIOUS: v3.5.86-trial-vs-paid-metrics-prod  # PH-T8.2E metrics prod
+          # PH-T8.2Ebis: exclude test accounts from metrics
+          image: ghcr.io/keybuzzio/keybuzz-api:v3.5.87-exclude-test-data-prod  # PH-T8.2Ebis | rollback: v3.5.86-trial-vs-paid-metrics-prod
           imagePullPolicy: Always
           ports:
             - containerPort: 3001

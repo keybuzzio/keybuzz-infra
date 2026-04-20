@@ -246,8 +246,11 @@ spec:
           value: "https://api-dev.keybuzz.io/shopify/callback"
         - name: SHOPIFY_CLIENT_REDIRECT_URL
           value: "https://client-dev.keybuzz.io/channels"
-        # PREVIOUS: v3.5.239-ph-autopilot-shopify-dev  # PH-AUTOPILOT-SHOPIFY
-        image: ghcr.io/keybuzzio/keybuzz-api:v3.5.50-ph147-guardrails-biz-dev  # PH147 business guardrails (annulation, channel scoring, pre-LLM blocking) | rollback: v3.5.49-ph146.5-sub-sync-dev
+        # PREVIOUS: v3.5.52-ph147.2-guardrails-final-dev  # PH147.2 guardrails final
+        # PREVIOUS: v3.5.53-ph147.3-encoding-cleanup-dev  # PH147.3 encoding cleanup
+        # PREVIOUS: v3.5.86-trial-vs-paid-metrics-dev  # PH-T8.2E metrics
+        # PH-T8.2Ebis: exclude test accounts from metrics
+        image: ghcr.io/keybuzzio/keybuzz-api:v3.5.87-exclude-test-data-dev  # PH-T8.2Ebis | rollback: v3.5.86-trial-vs-paid-metrics-dev
         livenessProbe:
           httpGet:
             path: /health
