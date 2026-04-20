@@ -253,7 +253,9 @@ spec:
         # PH-T8.2F: explicit test control — no heuristics
         # PREVIOUS: v3.5.88-test-control-safe-dev  # PH-T8.2F
         # PH-AUTOPILOT-INBOUND-TRIGGER-RECOVERY-01: add autopilot trigger in inbound pipeline
-        image: ghcr.io/keybuzzio/keybuzz-api:v3.5.89-autopilot-inbound-trigger-dev  # PH-AUTOPILOT-TRIGGER | rollback: v3.5.88-test-control-safe-dev
+        # PREVIOUS: v3.5.89-autopilot-inbound-trigger-dev  # PH-AUTOPILOT-TRIGGER
+        # PH-AUTOPILOT-ORDER-ID-PROMPT-FIX-01: inject scenario rules into autopilot prompt
+        image: ghcr.io/keybuzzio/keybuzz-api:v3.5.90-autopilot-orderid-prompt-fix-dev  # PH-ORDERID-FIX | rollback: v3.5.89-autopilot-inbound-trigger-dev
         livenessProbe:
           httpGet:
             path: /health
