@@ -63,7 +63,11 @@ spec:
           # ROLLBACK: v3.5.224-ph143-agents-ia-prod
           # PREVIOUS: v3.5.225-ph-playbooks-v2-prod  # PH-PLAYBOOKS-V2-PROD
           # PREVIOUS: v3.5.239-ph-autopilot-shopify-prod  # PH-AUTOPILOT-SHOPIFY-PROD
-          image: ghcr.io/keybuzzio/keybuzz-api:v3.5.49-ph146.5-sub-sync-prod  # PH146.5 subscription period sync | rollback: v3.5.48-ph145.8-resolve-prod
+          # PREVIOUS: v3.5.52-ph147.2-guardrails-final-prod  # PH147.2 guardrails final
+          # PREVIOUS: v3.5.53-ph147.3-encoding-cleanup-prod  # PH147.3 encoding cleanup
+          # PREVIOUS: v3.5.79-tiktok-api-replay-prod  # PH147.4 tiktok API replay
+          # PH-T8.2E: PROD promotion — Meta real spend + EUR normalization + trial/paid metrics
+          image: ghcr.io/keybuzzio/keybuzz-api:v3.5.86-trial-vs-paid-metrics-prod  # PH-T8.2E metrics prod | rollback: v3.5.79-tiktok-api-replay-prod
           imagePullPolicy: Always
           ports:
             - containerPort: 3001
@@ -247,8 +251,31 @@ spec:
             - name: LEGACY_BACKEND_URL
               value: "http://keybuzz-backend.keybuzz-backend-dev.svc.cluster.local:4000"
             - name: KEYBUZZ_INTERNAL_PROXY_TOKEN
-              value: "a0b9714c287bd18577f2e430770169e4b969bcfbbcedccdcf420cd09acd09147"
               value: "true"
+            # PH-T8.2E: tracking env vars (synced from live PROD)
+            - name: STAKATER_VAULT_ROOT_TOKEN_SECRET
+              value: "a2c303d949e14506edf96bcee10056a374ef1a1f"
+            - name: CONVERSION_WEBHOOK_ENABLED
+              value: "true"
+            - name: CONVERSION_WEBHOOK_URL
+              value: "https://t.keybuzz.io/mp/collect"
+            - name: GA4_MP_API_SECRET
+              value: "BqL-nFtvTc6osZ57A2REKA"
+            - name: CONVERSION_WEBHOOK_SECRET
+              value: "ph-t4-dev-hmac-secret"
+            - name: GA4_MEASUREMENT_ID
+              value: "G-R3QQDYEBFG"
+            # PH-T8.2E: Meta Ads credentials (from secret)
+            - name: META_AD_ACCOUNT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: keybuzz-meta-ads
+                  key: META_AD_ACCOUNT_ID
+            - name: META_ACCESS_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: keybuzz-meta-ads
+                  key: META_ACCESS_TOKEN
           resources:
             requests:
               cpu: "200m"
