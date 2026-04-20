@@ -71,7 +71,9 @@ spec:
           # PH-T8.2F: explicit test control — no heuristics
           # PREVIOUS: v3.5.88-test-control-safe-prod  # PH-T8.2F
           # PH-AUTOPILOT-INBOUND-TRIGGER: add autopilot trigger in inbound pipeline
-          image: ghcr.io/keybuzzio/keybuzz-api:v3.5.89-autopilot-inbound-trigger-prod  # PH-AUTOPILOT-TRIGGER | rollback: v3.5.88-test-control-safe-prod
+          # PREVIOUS: v3.5.89-autopilot-inbound-trigger-prod  # PH-AUTOPILOT-TRIGGER
+          # PH-AUTOPILOT-ORDER-ID-PROMPT-FIX: inject getScenarioRules() into autopilot prompt
+          image: ghcr.io/keybuzzio/keybuzz-api:v3.5.90-autopilot-orderid-prompt-fix-prod  # PH-ORDER-ID-FIX | rollback: v3.5.89-autopilot-inbound-trigger-prod
           imagePullPolicy: Always
           ports:
             - containerPort: 3001
