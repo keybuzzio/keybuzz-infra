@@ -23,7 +23,7 @@ spec:
       containers:
       - name: keybuzz-admin-v2
         # ROLLBACK: v2.10.1-ph-admin-87-15b-dev
-        image: ghcr.io/keybuzzio/keybuzz-admin:v2.10.2-ph-admin-87-16-dev
+        image: ghcr.io/keybuzzio/keybuzz-admin:v2.10.3-ph-t8-3-1-metrics-dev
         imagePullPolicy: Always
         env:
         - name: NODE_ENV
