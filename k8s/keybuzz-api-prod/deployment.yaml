@@ -73,7 +73,9 @@ spec:
           # PH-AUTOPILOT-INBOUND-TRIGGER: add autopilot trigger in inbound pipeline
           # PREVIOUS: v3.5.89-autopilot-inbound-trigger-prod  # PH-AUTOPILOT-TRIGGER
           # PH-AUTOPILOT-ORDER-ID-PROMPT-FIX: inject getScenarioRules() into autopilot prompt
-          image: ghcr.io/keybuzzio/keybuzz-api:v3.5.90-autopilot-orderid-prompt-fix-prod  # PH-ORDER-ID-FIX | rollback: v3.5.89-autopilot-inbound-trigger-prod
+          # PREVIOUS: v3.5.90-autopilot-orderid-prompt-fix-prod  # PH-ORDER-ID-FIX
+          # PH-AUTOPILOT-ESCALATION-HANDOFF-FIX: use 'pending' status after escalation consume
+          image: ghcr.io/keybuzzio/keybuzz-api:v3.5.91-autopilot-escalation-handoff-fix-prod  # PH-HANDOFF-FIX | rollback: v3.5.90-autopilot-orderid-prompt-fix-prod
           imagePullPolicy: Always
           ports:
             - containerPort: 3001
