@@ -29,7 +29,7 @@ spec:
     spec:
       containers:
         - name: keybuzz-backend
-          image: ghcr.io/keybuzzio/keybuzz-backend:v1.0.45-autopilot-backend-callback-dev # PH-AUTOPILOT-BACKEND-CALLBACK-01 | rollback: v1.0.44-ph150-thread-fix-prod
+          image: ghcr.io/keybuzzio/keybuzz-backend:v1.0.46-ph-recovery-01-dev # PH-RECOVERY-01 ExternalMessage productDb fix | rollback: v1.0.45-autopilot-backend-callback-dev
           imagePullPolicy: Always
           ports:
             - name: http
