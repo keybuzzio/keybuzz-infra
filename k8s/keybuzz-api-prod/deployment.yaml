@@ -75,7 +75,7 @@ spec:
           # PH-AUTOPILOT-ORDER-ID-PROMPT-FIX: inject getScenarioRules() into autopilot prompt
           # PREVIOUS: v3.5.90-autopilot-orderid-prompt-fix-prod  # PH-ORDER-ID-FIX
           # PH-AUTOPILOT-ESCALATION-HANDOFF-FIX: use 'pending' status after escalation consume
-          image: ghcr.io/keybuzzio/keybuzz-api:v3.5.92-autopilot-promise-detection-guardrail-prod  # PH-PROMISE-FIX-01-PROD | rollback: v3.5.91-autopilot-escalation-handoff-fix-prod
+          image: ghcr.io/keybuzzio/keybuzz-api:v3.5.94-outbound-conversions-real-value-prod  # PH-T8.4.1-PROD | rollback: v3.5.92-autopilot-promise-detection-guardrail-prod
           imagePullPolicy: Always
           ports:
             - containerPort: 3001
@@ -84,6 +84,14 @@ spec:
               value: "3001"
             - name: NODE_ENV
               value: production
+
+            - name: OUTBOUND_CONVERSIONS_WEBHOOK_URL
+
+              value: ""
+
+            - name: OUTBOUND_CONVERSIONS_WEBHOOK_SECRET
+
+              value: ""
             - name: TRACKING_17TRACK_API_KEY
               valueFrom:
                 secretKeyRef:
