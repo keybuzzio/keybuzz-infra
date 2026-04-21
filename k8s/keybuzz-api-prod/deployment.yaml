@@ -86,12 +86,10 @@ spec:
               value: production
 
             - name: OUTBOUND_CONVERSIONS_WEBHOOK_URL
-
-              value: ""
+              value: "https://webhook.site/a6e85482-1ec8-4709-9bd3-ad484c2255f4"  # PH-T8.5.1 TEMPORARY TEST
 
             - name: OUTBOUND_CONVERSIONS_WEBHOOK_SECRET
-
-              value: ""
+              value: "k4Ay459iJ6cTTe"  # PH-T8.5.1 TEMPORARY TEST
             - name: TRACKING_17TRACK_API_KEY
               valueFrom:
                 secretKeyRef:
