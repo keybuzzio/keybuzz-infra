@@ -257,7 +257,11 @@ spec:
         # PH-AUTOPILOT-ORDER-ID-PROMPT-FIX-01: inject scenario rules into autopilot prompt
         # PREVIOUS: v3.5.90-autopilot-orderid-prompt-fix-dev  # PH-ORDERID-FIX
         # PH-AUTOPILOT-ESCALATION-HANDOFF-FIX-01: use 'pending' status after escalation consume
-        image: ghcr.io/keybuzzio/keybuzz-api:v3.5.92-autopilot-promise-detection-guardrail-dev  # PH-PROMISE-FIX-01 | rollback: v3.5.91-autopilot-escalation-handoff-fix-dev
+        - name: OUTBOUND_CONVERSIONS_WEBHOOK_URL
+          value: ""
+        - name: OUTBOUND_CONVERSIONS_WEBHOOK_SECRET
+          value: ""
+        image: ghcr.io/keybuzzio/keybuzz-api:v3.5.93-outbound-conversions-dev  # PH-T8.4 | rollback: v3.5.92-autopilot-promise-detection-guardrail-dev
         livenessProbe:
           httpGet:
             path: /health
