@@ -24,7 +24,7 @@ spec:
           # ROLLBACK: v1.0.39-td05-externalmsg-prod
           # PREVIOUS: v1.0.40-pj-fix-prod
           # PH132-D: Updated to match cluster + added API_INTERNAL_URL
-          image: ghcr.io/keybuzzio/keybuzz-backend:v1.0.44-ph150-thread-fix-prod  # PH150 order-centric threading | rollback: v1.0.43-ph145.6-amazon-prod
+          image: ghcr.io/keybuzzio/keybuzz-backend:v1.0.46-ph-recovery-01-prod  # PH-PROD-PROMOTION-01: autopilot callback + ExternalMessage productDb fix | rollback: v1.0.44-ph150-thread-fix-prod
           ports:
             - containerPort: 4000
           envFrom:
@@ -64,7 +64,7 @@ spec:
               value: "https://backend.keybuzz.io/api/v1/marketplaces/amazon/oauth/callback"
             # PH132-D: Required for autopilot trigger from backend to API
             - name: API_INTERNAL_URL
-              value: "http://keybuzz-api.keybuzz-api-prod.svc.cluster.local:3001"
+              value: "http://keybuzz-api.keybuzz-api-prod.svc.cluster.local:80"
             - name: VAULT_TOKEN
               valueFrom:
                 secretKeyRef:
