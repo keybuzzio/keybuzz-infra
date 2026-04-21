@@ -255,7 +255,9 @@ spec:
         # PH-AUTOPILOT-INBOUND-TRIGGER-RECOVERY-01: add autopilot trigger in inbound pipeline
         # PREVIOUS: v3.5.89-autopilot-inbound-trigger-dev  # PH-AUTOPILOT-TRIGGER
         # PH-AUTOPILOT-ORDER-ID-PROMPT-FIX-01: inject scenario rules into autopilot prompt
-        image: ghcr.io/keybuzzio/keybuzz-api:v3.5.90-autopilot-orderid-prompt-fix-dev  # PH-ORDERID-FIX | rollback: v3.5.89-autopilot-inbound-trigger-dev
+        # PREVIOUS: v3.5.90-autopilot-orderid-prompt-fix-dev  # PH-ORDERID-FIX
+        # PH-AUTOPILOT-ESCALATION-HANDOFF-FIX-01: use 'pending' status after escalation consume
+        image: ghcr.io/keybuzzio/keybuzz-api:v3.5.91-autopilot-escalation-handoff-fix-dev  # PH-HANDOFF-FIX | rollback: v3.5.90-autopilot-orderid-prompt-fix-dev
         livenessProbe:
           httpGet:
             path: /health
