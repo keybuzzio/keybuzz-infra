@@ -29,7 +29,7 @@ spec:
     spec:
       containers:
         - name: keybuzz-backend
-          image: ghcr.io/keybuzzio/keybuzz-backend:v1.0.40-ph145.6-tenant-fk-fix-dev # PH145.6 tenant FK fix for InboundConnection | rollback: v1.0.39-ph145.5-atomic-callback-dev
+          image: ghcr.io/keybuzzio/keybuzz-backend:v1.0.45-autopilot-backend-callback-dev # PH-AUTOPILOT-BACKEND-CALLBACK-01 | rollback: v1.0.44-ph150-thread-fix-prod
           imagePullPolicy: Always
           ports:
             - name: http
@@ -64,6 +64,8 @@ spec:
                 secretKeyRef:
                   name: keybuzz-internal-proxy
                   key: token
+            - name: API_INTERNAL_URL
+              value: "http://keybuzz-api.keybuzz-api-dev.svc.cluster.local:3001"
             - name: NODE_TLS_REJECT_UNAUTHORIZED
               value: "0"
             - name: NODE_EXTRA_CA_CERTS
