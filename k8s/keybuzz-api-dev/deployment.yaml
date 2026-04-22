@@ -261,7 +261,7 @@ spec:
           value: ""
         - name: OUTBOUND_CONVERSIONS_WEBHOOK_SECRET
           value: ""
-        image: ghcr.io/keybuzzio/keybuzz-api:v3.5.94-outbound-conversions-real-value-dev  # PH-T8.4.1 | rollback: v3.5.93-outbound-conversions-dev
+        image: ghcr.io/keybuzzio/keybuzz-api:v3.5.96-admin-bypass-dev
         livenessProbe:
           httpGet:
             path: /health
