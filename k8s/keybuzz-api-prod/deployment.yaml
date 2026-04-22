@@ -80,7 +80,9 @@ spec:
           # PH-T8.7B.2: Meta CAPI native + tenant attribution + PageView test endpoint (2026-04-23)
           # PREVIOUS: v3.5.99-meta-capi-test-endpoint-fix-prod  # PH-T8.7B.2-PROD
           # PH-T8.7B.3: Meta CAPI error sanitization — token redaction in errors/logs (2026-04-22)
-          image: ghcr.io/keybuzzio/keybuzz-api:v3.5.100-meta-capi-error-sanitization-prod  # rollback: v3.5.99-meta-capi-test-endpoint-fix-prod
+          # PREVIOUS: v3.5.100-meta-capi-error-sanitization-prod  # PH-T8.7B.3-PROD
+          # PH-T8.7B.4: outbound destinations DELETE route — soft delete (2026-04-22)
+          image: ghcr.io/keybuzzio/keybuzz-api:v3.5.101-outbound-destinations-delete-route-prod  # rollback: v3.5.100-meta-capi-error-sanitization-prod
           imagePullPolicy: Always
           ports:
             - containerPort: 3001
