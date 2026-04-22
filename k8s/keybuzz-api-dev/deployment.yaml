@@ -263,7 +263,9 @@ spec:
           value: ""
         # PREVIOUS: v3.5.99-meta-capi-test-endpoint-fix-dev  # PH-T8.7B.2
         # PH-T8.7B.3: Meta CAPI error sanitization — token redaction in errors/logs (2026-04-22)
-        image: ghcr.io/keybuzzio/keybuzz-api:v3.5.100-meta-capi-error-sanitization-dev
+        # PREVIOUS: v3.5.100-meta-capi-error-sanitization-dev  # PH-T8.7B.3
+        # PH-T8.7B.4: outbound destinations DELETE route — soft delete (2026-04-22)
+        image: ghcr.io/keybuzzio/keybuzz-api:v3.5.101-outbound-destinations-delete-route-dev
         livenessProbe:
           httpGet:
             path: /health
