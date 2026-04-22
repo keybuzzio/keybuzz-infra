@@ -261,7 +261,7 @@ spec:
           value: ""
         - name: OUTBOUND_CONVERSIONS_WEBHOOK_SECRET
           value: ""
-        image: ghcr.io/keybuzzio/keybuzz-api:v3.5.98-meta-capi-native-tenant-dev
+        image: ghcr.io/keybuzzio/keybuzz-api:v3.5.99-meta-capi-test-endpoint-fix-dev
         livenessProbe:
           httpGet:
             path: /health
