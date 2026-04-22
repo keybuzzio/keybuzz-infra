@@ -23,7 +23,7 @@ spec:
       containers:
       - name: keybuzz-admin-v2
         # ROLLBACK: v2.10.1-ph-admin-87-15b-dev
-        image: ghcr.io/keybuzzio/keybuzz-admin:v2.11.0-tenant-foundation-dev
+        image: ghcr.io/keybuzzio/keybuzz-admin:v2.11.1-meta-capi-destinations-ui-dev
         imagePullPolicy: Always
         env:
         - name: NODE_ENV
