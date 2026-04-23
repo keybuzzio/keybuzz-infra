@@ -269,7 +269,7 @@ spec:
         # PH-T8.8A: ad spend tenant safety — no global spend leak in tenant metrics (2026-04-22)
         # PREVIOUS: v3.5.102-ad-spend-tenant-safety-dev  # PH-T8.8A
         # PH-T8.8A.1: lock global ad spend import — tenant-only (2026-04-22)
-        image: ghcr.io/keybuzzio/keybuzz-api:v3.5.103-ad-spend-global-import-lock-dev
+        image: ghcr.io/keybuzzio/keybuzz-api:v3.5.104-meta-ads-tenant-sync-foundation-dev
         livenessProbe:
           httpGet:
             path: /health
