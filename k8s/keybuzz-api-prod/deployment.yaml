@@ -85,8 +85,8 @@ spec:
           # PREVIOUS: v3.5.101-outbound-destinations-delete-route-prod  # PH-T8.7B.4-PROD
           # PH-T8.8A.2: ad spend tenant safety + global import lock — cumulative PROD (2026-04-23)
           # PH-T8.8C-PROD: tenant secret store + ad-accounts API + Meta Ads sync (2026-04-23)
-          # PH-T8.8E-PROD: metrics tenant currency + CAC exclusion controls API (2026-04-23)
-          image: ghcr.io/keybuzzio/keybuzz-api:v3.5.106-metrics-settings-currency-exclusion-prod  # rollback: v3.5.105-tenant-secret-store-ads-prod
+          # PH-T8.8G: ad spend idempotence fix — deprecate /import/meta tenant write (2026-04-26)
+          image: ghcr.io/keybuzzio/keybuzz-api:v3.5.107-ad-spend-idempotence-fix-prod  # rollback: v3.5.106-metrics-settings-currency-exclusion-prod
           imagePullPolicy: Always
           ports:
             - containerPort: 3001
