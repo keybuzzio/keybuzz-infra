@@ -279,7 +279,8 @@ spec:
         # PH-T8.8G: ad spend idempotence fix — deprecate /import/meta tenant write (2026-04-26)
         # PH-T8.9B: funnel_events table + /funnel/event route + pre-tenant CRO visibility (2026-04-27)
         # PH-T8.9B.1: funnel metrics tenant scope — cohort stitching for pre-tenant steps (2026-04-27)
-        image: ghcr.io/keybuzzio/keybuzz-api:v3.5.109-funnel-metrics-tenant-scope-dev  # rollback: v3.5.108-funnel-pretenant-foundation-dev
+        # PH-T8.9G: post-checkout activation event foundation (2026-04-24)
+        image: ghcr.io/keybuzzio/keybuzz-api:v3.5.110-post-checkout-activation-foundation-dev  # rollback: v3.5.109-funnel-metrics-tenant-scope-dev
         livenessProbe:
           httpGet:
             path: /health
