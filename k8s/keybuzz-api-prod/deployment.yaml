@@ -84,7 +84,8 @@ spec:
           # PH-T8.7B.4: outbound destinations DELETE route — soft delete (2026-04-22)
           # PREVIOUS: v3.5.101-outbound-destinations-delete-route-prod  # PH-T8.7B.4-PROD
           # PH-T8.8A.2: ad spend tenant safety + global import lock — cumulative PROD (2026-04-23)
-          image: ghcr.io/keybuzzio/keybuzz-api:v3.5.103-ad-spend-global-import-lock-prod  # rollback: v3.5.101-outbound-destinations-delete-route-prod
+          # PH-T8.8C-PROD: tenant secret store + ad-accounts API + Meta Ads sync (2026-04-23)
+          image: ghcr.io/keybuzzio/keybuzz-api:v3.5.105-tenant-secret-store-ads-prod  # rollback: v3.5.103-ad-spend-global-import-lock-prod
           imagePullPolicy: Always
           ports:
             - containerPort: 3001
@@ -299,6 +300,11 @@ spec:
                 secretKeyRef:
                   name: keybuzz-meta-ads
                   key: META_ACCESS_TOKEN
+            - name: ADS_ENCRYPTION_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: keybuzz-ads-encryption
+                  key: ADS_ENCRYPTION_KEY
           resources:
             requests:
               cpu: "200m"
