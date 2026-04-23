@@ -276,7 +276,8 @@ spec:
         # PH-T8.8A.1: lock global ad spend import — tenant-only (2026-04-22)
         # PH-T8.8B: Meta Ads tenant sync foundation (2026-04-25)
         # PH-T8.8C: tenant secret store — AES-256-GCM encrypted token_ref (2026-04-25)
-        image: ghcr.io/keybuzzio/keybuzz-api:v3.5.105-tenant-secret-store-ads-dev
+        # PH-T8.8E: metrics tenant currency + CAC exclusion controls API (2026-04-26)
+        image: ghcr.io/keybuzzio/keybuzz-api:v3.5.106-metrics-settings-currency-exclusion-dev  # rollback: v3.5.105-tenant-secret-store-ads-dev
         livenessProbe:
           httpGet:
             path: /health
