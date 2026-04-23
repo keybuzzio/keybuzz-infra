@@ -22,8 +22,8 @@ spec:
     spec:
       containers:
       - name: keybuzz-admin-v2
-        # ROLLBACK: v2.11.8-agency-tracking-playbook-dev
-        image: ghcr.io/keybuzzio/keybuzz-admin:v2.11.9-funnel-cro-ui-dev
+        # ROLLBACK: v2.11.9-funnel-cro-ui-dev
+        image: ghcr.io/keybuzzio/keybuzz-admin:v2.11.10-funnel-menu-icon-fix-dev
         imagePullPolicy: Always
         env:
         - name: NODE_ENV
