@@ -38,7 +38,8 @@ spec:
           # PH133-A: Autopilot contextual draft generation (2026-03-29)
           # ROLLBACK: v3.5.224-ph143-agents-ia-prod
           # PREVIOUS: v3.5.258-ph146.4-billing-addons-prod  # PH146.4 billing addons
-          image: ghcr.io/keybuzzio/keybuzz-client:v3.5.63-ph151.2-case-summary-clean-prod  # PH151.2 case summary data-driven | rollback: v3.5.60-ph148-onboarding-activation-prod
+          # PH-T8.9D: funnel instrumentation PROD — pre-tenant CRO visibility (2026-04-27)
+          image: ghcr.io/keybuzzio/keybuzz-client:v3.5.108-funnel-pretenant-foundation-prod  # rollback: v3.5.63-ph151.2-case-summary-clean-prod
           imagePullPolicy: Always
           ports:
             - containerPort: 3000
