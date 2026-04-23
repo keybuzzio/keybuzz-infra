@@ -22,8 +22,8 @@ spec:
     spec:
       containers:
       - name: keybuzz-admin-v2
-        # ROLLBACK: v2.11.3-metrics-tenant-scope-fix-prod
-        image: ghcr.io/keybuzzio/keybuzz-admin:v2.11.5-ad-accounts-ui-hardening-prod
+        # ROLLBACK: v2.11.5-ad-accounts-ui-hardening-prod
+        image: ghcr.io/keybuzzio/keybuzz-admin:v2.11.6-metrics-currency-cac-controls-prod
         imagePullPolicy: Always
         env:
         - name: NODE_ENV
