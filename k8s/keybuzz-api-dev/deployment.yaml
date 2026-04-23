@@ -246,6 +246,11 @@ spec:
           value: "https://api-dev.keybuzz.io/shopify/callback"
         - name: SHOPIFY_CLIENT_REDIRECT_URL
           value: "https://client-dev.keybuzz.io/channels"
+        - name: ADS_ENCRYPTION_KEY
+          valueFrom:
+            secretKeyRef:
+              name: keybuzz-ads-encryption
+              key: ADS_ENCRYPTION_KEY
         # PREVIOUS: v3.5.52-ph147.2-guardrails-final-dev  # PH147.2 guardrails final
         # PREVIOUS: v3.5.53-ph147.3-encoding-cleanup-dev  # PH147.3 encoding cleanup
         # PREVIOUS: v3.5.86-trial-vs-paid-metrics-dev  # PH-T8.2E metrics
@@ -269,7 +274,9 @@ spec:
         # PH-T8.8A: ad spend tenant safety — no global spend leak in tenant metrics (2026-04-22)
         # PREVIOUS: v3.5.102-ad-spend-tenant-safety-dev  # PH-T8.8A
         # PH-T8.8A.1: lock global ad spend import — tenant-only (2026-04-22)
-        image: ghcr.io/keybuzzio/keybuzz-api:v3.5.104-meta-ads-tenant-sync-foundation-dev
+        # PH-T8.8B: Meta Ads tenant sync foundation (2026-04-25)
+        # PH-T8.8C: tenant secret store — AES-256-GCM encrypted token_ref (2026-04-25)
+        image: ghcr.io/keybuzzio/keybuzz-api:v3.5.105-tenant-secret-store-ads-dev
         livenessProbe:
           httpGet:
             path: /health
