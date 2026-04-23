@@ -277,7 +277,8 @@ spec:
         # PH-T8.8B: Meta Ads tenant sync foundation (2026-04-25)
         # PH-T8.8C: tenant secret store — AES-256-GCM encrypted token_ref (2026-04-25)
         # PH-T8.8G: ad spend idempotence fix — deprecate /import/meta tenant write (2026-04-26)
-        image: ghcr.io/keybuzzio/keybuzz-api:v3.5.107-ad-spend-idempotence-fix-dev  # rollback: v3.5.106-metrics-settings-currency-exclusion-dev
+        # PH-T8.9B: funnel_events table + /funnel/event route + pre-tenant CRO visibility (2026-04-27)
+        image: ghcr.io/keybuzzio/keybuzz-api:v3.5.108-funnel-pretenant-foundation-dev  # rollback: v3.5.107-ad-spend-idempotence-fix-dev
         livenessProbe:
           httpGet:
             path: /health
