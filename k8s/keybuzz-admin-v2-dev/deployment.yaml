@@ -23,7 +23,7 @@ spec:
       containers:
       - name: keybuzz-admin-v2
         # ROLLBACK: v2.11.10-funnel-menu-icon-fix-dev
-        image: ghcr.io/keybuzzio/keybuzz-admin:v2.11.12-owner-cockpit-ui-foundation-dev
+        image: ghcr.io/keybuzzio/keybuzz-admin:v2.11.13-agency-proxy-tenant-guard-dev
         imagePullPolicy: Always
         env:
         - name: NODE_ENV
