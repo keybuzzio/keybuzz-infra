@@ -280,8 +280,8 @@ spec:
         # PH-T8.9B: funnel_events table + /funnel/event route + pre-tenant CRO visibility (2026-04-27)
         # PH-T8.9B.1: funnel metrics tenant scope — cohort stitching for pre-tenant steps (2026-04-27)
         # PH-T8.9G: post-checkout activation event foundation (2026-04-24)
-        # PH-T8.10C: owner-scoped business aggregation (2026-04-24)
-        image: ghcr.io/keybuzzio/keybuzz-api:v3.5.114-owner-scoped-business-aggregation-dev  # rollback: v3.5.113-outbound-routing-owner-aware-dev
+        # PH-T8.10D: owner-scoped funnel+activation aggregation (2026-04-24)
+        image: ghcr.io/keybuzzio/keybuzz-api:v3.5.115-owner-scoped-funnel-activation-aggregation-dev  # rollback: v3.5.114-owner-scoped-business-aggregation-dev
         livenessProbe:
           httpGet:
             path: /health
