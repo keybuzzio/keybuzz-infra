@@ -1,0 +1,213 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: vault-renew-script
+  namespace: vault-management
+  labels:
+    app.kubernetes.io/component: vault-token-renew
+data:
+  vault-renew-tokens.sh: |
+    #!/bin/sh
+
+    VAULT_ADDR="${VAULT_ADDR:-http://vault.default.svc.cluster.local:8200}"
+    RENEW_THRESHOLD_SECONDS="${RENEW_THRESHOLD_SECONDS:-604800}"
+    TOKEN_PERIOD="${TOKEN_PERIOD:-768h}"
+    POLICIES="${POLICIES:-keybuzz-app-read,keybuzz-backend-rw}"
+
+    K8S_API="https://kubernetes.default.svc"
+    SA_TOKEN=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)
+    CA_BUNDLE="/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
+
+    log() { echo "[$(date -u '+%Y-%m-%d %H:%M:%S UTC')] $1"; }
+
+    ERRORS=0
+    RENEWED=0
+    RECREATED=0
+
+    k8s_get_secret_key() {
+      _NS="$1"; _SECRET="$2"; _KEY="$3"
+      _RAW=$(curl -sf --cacert "$CA_BUNDLE" \
+        -H "Authorization: Bearer $SA_TOKEN" \
+        "${K8S_API}/api/v1/namespaces/${_NS}/secrets/${_SECRET}" 2>/dev/null) || true
+      if [ -z "$_RAW" ]; then echo ""; return; fi
+      _B64=$(echo "$_RAW" | tr -d '\n ' | \
+        sed 's/.*"data":{//' | sed 's/},.*//' | sed 's/}$//' | \
+        sed "s/.*\"${_KEY}\":\"//" | sed 's/".*//' ) || true
+      if [ -z "$_B64" ]; then echo ""; return; fi
+      echo "$_B64" | base64 -d 2>/dev/null || true
+    }
+
+    k8s_patch_secret_key() {
+      _NS="$1"; _SECRET="$2"; _KEY="$3"; _B64_VAL="$4"
+      curl -sf --cacert "$CA_BUNDLE" \
+        -X PATCH \
+        -H "Authorization: Bearer $SA_TOKEN" \
+        -H "Content-Type: application/strategic-merge-patch+json" \
+        -d "{\"data\":{\"${_KEY}\":\"${_B64_VAL}\"}}" \
+        "${K8S_API}/api/v1/namespaces/${_NS}/secrets/${_SECRET}" >/dev/null 2>&1 || true
+    }
+
+    k8s_restart_deployment() {
+      _NS="$1"; _DEP="$2"
+      _TS=$(date -u '+%Y-%m-%dT%H:%M:%SZ')
+      curl -sf --cacert "$CA_BUNDLE" \
+        -X PATCH \
+        -H "Authorization: Bearer $SA_TOKEN" \
+        -H "Content-Type: application/strategic-merge-patch+json" \
+        -d "{\"spec\":{\"template\":{\"metadata\":{\"annotations\":{\"vault-token-renew/restartedAt\":\"${_TS}\"}}}}}" \
+        "${K8S_API}/apis/apps/v1/namespaces/${_NS}/deployments/${_DEP}" >/dev/null 2>&1 || true
+    }
+
+    vault_token_ttl() {
+      _TOKEN="$1"
+      _RESP=$(curl -sf -H "X-Vault-Token: $_TOKEN" "${VAULT_ADDR}/v1/auth/token/lookup-self" 2>/dev/null) || true
+      if [ -z "$_RESP" ]; then echo "-1"; return; fi
+      _TTL=$(echo "$_RESP" | tr -d '\n ' | sed 's/.*"ttl"://' | sed 's/[^0-9].*//') || true
+      if [ -z "$_TTL" ]; then echo "-1"; return; fi
+      echo "$_TTL"
+    }
+
+    vault_token_renew() {
+      _ROOT="$1"; _TOKEN="$2"
+      _RESP=$(curl -sf -X POST \
+        -H "X-Vault-Token: $_ROOT" \
+        -H "Content-Type: application/json" \
+        -d "{\"token\":\"${_TOKEN}\"}" \
+        "${VAULT_ADDR}/v1/auth/token/renew" 2>/dev/null) || true
+      if [ -z "$_RESP" ]; then return 1; fi
+      echo "$_RESP" | grep -q '"client_token"' 2>/dev/null
+    }
+
+    vault_token_create() {
+      _ROOT="$1"; _DISPLAY="$2"
+      _POLICY_JSON=""
+      _OLD_IFS="$IFS"; IFS=","
+      for _P in $POLICIES; do
+        if [ -n "$_POLICY_JSON" ]; then _POLICY_JSON="${_POLICY_JSON},"; fi
+        _POLICY_JSON="${_POLICY_JSON}\"${_P}\""
+      done
+      IFS="$_OLD_IFS"
+      _RESP=$(curl -sf -X POST \
+        -H "X-Vault-Token: $_ROOT" \
+        -H "Content-Type: application/json" \
+        -d "{\"policies\":[${_POLICY_JSON}],\"period\":\"${TOKEN_PERIOD}\",\"display_name\":\"${_DISPLAY}\",\"renewable\":true}" \
+        "${VAULT_ADDR}/v1/auth/token/create" 2>/dev/null) || true
+      if [ -z "$_RESP" ]; then return 1; fi
+      echo "$_RESP" | tr -d '\n ' | sed 's/.*"client_token":"//' | sed 's/".*//'
+    }
+
+    log "=== VAULT TOKEN AUTO-ROTATION START ==="
+    log "VAULT_ADDR: $VAULT_ADDR"
+    log "THRESHOLD: ${RENEW_THRESHOLD_SECONDS}s ($(( RENEW_THRESHOLD_SECONDS / 86400 ))d)"
+
+    ROOT_TOKEN=$(k8s_get_secret_key "vault-management" "vault-admin-token" "token")
+    if [ -z "$ROOT_TOKEN" ]; then
+      log "ERROR: Cannot read root token"
+      exit 1
+    fi
+    log "OK: Root token read (${#ROOT_TOKEN} chars)"
+
+    ROOT_TTL=$(vault_token_ttl "$ROOT_TOKEN")
+    if [ "$ROOT_TTL" = "-1" ] || [ -z "$ROOT_TTL" ]; then
+      log "ERROR: Root token INVALID"
+      exit 1
+    fi
+    log "OK: Root token valid (ttl=$ROOT_TTL, 0=never)"
+
+    log ""
+    log "--- GROUP 1: API + Amazon workers ---"
+    TOKEN1=$(k8s_get_secret_key "keybuzz-api-prod" "vault-root-token" "VAULT_TOKEN")
+    if [ -z "$TOKEN1" ]; then
+      log "ERROR: Cannot read TOKEN1"
+      ERRORS=$((ERRORS + 1))
+    else
+      TTL1=$(vault_token_ttl "$TOKEN1")
+      log "TOKEN1: ttl=${TTL1}s ($(( TTL1 / 3600 ))h)"
+      NEED_RECREATE_1=""
+      if [ "$TTL1" = "-1" ] || [ -z "$TTL1" ]; then
+        log "WARN: TOKEN1 INVALID"; NEED_RECREATE_1=true
+      elif [ "$TTL1" -lt "$RENEW_THRESHOLD_SECONDS" ]; then
+        log "Below threshold — renewing"
+        if vault_token_renew "$ROOT_TOKEN" "$TOKEN1"; then
+          NEW_TTL=$(vault_token_ttl "$TOKEN1")
+          log "OK: Renewed (ttl=${NEW_TTL}s)"; RENEWED=$((RENEWED + 1))
+        else
+          log "WARN: Renewal failed"; NEED_RECREATE_1=true
+        fi
+      else
+        log "OK: Healthy"
+      fi
+      if [ "$NEED_RECREATE_1" = "true" ]; then
+        NEW_TOKEN1=$(vault_token_create "$ROOT_TOKEN" "keybuzz-k8s-api-auto")
+        if [ -z "$NEW_TOKEN1" ]; then
+          log "ERROR: Create failed"; ERRORS=$((ERRORS + 1))
+        else
+          B64=$(echo -n "$NEW_TOKEN1" | base64 | tr -d '\n')
+          for NS in keybuzz-api-prod keybuzz-api-dev; do
+            k8s_patch_secret_key "$NS" "vault-root-token" "VAULT_TOKEN" "$B64"
+            k8s_patch_secret_key "$NS" "vault-app-token" "VAULT_TOKEN" "$B64"
+          done
+          for NS in keybuzz-backend-prod keybuzz-backend-dev; do
+            k8s_patch_secret_key "$NS" "vault-token" "VAULT_TOKEN" "$B64"
+            k8s_patch_secret_key "$NS" "vault-app-token" "VAULT_TOKEN" "$B64"
+          done
+          log "OK: TOKEN1 recreated + secrets patched"; RECREATED=$((RECREATED + 1))
+        fi
+      fi
+    fi
+
+    log ""
+    log "--- GROUP 2: Backend ---"
+    TOKEN2=$(k8s_get_secret_key "keybuzz-backend-prod" "vault-app-token" "token")
+    if [ -z "$TOKEN2" ]; then
+      log "ERROR: Cannot read TOKEN2"
+      ERRORS=$((ERRORS + 1))
+    else
+      TTL2=$(vault_token_ttl "$TOKEN2")
+      log "TOKEN2: ttl=${TTL2}s ($(( TTL2 / 3600 ))h)"
+      NEED_RECREATE_2=""
+      if [ "$TTL2" = "-1" ] || [ -z "$TTL2" ]; then
+        log "WARN: TOKEN2 INVALID"; NEED_RECREATE_2=true
+      elif [ "$TTL2" -lt "$RENEW_THRESHOLD_SECONDS" ]; then
+        log "Below threshold — renewing"
+        if vault_token_renew "$ROOT_TOKEN" "$TOKEN2"; then
+          NEW_TTL=$(vault_token_ttl "$TOKEN2")
+          log "OK: Renewed (ttl=${NEW_TTL}s)"; RENEWED=$((RENEWED + 1))
+        else
+          log "WARN: Renewal failed"; NEED_RECREATE_2=true
+        fi
+      else
+        log "OK: Healthy"
+      fi
+      if [ "$NEED_RECREATE_2" = "true" ]; then
+        NEW_TOKEN2=$(vault_token_create "$ROOT_TOKEN" "keybuzz-k8s-backend-auto")
+        if [ -z "$NEW_TOKEN2" ]; then
+          log "ERROR: Create failed"; ERRORS=$((ERRORS + 1))
+        else
+          B64=$(echo -n "$NEW_TOKEN2" | base64 | tr -d '\n')
+          for NS in keybuzz-backend-prod keybuzz-backend-dev keybuzz-api-prod keybuzz-api-dev; do
+            k8s_patch_secret_key "$NS" "vault-app-token" "token" "$B64"
+          done
+          log "OK: TOKEN2 recreated + secrets patched"; RECREATED=$((RECREATED + 1))
+        fi
+      fi
+    fi
+
+    if [ "$RECREATED" -gt 0 ]; then
+      log ""; log "Restarting deployments..."
+      for NS in keybuzz-api-prod keybuzz-api-dev; do
+        k8s_restart_deployment "$NS" "keybuzz-api"
+        k8s_restart_deployment "$NS" "keybuzz-outbound-worker"
+      done
+      for NS in keybuzz-backend-prod keybuzz-backend-dev; do
+        k8s_restart_deployment "$NS" "keybuzz-backend"
+        k8s_restart_deployment "$NS" "amazon-orders-worker"
+        k8s_restart_deployment "$NS" "amazon-items-worker"
+      done
+      log "OK: All restarts triggered"
+    fi
+
+    log ""
+    log "=== COMPLETE: renewed=$RENEWED recreated=$RECREATED errors=$ERRORS ==="
+    if [ "$ERRORS" -gt 0 ]; then exit 1; fi
+    exit 0

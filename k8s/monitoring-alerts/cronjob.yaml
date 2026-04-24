@@ -1,0 +1,69 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: monitoring-alerts
+  namespace: vault-management
+  labels:
+    app.kubernetes.io/component: monitoring-alerts
+spec:
+  schedule: "*/2 * * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      ttlSecondsAfterFinished: 600
+      backoffLimit: 0
+      activeDeadlineSeconds: 90
+      template:
+        metadata:
+          labels:
+            app.kubernetes.io/component: monitoring-alerts
+        spec:
+          serviceAccountName: keybuzz-monitor
+          restartPolicy: Never
+          volumes:
+            - name: script
+              configMap:
+                name: monitoring-alert-script
+                defaultMode: 0755
+          containers:
+            - name: monitor
+              image: curlimages/curl:8.7.1
+              command: ["/bin/sh", "/scripts/monitoring-alerts.sh"]
+              env:
+                - name: VAULT_ADDR
+                  value: "http://vault.default.svc.cluster.local:8200"
+                - name: ALERT_ENV
+                  value: "prod"
+                - name: LOG_WINDOW
+                  value: "180"
+                - name: RESTART_THRESHOLD
+                  value: "3"
+                - name: ERROR_RATE_THRESHOLD
+                  value: "5"
+                - name: SMTP_HOST
+                  value: "10.0.0.160"
+                - name: SMTP_PORT
+                  value: "25"
+                - name: SMTP_FROM
+                  value: "alerts@keybuzz.io"
+                - name: SMTP_TO
+                  value: "sre@keybuzz.io"
+                - name: WEBHOOK_URL
+                  valueFrom:
+                    secretKeyRef:
+                      name: monitoring-webhook
+                      key: url
+                      optional: true
+              volumeMounts:
+                - name: script
+                  mountPath: /scripts
+                  readOnly: true
+              resources:
+                limits:
+                  memory: "64Mi"
+                  cpu: "100m"
+                requests:
+                  memory: "32Mi"
+                  cpu: "50m"

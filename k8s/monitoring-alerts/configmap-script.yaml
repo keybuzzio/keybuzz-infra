@@ -1,0 +1,225 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: monitoring-alert-script
+  namespace: vault-management
+  labels:
+    app.kubernetes.io/component: monitoring-alerts
+data:
+  monitoring-alerts.sh: |
+    #!/bin/sh
+    VAULT_ADDR="${VAULT_ADDR:-http://vault.default.svc.cluster.local:8200}"
+    ALERT_ENV="${ALERT_ENV:-dev}"
+    LOG_WINDOW="${LOG_WINDOW:-180}"
+    RESTART_THRESHOLD="${RESTART_THRESHOLD:-3}"
+    ERROR_RATE_THRESHOLD="${ERROR_RATE_THRESHOLD:-5}"
+    WEBHOOK_URL="${WEBHOOK_URL:-}"
+    SMTP_HOST="${SMTP_HOST:-}"
+    SMTP_PORT="${SMTP_PORT:-25}"
+    SMTP_FROM="${SMTP_FROM:-alerts@keybuzz.io}"
+    SMTP_TO="${SMTP_TO:-sre@keybuzz.io}"
+
+    K8S_API="https://kubernetes.default.svc"
+    SA_TOKEN=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)
+    CA="/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
+    ALERTS=""
+    ALERT_COUNT=0
+
+    log() { echo "[$(date -u '+%Y-%m-%d %H:%M:%S UTC')] $1"; }
+
+    k8s_get() {
+      curl -sf --cacert "$CA" -H "Authorization: Bearer $SA_TOKEN" "${K8S_API}$1" 2>/dev/null || true
+    }
+
+    k8s_get_logs() {
+      curl -sf --cacert "$CA" -H "Authorization: Bearer $SA_TOKEN" \
+        "${K8S_API}/api/v1/namespaces/$1/pods/$2/log?sinceSeconds=$3&tailLines=200" 2>/dev/null || true
+    }
+
+    add_alert() {
+      ALERT_COUNT=$((ALERT_COUNT + 1))
+      ALERTS="${ALERTS}|${1};;${2};;${3};;${4}"
+      log "ALERT [$1] $2: $3"
+    }
+
+    get_pod_name() {
+      _R=$(k8s_get "/api/v1/namespaces/$1/pods?labelSelector=app%3D$2&fieldSelector=status.phase%3DRunning")
+      echo "$_R" | tr -d '\n ' | sed 's/.*"items":\[{"metadata":{".*"name":"//' | sed 's/".*//' || true
+    }
+
+    get_pod_restarts() {
+      _R=$(k8s_get "/api/v1/namespaces/$1/pods?labelSelector=app%3D$2")
+      echo "$_R" | tr -d '\n ' | grep -o '"restartCount":[0-9]*' | head -1 | sed 's/"restartCount"://' || true
+    }
+
+    resolve_ns() {
+      if [ "$ALERT_ENV" = "prod" ]; then echo "$1-prod"; else echo "$1-dev"; fi
+    }
+
+    # ─── CHECK 1: VAULT ACCESSIBLE ─────────────────────────────
+    check_vault() {
+      log "CHECK 1: Vault accessible"
+      # 200=active, 429=standby, 473=perf-standby → healthy
+      # 503=sealed, 501=not-init, 000=unreachable → alert
+      _RC=$(curl -s -o /dev/null -w "%{http_code}" "${VAULT_ADDR}/v1/sys/health" 2>/dev/null) || _RC="000"
+      case "$_RC" in
+        200|429|473) log "  OK (HTTP $_RC)" ;;
+        503) add_alert "CRITICAL" "vault" "Vault sealed" "HTTP 503 — needs unseal" ;;
+        501) add_alert "CRITICAL" "vault" "Vault not initialized" "HTTP 501" ;;
+        000) add_alert "CRITICAL" "vault" "Vault inaccessible" "No response from ${VAULT_ADDR}" ;;
+        *) add_alert "WARNING" "vault" "Vault unhealthy (HTTP ${_RC})" "Unexpected status code" ;;
+      esac
+    }
+
+    # ─── CHECK 2: VAULT TOKEN RENEW ────────────────────────────
+    check_vault_token_renew() {
+      log "CHECK 2: Vault token renew"
+      _R=$(k8s_get "/apis/batch/v1/namespaces/vault-management/jobs?limit=5")
+      _FAILED=$(echo "$_R" | tr -d '\n ' | grep -o '"type":"Failed"' | wc -l) || _FAILED=0
+      if [ "$_FAILED" -gt 1 ]; then
+        add_alert "CRITICAL" "vault-token-renew" "Token renewal failures (${_FAILED})" "Check vault-management jobs"
+      else
+        log "  OK"
+      fi
+    }
+
+    # ─── CHECK 3: AMAZON IMPORT-ONE ────────────────────────────
+    check_amazon_import() {
+      log "CHECK 3: Amazon import-one"
+      _NS=$(resolve_ns "keybuzz-api")
+      _POD=$(get_pod_name "$_NS" "keybuzz-api")
+      if [ -z "$_POD" ] || [ "$_POD" = "{" ]; then
+        add_alert "CRITICAL" "api" "API pod not found" "No running pod in $_NS"
+        return
+      fi
+      _LOGS=$(k8s_get_logs "$_NS" "$_POD" "$LOG_WINDOW")
+      _ERRS=$(echo "$_LOGS" | grep -c 'No SP-API creds\|TOKEN_MISSING\|import-one.*404\|import-one.*error' 2>/dev/null) || _ERRS=0
+      if [ "$_ERRS" -gt 0 ]; then
+        add_alert "WARNING" "amazon-import" "Import errors (${_ERRS})" "Check API logs in $_NS"
+      else
+        log "  OK"
+      fi
+    }
+
+    # ─── CHECK 4: AMAZON SYNC CRONJOB ──────────────────────────
+    check_amazon_sync() {
+      log "CHECK 4: Amazon sync CronJob"
+      _NS=$(resolve_ns "keybuzz-backend")
+      _R=$(k8s_get "/apis/batch/v1/namespaces/${_NS}/jobs?limit=5")
+      _FAILS=$(echo "$_R" | tr -d '\n ' | grep -o '"type":"Failed"' | wc -l) || _FAILS=0
+      if [ "$_FAILS" -gt 2 ]; then
+        add_alert "WARNING" "amazon-sync" "Sync failures (${_FAILS})" "Recent jobs failed in $_NS"
+      else
+        log "  OK"
+      fi
+    }
+
+    # ─── CHECK 5: SHOPIFY WEBHOOK ──────────────────────────────
+    check_shopify() {
+      log "CHECK 5: Shopify webhooks"
+      _NS=$(resolve_ns "keybuzz-api")
+      _POD=$(get_pod_name "$_NS" "keybuzz-api")
+      if [ -z "$_POD" ] || [ "$_POD" = "{" ]; then return; fi
+      _LOGS=$(k8s_get_logs "$_NS" "$_POD" "$LOG_WINDOW")
+      _ERRS=$(echo "$_LOGS" | grep -ci 'shopify.*error\|shopify.*fail\|shopify.*webhook.*err' 2>/dev/null) || _ERRS=0
+      if [ "$_ERRS" -gt 0 ]; then
+        add_alert "WARNING" "shopify" "Webhook errors (${_ERRS})" "Check API logs"
+      else
+        log "  OK"
+      fi
+    }
+
+    # ─── CHECK 6: AUTOPILOT ERROR RATE ─────────────────────────
+    check_autopilot() {
+      log "CHECK 6: Autopilot errors"
+      _NS=$(resolve_ns "keybuzz-api")
+      _POD=$(get_pod_name "$_NS" "keybuzz-api")
+      if [ -z "$_POD" ] || [ "$_POD" = "{" ]; then return; fi
+      _LOGS=$(k8s_get_logs "$_NS" "$_POD" "$LOG_WINDOW")
+      _ERRS=$(echo "$_LOGS" | grep -ci 'autopilot.*error\|autopilot.*fail' 2>/dev/null) || _ERRS=0
+      if [ "$_ERRS" -ge "$ERROR_RATE_THRESHOLD" ]; then
+        add_alert "WARNING" "autopilot" "High error rate (${_ERRS})" "Threshold ${ERROR_RATE_THRESHOLD} exceeded"
+      else
+        log "  OK (errors=${_ERRS})"
+      fi
+    }
+
+    # ─── CHECK 7: API HTTP 500 SPIKE ──────────────────────────
+    check_api_500() {
+      log "CHECK 7: API HTTP 500 spike"
+      _NS=$(resolve_ns "keybuzz-api")
+      _POD=$(get_pod_name "$_NS" "keybuzz-api")
+      if [ -z "$_POD" ] || [ "$_POD" = "{" ]; then return; fi
+      _LOGS=$(k8s_get_logs "$_NS" "$_POD" "$LOG_WINDOW")
+      _COUNT=$(echo "$_LOGS" | grep -c '"statusCode":50[0-9]' 2>/dev/null) || _COUNT=0
+      if [ "$_COUNT" -ge "$ERROR_RATE_THRESHOLD" ]; then
+        add_alert "CRITICAL" "api-500" "HTTP 5xx spike (${_COUNT})" "${_COUNT} errors in ${LOG_WINDOW}s"
+      else
+        log "  OK (5xx=${_COUNT})"
+      fi
+    }
+
+    # ─── CHECK 8: WORKER CRASH / RESTART LOOP ─────────────────
+    check_worker_restarts() {
+      log "CHECK 8: Worker restarts"
+      _NS_B=$(resolve_ns "keybuzz-backend")
+      _NS_A=$(resolve_ns "keybuzz-api")
+      for _PAIR in "${_NS_B}:keybuzz-backend" "${_NS_B}:amazon-orders-worker" "${_NS_B}:amazon-items-worker" "${_NS_A}:keybuzz-api" "${_NS_A}:keybuzz-outbound-worker"; do
+        _N=$(echo "$_PAIR" | cut -d: -f1)
+        _A=$(echo "$_PAIR" | cut -d: -f2)
+        _R=$(get_pod_restarts "$_N" "$_A")
+        if [ -n "$_R" ] && [ "$_R" -ge "$RESTART_THRESHOLD" ] 2>/dev/null; then
+          add_alert "CRITICAL" "worker-restart" "${_A} crash loop (${_R}x)" "Pod in $_N restarted ${_R} times"
+        fi
+      done
+      log "  OK"
+    }
+
+    # ─── ALERT DELIVERY ───────────────────────────────────────
+    deliver_alerts() {
+      if [ "$ALERT_COUNT" -eq 0 ]; then
+        log "No alerts to send"
+        return
+      fi
+      _CRIT=0; _WARN=0; _BODY=""
+      OLD_IFS="$IFS"; IFS="|"
+      for _E in $ALERTS; do
+        if [ -z "$_E" ]; then continue; fi
+        _L=$(echo "$_E" | sed 's/;;.*//')
+        _S=$(echo "$_E" | sed 's/[^;]*;;//' | sed 's/;;.*//')
+        _M=$(echo "$_E" | sed 's/[^;]*;;[^;]*;;//' | sed 's/;;.*//')
+        _D=$(echo "$_E" | sed 's/.*;;.*;;.*;;//')
+        case "$_L" in CRITICAL) _CRIT=$((_CRIT+1));; WARNING) _WARN=$((_WARN+1));; esac
+        _BODY="${_BODY}[${_L}] ${_S}: ${_M}\n  ${_D}\n\n"
+      done
+      IFS="$OLD_IFS"
+      _TITLE="[KeyBuzz ${ALERT_ENV}] ${_CRIT} critical, ${_WARN} warning"
+      if [ "$_CRIT" -gt 0 ]; then _COLOR=16711680; else _COLOR=16776960; fi
+      log "Sending ${ALERT_COUNT} alerts"
+      if [ -n "$WEBHOOK_URL" ]; then
+        _WH_BODY=$(echo -e "$_BODY" | head -c 1800 | sed 's/"/\\"/g' | tr '\n' ' ')
+        curl -sf -X POST -H "Content-Type: application/json" \
+          -d "{\"embeds\":[{\"title\":\"${_TITLE}\",\"description\":\"${_WH_BODY}\",\"color\":${_COLOR},\"footer\":{\"text\":\"KeyBuzz Monitor | $(date -u '+%H:%M UTC')\"}}]}" \
+          "$WEBHOOK_URL" >/dev/null 2>&1 && log "  Webhook OK" || log "  Webhook FAILED"
+      fi
+      if [ -n "$SMTP_HOST" ]; then
+        _EMAIL_BODY=$(printf "From: %s\r\nTo: %s\r\nSubject: %s\r\nContent-Type: text/plain; charset=utf-8\r\n\r\n%s" \
+          "$SMTP_FROM" "$SMTP_TO" "$_TITLE" "$(echo -e "$_BODY")")
+        printf "%s" "$_EMAIL_BODY" | curl -sf --url "smtp://${SMTP_HOST}:${SMTP_PORT}" \
+          --mail-from "$SMTP_FROM" --mail-rcpt "$SMTP_TO" \
+          --upload-file - 2>/dev/null && log "  Email OK" || log "  Email FAILED"
+      fi
+    }
+
+    # ─── MAIN ────────────────────────────────────────────────────
+    log "=== KEYBUZZ MONITORING START (${ALERT_ENV}) ==="
+    check_vault
+    check_vault_token_renew
+    check_amazon_import
+    check_amazon_sync
+    check_shopify
+    check_autopilot
+    check_api_500
+    check_worker_restarts
+    deliver_alerts
+    log "=== COMPLETE: ${ALERT_COUNT} alerts ==="

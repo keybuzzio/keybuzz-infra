@@ -1,0 +1,161 @@
+### Prompt 7 — **Offer Engineering & Bundles**
+
+```
+Objectif: Proposer 5 offres (pricing/bundles/essai/garantie) alignées aux freins détectés.
+Output: 5 offres + cible/segment + métrique attendue (AOV, CVR) + risques.
+```
+
+🚀 🎯 OFFER ENGINEERING — KEYBUZZ
+🧠 Objectif global
+
+Transformer :
+
+Visiteur → StartTrial → Activation → Paid
+
+👉 en réduisant :
+
+friction
+peur IA
+risque perçu
+🟢 OFFRE 1 — “Trial sécurisé (contrôle total)” 🔥
+Description
+
+👉 Trial 14 jours + contrôle total IA
+
+Cible
+
+👉 Persona 1 (e-com débordé)
+
+Proposition
+14 jours gratuits
+IA non autonome par défaut
+validation humaine
+onboarding guidé
+Message
+
+👉 “Teste l’IA sans aucun risque”
+
+KPI attendu
+CVR trial : 3–6%
+AOV : 297€
+Risques
+utilisateurs passifs
+pas d’activation
+
+👉 solution : onboarding + nudges
+
+🔵 OFFRE 2 — “ROI SAV garanti”
+Description
+
+👉 garantie ROI
+
+Cible
+
+👉 Persona 2 (scaling)
+
+Proposition
+si pas de gain → remboursement
+ROI calculable
+Message
+
+👉 “Rentabilisé en moins de 30 jours”
+
+KPI
+CVR : 2–4%
+AOV : 497€
+Risques
+abus
+
+👉 limiter conditions
+
+🟡 OFFRE 3 — “Pack Pro starter”
+Description
+
+👉 bundle onboarding + support
+
+Cible
+
+👉 Persona 1 / 3
+
+Proposition
+onboarding rapide
+templates SAV
+support
+Message
+
+👉 “Prêt en 15 minutes”
+
+KPI
+CVR ↑
+AOV stable
+Risques
+dépendance support
+🔴 OFFRE 4 — “Autopilot unlock”
+Description
+
+👉 upsell vers Autopilot
+
+Cible
+
+👉 utilisateurs actifs
+
+Proposition
+upgrade après usage
+auto-reply activé
+Message
+
+👉 “Passe en mode automatique”
+
+KPI
+upgrade rate
+AOV ↑
+Risques
+mauvaise activation IA
+🟣 OFFRE 5 — “Agency / multi-tenant”
+Description
+
+👉 offre agence
+
+Cible
+
+👉 agencies / multi-store
+
+Proposition
+multi-tenant
+dashboard
+gestion clients
+Message
+
+👉 “Gère le SAV de tous tes clients”
+
+KPI
+LTV élevée
+AOV élevé
+Risques
+complexité produit
+🎯 SYNTHÈSE
+Offre	Cible	Objectif
+Trial sécurisé	Persona 1	acquisition
+ROI garanti	Persona 2	conversion
+Pack starter	Persona 1/3	activation
+Autopilot	utilisateurs	upsell
+Agency	B2B	LTV
+🧠 STRATÉGIE
+Phase 1
+
+👉 Trial sécurisé + angle SAV
+
+Phase 2
+
+👉 ROI + Autopilot
+
+Phase 3
+
+👉 Agency
+
+🔥 CONCLUSION
+
+👉 Ton pricing est déjà bon
+👉 tu dois surtout travailler :
+
+👉 perception du risque

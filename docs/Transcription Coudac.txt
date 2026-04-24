@@ -1,0 +1,857 @@
+0:00
+salut c'est Théo je suis le fondateur de kudak kudak c'est une agence d'acquisition on a un peu plus d'une soixantaine dans l'équipe et notre travail c'est d'aider nos clients à
+0:06
+trouver des clients avec MTA Google Pinterest snap TikTok et cetera ça fait 5 ans qu'on pilote les stratégies pay
+0:11
+d'un peu plus d'une centaine de marques à la fois en e-commerce et en lien B2C et B2B pour un peu plus de 40 million d'euros de SP sgestion annuelle on est
+0:17
+devenu assez connu sur le marché pour notre approche qui prend à contrepied ce qui se fait traditionnellement sur le marché de la pub digitale je t'explique
+0:23
+en fait on a auditer une quantité assez énorme de compte méta et Google et on s'est rendu compte que la plupart des annonceurs pensent qu'ils ont un
+0:28
+problème de Ros alors qu's ont un problème de contributivité en gros les investissements en ADS ne produisent pas une augmentation suffisante du chiffre
+0:35
+d'affaires pour pouvoir accélérer c'est la conséquence d'une erreur celle de piloter au CPA plateforme on a Google et meta qui vont afficher des super Ros ou
+0:41
+CPA et quand on calcule la rentabilité globale des investissements marketing c'est de la merde et bien parce que les métriques plateforme c'est bourré de B
+0:46
+d'abord le ROS ne fait pas la différence entre les anciens et les nouveaux clients ça fait gonfler les rentabilités affichées sur des clients auxquels vous
+0:52
+auriez pu juste envoyer un email ce qui est beaucoup moins cher que son équivalent en impression pub ensuite faire confiance au CPA d'une plateforme
+0:58
+revient à faire confiance à son système d'attribut en gros ça veut dire que Google méta et tous les autres pour chaque conversion viennent dire c'est
+1:04
+grâce à moi avec une méthode qui leur est propre et donc n'hésite pas à faire gonfler artificiellement le chiffre d'affaires qui leur revient parfois par
+1:09
+exemple certaines conversions sont disputées sont comptabilisées par méta et par Google à la fois l'autre scénario classique c'est toutes les conversions
+1:14
+qui ne sont pas incrémentales ça veut dire qu'un canal payant va se l'attribuer alors que la conversion serait produite sans une exposition publicitaire quel est le résultat de
+1:20
+tout ça et bien c'est que les discussions pour résoudre un problème qui touche au marketing digital porte beaucoup trop souvent sur des microop pointints techniques chauffer le pixel
+1:26
+mes couilles alors que le problème n'y est pas notre approche chez kudac c'est de de ne juger l'efficacité d'une machine d'acquisition que sur sa
+1:32
+capacité à acquérir des nouveaux clients et le meilleur proxy de ça en terme de chiffre c'est le CAC blended c'est l'investissement marketing global divisé
+1:38
+par le nombre de nouveaux clients dans votre backend ça peut sembler être un détail mais pas du tout ça change fondamentalement la façon de réfléchir à
+1:44
+l'optimisation de ces campagnes au quotidien on va d'abord s'assurer que l'argent est investi en bonnees quantité et aux bons endroits et les micro
+1:49
+détails d'optimisation de campagne viennent à la toute fin de l'analyse parce qu'à moins de faire vraiment n'importe quoi c'est pas là que se gagnent les batailles dans cette vidéo
+1:55
+je vous ai collecté 13 principes simples et battle testé pour résoudre les problèmes les plus fréquents qu'on voit chez les annonceurs sur l'optimisation
+2:01
+de leur machine d'acquisition de nouveaux clients on t'a préparé une cheat cheat c'est toujours très dur à dire mais en tout cas c'est une petite feuille dans lequelle il y a tous les
+2:07
+points importants c'est disponible sur le lien en description j'ai demandé à mes performances managers de venir vous les expliquer eux-mêmes avec des
+2:12
+exemples concrets de clients couac ça n'est donc pas une masterclass méta ou Google mais une masterclass paid les chapitres sont organisés du général au
+2:18
+particulier et racontés par ceux qui les mettent en place depuis des années sur nos clients ce sont les gens avec lesquels vous bosseriez si jamais vous signnez chez nous le lien est dans la
+2:24
+description pour faire review votre machine d'acquisition par un expert couac de mon côté j'interviendrai entre chacune des parties à chaque fois qu'il
+2:29
+faut zoomer sur un et pour vous rediriger vers d'autres vidéos plus détaillées qu'on a déjà sur la chaîne koudac installez-vous bien c'est parti
+2:34
+alors moi c'est Paul j'ai rejoint koudac bah au tout début de l'aventure donc il a 4 an et demi maintenant et je m'occupe
+2:39
+de diriger l'équipe performance je m'appelle Adeline moi c'est Antoine moi c'est audr je m'appelle Françis Fourcade
+2:44
+moi c'est Jul et moi je m'appelle Océane seruti moi je suis performance manager chez kou depuis maintenant 3
+Une mesure efficace des invests
+2:51
+[Musique] ans une erreur fréquente que je vois sur ma c'est de piloter la performance de ma
+2:58
+bah uniquement avec ce qu'il y a comme donnée dans MTA c'est-à-dire en regardant bah quelle campagne te donne les meilleurs CPA de tout faire en
+3:04
+fonction de ça parce que généralement et ça c'est particulièrement vrai avec certains compte qu'on reprend d'anciennes agences c'est les anciennes
+3:10
+agences qui sont très objectivés sur le CPA dans MTA qu'elles arrivent à obtenir et donc elle bah forcément elles se
+3:16
+elles se disent bon bah où est-ce que je peux avoir un meilleur CPA bah en allant cibler les audiences qui sont très chaudes qui sont qui ont déjà une intention d'achat le problème de ça
+3:22
+c'est que du coup on va dédier une grande partie des ressources marketing à des audiences qui sont déjà chaudes pour
+3:28
+être client chez nous donc en fait on va pas vraiment faire d'acquisition on va pas vraiment récupérer de nouveaux
+3:33
+clients et ça fait qu'en fait bah on investit mais pour avoir des clients qu'on a déjà donc en fait on produit pas de résultats et on produit pas de croissance l'erreur numéro 1 c'est de
+3:39
+tout mesurer à l'Ô de la perf dans MTA et ne pas regarder ce qui se passe au global l'erreur la plus fréquente qu' a
+3:47
+c'est le focus unique et simple en vision plateforme que ce soit au niveau de l'attribution de la performance et
+3:53
+des optimisations d'être dans le trait micro de ne pas prendre de hauteur pour pouvoir piloter l'ensemble du FUNEL nous
+3:58
+ce qu'on regarde beaucoup plus c'est bah comment est-ce que le chiffre d'affaires au global il évolue par rapport à ce qu'on investit dans MTA alors c'est pas
+4:04
+une vision parfaite non plus mais c'est quelque chose qui nous évite d'avoir cette dérive où on augmente sur méta par exemple nos investes alors que le
+4:10
+chiffre d'affaires n'augmente pas si je devais pareil citer les erreurs entre guillemets les plus fréquentes qu'on peut voir c'est souvent de se dire que
+4:17
+Google c'est super on a de super résultats c'est beaucoup plus héroïste on va couper toutes nos autres régies
+4:22
+uneé quand on couple les autres régies on se rend compte que non il y avait forcément un impact parce que on a
+4:28
+directement des résultats qui sont différents et c'est dans ce sens-là que c'est important pour vraiment analyser
+4:33
+le le mix marketing à proprement parler de sonder nos clients sur comment ils nous ont connu et on se rend compte que finalement ils nous ont le premier touch
+4:40
+point a été autre part que dans le search mais le search sert ensuite de relais pour aller faire de l'acquisition
+4:45
+faut avoir cette notion de M marketing et quand des clients arrivent je vois qu'il dépensent énormément sur Google ça veut pas dire qu'il faut pas le faire ça
+4:51
+veut juste dire qu'il faut comprendre un petit peu prendre du recul et savoir bah d'où est-ce que le client vient pourquoi il est venu par là et ensuite quel est
+4:57
+le chemin pour arriver Infiné au résultats et à la conversion ça devient de plus en plus un standard dans l'industrie je pense le questionnaire
+5:04
+post-achachat c'est-à-dire qu'en fait que quand quelqu'un achète sur notre site Web enfin c'est vrai pour un achat sur un site web mais c'est pe aussi être
+5:09
+vrai pour une installation d'application ou plein d'autres choses quand quelqu'un achète on va lui demander comment est-ce qu'il a découvert notre marque et en
+5:15
+fait ça ça va nous permettre de que au fil du temps où on récolte de la donnée on est capable de dire bah voilà j'ai tant de mes acheteurs qui ont dit qu'
+5:22
+m'avaient découvert par tel canal tel canal ou tel canal et ça en fait ça nous permet ensuite de recalculer après on on
+5:29
+dit par exemple sur snapchat ce mois-ci j'ai tant d'utilisateurs qui me disent qu'ils m'ont découvert sur snapchat je regarde combien j'aiinvesti sur snapchat
+5:35
+et en fait je recalcule un coût d'acquisition client spécifiquement pour snapchat qui va être souvent très différent de ce que je peux observer sur
+5:42
+la plateforme snapchat en elle-même ou sur des modèles d'attribution donc ça pourquoi c'est game changer parce que en fait ça permet de bah de répondre à une
+5:50
+question que tous les annonceurs se posent à savoir où est-ce que je dois mettre mon budget quel canal est contributif et lequel ne l'est pas le
+5:55
+fait de mesurer au déclaratif bah d'où vient chaque client et le fait ensuite de quel calculer ce CAC bah ça nous permet de le savoir ça nous a notamment
+6:01
+permis aussi de nous rendre compte que le poids de Google un Google Search était un peu surpondéré on va dire dans
+6:07
+la distribution du des budgets de clients là et on a repassé une partie du budget sur du social et aussi une partie
+6:12
+sur bah du plus haut de Fenel sur du YouTube et c'est ça qui a vraiment fait une énorme différence en terme de performance j'accompagne un annonceur
+6:18
+que je vais pas citer mais qui a des salles de sport en gros dans toute la France l'idée c'est que l'année dernière ils avaient fait énormément de d'offline
+6:24
+c'estàd qu'ils avent investi plus de 200000 € de mémoire en action offline pour ramener des gens pour les journées portes ouvertes qui faisait à l'occasion
+6:30
+donc en fait c'est le plus gros événement de l'année pour eux parce que c'est le moment où ils vont ramener énormément de gens gratuitement pour venir tester et surtout ils vont espérer
+6:36
+convertir derrière donc l'année dernière ils ont dépensé un plus de 200000 € en marketing dans leur une vingtaine de salles en France cette année on a
+6:41
+dépensé uniquement 25000 € uniquement en AD ils ont pas fait d'offline donc en gros on a dépensé 10 fois moins et ils ont fait de mémoire plus de 47 %
+6:48
+d'entrée en plus que l'année dernière et surtout 83000 € de chiffre d'affaires en plus que l'année dernière je vous fais un recéap de ce qu'il faut retenir de ce
+6:53
+premier principe les résultats plateformes sont bourrés de billets et peuvent vous faire croire que votre machine d'acquisition fonctionne alors que ça n'est pas le cas la seule chose
+6:58
+qui compte c'est est-ce que vos investissements font bouger votre chiffre d'affaires vers le haut pour éviter de prendre des mauvaises décisions on vous conseille vivement si
+7:04
+ça n'est pas déjà le cas d'installer le questionnaire post-achat dans le but de rajouter dans la réflexion autour de l'allocation du budget publicitaire la
+7:10
+source de données quel canal vos clients estiment être responsable de leur décision d'acheter vous pouvez ensuite vous amuser à calculer un clque
+7:15
+déclaratif ce qui vous permettra d'avoir une perspective différente sur vos investissements une fois que vous avez tout ça vous pouvez utiliser ces différentses angles de vue pour choisir
+7:21
+où allouer les investissements ça peut faire une différence monumentale comme vient de vous l'expliquer Jules en basculant une enveloppe offline vers du
+7:27
+online maintenant on va parler de l'allocation du budget non pas entre les cadeau mais dans le temps je te fais une courte interruption pour te parler du partenaire de cette vidéo Simio est-ce
+Simio
+7:33
+que tu savais que le roi moyen d'une campagne WhatsApp pour un e-commerçant c'est 30 tu as bien entendu ça s'explique pour une raison mathématique
+7:39
+très simple c'est que le taux d'ouverture d'un message c'est 90 % versus 17 % en moyenne pour un email classique SIO c'est une solution qui
+7:44
+permet aux e-commerçant d'activer WhatsApp comm un nouveau canal marketing etrm de façon totalement intégrée à Shopify clavio yodpo Gorgias et cetera
+7:51
+ça a été monté par Tiffen une de mes anciennes camarades d' chaussé et il travaille déjà avec une centaine de marques comme Balzac Balibaris rouge des
+7:57
+laab et cetera il bosse aussi beaucoup en collaboration avec la Standard comme l'agence CRM du groupe couac siio ça permet d'envoyer des automations comme
+8:02
+des relances de panier abandonné des welcome flow des back in stock et des campagnes ponctuelles comme pour le Black Friday par exemple tout ça sur
+8:07
+WhatsApp la collecte de contact se fait dans une pop-up exactement comme la collecte d'email souvent même on le demande juste après et ensuite tu es sur
+8:12
+le WhatsApp de tes clients et par exemple la standarcom a remarqué qu'avec WhatsApp c'était plus de 2,3 fois le nombre de paniers abandonnés récupérés
+8:18
+qu'en email uniquement ça a permis aussi notamment à shape d'obtenir un heroï 98 sur une campagne de paniers abandonné avec une moyenne de 17,8 € par
+8:25
+conversation engagée quand même pour en profiter c'est très simple il suffit de réserver une démo il te font le setup et c'est parti en plus tu as moins 10 %
+8:31
+pendant un an si jamais tu passes par le lien en description merci siio d'être le partenaire de cette vidéo on retourne aux affaires
+Adapter son budget à la demande
+8:40
+ou un autre truc qu'on a fait qui était pas mal c'est que il y a un client avec lequel on a commencé en fait le client il avait l'habitude d'investir de
+8:46
+manière assez linéaire c'est-à-dire de tous les mois investir le même montant ce dont on s'est aperçu c'est que même
+8:51
+si on investissait le même montant tous les jours la répartition la courbe de répartition des ventes sur le mois elle
+8:57
+était pas du tout linéaire donc on avait des gros pics au début de mois et ensuite ça s'est'estompé puis on réaugmenté le la demande réaugmentée à
+9:03
+la fin du mois donc en fait ce qu'on a fait c'est que on est passé d'un investissement linéaire où c'est toujours un peu près chaque jour le même montant investi à un investissement qui
+9:09
+épousé beaucoup plus la courbe de la demande et donc ça ça nous a permis de beaucoup réduire notre CPA donc c'était
+9:15
+quelque chose de assez simple on dépensait pas plus mais simplement on répartissait mieux la dépense B en fait ça ça a bien fonctionné et c'est logique
+9:20
+parce que le but de la pub simplement d'être présent au moment où il y a une demande ça sert à rien d'être pas
+9:25
+présent quand il y a une forte demande et trop présent quand il y a pas de demande justement il faut essayer être là quand il y a de la demande voir même un petit peu avant et savoir aussi faire
+9:32
+profil bas quand la demande elle est plus faible sur un client qui s'appelle moule on a remarqué pendant toutes les
+9:37
+période de solde idem pour le Black Friday et cetera que il y a vraiment des grosses périodes sur lesquelles les
+9:43
+ventes et le taux de conversion augmentent ça va être le premier jour des soldes on a un deuxième pic le premier samedi des soldes et les deux
+9:49
+derniers jours de ces soldes là donc ce qu'on a construit avec ce client- là c'est vraiment un plan d'investissement beaucoup plus élevé et lui avait plus
+9:56
+l'habitude de faire des investissements linéaires sur les soldes et qu on a travaillé ensemble on a investi le
+10:01
+premier jour 35 % de son budget global de la période vraiment le premier jour ce qui a permis de toucher un maximum de
+10:08
+monde d'avoir des performances vraiment excellentes sur ces soldesl et pendant le milieu des soldes d'avoir un
+10:13
+investissement plus faible de continuer à nourrir notre FUNEL pour préparer encore mieux la fin des soldes qui est
+10:19
+aussi le dernier temps fort où on a plus de Fomo donc la peur de passer à côté et du coup les gens ont beaucoup plus
+10:25
+converti on a eu un deuxième pic de vente qui a été pratiquement aussi fort que le premier jour ce dernier jour des
+10:31
+soldes parce qu'on a vraiment tout travaillé pendant toute la durée des soldes le point le plus important selon moi dans cette partie c'est que la pub
+10:37
+sert à accompagner la demande en interne pour illustrer cette idée on utilise souvent la même métaphore c'est qu'un voyage va beaucoup plus vite quand vous
+10:42
+êtes concentré sur Ouvrir une grande voile quand il y avait du vent plutôt que d'essayer de ramer plus vite quand la mer était calme le travail d'un bon médiabilleur c'est d'identifier dès le
+10:48
+début de l'année les moments où le vent va souffler via des saisonnalités extrinsec comme Noël ou les solldes et des saéiseaux intrinsèques comme des
+10:54
+moments où vous lancez des nouveaux produits la meilleure façon de comprendre ça de façon pratique c'est de regarder la gestion d'un Q4 j'ai fait une vidéo dédiée sur le sujet qui va
+11:00
+s'afficher ici elle vous expliquera comment utiliser chacun des canaux au bon moment quand vous préparez une période forte et vous pouvez réappliquer
+11:05
+ces logiqu pour n'importe quel type de saisonalité maintenant zoomons sur un cas pratique du marketing digital celui du plafond de
+Briser le plafond de verre
+11:14
+verre c'est ça c'est une problématique qui existe depuis très longtemps que ça fait longtemps que beaucoup de gens se posent la question savoir est-ce que
+11:19
+quand je suis sur mestage je suis pas en train de tourner en rond sur les mêmes audiences et ça en fait un truc que je recommande très souvent à des clients à
+11:25
+des prospects de regarder pour en fait justement bah avoir une meilleure vision sur est-ce que je tourne sur les mêmes ou pas c'est trois métriques bon les
+11:31
+impressions ça c'est assez basique le rich donc le rich bah en fait c'est le nombre de personnes uniques touché et en fait si vous voulez quand même qu'il y
+11:37
+ait une certaine cohérence entre bah votre investissement et le nombre de personnes uniques que vous avez touché
+11:43
+donc ça nous on le mesure avec un indicateur qui s'appelle le cpmu donc le coût pour 1000 impressions uniqu donc le
+11:48
+coût pour montrer 1000 fois la pub à des personnes uniques donc on compte pas les les doublons ça c'est très intéressant
+11:53
+pour bah diagnostiquer des cas où on investit beaucoup plus mais en fait on touche pas plus de personnes ce qui fait
+11:59
+fait qu'en fait on va voir le coup le cpmu qui va en fait Sky rocketter donc ça c'est une très bonne métrique à
+12:04
+mesurer pourah vérifier qu'on est pas en train de tourner en rond sur les mêmes audien et après un autre truc qui est encore intéressant qui touche au rich
+12:10
+c'est ce qu'on appelle le rich incrémental donc le rich incrémental c'est simplement de regarder bah je regarde du semestre semestre 1 2023 je
+12:17
+regarde combien de personnes j'ai touché ensuite je regarde le semestre 1 au semestre 2 enfin les deux semestres de
+12:22
+l'année je regarde combien de personnes j'ai touché au total sur toute la période et ensuite bah je retranche le nombre de personnes que j'avais déjà
+12:28
+touché au sem 1 au total que j'ai touché sur les deux semestres et ça ça me permet de savoir combien de personnes en plus je suis allé toucher sur le deuxème
+12:34
+semestre donc ça c'est le rich incrémental on peut le faire par semestre par mois par semaine comme on veut mais ça en fait c'est très utile
+12:39
+pour s'assurer que bah on continue de trouver des nouvelles personnes quand on fait quand on diffuse nos pubs sur les
+12:44
+réseaux invversement si en fait le rich incrémental il devient très très faible c'est plutôt mauvais signe parce que ça veut dire qu'on continue de tourner sur
+12:50
+les mêmes personnes sur Sonologie un client qui fait des panneaux solaires Plug and Play qui était un des premiers à se lancer on a vraiment senti la
+12:56
+montée en puissance de la concurrence donc au fur à mesure de la collab on a dû vraiment asseoir notre image de marque en s'appuyant sur des campagnes
+13:03
+plus haut de FUNEL sur MTA principalement mais également sur Google donc sur MTA on a mis en place des campagnes de couverture des campagnes de
+13:09
+vue de vidéo pour vraiment alimenter notre haut de funnel et continuer à ce que les gens voient Sonologie et quand
+13:15
+ils pensent panneau solaire il pensent Sonologie ce qui est hyper important parce que c'est une décision qui est assez longue et s'il pensent panneau
+13:21
+solaire il penseent Sonologie c'est une victoire pour nous et ça sera plus simple de les convertir au moment où eux seront prêts à passer à l'achat donc si
+13:28
+j'ai un compte conseil c'est de pas oublier de nourrir votre haut de FUNEL sinon vous allez finir par tourner en
+13:33
+rond sur votre bas de FUNEL sur votre audience la plus chaude et votre business ne va jamais scaler parce que vous allez tourner sur la même audience
+13:40
+donc investissez bien sur le milieu et le haut de funnel pour continuer à alimenter toute votre bassin d'audience
+13:45
+et vous permettre de scaler au fur et à mesure en d'autres mots la plupart des plafonds de verre s'expliqu par le fait que les annonceurs veulent être trop
+13:51
+hroïes ils préfèrent tourner en rond avec des campagnes de conversion qui ne touchent plus de nouvelles personnes plutôt que d'activer des campagnes de considération dont ils ont peur que ça
+13:57
+dégrade la rentabilité de le investissement bon en fait si on veut être rigoureux c'est pas exactement ça il y a deux autres types de plateaux un peu plus précis j'en parle dans cette
+14:03
+vidéo là vous pouvez aller la regarder si vous voulez je vous parle du cas précis des annonceurs troperis parce que c'est celui qu'on voit le plus souvent en gros les petites marques adorent se
+14:09
+[ __ ] de la gueule des grosses en voyant les montants qu'elle dépense dans des campagnes de branding sauf que malheureusement c'est une étape nécessaire quand on accueillli toutes
+14:15
+les conversions faciles et si vous le faites bien vous pouvez totalement garder un CA stable maintenant on va faire un zoom sur les deux Régis principales de l'acquisition en ligne
+14:20
+Google et meta sur lesquels il y aura à chaque fois trois
+Comprendre Google Ads
+14:25
+points ce qu'on recherche avant tout quand on fait de la pub sur Google c'est un al des intérêts intérêt de l'annonceur évidemment intérêt de Google
+14:32
+et intérêt de l'utilisateur final si l'utilisateur final trouve ce qu'il veut et ben Google est content il a ce qu'il veut et si Google a ce qu'il veut et ben
+14:39
+il donne à l'annonceur ce qu'il veut c'est-à-dire des clics pas cher et donc en fait ça ça se manifeste très bien par la logique de quality score niveau de
+14:45
+qualité en français qui est en fait une note sur 10 qui est donné à des mots clés dans des ensembles de dans des groupes d'éléments qui en fait mesur
+14:51
+justement la qualité du match entre la requête de l'utilisateur et à la fois ce qu' va trouver une fois qu'il sera sur
+14:57
+le site web et c'est pour ça qu'en fait il faut vraiment chercher à bah justement aligner les intérêts et donner à l'utilisateur final ce qu'il a envie
+15:04
+de trouver quand il une recherche faut essayer de coller à les intentions de recherche quand on fait de la pub sur Google et c'est ça qui à la fin amène à
+15:09
+une vraie baisse des coûts par clic parce qu'en fait il y a une formule qu'on qui est souvent partagée qui est
+15:15
+coup par clic égal ad rank donc en gros tout ce qui va être lié à votre votre enchère divisé par le Quality Score ce
+15:21
+qui veut dire que plus votre quality score il est élevé plus vous allez diminuer votre coup par clic et plus en plus vous allez être compétitif face aux
+15:27
+autres annonceurs ça rejoint la stratégie au global de metads à savoir l'intelligence artificielle être moins
+15:33
+dans le micro dans les mots clés en expression exacte et en requête exact prendre de la hauteur laisser
+15:38
+l'algorithme déterminer de manière la plus optimale possible les requêtes sur lesquelles on peut se placer évidemment
+15:45
+à prendre en compte en fonction du secteur d'activité mais ça c'est le premier point et ça permettra ensuite de
+15:50
+personnaliser les messages de faire des AB tests sur les offres sur le site et de prendre la hauteur sur le FUNEL le
+15:56
+meilleur conseil sur Google Ads c'est lancer tester une DSA donc le principe
+16:01
+de la DSA c'est de donner la liberté en gros à l'algorithme de choisir les requêes sur lesquel il va se placer en
+16:07
+fonction des landing Pag de votre site donc de toutes les pages du site cette campagne là elle va permettre donc bien
+16:13
+maintenu parce qu'il y a beaucoup d'exclusion à faire surtout au départ mais en tout cas bien maintenu cette campagne elle va permettre de mettre en
+16:19
+lumière certaines requettes déjà sur lesquelles on pense pas forcément que c'est pertinent de de se positionner et
+16:26
+surtout les landing Pag de notre site qui sont finalement pertinente et qui convertissent c'est notamment souvent le
+16:31
+cas quand il y a un blog qui est bien fourni où en fait on arrive finalement à voir que on convertit sur des articles
+16:37
+de blog via la DSA ce que je fais quand j' dite un compte Google c'est que je vais regarder les mots-clés qui ont fait par exemple plus de 100 impressions et
+16:43
+qui ont fait moins de une conversion donc généralement c'est des mots- clés sur lesquels en fait tu t'aperçois que tu dépenses énormément tu imprimes
+16:49
+beaucoup donc tu ça te coûte très cher tu fais pas de conversion donc c'est des mots clés inutile donc il y a un mauvais tri des mots clés une erreur fréquente
+16:56
+sur Google Ads c'est de cibler une zone géographique en présence ou intérêt donc
+17:01
+ce qu'on recommande c'est de toujours cocher la petite case juste présence et pas présence ou intérêt parce que si on
+17:07
+coche présence ou intérêt on va cibler des personnes qui font des recherches sur la France alors qu'en fait elles sont totalement dans d'autres pays et
+17:14
+qui du coup ne sont pas dans la zone de chalandis d'une marque française qui vend qu'en France par exemple donc encore une fois ça dépend forcément du
+17:20
+business mais globalement il faut toujours veiller à ce que la bonne option soit cochée présence ou intérêt
+17:26
+ou présence et la plupart du temps la plus pertinente c'est vraiment présence parce qu'on veut cibler que les personnes qui sont présentes sur le
+17:32
+territoire où on vend donc dans la zone de
+Google : Exclusion de marque
+17:38
+chalandi le classique de Google c'est se positionner sur les requettes de marque vous avez une marque de vêtements si vous achetez le mot clé de votre marque
+17:44
+bah oui vous allezt rentable mais c'est pas l'objectif de Google Ads le but c'est de d'aller chercher des roquettes de personnes qui avaient pas prévu d'acheter chez vous et une erreur
+17:50
+fréquente qu'on voit sur beaucoup de comptes Google qui était aussi le cas sur Sonologie en fait généralement sur votre compte vous allez avoir une
+17:55
+campagne marque pour vraiment défendre votre nom de marque et pouvoir passer d'autres messages grâce à la publicité
+18:00
+plutôt que votre référencement naturel mais votre campagne d'acquisition vous voulez qu'elle aille chercher vraiment des nouveaux clients sans vous baser sur
+18:05
+votre mon de marque donc erreur à ne pas faire c'est de ne pas exclure votre nom de marque de vos campagnes d'acquisition globale et ça c'est quelque chose qui
+18:11
+existe depuis longtemps mais qui a un peu connu une deuxième vie une renaissance avec les campagnes Pmax
+18:17
+puisque ça nous arrive encore souvent sur Pmax donc qui qui regroupe pas mal de d'inventaires différents de retrouver
+18:23
+hein quand on va dans quand on dans les insights de termes de recherche de regarder et de voir qu'en fait la majorité des clic acheter et des
+18:29
+conversions aussi enfin je dis la majorité mais parfois c'est l'exclusivité des conversions viennent en fait de des motsclés de marque donc
+18:36
+c'est quelque chose qui qui commençait à être un petit peu vu et revu sur la partie search mais en fait ça continue d'être quelque chose qui existe beaucoup
+18:43
+sur la partie Pmax et nous on a vu beaucoup de de marques arrivé chez nous dépenser énormément en Pmax sur des positionnements de marqu bah forcément
+18:49
+c'est un truc qu'on qu'on corrige très vite il faut accepter en fait la difficulté avoir des bons CPA quand on
+18:54
+va aller sur des requettes plus génériques beaucoup moins bas de fenelle il faut accepter cette difficulté là parce que c'est ça qui fait de la
+18:59
+croissance pour le client donc ça nous donne des moins bons chiffres à réporter au clients et on lui explique et après quand il voit ces chiffres augmenter bah
+19:05
+là forcément ça va mieux un quelque chose sur sur Google
+Google : Soigner son flux produit
+19:11
+qui est souvent négligé par les annonceurs c'est la qualité de leur catalogue produits c'est-à-dire que il y a énormément d'annonceurs qui se
+19:16
+contentent en gros de d'installer une application qui fait un flux shopping et puis lance le campagne Google Ads et ça s'arrête là en réalité c'est hyper
+19:22
+important de travailler son flu travailler le nom des produits les images la description et cetera parce que c'est ce qui fait que vous allez ressortir au bon endroit devant les
+19:28
+bonnes personnes donne un exemple que j'ai vu là sur un sur un client concret par exemple on a mis les avis clients sous donc sous les fiches shopping
+19:34
+c'estàd que c'est pas là par défaut il faut l'activer il y a aussi des conditions genre faut avoir 50 50 notes par produit et cetera mais ça c'est
+19:39
+assez game changer notamment au niveau du CTR là j'ai fait l'exemple sur un client qui ne l'avait pas on l'espace de une semaine sur du shopping il est passé
+19:45
+de 1,5 à 2,7 % de CTR juste avec ce changement là quand tu analyses concrètement le compte à proprement
+19:50
+parler dans les campagnes tu as des bah tous les produits qui sont forcément dans les flux et tu as certains produits
+19:55
+qui fonctionnent beaucoup mieux que d'autres et pour autant la dépense n'est pas alloué sur ses produits et focalisé sur ses produits et c'est la raison pour
+20:02
+laquelle il y a aussi un travail à faire et une analyse à faire dans le flux produit juste au-delà de l'optimisation
+20:07
+à proprement parler de se dire quels sont les produits qui sont rentables quels sont les produits qui nous coûtent de l'argent et qui aujourd'hui ne ne
+20:13
+permettent pas de convertir au-delà en fait du ciblage avec de la liberté entre guillemets pour l'algorithme il y a
+20:19
+quand même un besoin de personnaliser et c'est pour ça que chez couac on personnalise les catalogues dynamiques
+20:25
+avec chanable avec les flux pour personnaliser les produits qui sont poussés les catégories de produits les
+20:31
+produits que ce soit en terme de stock marge plusvalue capacité et scaling tout simplement parce que c'est là-dessus que
+20:38
+on a moyen en fait de d'affiner au mieux le message marketing au-delà du ciblage préc voilà donc sur Google on aurait
+20:43
+vraiment pu partir sur un niveau de complexité plus important on le fera peut-être plus tard mais ce que vous venez de voir ce sont les erreurs qu'on voit vraiment le plus souvent chez des
+20:49
+annonceurs qui sont même très matures ils comprennent pas que Google est plus fort queeux à condition de lui donner les bons éléments comme entre autres un
+20:54
+bon flux produit et un médiabilleur qui vient corriger les erreurs comme par exemple le fait de ne pas exclure sa marque pour le F produit vous avez peut-être entendu mentionner chanable
+21:00
+c'est l'outil qu'on utilise chez kudac ça permet de faire des trucs assez cool comme le regroupement des produits selon leur performance en automatique je vous mets le lien dans la description si vous
+21:06
+voulez en profiter maintenant on passe à méta une erreur qu'on va souvent
+Meta : Structure & ciblage
+21:13
+remarquer quand on audit des comptes méta c'est de faire des tests dans beaucoup de campagnes différentes avec une structure qui est pas du tout claire
+21:20
+et du coup pour l'analyse la lecture des résultats et le scaling derrière c'est très compliqué donc ce que je vous
+21:25
+conseille c'est d'avoir vraiment une structure de compte claire de faire vos tests dans une campagne soit dédiée soit
+21:31
+dans votre campagne principale parce que l'algo va avoir vraiment un apprentissage au niveau de la campagne au niveau du ciblage si vous utilisez
+21:37
+les ciblages et pas les ciblages advantage plus qui sont vraiment le ciblage global donc vraiment de faire vos tests à un seul endroit pour que
+21:43
+l'algo puisse continuer à prendre au fur et à mesure de tous vos tests et mieux s'optimiser par la suite sur la partie
+21:49
+e-commerce que je conseillerais vraiment c'est d'arrêter tout ce qui est ciblage target vraiment target de de ciblage
+21:56
+bien précis vraiment aller sur du très large et aller tout ce qui est catalogue produit notamment avec l'utilisation de
+22:01
+chainable qui peut te permettre vraiment de maximiser tes performances là-dessus et tout ce qui est ciblage laser les intérêts et Cera personnellement je ne
+22:07
+fais plus du tout ça peut donner l'impression que du coup il y a plus grand chose à faire dans le BM bah tout le travail aussi d'un performance manager c'est de comprendre que c'est
+22:12
+pas juste toucher des boutons dans un dans un business manager c'est aussi de prendre de la hauteur de penser à d'autres choses de travailler des
+22:17
+landing page de travailler des offres de dépenser au bon moment et cetera et même d'aller tester tout ce qui est instante expérience c'est les formats un petit
+22:24
+peu plus dynamiques de méta permettent vraiment d'avoir une sorte de landing page sans quitter la plateforme MTA et généralement tes t de conversion sont
+22:29
+beaucoup plus importants là-dessus quoi toujours tester sur n'importe quel compte la campagne c'est une campagne qui est vraiment
+22:35
+nourrie par l'intelligence artificielle donc on laisse en fait l'algorithme et l'intelligence artificielle décider du
+22:42
+ciblage de la campagne et en général ça fonctionne très très bien sur les comptes mais de laisser finalement Brod comme on dit donc un ciblage large et de
+22:49
+laisser l'algorithme lui-même apprendre et décider à qui va diffuser les ADS sur un client en génération de Lead B2C on a
+22:56
+mis en place une structure de test créa un peu spécial on va dire qui respecte pas en tout cas les guidelines de MTA en
+23:04
+général qui est de d'avoir les apprentissages vraiment dans une campagne dans un adset de mettre toutes les créas à ce moment-là moi j'avais la
+23:10
+problématique de vouloir dépenser un peu sur toutes les créas pour vraiment avoir l'apprentissage de toutes les créas
+23:15
+est-ce qu'elle marchait vraiment bien avec un budget dépensé donc ce que j'ai mis en place c'est une campagne en Ibo
+23:20
+donc où le budget est optimisé au niveau du ciblage mon ciblage est resté large mais à dans chaque ciblage donc dans
+23:26
+chaque Brad j'avais une seule créa sur lequel je mettais un budget pour pouvoir la tester et si cette créa marchait bien
+23:32
+j'augmentais le budget jusqu'à ce qu'elle performe un peu moins bien si elle marchait pas du coup je pouvais
+23:37
+réduire le budget jusqu'à couper la créa mais ce que je faisais j'avais aussi une campagne principale dès qu'une créa marchait bien j'allais la placer dans ma
+23:43
+campagne principale ce qui me permettait d'avoir une campagne vraiment fil rouge et qui me permettait vraiment d'avoir une dépense constante voire en
+23:51
+augmentation suivant les performance et d'y ajouter une campagne un peu de testing et de scaling en même temps qui
+23:57
+a permis de passer une étape supplémentaire sur ce compte- là et cette technique était couplée avec le
+24:02
+CPL cible que j'aiimplémenté directement dans le business manager pour un peu
+24:07
+contraindre l'algo à nos objectifs et qu'il puisse dépenser uniquement si sa qu'il allait atteindre ces objectifs là
+24:14
+et ça a vraiment permis de stabiliser le CPL sur ce compte là donc si vous avez l'occasion de tester le CPL cible ou le
+24:20
+CPA cible si vous êtes plus sur la partie e-commerce je vous le [Musique]
+Meta : New clients, retargeting & exclusions
+24:26
+conseille pas beaucoup beaucoup de erreur celle que je vois le plus souvent c'est les exclusions qui sont pas faites ou alors tous les ciblages qui sont
+24:32
+regroupés entre eux ça veut dire qu'il va y avoir des gens qui vont ajouter du look like du visiteur des interactions
+24:38
+Facebook Instagram tout ça qui est regroupé dans la même audience sauf que le problème avec ça c'est que si un jour ton audience vient plus fonctionner bah
+24:43
+en fait tu as plus savoir si c'est ton look like si c'est ton interaction Instagram ou c'est tes visiteurs du site qui fait que Ben la balance penche en en
+24:50
+négatif quoi donc ça c'est vraiment une des erreurs très fréquente qu'on voit sur les compes bah après il y a tous ceux qui font pas d'exclusion et du coup
+24:56
+bah maintenant avec toutes les campagnes AC tu peux voir ben quel quel pourcentage du budget est poussé sur les
+25:01
+clients existants donc sur ta base de données actuell et le problème c'est que du coup il y a très peu de clients qui font des exclusions et en fait tu te
+25:06
+rends compte quand tu regardes ce détail de segment d'audience que Ben la majorité de ton budget donc généralement c'est entre 70 et 80 % du budget il part
+25:13
+sur une clientèle existante qui va te coûter sur MTA beaucoup plus cher que si tu faisais juste simplement des campagnesemailing sur cette base de
+25:19
+données là quoi une autre erreur fréquente notamment sur MTA c'est des campagnes d'acquisition donc qui sont
+25:25
+faites pour acquérir des nouveaux clients qui n'exclu pas la base de donner des clients existants et le problème de pas avoir d'exclusion c'est
+25:31
+que on se rend compte que tout ce qui est mis en place et tous les clients qu'on qu'on arrive à atteindre ne sont
+25:37
+que les clients existants et pas de nouveaux clients il faut surtout bien exclure la base de données clients et
+25:43
+les clients existants des campagnes d'acquisition parce que ces personnesl vont être des personnes bah forcément beaucoup plus faciles à faire
+25:49
+reconvertir donc à racheter et c'est des personnes qui vont pouvoir être ciblé dans des campagnes qui sont vraiment
+25:55
+dédié à à ça sur lequel il y a un budget spécifique qui a alloué en fait si on bride pas l'algorithme enfin si on lui donne pas des consignes au niveau des
+26:02
+audiences ce que MTA va faire c'est qu'il va faire au plus simple donc il va souvent montrer des ADS à vos clients existant alors ça n pas vraiment de sens
+26:07
+parce que du coup vous payez pour des gens qui vous connaissent déjà qui ont déjà acheté chez vous et ça coûte cher il y a d'autres façons plus faciles de
+26:13
+les contacter c'est-à-dire faire du SMS envoyer un email ce qu'on devrait faire de façon générale en agence c'est faire de l'acquisition client pour la croissance de nos
+Meta : Stratégie créative
+26:22
+clients je pense qu'on y gagnerait à se concentrer encore plus que ce qu'on était en 2024 sur le scroll ser et le
+26:29
+holdrate la capacité réellement à attirer l'attention dès les trois premières secondes et à maintenir ça à
+26:35
+plus de 15 secondes tout simplement parce que on se rend compte en analysant tous les comptes et les dizaines de
+26:40
+millions d'investissements que les annonceurs qui arrivent à capter la tenention et à la retenir sont aussi de
+26:45
+manière corrélée les annonceurs qui arrivent à faire le plus convertir via leur créant si j'ai un conseil à vous donner sur ma c'est de tester un maximum
+26:52
+de choses principalement au niveau des créas de pouvoir avoir un volume de créat à tester au fur et à mesure donc
+26:58
+ça c'est le cas sur Google sur TikTok sur Pinterest sur snapchat Tester vraiment un volume de créa assez
+27:03
+conséquent et faire des petites variantes changer le hook donc les trois premières secondes de votre vidéo pour tester une accroche différente même si
+27:09
+le corps après de la vidéo reste la même mais pour pouvoir augmenter un peu le nombre de personnes qui vont s'arrêter sur votre vidéo et si votre message
+27:15
+après est percutant et ben pouvoir améliorer toutes les performances de vos publicités et donc infin avoir un chit
+27:22
+d'affaires qui va être grandissant et un autre conseil c'est de pas se fermer au guideline Facebook et de suivre uniquement ça par exemple ce que j'aime
+27:28
+bien mettre en place sur les clients moi c'est une campagne de testing avec une créa par adset donc une créa par Brad à
+27:35
+chaque fois et ça c'est vraiment le contraire de ce que recommande Facebook sauf que moi sur plusieurs comptes ça m'a permis de vraiment tester un volume
+27:41
+de créa plus conséquent de scaler les budgets sur les créas qui marcha bien et du coup de scaler le compte et les
+27:46
+performances au global de cette annonceur là au niveau des landing page on a essayé plusieurs landing page et
+27:52
+essayer d'avoir aussi une cohérence enfin avec la CREA et à la fois la
+27:58
+landing page donc par exemple on allait mettre en avant une créa où on faisait un comparatif entre deux produits et
+28:03
+ensuite dans la landing page on allait reparler de ça exactement le comparatif mais de manière plus poussée et en
+28:09
+faisant ça cette cohérence à la fois avec la landing page et à la fois avec la publicité on a réussi a à avoir des
+28:15
+bien meilleurs résultats donc à baisser le CPA sur nos campagnes publicitaires une des actions les plus game changers
+28:21
+qu'on a mis en place nous sur un des clients que j'avais en coaching c'était un client qui faisait du lead en local
+28:26
+et ce qu'on a mis en place c'est qu'on a commencé a vraiment spécifier à chaque fois le nom de la ville à l'intérieur de
+28:31
+la créa et faire un split par à chaque fois le pays ou la ville sur laquelle on
+28:36
+allait cibler par exemple on allait dire ce service dans cette ville et on mettait à la fois un ciblage sur la
+28:42
+ville et à la fois un ciblage dans la créa donc on mettait soit le le panneau de la ville soit le directement le nom
+28:47
+de la ville et avec ça on avait eu des très bons résultats au niveau des CPA je crois qu'on avait presque divisé par deux les CPA grâce à cette méthode la
+28:54
+créas ça peut être testé aussi avec TikTok et Instagram reels l'idée c'est de d'aller tester tous les formats qu'on
+29:00
+pourrait mettre en format publicitaire directement en organique et les formats qui fonctionnent le mieux sont souvent des formats qui vont générer de la
+29:06
+performance sur les publicités méta et même Google si vous faites du YouTube short donc c'est toujours intéressant
+29:12
+d'aller tester tous ces contenus organanique pour ensuite les déployer ce qui fonctionne le mieux en ADS alors vous aurez compris sur ma l'approche est
+29:19
+pas si différente de celle de Google l'algo optimise et le médiabyer corrige la seule grosse différence c'est la CRÉ
+29:24
+qui nécessite un peu de réflexion si vous voulez rentrer plus en détail sur le sujet on a Melina notre créatif qui a fait une masterclass sur le sujet vous
+29:29
+pourrez me retrouver aussi en introduction comme ça vous serez pas perdu elle est disponible là on passe à une partie extrêmement importante en acquisition c'est le
+Le tracking
+29:39
+tracking quelque chose qui est important mais ça on le dit assez mais j'insiste parce qu'en plus c'est une partie de mon métier c'est vraiment la partie tracking
+29:45
+aujourd'hui c'est de plus en plus dur d'avoir des données de qualité or en fait ces données de qualité c'est celles qui vont driver finalement toutes vos
+29:50
+performances à venir parce que quand vous recevez en gros entre 90 et 100 % de vos événements vous êtes capable d'attribuer aux bonnes pub et cetera au
+29:57
+bon format ce qui se passe vraiment en terme de perf et surtout ces datas là vont servir aussi pour finalement alimenter les algorithmes sur d'autres
+30:03
+choses donc je donne un exemple concret si vous avez par exemple un objectif d'achat on va dire pour un e-commerçant donc vous avez une note sur le
+30:08
+gestionnaire d'événements de méta qui est associé plus vousz vous allez envoyer d'infos utilisateur c'est-à-dire le nom le prénom l'email le téléphone et
+30:13
+cetera plus la note de l'événement va augmenter et donc plus facilement Facebook va réussir à trouver des
+30:19
+clients qui ressemblent à ces gens-l et cetera et donc plus les potentiels audience de look like qu'on va faire à côté vont être pertinentes donc c'est
+30:25
+hyper important d'avoir de la data de qualité pour pouvoir en tirer des ça a été surtout pour pouvoir SCER des comptes sur learning libre qui est une
+30:30
+entreprise qui fait de la formation pour les professionnels de santé on avait un problème c'était de savoir de quelle filière on vendait les formations et du
+30:37
+coup ce qu'on a mis en place grâce au tracking c'est un paramètre d'événement personnalisé qui moi m'a permis après
+30:42
+dans le business manager de créer des conversion personnalisé et pouvoir utiliser ces conversions personnalisées
+30:47
+pour optimiser mes campagnes et surtout en lecture des campagnes pour savoir quelle campagne générer quel type
+30:53
+d'achat en tout cas sur quelle filière des achats et du coup ça a vraiment changé le pilotage du compte parce qu'on
+30:58
+a remarqué que certaines campagnes qui étaient sur une typologie par exemple dentaire allaient faire aussi des ventes
+31:05
+sur d'autres filières par exemple kiné et du coup le pilotage a été beaucoup plus simple et ce que j'ai fait ensuite
+31:11
+j'ai optimisé l'algo sur les événements d'achat dentaire pour les campagnes dentaires et du coup l'algo s'est
+31:17
+optimisé au fur et à mesure des mois sur cet événement là et fait pratiquement plus que des achats dentaire et idem
+31:22
+pour les autres filières avec leur événement dédiés par filière ce qui peut être game changer sur un client c'est euh bah la refonde du tracking avec du
+31:29
+coup un setup qui serait serve side par exemple sur pomol donc c'est une marque de compléments alimentaes et de
+31:35
+cosmétiques c'est un tout nouveau site web et un nouveau tracking qui a été mis en place donc un setup Server site comme
+31:41
+je disais avant et on l'a tout de suite remarqué d'un mois à l'autre en fait à partir de la mise en ligne du nouveau site et du tracking bien sûr on a tout
+31:47
+de suite vu bah que les algorithmes apprennent plus vite qu'on arrive à mieux performer sur les campagnes
+31:52
+notamment qui s'optimise avec lia notamment par exemple la SC plus sur MTA et donc on voit c'est game changer et
+31:58
+que le taux de conversion augmente largement au cas où vous auriez pas bien compris ce qu'est le tracking server side je vous explique en fait par défaut
+32:04
+votre tracking s'enclenche sur le navigateur des utilisateurs via le cookie de navigation sauf que sur internet il y a plein de technologies
+32:09
+comme les AD blockers ou l'ITP qui empêche de récolter cette donnée et de l'envoyer à ma pour que les algorithme s'optimise avec GTM server side vous
+32:15
+pouvez contourner ces restrictions en possédant votre propre serveur de tracking ce qui permet d'augmenter le nombre d'événements tracés et donc de
+32:20
+donner plus de nourriture aux algorithme attention c'est pas comme l'API de conversion c'est une autre façon spécifique de paramétrer la remontée des
+32:26
+événements c'est un standard de marché et pourtant il y a que 15 % des annonceurs qui sont équipés de cette technologie c'est un service qu'on propose d'ailleurs chez kudac et si ça
+32:31
+t'intéresse tu peux te rendre sur le lien en description tu pourras discuter avec quelqu'un de l'équipe de Jules que tu as déjà vu dans cette vidéo qui te fera un audit de ta situation tracking
+32:37
+maintenant on va passer à des conseils un peu plus high level une de nos marques de Fabri chez kudac c'est d'essayer de constamment avoir le plus de hauteur de vue possible sur la
+32:43
+machine d'acquisition de nos clients et donc d'identifier les cas où ce sont des facteurs extra publicitaires qui limitent le scaling d'une machine
+L'optimisation full funnel
+32:52
+d'acquisition le meilleur conseil méta que je trouve pertinent en 2024 par rapport à l'évolution de metads ça
+32:59
+serait d'analyser et d'optimiser les campagnes avec l'équation de croissance dans e-commerce à savoir combien on fait
+33:05
+venir de personnes sur un site combien en pourcentage il y en a qui convertissent à quel panier moyen et surtout est-ce qu'il reviennent et en
+33:10
+ayant cette approche et ce Fenel très complet on peut comprendre avec les différentes étapes du funnel là où il
+33:15
+faut qu'on progresse là où il y a des axes d'amélioration en prenant de la hauteur et en optimisant chaque étape du funnel que ce soit avec la donnée
+33:22
+plateforme mais aussi la donnée du site que ce soit du G4 ou avec la donnée très cro et optimisation AAB test au sein du
+33:30
+site et sur certains clients e-commerce nous chez kudac on a quand même un côté aussi de conseiller donc du coup on va
+33:37
+regarder un petit peu le site internet les taux de conversion moi ce que je fais beaucoup avec mes clients c'est que j'installe odjar ou Microsoft clarity et
+33:42
+je regarder comment est le parcours utilisateur à quel moment il y a un problème et à partir de ce moment-là on prend des décisions on met en place des
+33:48
+recommandations ux qui va nous permettre d'améliorer ce parcours utilisateur et donc le taux de conversion concernant Google Ads ça rejoint la stratégie au
+33:55
+global de metaads savoir l'intelligence artificielle être moins dans le micro dans les mots clés en expression exacte
+34:02
+et en requête exacte prendre de la hauteur laisser l'algorithme déterminer de manière la plus optimale possible les
+34:08
+requêtes sur lesquelles on peut se placer à prendre en compte en fonction du secteur d'activité c'est pas une généralité mais ça c'est le premier
+34:14
+point et ça permettra ensuite de personnaliser les messages de faire des AB tests sur les offres sur le site et
+34:20
+de prendre la hauteur sur le FUNEL ce qui a aussi d'important c'est réfléchir à comment on a l'opportunité d'augmenter
+34:27
+le panier moyen c'est ça aussi qui va nous permettre de générer de la croissance Infiné j'ai un exemple tout bête ou sur un de de mes clients en plus
+34:34
+de tout ce qu'on a fait en stratégie d'acquisition payante sur chacune des régies on a fait des optimisations sur
+34:39
+le site on a mis de petites choses en place simplement pour inciter à avoir un panier moyen un peu plus élevé et ça a
+34:44
+changé et fait toute la différence parce que la stratégie d'acquisition venait prendre le relais avec les actions qu'on
+34:50
+qu'on a mis et donc c'est la raison pour laquelle la croissance est devenue encore plus importante à ce moment-là
+34:55
+donc je dirais que c'est bien de penser à l'acquisition nouveau clients c'est bien de penser à sa stratégie payante
+35:00
+mais il y a aussi tout ce qu' a autour et bah chez kouak on est là pour ça de travailler 360 sur la stratégie Grof
+35:06
+c'est bien de le faire en main dans la main avec les clients et c'est comme ça que on arrive à faire des actions game changer comme celle-ci quoi maintenant
+35:12
+on va faire un focus particulier sur les business qui vivent de la génération de
+Après le lead
+35:18
+lead on dit souvent que le travail des agences c'est de ramener des leades et que ça s'arrête là or moi je pense que c'est faux c'est-à-dire que il faut
+35:24
+travailler la qualité des lead et surtout il faut se mettre d'accord avec le client prendre comment les prospects sont rappelés à quel timing et cetera
+35:30
+pour donner un chiffre concret il y a des études qui ont montré l'impact de la rapidité du traitement du lead qui a un gros impact sur la conversion finale
+35:36
+donc en fait moi ce que j'essaie de faire avec mes clients en le gen c'est surtout de briefer leurs équipes commerciales et de créer des pipes qui
+35:41
+sont cohérents pour qu'en on rappelle le plus rapidement possible les prospects avec un de mes clients lead skelo on a
+35:46
+fait un export de tous nos lead KO en gros qui va nous permettre en fait de savoir pourquoi les leades qui ont
+35:52
+converti sur MTA derrière ne sont pas des bons leads et du coup on a tout ça qui est reporté par campagne parads et qui me permet derrière de prendre des
+35:58
+décisions sur mes campagnes donc du coup j'ai beaucoup plus de visibilité par exemple si je regarde tout octobre mes k horisons et que je vois par exemple que
+36:04
+la majorité c'est cible trop jeune mais du coup c'est qu'il faut que je revoie mon ciblage sur méta et que je fasse des
+36:10
+améliorations là-dessus quoi pour la partie vraiment lad j'urit comme conseil de tester beaucoup de landing page pour
+36:15
+moi c'est ce qui marche énormément et analyser vraiment ce qui se passe une fois que le lead est passé pas juste
+36:20
+arrêter à ben j'ai fait un lad c'est bien alleer regarder derrière comment CEAD il est converti s'il devient SQL et
+36:26
+un lad derrière qui convertit ou et si c'est pas le cas pourquoi pour les prochains mois concernant metads je
+36:31
+pense qu'il y a un gros intérêt à diffuser des publicités sur metads en prenant en compte ce qui se passe en
+36:38
+dehors de la publicité et notamment avec les commerci offline exemple concrets et précis que ce soit pour de l'commerce
+36:43
+donc toutes les personnes qui voient des publicités qui se déplacent en boutique physique pour acheter les produits ou alors et c'est ce qu'on fait aussi avec
+36:49
+du B2B toutes les personnes qui rentrent dans le FUNEL qui passent via un webinaire ou via un questionnaire et qui
+36:55
+sont ensuite closés entre guillemets avec des sales dans un deuxième rendez-vous évidemment offline et la
+37:00
+grosse plusvalue selon moi qui permet d'ajouter ça sur mettaads ça serait de pouvoir avoir en fait une vision et une
+37:06
+impact concrète réelle des ADS avec la vision offline avant de passer à la partie suivante je fais un petit zoom
+37:12
+sur les conversions offline c'est l'ensemble des technologies qui permettent de reconnecter une data qui n'a pas été traquée directement en ligne
+37:17
+avec une campagne de publicité spécifique ça permet par exemple d'associer une campagne Facebook avec un lead closé et pas juste un lead généré
+37:23
+ou également de s'en servir pour réattribuer des achats en boutique à une campagne en particulier c'est une technolog teologie sur laquelle MTA investit beaucoup si vous voulez en
+37:29
+savoir plus vous pouvez aller voir le 4e chapitre de ma conférence faite récemment chez eux ça s'affichera là on vous présente aussi le taf qu'on a fait
+37:34
+sur lunett pour tous avec cette techno ça vous permettra d'y voir plus clair on passe au tout dernier chapitre de cette vidéo on va enfin arrêter de parler de méta et Google on va parler des
+TikTok & Friends
+37:44
+autres en fait pour moi ben bon c'est c'est un secret pour personne que en terme de socialad c'est vraiment méta
+37:49
+qui tros la première position de loin au niveau algorithmique et cetera enfin c'est le levier social qui est le plus facile à scyer par rapport aux autres
+37:55
+tout le monde est sur méta ou en tout cas une grande partie des gens mais il y a aussi des gens qui vont pas forcément être touchés par nos campagnes sur Instagram ou sur Facebook ce qui est
+38:01
+intéressant en fait d'aller faire du TikTok ou du snapchat par exemple c'est d'aller chercher du coup ces utilisateur que potentiellement on va pas toucher
+38:06
+sur d'autres leviers ces leviers ils ont des coups de diffusion qui sont un peu moins élevés voir beaucoup moins élevés donc là on parle de cpm en gros et donc
+38:12
+c'est intéressant d'aller lancer ces leviers là aussi pour permettre du coup d'augmenter le volume tout en tout en dépensant pas forcément beaucoup plus
+38:17
+dans le sens où des fois sur mé on se rend compte qu'il y a un plafond de vert c'estàdire que je vais pouvoir monter mon budget et cetera au bout d'un certain moment je vais monter mon budget
+38:23
+finalement mes résultats vont vraiment exploser en terme de CPA ou mon Ros va descendre on va pas satisfait des résultats et des fois ça peut valoir le
+38:29
+coup finalement de prendre une petite partie de l'enveloppe de la mettre sur d'autres régies pour essayer pour voir en gros ce que ça peut donner j'utilise
+38:34
+TikTok snap et Pinterest pour certains de mes clients je dirais que c'est des plateformes qui ont des utilisations qui
+38:40
+sont complètement distinctes dans le sens où pinterest est beaucoup plus un canal inspirationnel comme peut l'être
+38:46
+TikTok et et snap TikTok qui tend de plus en plus à être un nouveau moteur de
+38:51
+recherche sur lequel on a envie d'aller justement chercher l'information au travers de vidéos de contenu plus que
+38:57
+dans le search maintenant quand on va lire un article de blog ou qu'on va chercher du contenu donc c'est des canaux que j'utilise qui ont pour moi
+39:04
+des consommations qui sont différentes et c'est la raison pour laquelle il faut les exploiter un peu différemment notamment en terme de créa et et de
+39:10
+contenu snapchat je dirais que c'est un levier qui est quand même sousestimé tout le monde dit c'est c'est réseau de jeune fait des snaps tout ça mais en
+39:17
+fait c'est un réseau qui est tellement sous-estimé par les personnes qu'en fait ça coû pas très cher tu as pas beaucoup d'annonceur là-dessus donc c'est pour ça
+39:22
+moi je conseille vraiment au Mar de se mettre sur au moins de tester avec un petit budget snapchat et par contre ce que je conseil vraiment sur snapchat
+39:28
+c'est vraiment de faire des créat trés organiques faire comme si tu as envoyé un snap à une amie ou faire comme si vraiment toi en train de parler de ton
+39:34
+produit comme une UGC en fait quelque chose de très très organique très réel et c'est ce qui marche énormément puisque sur snapchat en fait les pubs
+39:40
+elles vont apparaître au moment où tu vas regarder tes tes stories en gros ou quand tu vas se balader sur le format un petit peu comme les formats reels sur
+39:46
+sur Instagram et du coup faut que ça aille avec ton fil d'actualité et pour que ça aille il faut que ce soit énormément organique donc ça c'est
+39:51
+vraiment le conseil que j'ai sur sur snap quoi une erreur ou en tout cas un choix que font beaucoup d'annonceurs c'est de nous donner une seule partie de
+39:57
+leur acquisition par exemple uniquement MTA ou uniquement Google alors que nous ce qu'on préfère c'est de vraiment d'avoir la vision globale sur
+40:02
+l'acquisition ce qui permet d'avoir une meilleure répartition des budgets des investissements pour encore mieux scaler
+40:09
+les comptes et investir là où c'est le mieux pour les clients si vous avez un plafond de verre et que vous dépensez uniquement sur méta il faut aussi vous
+40:16
+ouvrir aux autres plateformes et il y a beaucoup de plac à prendre je pense par exemple à TikTok sur certains clienent
+40:21
+je dépense jusqu'à 30 % de mes investissements globaux marketing sur TikTok parce que on va toucher toucher
+40:27
+une audience un peu différente mais on va s'ouvrir vraiment à une audience qu'on arriverait pas à toucher sur ma et c'est vraiment complémentaire donc faut
+40:33
+pas mettre de côté les plateformes qu'on voit un peu plus petite en tout cas qui sont pas aussi grosses que méta parce
+40:39
+que par exemple snapchat on a des très bons résultats et il y a très peu d'annonceurs qui sont vraiment dessus
+40:44
+donc si vous avez la possibilité de tester on vous le conseille vraiment et on est là pour vous accompagner dans ces tests pour aller plus loin sur ce sujet
+40:50
+je vous conseille d'aller regarder la troisème partie de ma vidéo sur TikTok ADS qui s'affichera ici parce qu' s'applique aussi très bien à Pinterest et snapchat en gros ça traite du sujet
+40:57
+de mesurer l'efficacité d'une régie annexe sur un mix marketing global parce que les comportements d'achat sont souvent assez différents voilà les potes
+Conclusion
+41:03
+cette vidéo est terminée j'espère qu'elle vous a plu vous pouvez vous abonner pour ne pas rater les prochaines et si jamais vous voulez qu'on s'occupe de tout ce que vous venez de voir pour
+41:08
+vous vous pouvez réserver un appel de découverte pour qu'on vous présente l'accompagnement couac et je laisse les performances managers en faire la publité promis je les ai pas forcé donc
+41:14
+si vous voulez qu'on pose un diagnostic sur votre stratégie d'acquisition et qu'on vous délivre le meilleur traitement pour répondre à ce diagnostic
+41:21
+et emmener votre marque encore plus loin hésitez pas à prendre un petit col avec nous et nous on regardera comment votre acquisition elle est mis en place il y a
+41:27
+des choses améliorer on vous le dira si c'est bien fait et que c'est bien géré on vous le dira aussi ça sera un plaisir en tout cas de discuter avec vous

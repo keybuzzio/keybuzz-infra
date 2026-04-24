@@ -1,0 +1,55 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: vault-token-renew
+  namespace: vault-management
+  labels:
+    app.kubernetes.io/component: vault-token-renew
+spec:
+  schedule: "0 3 * * *"          # Every day at 03:00 UTC
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 5
+  failedJobsHistoryLimit: 5
+  jobTemplate:
+    spec:
+      ttlSecondsAfterFinished: 86400  # Keep completed jobs for 24h
+      backoffLimit: 2
+      activeDeadlineSeconds: 300      # Timeout after 5 minutes
+      template:
+        metadata:
+          labels:
+            app.kubernetes.io/component: vault-token-renew
+        spec:
+          serviceAccountName: vault-token-renewer
+          restartPolicy: OnFailure
+          volumes:
+            - name: script
+              configMap:
+                name: vault-renew-script
+                defaultMode: 0755
+          containers:
+            - name: renewer
+              image: curlimages/curl:8.7.1
+              command:
+                - /bin/sh
+                - /scripts/vault-renew-tokens.sh
+              env:
+                - name: VAULT_ADDR
+                  value: "http://vault.default.svc.cluster.local:8200"
+                - name: RENEW_THRESHOLD_SECONDS
+                  value: "604800"    # 7 days
+                - name: TOKEN_PERIOD
+                  value: "768h"      # 32 days
+                - name: POLICIES
+                  value: "keybuzz-app-read,keybuzz-backend-rw"
+              volumeMounts:
+                - name: script
+                  mountPath: /scripts
+                  readOnly: true
+              resources:
+                limits:
+                  memory: "64Mi"
+                  cpu: "100m"
+                requests:
+                  memory: "32Mi"
+                  cpu: "50m"

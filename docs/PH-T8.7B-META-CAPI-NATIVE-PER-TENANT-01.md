@@ -10,15 +10,17 @@
 
 ## 1. Préflight
 
-| Élément         | Valeur                                                    |
-| --------------- | --------------------------------------------------------- |
-| Branche         | `ph147.4/source-of-truth`                                 |
-| HEAD avant      | `db14cb03` (PH-T8.7A: marketing tenant attribution)      |
-| HEAD après      | `5661e215` (PH-T8.7B: Meta CAPI native per-tenant)       |
-| Repo clean      | Oui                                                       |
-| Image DEV avant | `v3.5.97-marketing-tenant-foundation-dev`                 |
-| Image DEV après | `v3.5.98-meta-capi-native-tenant-dev`                     |
-| Image PROD      | `v3.5.95-outbound-destinations-api-prod` (non touchée)    |
+
+| Élément         | Valeur                                                 |
+| --------------- | ------------------------------------------------------ |
+| Branche         | `ph147.4/source-of-truth`                              |
+| HEAD avant      | `db14cb03` (PH-T8.7A: marketing tenant attribution)    |
+| HEAD après      | `5661e215` (PH-T8.7B: Meta CAPI native per-tenant)     |
+| Repo clean      | Oui                                                    |
+| Image DEV avant | `v3.5.97-marketing-tenant-foundation-dev`              |
+| Image DEV après | `v3.5.98-meta-capi-native-tenant-dev`                  |
+| Image PROD      | `v3.5.95-outbound-destinations-api-prod` (non touchée) |
+
 
 ---
 
@@ -26,12 +28,14 @@
 
 ### Paramètres par tenant
 
-| Paramètre            | Obligatoire ? | Stockage                              | Exposé en clair ? |
-| -------------------- | ------------- | ------------------------------------- | ------------------ |
-| `platform_pixel_id`  | **OUI**       | DB `outbound_conversion_destinations` | OUI (ID public)    |
-| `platform_token_ref` | **OUI**       | DB (même table)                       | **NON** — masqué   |
-| `platform_account_id`| Non           | DB (même table)                       | OUI                |
-| `test_event_code`    | Non (DEV)     | Body du test endpoint ou env var      | N/A                |
+
+| Paramètre             | Obligatoire ? | Stockage                              | Exposé en clair ? |
+| --------------------- | ------------- | ------------------------------------- | ----------------- |
+| `platform_pixel_id`   | **OUI**       | DB `outbound_conversion_destinations` | OUI (ID public)   |
+| `platform_token_ref`  | **OUI**       | DB (même table)                       | **NON** — masqué  |
+| `platform_account_id` | Non           | DB (même table)                       | OUI               |
+| `test_event_code`     | Non (DEV)     | Body du test endpoint ou env var      | N/A               |
+
 
 ### Prérequis pour un tenant
 
@@ -52,10 +56,12 @@
 
 ### Event Mapping
 
-| KeyBuzz Event | Meta Standard Event | Justification                                      |
-| ------------- | ------------------- | -------------------------------------------------- |
-| `StartTrial`  | `StartTrial`        | Événement standard Meta — mapping direct 1:1       |
-| `Purchase`    | `Purchase`          | Événement standard Meta — mapping direct 1:1       |
+
+| KeyBuzz Event | Meta Standard Event | Justification                                |
+| ------------- | ------------------- | -------------------------------------------- |
+| `StartTrial`  | `StartTrial`        | Événement standard Meta — mapping direct 1:1 |
+| `Purchase`    | `Purchase`          | Événement standard Meta — mapping direct 1:1 |
+
 
 **Décision** : `StartTrial` est un événement standard Meta Conversions API (pas un événement custom). Le mapping direct est retenu car il fournit la meilleure compatibilité avec les audiences Meta et les algorithmes d'optimisation. Pas besoin de `CompleteRegistration` qui serait sémantiquement moins précis.
 
@@ -78,18 +84,20 @@ customer.plan                              →  custom_data.content_name: "KeyBu
 
 ### Champs Meta servis
 
-| Champ Meta             | Source KeyBuzz            | Requis par Meta |
-| ---------------------- | ------------------------ | --------------- |
-| `event_name`           | Mapping direct           | **OUI**         |
-| `event_time`           | Conversion ISO → unix    | **OUI**         |
-| `event_id`             | ID idempotence           | **OUI**         |
-| `action_source`        | Hardcodé `website`       | **OUI**         |
-| `user_data.em`         | SHA256 email (déjà hashé)| Recommandé      |
-| `user_data.fbc`        | `signup_attribution.fbc` | Recommandé      |
-| `user_data.fbp`        | `signup_attribution.fbp` | Recommandé      |
-| `custom_data.value`    | Montant Stripe réel      | Pour Purchase   |
-| `custom_data.currency` | Devise Stripe            | Pour Purchase   |
-| `custom_data.content_name` | Plan KeyBuzz         | Optionnel       |
+
+| Champ Meta                 | Source KeyBuzz            | Requis par Meta |
+| -------------------------- | ------------------------- | --------------- |
+| `event_name`               | Mapping direct            | **OUI**         |
+| `event_time`               | Conversion ISO → unix     | **OUI**         |
+| `event_id`                 | ID idempotence            | **OUI**         |
+| `action_source`            | Hardcodé `website`        | **OUI**         |
+| `user_data.em`             | SHA256 email (déjà hashé) | Recommandé      |
+| `user_data.fbc`            | `signup_attribution.fbc`  | Recommandé      |
+| `user_data.fbp`            | `signup_attribution.fbp`  | Recommandé      |
+| `custom_data.value`        | Montant Stripe réel       | Pour Purchase   |
+| `custom_data.currency`     | Devise Stripe             | Pour Purchase   |
+| `custom_data.content_name` | Plan KeyBuzz              | Optionnel       |
+
 
 ---
 
@@ -97,18 +105,21 @@ customer.plan                              →  custom_data.content_name: "KeyBu
 
 ### Table `outbound_conversion_destinations` (colonnes ajoutées PH-T8.7A)
 
-| Colonne              | Type  | Usage Meta CAPI                         |
-| -------------------- | ----- | --------------------------------------- |
-| `destination_type`   | TEXT  | `'meta_capi'`                           |
-| `platform_pixel_id`  | TEXT  | Pixel ID Meta (ex: `1234567890123456`)  |
-| `platform_token_ref` | TEXT  | Access Token Meta (stocké, jamais clair)|
-| `platform_account_id`| TEXT  | Business Manager ID (optionnel)         |
-| `mapping_strategy`   | TEXT  | `'direct'` (par défaut)                 |
-| `endpoint_url`       | TEXT  | Auto-généré depuis pixel_id             |
+
+| Colonne               | Type | Usage Meta CAPI                          |
+| --------------------- | ---- | ---------------------------------------- |
+| `destination_type`    | TEXT | `'meta_capi'`                            |
+| `platform_pixel_id`   | TEXT | Pixel ID Meta (ex: `1234567890123456`)   |
+| `platform_token_ref`  | TEXT | Access Token Meta (stocké, jamais clair) |
+| `platform_account_id` | TEXT | Business Manager ID (optionnel)          |
+| `mapping_strategy`    | TEXT | `'direct'` (par défaut)                  |
+| `endpoint_url`        | TEXT | Auto-généré depuis pixel_id              |
+
 
 ### Endpoint URL auto-généré
 
 Pour `meta_capi`, l'endpoint est calculé automatiquement :
+
 ```
 https://graph.facebook.com/v21.0/{pixel_id}/events
 ```
@@ -177,34 +188,38 @@ Meta Conversions API supporte un `test_event_code` qui envoie les événements d
 
 ### Distinguer test vs réel
 
-| Critère             | Test              | Réel                    |
-| ------------------- | ----------------- | ----------------------- |
-| `test_event_code`   | Présent           | Absent                  |
-| Visible dans        | Test Events tab   | Overview / Activity     |
-| Affecte audiences   | Non               | Oui                     |
-| Affecte attribution | Non               | Oui                     |
+
+| Critère             | Test            | Réel                |
+| ------------------- | --------------- | ------------------- |
+| `test_event_code`   | Présent         | Absent              |
+| Visible dans        | Test Events tab | Overview / Activity |
+| Affecte audiences   | Non             | Oui                 |
+| Affecte attribution | Non             | Oui                 |
+
 
 ---
 
 ## 7. Validation DEV
 
-| #   | Cas                                       | Attendu                              | Résultat                                           |
-| --- | ----------------------------------------- | ------------------------------------ | -------------------------------------------------- |
-| T1  | Health check                              | `{"status":"ok"}`                    | ✅ OK                                               |
-| T2  | Créer destination meta_capi               | 201 + token masqué + auto URL        | ✅ `EA*...*al`, URL auto-générée                    |
-| T3  | Lister destinations — token masqué        | `platform_token_ref` jamais en clair | ✅ Masqué correctement                              |
-| T4  | Créer webhook (coexistence)               | 201 + deux types cohabitent          | ✅ OK                                               |
-| T5  | Créer meta_capi sans pixel_id             | 400                                  | ✅ HTTP 400                                         |
-| T6  | Créer webhook sans endpoint_url           | 400                                  | ✅ HTTP 400                                         |
-| T7  | Test webhook delivery (httpbin)           | HTTP 200 delivered                   | ✅ `success`, HTTP 200                              |
-| T8  | Test Meta CAPI (fake token)               | Échec avec erreur descriptive        | ✅ `"Malformed access token..."` HTTP 400           |
-| T9  | Delivery logs Meta                        | Log créé avec statut                 | ✅ 1 log `failed`, HTTP 400                         |
-| T10 | RBAC — email inconnu                      | 403                                  | ✅ HTTP 403                                         |
-| T11 | Test exclusion (ecomlg-001)               | exempt = true                        | ✅ Exemption confirmée                              |
-| T12 | Update pixel_id                           | endpoint_url auto-mis à jour         | ✅ URL mise à jour avec nouveau pixel               |
-| T13 | Vérifier URL auto-update                  | Correct URL                          | ✅ `True`                                           |
-| T14 | Non-régression logs                       | Aucun crash                          | ✅ Logs normaux, aucune erreur                      |
-| T15 | PROD inchangée                            | Même image PROD                      | ✅ `v3.5.95-outbound-destinations-api-prod`         |
+
+| #   | Cas                                | Attendu                              | Résultat                                   |
+| --- | ---------------------------------- | ------------------------------------ | ------------------------------------------ |
+| T1  | Health check                       | `{"status":"ok"}`                    | ✅ OK                                       |
+| T2  | Créer destination meta_capi        | 201 + token masqué + auto URL        | ✅ `EA*...*al`, URL auto-générée            |
+| T3  | Lister destinations — token masqué | `platform_token_ref` jamais en clair | ✅ Masqué correctement                      |
+| T4  | Créer webhook (coexistence)        | 201 + deux types cohabitent          | ✅ OK                                       |
+| T5  | Créer meta_capi sans pixel_id      | 400                                  | ✅ HTTP 400                                 |
+| T6  | Créer webhook sans endpoint_url    | 400                                  | ✅ HTTP 400                                 |
+| T7  | Test webhook delivery (httpbin)    | HTTP 200 delivered                   | ✅ `success`, HTTP 200                      |
+| T8  | Test Meta CAPI (fake token)        | Échec avec erreur descriptive        | ✅ `"Malformed access token..."` HTTP 400   |
+| T9  | Delivery logs Meta                 | Log créé avec statut                 | ✅ 1 log `failed`, HTTP 400                 |
+| T10 | RBAC — email inconnu               | 403                                  | ✅ HTTP 403                                 |
+| T11 | Test exclusion (ecomlg-001)        | exempt = true                        | ✅ Exemption confirmée                      |
+| T12 | Update pixel_id                    | endpoint_url auto-mis à jour         | ✅ URL mise à jour avec nouveau pixel       |
+| T13 | Vérifier URL auto-update           | Correct URL                          | ✅ `True`                                   |
+| T14 | Non-régression logs                | Aucun crash                          | ✅ Logs normaux, aucune erreur              |
+| T15 | PROD inchangée                     | Même image PROD                      | ✅ `v3.5.95-outbound-destinations-api-prod` |
+
 
 ### Preuves cross-tenant safety
 
@@ -219,23 +234,26 @@ Meta Conversions API supporte un `test_event_code` qui envoie les événements d
 
 ## 8. Non-régression
 
-| Check                            | Résultat                                                            |
-| -------------------------------- | ------------------------------------------------------------------- |
-| API DEV health                   | ✅ HTTP 200 `{"status":"ok"}`                                        |
-| Webhook destinations existantes  | ✅ CRUD fonctionne, test delivery OK (httpbin 200)                   |
-| Idempotence                      | ✅ Intacte (clé basée sur tenant_id + event + sub_id)                |
-| Delivery logs                    | ✅ Fonctionnent pour webhook ET meta_capi                            |
-| Destinations API RBAC            | ✅ owner/admin autorisés, agent/inconnu refusé                       |
-| Stripe billing webhook           | ✅ Non impacté (hooks dans billing/routes.ts inchangés)              |
-| Metrics module                   | ✅ Non impacté                                                       |
-| Test exclusion                   | ✅ ecomlg-001 exempt                                                 |
-| Backend DEV                      | ✅ Inchangé                                                          |
-| Client DEV                       | ✅ Inchangé                                                          |
-| PROD                             | ✅ Inchangée `v3.5.95-outbound-destinations-api-prod`                |
+
+| Check                           | Résultat                                               |
+| ------------------------------- | ------------------------------------------------------ |
+| API DEV health                  | ✅ HTTP 200 `{"status":"ok"}`                           |
+| Webhook destinations existantes | ✅ CRUD fonctionne, test delivery OK (httpbin 200)      |
+| Idempotence                     | ✅ Intacte (clé basée sur tenant_id + event + sub_id)   |
+| Delivery logs                   | ✅ Fonctionnent pour webhook ET meta_capi               |
+| Destinations API RBAC           | ✅ owner/admin autorisés, agent/inconnu refusé          |
+| Stripe billing webhook          | ✅ Non impacté (hooks dans billing/routes.ts inchangés) |
+| Metrics module                  | ✅ Non impacté                                          |
+| Test exclusion                  | ✅ ecomlg-001 exempt                                    |
+| Backend DEV                     | ✅ Inchangé                                             |
+| Client DEV                      | ✅ Inchangé                                             |
+| PROD                            | ✅ Inchangée `v3.5.95-outbound-destinations-api-prod`   |
+
 
 ---
 
 ## 9. Image DEV
+
 
 | Élément  | Valeur                                                                    |
 | -------- | ------------------------------------------------------------------------- |
@@ -246,15 +264,18 @@ Meta Conversions API supporte un `test_event_code` qui envoie les événements d
 | Branche  | `ph147.4/source-of-truth`                                                 |
 | Commit   | `5661e215`                                                                |
 
+
 ---
 
 ## 10. Fichiers modifiés
 
-| Fichier                                                    | Action      | Lignes | Description                                           |
-| ---------------------------------------------------------- | ----------- | ------ | ----------------------------------------------------- |
-| `src/modules/outbound-conversions/adapters/meta-capi.ts`   | **CRÉÉ**    | 132    | Adapter Meta CAPI (transform, send, endpoint builder) |
-| `src/modules/outbound-conversions/emitter.ts`              | **MODIFIÉ** | 386    | Routing par destination_type, Meta CAPI sender         |
-| `src/modules/outbound-conversions/routes.ts`               | **MODIFIÉ** | 401    | CRUD meta_capi, token masking, test Meta delivery      |
+
+| Fichier                                                  | Action      | Lignes | Description                                           |
+| -------------------------------------------------------- | ----------- | ------ | ----------------------------------------------------- |
+| `src/modules/outbound-conversions/adapters/meta-capi.ts` | **CRÉÉ**    | 132    | Adapter Meta CAPI (transform, send, endpoint builder) |
+| `src/modules/outbound-conversions/emitter.ts`            | **MODIFIÉ** | 386    | Routing par destination_type, Meta CAPI sender        |
+| `src/modules/outbound-conversions/routes.ts`             | **MODIFIÉ** | 401    | CRUD meta_capi, token masking, test Meta delivery     |
+
 
 ### Détail des changements emitter.ts
 
@@ -290,19 +311,23 @@ Aucun impact DB (les colonnes platform existent déjà depuis PH-T8.7A).
 
 ## 12. État PROD
 
-| Élément     | Valeur                                                     |
-| ----------- | ---------------------------------------------------------- |
-| Image PROD  | `v3.5.95-outbound-destinations-api-prod` (inchangée)       |
-| Impact PROD | **AUCUN**                                                  |
+
+| Élément     | Valeur                                               |
+| ----------- | ---------------------------------------------------- |
+| Image PROD  | `v3.5.95-outbound-destinations-api-prod` (inchangée) |
+| Impact PROD | **AUCUN**                                            |
+
 
 ---
 
 ## 13. Variables d'environnement
 
-| Variable                  | Usage                                              | Requis |
-| ------------------------- | -------------------------------------------------- | ------ |
-| `META_API_VERSION`        | Version API Meta Graph (défaut: `v21.0`)           | Non    |
+
+| Variable                    | Usage                                            | Requis |
+| --------------------------- | ------------------------------------------------ | ------ |
+| `META_API_VERSION`          | Version API Meta Graph (défaut: `v21.0`)         | Non    |
 | `META_CAPI_TEST_EVENT_CODE` | Code test Meta pour mode DEV (events réels skip) | Non    |
+
 
 ---
 
@@ -353,13 +378,15 @@ curl -X POST https://api-dev.keybuzz.io/outbound-conversions/destinations/{id}/t
 
 ### Types prévus (non implémentés)
 
-| Type             | Statut        | Champs requis                |
-| ---------------- | ------------- | ---------------------------- |
-| `webhook`        | ✅ Actif       | `endpoint_url`, `secret`     |
-| `meta_capi`      | ✅ Actif       | `pixel_id`, `token_ref`      |
-| `tiktok_events`  | Prévu         | `pixel_id`, `token_ref`      |
-| `google_ads`     | Prévu         | `customer_id`, `token_ref`   |
-| `linkedin_capi`  | Prévu         | `partner_id`, `token_ref`    |
+
+| Type            | Statut  | Champs requis              |
+| --------------- | ------- | -------------------------- |
+| `webhook`       | ✅ Actif | `endpoint_url`, `secret`   |
+| `meta_capi`     | ✅ Actif | `pixel_id`, `token_ref`    |
+| `tiktok_events` | Prévu   | `pixel_id`, `token_ref`    |
+| `google_ads`    | Prévu   | `customer_id`, `token_ref` |
+| `linkedin_capi` | Prévu   | `partner_id`, `token_ref`  |
+
 
 ---
 
@@ -389,3 +416,4 @@ META CAPI NATIVE PER TENANT READY — CANONICAL EVENTS MAPPED — MULTI-TENANT S
 - Promotion PROD
 - Connecteurs TikTok Events API / Google Ads / LinkedIn CAPI
 - Chiffrement applicatif des tokens (AES-256-GCM)
+

@@ -15,11 +15,13 @@ Valider le connecteur Meta CAPI avec un **vrai pixel**, un **vrai access token**
 
 ## 2. Credentials utilisés
 
-| Paramètre       | Valeur                     | Source               |
-| ---------------- | -------------------------- | -------------------- |
-| Pixel ID         | `1234164602194748`         | Meta Events Manager  |
-| Access Token     | `EAAe...18gt` (masqué)     | Meta Business Manager|
-| Test Event Code  | `TEST66800`                | Events Manager       |
+
+| Paramètre       | Valeur                 | Source                |
+| --------------- | ---------------------- | --------------------- |
+| Pixel ID        | `1234164602194748`     | Meta Events Manager   |
+| Access Token    | `EAAe...18gt` (masqué) | Meta Business Manager |
+| Test Event Code | `TEST66800`            | Events Manager        |
+
 
 ---
 
@@ -101,17 +103,19 @@ Un appel direct à `https://graph.facebook.com/v21.0/1234164602194748/events` av
 
 ### Comparaison payload
 
-| Champ Meta             | Valeur envoyée                                           | Conforme ? |
-| ---------------------- | -------------------------------------------------------- | ---------- |
-| `event_name`           | `StartTrial`                                             | ✅          |
-| `event_time`           | `1776875067` (Unix seconds)                              | ✅          |
-| `event_id`             | `real_test_ecomlg-001_1776875067`                        | ✅          |
-| `action_source`        | `website`                                                | ✅          |
-| `user_data.em`         | SHA256 hash lowercase                                    | ✅          |
-| `custom_data.value`    | `297` (montant plan)                                     | ✅          |
-| `custom_data.currency` | `EUR`                                                    | ✅          |
-| `custom_data.content_name` | `KeyBuzz pro`                                        | ✅          |
-| `test_event_code`      | `TEST66800`                                              | ✅          |
+
+| Champ Meta                 | Valeur envoyée                    | Conforme ? |
+| -------------------------- | --------------------------------- | ---------- |
+| `event_name`               | `StartTrial`                      | ✅          |
+| `event_time`               | `1776875067` (Unix seconds)       | ✅          |
+| `event_id`                 | `real_test_ecomlg-001_1776875067` | ✅          |
+| `action_source`            | `website`                         | ✅          |
+| `user_data.em`             | SHA256 hash lowercase             | ✅          |
+| `custom_data.value`        | `297` (montant plan)              | ✅          |
+| `custom_data.currency`     | `EUR`                             | ✅          |
+| `custom_data.content_name` | `KeyBuzz pro`                     | ✅          |
+| `test_event_code`          | `TEST66800`                       | ✅          |
+
 
 ---
 
@@ -119,11 +123,13 @@ Un appel direct à `https://graph.facebook.com/v21.0/1234164602194748/events` av
 
 ### 3A. Masking API
 
-| Test                                  | Résultat                  |
-| ------------------------------------- | ------------------------- |
-| Token dans réponse LIST               | Masqué `EA*...gt`         |
-| Token complet dans la réponse JSON    | **NON** (recherche negative) |
-| Token dans réponse CREATE             | Masqué                    |
+
+| Test                               | Résultat                     |
+| ---------------------------------- | ---------------------------- |
+| Token dans réponse LIST            | Masqué `EA*...gt`            |
+| Token complet dans la réponse JSON | **NON** (recherche negative) |
+| Token dans réponse CREATE          | Masqué                       |
+
 
 **VERDICT MASKING : OK**
 
@@ -147,13 +153,15 @@ Occurrences: 0
 
 ### Récapitulatif sécurité token
 
-| Surface d'exposition           | Token présent ? | Détail                              |
-| ------------------------------ | --------------- | ----------------------------------- |
-| Réponse API (LIST/CREATE/UPDATE) | **NON**       | Masqué `EA*...gt`                   |
-| Logs console pod               | **NON**         | Seul le résultat HTTP est loggé     |
-| Delivery logs DB               | **NON**         | `error_message` = message Meta, pas token |
-| Corps Meta API (HTTPS)         | OUI (requis)    | Uniquement sur canal HTTPS          |
-| DB PostgreSQL                  | OUI (stockage)  | Réseau privé K8s 10.0.0.0/16       |
+
+| Surface d'exposition             | Token présent ? | Détail                                    |
+| -------------------------------- | --------------- | ----------------------------------------- |
+| Réponse API (LIST/CREATE/UPDATE) | **NON**         | Masqué `EA*...gt`                         |
+| Logs console pod                 | **NON**         | Seul le résultat HTTP est loggé           |
+| Delivery logs DB                 | **NON**         | `error_message` = message Meta, pas token |
+| Corps Meta API (HTTPS)           | OUI (requis)    | Uniquement sur canal HTTPS                |
+| DB PostgreSQL                    | OUI (stockage)  | Réseau privé K8s 10.0.0.0/16              |
+
 
 ---
 
@@ -161,17 +169,21 @@ Occurrences: 0
 
 ### 4A. Isolation destinations
 
-| Test                                           | Résultat | Détail                             |
-| ---------------------------------------------- | -------- | ---------------------------------- |
-| Tenant B liste ses destinations                | ✅        | 0 destinations (aucune fuite)      |
-| ID destination tenant A dans résultats tenant B | ✅       | Absent — isolation confirmée       |
+
+| Test                                            | Résultat | Détail                        |
+| ----------------------------------------------- | -------- | ----------------------------- |
+| Tenant B liste ses destinations                 | ✅        | 0 destinations (aucune fuite) |
+| ID destination tenant A dans résultats tenant B | ✅        | Absent — isolation confirmée  |
+
 
 ### 4B. Accès cross-tenant
 
-| Test                                           | HTTP Status | Verdict |
-| ---------------------------------------------- | ----------- | ------- |
-| Tenant B accède aux logs de la dest. Tenant A  | **404**     | ✅ Refusé |
-| Email A tente d'accéder via Tenant B           | **403**     | ✅ RBAC bloque |
+
+| Test                                          | HTTP Status | Verdict       |
+| --------------------------------------------- | ----------- | ------------- |
+| Tenant B accède aux logs de la dest. Tenant A | **404**     | ✅ Refusé      |
+| Email A tente d'accéder via Tenant B          | **403**     | ✅ RBAC bloque |
+
 
 ### Résumé multi-tenant
 
@@ -202,27 +214,31 @@ Le test endpoint (`POST /destinations/:id/test`) envoie un événement `Connecti
 
 ## 8. Preuves
 
-| Preuve                          | Source                              | Verdict |
-| ------------------------------- | ----------------------------------- | ------- |
-| Meta accepte StartTrial         | `events_received: 1`               | ✅       |
-| fbtrace_id Meta                 | `AZk0LEBnf95-hjtu5cyisyg`          | ✅       |
-| Token masqué API                | `EA*...gt` dans réponse             | ✅       |
-| Token absent logs               | 0 occurrences dans pod logs         | ✅       |
-| Token absent delivery_logs      | 0 occurrences dans DB logs          | ✅       |
-| Isolation tenant A/B            | 0 destinations pour tenant B        | ✅       |
-| Cross-tenant bloqué             | HTTP 404 + HTTP 403                 | ✅       |
-| PROD inchangée                  | `v3.5.95-outbound-destinations-api-prod` | ✅  |
+
+| Preuve                     | Source                                   | Verdict |
+| -------------------------- | ---------------------------------------- | ------- |
+| Meta accepte StartTrial    | `events_received: 1`                     | ✅       |
+| fbtrace_id Meta            | `AZk0LEBnf95-hjtu5cyisyg`                | ✅       |
+| Token masqué API           | `EA*...gt` dans réponse                  | ✅       |
+| Token absent logs          | 0 occurrences dans pod logs              | ✅       |
+| Token absent delivery_logs | 0 occurrences dans DB logs               | ✅       |
+| Isolation tenant A/B       | 0 destinations pour tenant B             | ✅       |
+| Cross-tenant bloqué        | HTTP 404 + HTTP 403                      | ✅       |
+| PROD inchangée             | `v3.5.95-outbound-destinations-api-prod` | ✅       |
+
 
 ---
 
 ## 9. État
 
-| Élément         | Valeur                                                 |
-| --------------- | ------------------------------------------------------ |
-| Image DEV       | `v3.5.98-meta-capi-native-tenant-dev` (inchangée)     |
-| Image PROD      | `v3.5.95-outbound-destinations-api-prod` (inchangée)   |
-| Nouveau build   | **NON** — validation uniquement                        |
-| Données de test | **NETTOYÉES** — destination + logs supprimés           |
+
+| Élément         | Valeur                                               |
+| --------------- | ---------------------------------------------------- |
+| Image DEV       | `v3.5.98-meta-capi-native-tenant-dev` (inchangée)    |
+| Image PROD      | `v3.5.95-outbound-destinations-api-prod` (inchangée) |
+| Nouveau build   | **NON** — validation uniquement                      |
+| Données de test | **NETTOYÉES** — destination + logs supprimés         |
+
 
 ---
 
@@ -240,3 +256,4 @@ META CAPI REAL VALIDATION OK — READY FOR PROD
 - ⚠️ Limitation mineure : ConnectionTest non supporté par Meta (workaround documenté)
 
 ### STOP
+

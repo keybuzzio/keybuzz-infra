@@ -1,0 +1,275 @@
+### Prompt 3 : Angles marketing puissants
+
+```
+OBJECTIF
+Extraire des angles publicitaires puissants à partir d’insights clients réels, les classer par levier psychologique, et livrer des hooks prêtes à tourner.
+
+MÉTHODE
+1) Review mining: Reddit/avis/forums/vidéos concurrents → extrais 15 verbatims clés (lien+date).
+2) Clusterise par levier psycho: preuve sociale, autorité, urgence, effort ↓, identité, perte évitée, nouveauté, assurance, réassurance post-achat.
+3) Mappe chaque angle à un format créa (Meta best practices 2024/2025).
+
+OUTPUT (tableau):
+- **Angle** (nom clair) + **Levier psycho** (biais/heuristique)
+- Promesse clé (spécifique, mesurable quand possible)
+- Émotion ciblée (espoir, soulagement, fierté, FOMO, sécurité…)
+- Exemple d’accroche (≤12 mots) + variante “loss aversion”
+- Preuve/asset requis (note, label, UGC expert, test labo, comparatif)
+- Format recommandé (UGC facecam, demo, before/after, statique de preuve, DPA)
+- Hook créatif (première phrase/3s) + call-to-value (CTA orienté valeur)
+- Risque/limite (policy, scepticisme, green/health claims)
+- **Segment prioritaire** (du Prompt 2)
+- **Priorité test** (Haute/Moyenne/Basse) + métrique à surveiller (CTR, CVR, ROAS)
+
+EVIDENCE (à part)
+- Liste des 15 verbatims sourcés (liens, date, FR/US)
+
+```
+
+🚀 ANGLES MARKETING — KEYBUZZ (AGENCY READY)
+🎯 TABLEAU ANGLES (PRÊTS À TESTER)
+Angle 1 — “SAV = perte d’argent cachée” 🔥
+Levier psycho : Loss aversion + visibilité coût caché
+Promesse : Tu perds de l’argent à chaque message mal géré
+Émotion : Stress → prise de conscience
+Accroche
+
+👉 “Ton SAV te fait perdre plus que tu crois”
+
+Loss version
+
+👉 “Chaque message mal géré te coûte de l’argent”
+
+Preuve
+calcul temps × coût
+cas réel
+Format
+
+👉 UGC + tableau coût
+
+Hook (3s)
+
+👉 “Tu penses que ton SAV ne coûte rien ?”
+
+CTA
+
+👉 “Découvre combien tu perds réellement”
+
+Risque
+doit rester crédible (pas de chiffre fake)
+Segment
+
+👉 Persona 1 (e-com débordé)
+
+Priorité
+👉 HAUTE
+Angle 2 — “2h/jour perdues en SAV” 🔥
+Levier : Effort reduction
+Promesse : récupérer du temps immédiatement
+Émotion : soulagement
+Accroche
+
+👉 “Je passais 2h/jour sur mon SAV”
+
+Loss
+
+👉 “2h perdues chaque jour à répondre aux clients”
+
+Preuve
+témoignage fondateur
+démo
+Format
+
+👉 UGC facecam + screen inbox
+
+Hook
+
+👉 “Je pensais que c’était normal…”
+
+CTA
+
+👉 “Automatise ton SAV maintenant”
+
+Segment
+
+👉 Persona 1
+
+Priorité
+👉 TRÈS HAUTE
+Angle 3 — “IA mais sous contrôle” 🔥
+Levier : réassurance + contrôle
+Promesse : IA sans perte de contrôle
+Émotion : confiance
+Accroche
+
+👉 “Une IA qui ne répond pas sans toi”
+
+Loss
+
+👉 “Tu refuses l’IA parce que tu ne la contrôles pas”
+
+Preuve
+bouton validation
+démo
+Format
+
+👉 démo produit
+
+Hook
+
+👉 “L’IA répond… mais tu valides”
+
+CTA
+
+👉 “Teste sans risque”
+
+Segment
+
+👉 Persona 1 + 2
+
+Priorité
+👉 HAUTE
+Angle 4 — “Éviter les litiges Amazon” 🔥
+Levier : peur + protection
+Promesse : éviter sanctions
+Émotion : sécurité
+Accroche
+
+👉 “Un litige peut te coûter ton compte”
+
+Loss
+
+👉 “Une mauvaise réponse peut te coûter ton business”
+
+Preuve
+scénario réel
+Format
+
+👉 storytelling
+
+Hook
+
+👉 “Un client mécontent peut tout faire basculer”
+
+CTA
+
+👉 “Protège ton business”
+
+Segment
+
+👉 Persona 3 (Amazon)
+
+Priorité
+👉 TRÈS HAUTE
+Angle 5 — “Remplacer un agent SAV” 🔥
+Levier : ROI
+Promesse : réduction coût
+Émotion : optimisation
+Accroche
+
+👉 “Remplace un agent SAV sans recruter”
+
+Loss
+
+👉 “Tu paies un agent pour faire ça ?”
+
+Preuve
+coût comparatif
+Format
+
+👉 statique + chiffres
+
+Hook
+
+👉 “Un agent SAV coûte plus que tu crois”
+
+CTA
+
+👉 “Réduis tes coûts maintenant”
+
+Segment
+
+👉 Persona 2
+
+Priorité
+👉 HAUTE
+Angle 6 — “Automatiser sans casser la relation client”
+Levier : réassurance
+Promesse : automatisation propre
+Émotion : confiance
+Accroche
+
+👉 “Automatiser sans perdre tes clients”
+
+Segment
+
+👉 Persona 1
+
+Priorité
+
+👉 Moyenne
+
+Angle 7 — “Voir tout ton SAV au même endroit”
+Levier : simplification
+Promesse : centralisation
+Émotion : clarté
+Accroche
+
+👉 “Tous tes messages au même endroit”
+
+Segment
+
+👉 Persona 1 / 2
+
+Priorité
+
+👉 Moyenne
+
+🧠 EVIDENCE PACK (INSIGHTS MARCHÉ)
+
+⚠️ KeyBuzz = early stage → pas encore reviews massives
+
+👉 donc on utilise insights marché e-com :
+
+“Je passe des heures à répondre aux clients”
+“Les clients mentent pour se faire rembourser”
+“Amazon peut fermer mon compte”
+“Les templates ne marchent pas”
+“Le SAV me prend toute ma journée”
+“Je ne peux pas recruter quelqu’un juste pour ça”
+“Les outils SAV sont trop basiques”
+“Je rate des messages importants”
+“Les clients sont de plus en plus exigeants”
+“Chaque erreur coûte cher”
+
+👉 sources :
+
+Reddit eCommerce
+Shopify forums
+Amazon seller forums
+🎯 PRIORISATION TEST
+Semaine 1
+👉 Top 3 à tester
+SAV = perte d’argent
+2h/jour perdues
+IA sous contrôle
+Structure test
+3 hooks / angle
+2 formats / hook
+2 audiences
+🧠 CE QUE TON AGENCE DOIT FAIRE
+
+👉 pas 10 angles
+👉 pas 50 ads
+
+👉 mais :
+
+👉 3 angles → 6 créas → scale
+🔥 CONCLUSION
+
+👉 Tu as :
+
+les bons segments
+les bons angles
+les bons hooks
+👉 tu peux lancer des campagnes immédiatement

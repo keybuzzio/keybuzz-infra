@@ -1,0 +1,263 @@
+### Prompt 4 : Parcours d’achat & contenus à déployer
+
+```
+OBJECTIF
+Cartographier deux parcours: 1) “Fast lane” impulsif (48–72h), 2) “Considered lane” (1–4 semaines), et prescrire les contenus/placements/CTAs par étape.
+
+INPUTS
+- Produit/service: [description], panier moyen, contraintes (stock, délais), promesses
+- Marchés: FR/EU vs US (si différences)
+
+MÉTHODE
+1) Étaye avec données: reviews/verbatims, délais de décision du marché, complexité perçue.
+2) Intègre Category Entry Points (moments, lieux, personnes) & déclencheurs.
+3) Pour chaque étape, recommander plateforme, format, preuve, CTA, et event de mesure.
+
+OUTPUT (tableau par parcours: Découverte → Considération → Décision → Onboarding → Fidélisation):
+- Étape
+- Pensées/émotions dominantes
+- Freins spécifiques (avec 1 verbatim court)
+- Contenu recommandé (ex: UGC “my first 7 days”, statique social proof, LP module comparatif)
+- Preuve exigée (quel type de preuve et où l’afficher)
+- Canal/placement (Meta: Reels/IG Stories/FB Feed; Google: P-Max/Search/YouTube)
+- **CTA optimal** (par niveau d’engagement) + micro-offre (échantillon, essai, bundle)
+- Event & KPI (ViewContent, ATC, IC, Purchase; CTR, CVR, AOV, Time on page)
+- Fenêtre de retargeting (délai, exclu, cap frequency)
+- **Signal de bascule** (ex: 2× PDP viewed, sortie pricing, comparatif consulté)
+
+À livrer en plus:
+- **Checklist LP** (10 points): above-the-fold, preuve proche CTA, garanties, FAQ objections, comparatif, “first use story”, modularité mobile, vitesse, trust badges, sticky CTA.
+```
+
+🚀 PARCOURS D’ACHAT — KEYBUZZ (AGENCY READY)
+🧠 Vue globale
+Fast lane (48–72h)
+
+👉 e-commerçant déjà en douleur SAV
+👉 décision rapide
+👉 objectif = StartTrial
+
+Considered lane (1–4 semaines)
+
+👉 réflexion / comparaison
+👉 besoin d’éducation
+👉 objectif = confiance → trial
+
+🟢 FAST LANE (48–72h)
+1. Découverte
+Pensées / émotions
+“j’en peux plus du SAV”
+stress / surcharge
+Freins
+
+👉 “encore un outil inutile”
+
+Contenu
+UGC facecam
+“je passais 2h/jour en SAV”
+Preuve
+problème réel
+vécu fondateur
+Canal
+Meta Reels / IG
+TikTok
+CTA
+
+👉 “Voir comment ça marche”
+
+Event
+ViewContent
+CTR
+Retargeting
+1–3 jours
+fréquence haute
+Signal bascule
+
+👉 vidéo vue > 50%
+
+2. Considération
+Pensées
+“est-ce que ça marche vraiment ?”
+Freins
+
+👉 “l’IA va faire n’importe quoi”
+
+Contenu
+démo inbox
+comparaison avant/après
+Preuve
+contrôle IA
+validation manuelle
+Canal
+Meta Feed
+YouTube
+CTA
+
+👉 “Voir la démo”
+
+Event
+ViewContent
+Time on page
+Retargeting
+3–5 jours
+Signal
+
+👉 page pricing visitée
+
+3. Décision
+Pensées
+“est-ce que je teste ?”
+Freins
+
+👉 “et si ça ne marche pas”
+
+Contenu
+offre trial
+onboarding simple
+Preuve
+essai gratuit
+onboarding rapide
+Canal
+Meta retargeting
+Google search
+CTA
+
+👉 “Essayer gratuitement”
+
+Event
+
+👉 StartTrial
+
+KPI
+CVR
+CPA
+Signal
+
+👉 click signup
+
+4. Onboarding
+Pensées
+“est-ce que ça va vraiment m’aider”
+Freins
+complexité
+Contenu
+onboarding guidé
+démo rapide
+Preuve
+résultat immédiat
+KPI
+activation
+first message traité
+5. Fidélisation
+Pensées
+“est-ce que je garde l’outil”
+Contenu
+stats SAV
+gain temps
+KPI
+trial → paid
+🔵 CONSIDERED LANE (1–4 semaines)
+1. Découverte
+Pensées
+“intéressant”
+Contenu
+contenu éducatif
+YouTube
+carousels
+Canal
+Meta
+YouTube
+CTA
+
+👉 “Comprendre le SAV”
+
+2. Considération
+Pensées
+“je compare”
+Contenu
+comparatif Gorgias / Zendesk
+étude cas
+CTA
+
+👉 “Comparer les solutions”
+
+3. Décision
+Contenu
+ROI
+témoignage
+CTA
+
+👉 “Tester”
+
+4. Onboarding / Fidélisation
+
+👉 identique fast lane
+
+🎯 MAPPING EVENTS KEYBUZZ
+Étape	Event
+Découverte	ViewContent
+Considération	ViewPricing
+Décision	StartTrial
+Conversion	Purchase
+Activation	internal usage
+🎯 KPI PAR ÉTAPE
+Étape	KPI
+Découverte	CTR
+Considération	Time / scroll
+Décision	CVR
+Conversion	CPA / ROAS
+Fidélisation	Trial → Paid
+🔥 SIGNALS CRITIQUES
+visite pricing
+retour pricing
+multi-visit
+scroll 75%
+click CTA sans conversion
+🎯 RETARGETING
+Fast lane
+1–3 jours
+freq élevée
+Considered
+7–14 jours
+freq modérée
+🚀 CHECKLIST LANDING PAGE (KEYBUZZ)
+Above the fold
+problème clair SAV
+promesse directe
+Preuve immédiate
+démo
+visuel inbox
+CTA
+
+👉 “Essayer gratuitement”
+
+Objections
+IA contrôlée
+pas automatique forcé
+Comparatif
+vs outils SAV
+Story
+“first use”
+Mobile
+UX rapide
+Speed
+<2s
+Trust
+cas client
+logos
+Sticky CTA
+toujours visible
+🎯 SYNTHÈSE AGENCY
+Funnel réel KeyBuzz
+Ad → LP → StartTrial → Usage → Paid
+Le vrai KPI
+👉 Trial → Paid
+Le vrai enjeu
+👉 activation produit
+🔥 Conclusion
+
+👉 Ce funnel est :
+
+simple
+scalable
+aligné SaaS

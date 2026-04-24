@@ -1,0 +1,55 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: vault-management
+  labels:
+    app.kubernetes.io/part-of: keybuzz-infra
+    app.kubernetes.io/managed-by: gitops
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: vault-token-renewer
+  namespace: vault-management
+  labels:
+    app.kubernetes.io/component: vault-token-renew
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: vault-token-renewer
+  labels:
+    app.kubernetes.io/component: vault-token-renew
+rules:
+  - apiGroups: [""]
+    resources: ["secrets"]
+    verbs: ["get", "patch"]
+    resourceNames:
+      - vault-root-token
+      - vault-app-token
+      - vault-token
+      - vault-admin-token
+  - apiGroups: ["apps"]
+    resources: ["deployments"]
+    verbs: ["get", "patch"]
+    resourceNames:
+      - keybuzz-api
+      - keybuzz-backend
+      - keybuzz-outbound-worker
+      - amazon-orders-worker
+      - amazon-items-worker
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: vault-token-renewer
+  labels:
+    app.kubernetes.io/component: vault-token-renew
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: vault-token-renewer
+subjects:
+  - kind: ServiceAccount
+    name: vault-token-renewer
+    namespace: vault-management

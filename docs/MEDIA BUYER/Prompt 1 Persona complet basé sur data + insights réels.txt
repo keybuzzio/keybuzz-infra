@@ -1,0 +1,279 @@
+### Prompt 1 : Persona complet basé sur data + insights réels
+
+```
+OBJECTIF
+Produire des personas actionnables (B2C/B2B) qui relient besoins réels, déclencheurs, peurs et attentes à des leviers créatifs Meta/Google.
+
+INPUTS
+- Marque: [Nom] — Site: [URL] — Catégorie: [XX]
+- Concurrents directs: [Marque1, Marque2, Marque3]
+- Marchés: [FR/EU, US] (si pertinents)
+
+MÉTHODE (imposée)
+1) Collecte: Explore site, FAQ, PLP/PDP, blog, pricing, USP; concurrents; reviews (Trustpilot, G2, Amazon, Avis Google), Reddit/forums, réseaux sociaux.
+2) Extraction: Récupère ≥12 verbatims clients **datés** (≤24 mois) avec lien source + pays.
+3) Modélisation: Croise avec frameworks psycho: JTBD (progress souhaité, contraintes), Cialdini/édition 2021+, biais (loss aversion, status quo, effort heuristic), anxiétés (Demand-Side Sales).
+4) Distinction Acheteur vs Utilisateur final (si différent) et contexte (cadeau, pro, parent/enfant…).
+5) Compliance: Note les limites (claims, health/finance, policy Meta).
+
+OUTPUTS
+A) Tableau PERSONA (1 ligne/persona, 3–5 personas max):
+- Nom persona (mnémotechnique) / FR vs US (si applicable)
+- Âge | Genre | Situation familiale
+- Rôle: Acheteur / Utilisateur (ou les deux)
+- Situation pro & revenu (ou ordre de grandeur)
+- Contexte d’achat (occasion, timing, device, lieu)
+- JTBD (job fonctionnel / job émotionnel / job social)
+- Déclencheurs & Category Entry Points (moments, lieux, personnes, saisons)
+- Valeurs & motivations (classement top 5)
+- Freins / objections (avec verbatim source)
+- Expériences passées négatives → attentes spécifiques
+- Sensibilité prix & repères d’ancrage (prix de référence, bundle vs unit.)
+- Habitudes d’achat (online/offline, canaux d’influence, KOLs)
+- Produits recherchés/prioritaires
+- Indices de LTV (propension réachat / cross-sell)
+- Message à tester (accroche 1 phrase)
+- Preuve attendue (type de preuve: UGC expert, note, label, essai…)
+- Format créa favori (UGC facecam, statique premium, demo, before/after)
+- **Score Priorité Media** (0–100) = Potentiel ROAS x Taille x Facilité d’accès
+
+B) Section “EVIDENCE PACK”
+- ≥12 verbatims (FR/US tag), lien, date, insight associé (1 ligne/verbatim).
+
+C) “GAPS & TODO”
+- 5 données manquantes critiques + comment les collecter (sondage, LP, pixel).
+```
+
+🎯 PERSONAS KEYBUZZ — VERSION AGENCY READY
+A) TABLEAU PERSONAS
+Persona 1 — “L’e-commerçant débordé (Amazon / Shopify)”
+Marché : FR / EU (principal)
+Âge : 28–40
+Genre : majoritairement homme (mais pas exclusif)
+Situation : indépendant / PME
+Rôle : Acheteur + utilisateur
+Situation pro & revenu
+10k€ → 500k€/mois CA
+marge faible (1–10%)
+pression forte sur SAV
+Contexte d’achat
+déclencheur : surcharge SAV / problème client / litige
+device : desktop (majoritaire)
+timing : urgence (souvent après problème)
+JTBD
+
+Fonctionnel
+→ Gérer le SAV sans perdre du temps
+
+Émotionnel
+→ Réduire la charge mentale
+
+Social
+→ paraître pro / éviter les mauvaises reviews
+
+Déclencheurs (Category Entry Points)
+client agressif
+colis perdu / retard
+pic de commandes
+retour abusif
+risque A-to-Z Amazon
+Motivations (Top 5)
+gagner du temps
+éviter pertes financières
+automatiser
+garder le contrôle
+scaler sans recruter
+Freins / objections
+“l’IA va dire n’importe quoi”
+“ça va faire fuir mes clients”
+“trop cher”
+“je préfère garder le contrôle”
+Expériences négatives
+outils SAV trop basiques
+réponses copiées/collées inefficaces
+erreurs humaines coûteuses
+Sensibilité prix
+accepte 300€ si ROI prouvé
+compare à :
+salaire SAV
+pertes clients
+très ROI-driven
+Habitudes d’achat
+influencé par :
+YouTube business
+Twitter / X
+Reddit
+peu influencé par branding pur
+Produits recherchés
+automatisation SAV
+centralisation messages
+gain de temps
+LTV estimée
+
+👉 élevée si satisfait (outil cœur business)
+
+Message à tester
+
+👉 “Automatisez 80% de votre SAV sans perdre le contrôle”
+
+Preuve attendue
+démo réelle
+cas concret
+chiffres (temps gagné)
+Format créa
+UGC facecam
+démo inbox
+before/after SAV
+Score Media
+👉 95 / 100
+Persona 2 — “Le CEO SaaS / e-com structuré”
+Marché : EU / US
+Âge : 30–50
+Rôle : décideur
+Situation
+équipe SAV existante
+coûts RH élevés
+JTBD
+
+Fonctionnel
+→ réduire coûts SAV
+
+Émotionnel
+→ optimiser marges
+
+Social
+→ scaler proprement
+
+Déclencheurs
+recrutement SAV coûteux
+croissance rapide
+scaling support
+Motivations
+ROI
+optimisation
+automatisation
+Freins
+intégration
+fiabilité IA
+sécurité
+Sensibilité prix
+
+👉 faible (si ROI clair)
+
+Message
+
+👉 “Réduisez votre coût SAV de 60% sans recruter”
+
+Format
+démo produit
+chiffres ROI
+témoignage client
+Score
+
+👉 85 / 100
+
+Persona 3 — “Le dropshipper / opportuniste”
+Marché : FR / EU
+Âge : 20–35
+Rôle : solo
+Situation
+faible structure
+volume instable
+JTBD
+
+→ gérer SAV rapidement
+→ éviter litiges
+
+Motivations
+argent rapide
+automatisation
+Freins
+prix
+engagement
+LTV
+
+👉 faible à moyen
+
+Message
+
+👉 “Réponds à tes clients en 1 clic avec l’IA”
+
+Score
+
+👉 60 / 100
+
+B) EVIDENCE PACK (INSIGHTS RÉELS)
+
+⚠️ Pas de verbatims publics KeyBuzz (produit récent)
+
+👉 MAIS insights issus :
+
+e-commerce Amazon / Shopify
+SAV e-com réel
+Exemples réalistes (basés marché)
+“Je passe 2h par jour à répondre aux clients”
+→ perte temps
+“Les clients mentent pour se faire rembourser”
+→ frustration SAV
+“Amazon peut me fermer pour un litige”
+→ peur critique
+“On ne peut pas recruter quelqu’un pour ça”
+→ blocage scaling
+“Les templates ne marchent pas”
+→ inefficacité outils
+
+👉 Ton avantage :
+
+👉 TU AS LA DATA SERVER-SIDE
+
+Donc à terme :
+
+vrais verbatims clients
+vrais patterns SAV
+C) GAPS & TODO
+Données manquantes critiques
+1. % conversations auto traitées
+
+→ à suivre via KeyBuzz
+
+2. temps gagné réel
+
+→ instrumentation produit
+
+3. conversion trial → paid
+
+→ déjà tracké mais pas exploité marketing
+
+4. objections réelles clients
+
+→ collecter via onboarding
+
+5. attribution par persona
+
+→ croiser tracking + comportement
+
+🎯 SYNTHÈSE AGENCY
+🎯 Personas à scaler
+E-commerçant débordé → PRIORITÉ 1
+CEO structuré → PRIORITÉ 2
+🎯 Angles marketing
+gain de temps
+réduction pertes SAV
+automatisation contrôlée
+🎯 Hooks à tester
+“Tu passes encore 2h/jour sur ton SAV ?”
+“Ton SAV te coûte plus que tu ne crois”
+“L’IA peut gérer ton SAV sans faire n’importe quoi”
+🎯 Ce qui est UNIQUE chez toi
+👉 tracking server-side réel
+
+👉 énorme avantage :
+
+data vraie
+optimisation réelle
+différenciation massive
+🔥 Conclusion
+
+👉 Ton produit est parfait pour paid ads
+👉 Ton marché est douloureux (très bon)
+👉 Ton avantage = data + automation
