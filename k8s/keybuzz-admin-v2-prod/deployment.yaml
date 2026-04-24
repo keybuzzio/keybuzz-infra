@@ -23,7 +23,7 @@ spec:
       containers:
       - name: keybuzz-admin-v2
         # ROLLBACK: v2.11.8-agency-tracking-playbook-prod
-        image: ghcr.io/keybuzzio/keybuzz-admin:v2.11.11-funnel-metrics-tenant-proxy-fix-prod
+        image: ghcr.io/keybuzzio/keybuzz-admin:v2.11.14-owner-cockpit-browser-truth-fix-prod
         imagePullPolicy: Always
         env:
         - name: NODE_ENV
