@@ -88,8 +88,8 @@ spec:
           # PH-T8.8G: ad spend idempotence fix — deprecate /import/meta tenant write (2026-04-26)
           # PH-T8.9D: funnel foundation PROD — funnel_events + tenant cohort stitching (2026-04-27)
           # PH-T8.9I: post-checkout activation foundation PROD — 6 activation events, emitActivationEvent, funnel_id stitching (2026-05-01)
-          # PH-T8.9L: activation_completed derived event PROD — 16th funnel step, Model A (2026-05-01)
-          image: ghcr.io/keybuzzio/keybuzz-api:v3.5.111-activation-completed-model-prod  # rollback: v3.5.110-post-checkout-activation-foundation-prod
+          # PH-T8.10J: marketing owner stack PROD promotion (2026-04-24)
+          image: ghcr.io/keybuzzio/keybuzz-api:v3.5.116-marketing-owner-stack-prod  # rollback: v3.5.111-activation-completed-model-prod
           imagePullPolicy: Always
           ports:
             - containerPort: 3001

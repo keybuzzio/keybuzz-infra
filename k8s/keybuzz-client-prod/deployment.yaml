@@ -39,8 +39,8 @@ spec:
           # ROLLBACK: v3.5.224-ph143-agents-ia-prod
           # PREVIOUS: v3.5.258-ph146.4-billing-addons-prod  # PH146.4 billing addons
           # PH-T8.9D: funnel instrumentation PROD — pre-tenant CRO visibility (2026-04-27)
-          # PH-T8.9I: post-checkout activation foundation PROD — success_viewed, dashboard_first_viewed, onboarding_started (2026-05-01)
-          image: ghcr.io/keybuzzio/keybuzz-client:v3.5.110-post-checkout-activation-foundation-prod  # rollback: v3.5.108-funnel-pretenant-foundation-prod
+          # PH-T8.10J: marketing owner stack PROD promotion (2026-04-24)
+          image: ghcr.io/keybuzzio/keybuzz-client:v3.5.116-marketing-owner-stack-prod  # rollback: v3.5.110-post-checkout-activation-foundation-prod
           imagePullPolicy: Always
           ports:
             - containerPort: 3000
