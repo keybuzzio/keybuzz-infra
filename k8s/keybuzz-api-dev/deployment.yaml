@@ -281,7 +281,7 @@ spec:
         # PH-T8.9B.1: funnel metrics tenant scope — cohort stitching for pre-tenant steps (2026-04-27)
         # PH-T8.9G: post-checkout activation event foundation (2026-04-24)
         # PH-T8.10D: owner-scoped funnel+activation aggregation (2026-04-24)
-        image: ghcr.io/keybuzzio/keybuzz-api:v3.5.117-tiktok-native-owner-aware-dev  # rollback: v3.5.116-owner-cockpit-browser-truth-fix-dev
+        image: ghcr.io/keybuzzio/keybuzz-api:v3.5.118-google-sgtm-owner-aware-quick-win-dev  # rollback: v3.5.117-tiktok-native-owner-aware-dev
         livenessProbe:
           httpGet:
             path: /health
