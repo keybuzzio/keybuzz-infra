@@ -22,8 +22,8 @@ spec:
     spec:
       containers:
       - name: keybuzz-admin-v2
-        # ROLLBACK: v2.11.10-funnel-menu-icon-fix-dev
-        image: ghcr.io/keybuzzio/keybuzz-admin:v2.11.15-tiktok-native-owner-aware-dev  # rollback: v2.11.14-owner-cockpit-browser-truth-fix-dev
+        # ROLLBACK: v2.11.15-tiktok-native-owner-aware-dev
+        image: ghcr.io/keybuzzio/keybuzz-admin:v2.11.16-integration-guide-realignment-dev
         imagePullPolicy: Always
         env:
         - name: NODE_ENV
