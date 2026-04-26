@@ -22,8 +22,8 @@ spec:
     spec:
       containers:
       - name: keybuzz-admin-v2
-        # ROLLBACK: v2.11.16-integration-guide-realignment-dev
-        image: ghcr.io/keybuzzio/keybuzz-admin:v2.11.17-google-admin-visibility-dev
+        
+        image: ghcr.io/keybuzzio/keybuzz-admin:v2.11.18-google-observability-dev  # rollback: v2.11.17-google-admin-visibility-dev
         imagePullPolicy: Always
         env:
         - name: NODE_ENV
