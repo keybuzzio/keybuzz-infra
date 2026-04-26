@@ -47,7 +47,9 @@ spec:
           # PREVIOUS: v3.5.258-ph146.4-billing-addons-dev  # PH146.4 billing addons
           # PH-T8.9B: funnel instrumentation — pre-tenant CRO visibility (2026-04-27)
           # PH-T8.10B: marketing owner mapping foundation (2026-05-01)
-          image: ghcr.io/keybuzzio/keybuzz-client:v3.5.112-marketing-owner-mapping-foundation-dev  # rollback: v3.5.110-post-checkout-activation-foundation-dev
+          # PH-T8.10W: LinkedIn launch readiness — li_fat_id capture + Insight Tag active (KEY-188)
+          # build-arg: NEXT_PUBLIC_LINKEDIN_PARTNER_ID=9969977
+          image: ghcr.io/keybuzzio/keybuzz-client:v3.5.120-linkedin-launch-readiness-dev  # rollback: v3.5.112-marketing-owner-mapping-foundation-dev
           imagePullPolicy: Always
           ports:
             - containerPort: 3000
