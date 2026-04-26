@@ -22,8 +22,8 @@ spec:
     spec:
       containers:
       - name: keybuzz-admin-v2
-        # ROLLBACK: v2.11.8-agency-tracking-playbook-prod
-        image: ghcr.io/keybuzzio/keybuzz-admin:v2.11.16-google-admin-visibility-prod  # rollback: v2.11.15-tiktok-native-owner-aware-prod
+        # ROLLBACK: v2.11.16-google-admin-visibility-prod
+        image: ghcr.io/keybuzzio/keybuzz-admin:v2.11.17-paid-channels-prod  # rollback: v2.11.16-google-admin-visibility-prod
         imagePullPolicy: Always
         env:
         - name: NODE_ENV
