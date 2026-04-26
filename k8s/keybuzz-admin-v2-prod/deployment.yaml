@@ -23,7 +23,7 @@ spec:
       containers:
       - name: keybuzz-admin-v2
         # ROLLBACK: v2.11.16-google-admin-visibility-prod
-        image: ghcr.io/keybuzzio/keybuzz-admin:v2.11.17-paid-channels-prod  # rollback: v2.11.16-google-admin-visibility-prod
+        image: ghcr.io/keybuzzio/keybuzz-admin:v2.11.18-paid-channels-dynamic-prod  # rollback: v2.11.17-paid-channels-prod
         imagePullPolicy: Always
         env:
         - name: NODE_ENV
