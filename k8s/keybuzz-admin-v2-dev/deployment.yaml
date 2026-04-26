@@ -23,7 +23,8 @@ spec:
       containers:
       - name: keybuzz-admin-v2
         
-        image: ghcr.io/keybuzzio/keybuzz-admin:v2.11.18-google-observability-dev  # rollback: v2.11.17-google-admin-visibility-dev
+        # PH-ADMIN-T8.10Y: Paid Channels cockpit + li_fat_id in integration guide (KEY-190)
+        image: ghcr.io/keybuzzio/keybuzz-admin:v2.11.19-ad-accounts-kpi-foundation-dev  # rollback: v2.11.18-google-observability-dev
         imagePullPolicy: Always
         env:
         - name: NODE_ENV
