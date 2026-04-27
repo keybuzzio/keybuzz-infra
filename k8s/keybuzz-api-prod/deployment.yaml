@@ -92,7 +92,8 @@ spec:
           # PH-T8.10N: TikTok native owner-aware PROD (2026-04-25)
           # PH-T8.10Q: Google sGTM webhook owner-aware PROD (2026-04-25)
           # PH-T8.10X: LinkedIn launch readiness PROD — li_fat_id persist (KEY-188)
-          image: ghcr.io/keybuzzio/keybuzz-api:v3.5.120-linkedin-launch-readiness-prod  # rollback: v3.5.118-google-sgtm-owner-aware-quick-win-prod
+          # PH-T8.11Q.1: LinkedIn CAPI native PROD — adapter + dispatch + test (KEY-204)
+          image: ghcr.io/keybuzzio/keybuzz-api:v3.5.123-linkedin-capi-native-prod  # rollback: v3.5.120-linkedin-launch-readiness-prod
           imagePullPolicy: Always
           ports:
             - containerPort: 3001
