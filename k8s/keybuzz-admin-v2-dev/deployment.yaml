@@ -24,7 +24,7 @@ spec:
       - name: keybuzz-admin-v2
         
         # PH-ADMIN-T8.11B: Paid Channels dynamic truth -- Meta spend/KPI (KEY-192)
-        image: ghcr.io/keybuzzio/keybuzz-admin:v2.11.24-acquisition-playbook-dev  # rollback: v2.11.20-paid-channels-dynamic-dev
+        image: ghcr.io/keybuzzio/keybuzz-admin:v2.11.25-acquisition-playbook-hotfix-dev  # rollback: v2.11.24-acquisition-playbook-dev
         imagePullPolicy: Always
         env:
         - name: NODE_ENV
