@@ -23,8 +23,8 @@ spec:
       containers:
       - name: keybuzz-admin-v2
         
-        # PH-ADMIN-T8.11AC: Acquisition Playbook baseline + LinkedIn CAPI upgrade (KEY-219)
-        image: ghcr.io/keybuzzio/keybuzz-admin:v2.11.29-acquisition-playbook-baseline-dev  # rollback: v2.11.28-marketing-surfaces-truth-alignment-dev
+        # PH-ADMIN-T8.11AH: Marketing menu truth cleanup - codex removed, Google spend active, utm_source=meta
+        image: ghcr.io/keybuzzio/keybuzz-admin:v2.11.30-marketing-menu-truth-cleanup-dev  # rollback: v2.11.29-acquisition-playbook-baseline-dev
         imagePullPolicy: Always
         env:
         - name: NODE_ENV
