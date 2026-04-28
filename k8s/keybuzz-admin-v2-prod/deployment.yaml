@@ -22,8 +22,8 @@ spec:
     spec:
       containers:
       - name: keybuzz-admin-v2
-        # ROLLBACK: v2.11.16-google-admin-visibility-prod
-        image: ghcr.io/keybuzzio/keybuzz-admin:v2.11.20-acquisition-playbook-hotfix-prod  # rollback: v2.11.19-acquisition-playbook-prod
+        # PH-ADMIN-T8.11AD: Acquisition Playbook baseline + LinkedIn CAPI upgrade (KEY-219)
+        image: ghcr.io/keybuzzio/keybuzz-admin:v2.11.22-acquisition-playbook-baseline-prod  # rollback: v2.11.21-marketing-surfaces-truth-alignment-prod
         imagePullPolicy: Always
         env:
         - name: NODE_ENV
