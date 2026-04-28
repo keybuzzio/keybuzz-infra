@@ -313,6 +313,27 @@ spec:
                 secretKeyRef:
                   name: keybuzz-ads-encryption
                   key: ADS_ENCRYPTION_KEY
+            # PH-T8.11AF: Google Ads spend sync credentials (KEY-194)
+            - name: GOOGLE_ADS_DEVELOPER_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: keybuzz-google-ads
+                  key: GOOGLE_ADS_DEVELOPER_TOKEN
+            - name: GOOGLE_ADS_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: keybuzz-google-ads
+                  key: GOOGLE_ADS_CLIENT_ID
+            - name: GOOGLE_ADS_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: keybuzz-google-ads
+                  key: GOOGLE_ADS_CLIENT_SECRET
+            - name: GOOGLE_ADS_REFRESH_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: keybuzz-google-ads
+                  key: GOOGLE_ADS_REFRESH_TOKEN
           resources:
             requests:
               cpu: "200m"
