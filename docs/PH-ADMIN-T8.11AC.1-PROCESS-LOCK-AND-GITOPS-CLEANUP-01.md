@@ -109,16 +109,14 @@ Infra : dirty mais attendu — accumulation de rapports et manifests non pushés
 | Image manifest | `v2.11.29-acquisition-playbook-baseline-dev` | `v2.11.29-acquisition-playbook-baseline-dev` | ✅ |
 | Image runtime | identique au manifest | `v2.11.29-acquisition-playbook-baseline-dev` | ✅ |
 | Pod status | Running | 1/1 Running, 0 restarts | ✅ |
-| `last-applied-configuration` | présente | **ABSENTE** | **DRIFT** |
+| `last-applied-configuration` | présente | ✅ **PRÉSENTE** — restaurée via `kubectl apply -f` (commit `0550a66`) | ✅ |
 | Manifest committé | oui | non (avant cette phase) → oui (cette phase) | ✅ corrigé |
 
-### Cause du drift annotation
+### Drift annotation — corrigé
 
-Le deploy PH-ADMIN-T8.11AC a utilisé `kubectl set image` (script 1-2) et `kubectl rollout restart` (script 3) au lieu de `kubectl apply -f`. L'annotation `last-applied-configuration` n'est donc pas à jour.
+Le deploy PH-ADMIN-T8.11AC avait utilisé `kubectl set image` (script 1-2) et `kubectl rollout restart` (script 3) au lieu de `kubectl apply -f`, ce qui avait laissé l'annotation `last-applied-configuration` absente.
 
-### Correction
-
-L'annotation sera restaurée par `kubectl apply -f` après le commit/push du manifest dans cette phase. L'image runtime ne changera pas (déjà identique).
+**Correction effectuée** dans cette phase : après commit/push du manifest (`0550a66`), `kubectl apply -f k8s/keybuzz-admin-v2-dev/deployment.yaml` a été exécuté sur le bastion. L'annotation est désormais présente et pointe vers `v2.11.29-acquisition-playbook-baseline-dev` (vérifié PH-ADMIN-T8.11AC.2).
 
 ### PROD
 
@@ -170,7 +168,7 @@ L'annotation sera restaurée par `kubectl apply -f` après le commit/push du man
 | Repo | Branche | HEAD | Upstream | Clean ? |
 |---|---|---|---|---|
 | `keybuzz-admin-v2` | `main` | `5cf0bda` | `5cf0bda` | ✅ CLEAN |
-| `keybuzz-infra` | `main` | (post-push) | (synchronisé) | Dirty hors scope (rapports phases non liées) |
+| `keybuzz-infra` | `main` | `0550a66` | `0550a66` (synchronisé) | Dirty hors scope (rapports phases non liées) |
 
 ---
 
@@ -183,14 +181,14 @@ L'annotation sera restaurée par `kubectl apply -f` après le commit/push du man
 | Aucune perte de code | ✅ prouvé par reflog + commit `5cf0bda` |
 | Rollback documenté GitOps strict | ✅ corrigé dans cette phase |
 | Manifest committé/pushé | ✅ (cette phase) |
-| Annotation K8s reconciliée | ⬜ `kubectl apply -f` recommandé après push |
+| Annotation K8s reconciliée | ✅ `kubectl apply -f` exécuté — annotation présente et correcte (vérifié AC.2) |
 | PROD non touchée | ✅ confirmé |
 | Admin repo clean | ✅ |
 | Infra repo dirty hors scope documenté | ✅ |
 
 **KEY-219 est fermable** avec la réserve que le build a utilisé une méthode non conforme (`repo persistant + git reset --hard` au lieu de `build-admin-from-git.sh`). Le code source est néanmoins intégralement tracé dans Git et l'image est déterministe.
 
-**Recommandation** : réconcilier l'annotation K8s par `kubectl apply -f` du manifest après le push infra. Utiliser `build-admin-from-git.sh` pour tout build futur.
+**Recommandation** : utiliser `build-admin-from-git.sh` pour tout build futur.
 
 ---
 
@@ -198,7 +196,7 @@ L'annotation sera restaurée par `kubectl apply -f` après le commit/push du man
 
 | # | Gap | Priorité |
 |---|---|---|
-| 1 | Annotation `last-applied-configuration` absente sur le deployment DEV — à restaurer via `kubectl apply -f` | P3 |
+| 1 | ~~Annotation `last-applied-configuration` absente~~ | ~~P3~~ | Résolu — `kubectl apply -f` exécuté, annotation présente (vérifié AC.2) |
 | 2 | Fichiers infra hors scope non committés (30+ rapports de phases diverses) | P3 |
 | 3 | Pour les prochains builds Admin, utiliser `build-admin-from-git.sh` (clone temporaire) | Recommandation |
 
@@ -216,4 +214,6 @@ L'annotation sera restaurée par `kubectl apply -f` après le commit/push du man
 
 ---
 
-**VERDICT : PROCESS LOCK RESTORED — BUILD PROVENANCE VERIFIED (NON CONFORME PROCESS-LOCK, CODE TRACÉ) — GITOPS MANIFEST COMMITTED — ROLLBACK DOCUMENTED VIA GITOPS — NO CODE LOSS — NO PROD TOUCH — KEY-219 SAFE TO CLOSE WITH DOCUMENTED RESERVATION**
+**Commit infra final** : `0550a66` — pushé sur `origin/main`, `kubectl apply -f` exécuté, annotation K8s réconciliée (vérifié AC.2).
+
+**VERDICT : PROCESS LOCK RESTORED — BUILD PROVENANCE VERIFIED (NON CONFORME PROCESS-LOCK, CODE TRACÉ) — GITOPS MANIFEST COMMITTED — LAST-APPLIED CONFIGURATION VERIFIED — ROLLBACK DOCUMENTED VIA GITOPS — NO CODE LOSS — NO PROD TOUCH — KEY-219 SAFE TO CLOSE WITH DOCUMENTED RESERVATION**
