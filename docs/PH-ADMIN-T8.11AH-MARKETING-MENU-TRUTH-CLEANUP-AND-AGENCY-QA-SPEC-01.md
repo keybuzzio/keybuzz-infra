@@ -225,11 +225,14 @@ Créer un ticket séparé : **"Campaign QA / URL Builder agence"** (P2, pas bloq
 
 ## 9. ROLLBACK
 
-```bash
-# Rollback DEV
-kubectl set image deployment/keybuzz-admin-v2 keybuzz-admin-v2=ghcr.io/keybuzzio/keybuzz-admin:v2.11.29-acquisition-playbook-baseline-dev -n keybuzz-admin-v2-dev
-kubectl rollout status deployment/keybuzz-admin-v2 -n keybuzz-admin-v2-dev
-```
+Rollback **uniquement via GitOps** :
+
+1. Modifier `keybuzz-infra/k8s/keybuzz-admin-v2-dev/deployment.yaml` → image `v2.11.29-acquisition-playbook-baseline-dev`
+2. `git commit -m "rollback Admin DEV to v2.11.29"` + `git push origin main`
+3. `kubectl apply -f k8s/keybuzz-admin-v2-dev/deployment.yaml`
+4. `kubectl rollout status deployment/keybuzz-admin-v2 -n keybuzz-admin-v2-dev`
+
+> **Interdit** : `kubectl set image`, `kubectl patch`, `kubectl edit`, `kubectl set env`.
 
 ---
 
