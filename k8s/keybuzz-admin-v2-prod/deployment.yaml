@@ -22,8 +22,8 @@ spec:
     spec:
       containers:
       - name: keybuzz-admin-v2
-        # PH-ADMIN-T8.11AN.1: Campaign QA sidebar icon hotfix (KEY-221)
-        image: ghcr.io/keybuzzio/keybuzz-admin:v2.11.34-campaign-qa-event-lab-prod  # rollback: v2.11.33-campaign-qa-icon-hotfix-prod
+        # PH-ADMIN-T8.11AP: Agency Launch Checklist in Campaign QA (KEY-221)
+        image: ghcr.io/keybuzzio/keybuzz-admin:v2.11.35-agency-launch-kit-prod  # rollback: v2.11.34-campaign-qa-event-lab-prod
         imagePullPolicy: Always
         env:
         - name: NODE_ENV
