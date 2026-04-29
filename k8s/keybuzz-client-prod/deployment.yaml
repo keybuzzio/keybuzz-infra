@@ -47,7 +47,7 @@ spec:
           # PH-GA4-CLIENT-ACTIVATION: GA4 activated via --build-arg NEXT_PUBLIC_GA4_MEASUREMENT_ID=G-R3QQDYEBFG
           # PREVIOUS: v3.5.122-ga4-activation-prod
           # PH-T8.11Y: fix site.webmanifest JSON + middleware .webmanifest + /api/funnel public prefix
-          image: ghcr.io/keybuzzio/keybuzz-client:v3.5.125-register-console-cleanup-prod  # rollback: v3.5.122-ga4-activation-prod
+          image: ghcr.io/keybuzzio/keybuzz-client:v3.5.130-trial-autopilot-assisted-ui-prod  # rollback: v3.5.125-register-console-cleanup-prod
           imagePullPolicy: Always
           ports:
             - containerPort: 3000
