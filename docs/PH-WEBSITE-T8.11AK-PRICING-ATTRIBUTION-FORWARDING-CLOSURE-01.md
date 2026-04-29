@@ -228,15 +228,26 @@ https://client.keybuzz.io/register?plan=pro&cycle=monthly&utm_source=google&utm_
 
 ---
 
-## 10. Rollback GitOps
+## 10. Rollback GitOps strict
 
-```bash
-# DEV
-kubectl set image deployment/keybuzz-website keybuzz-website=ghcr.io/keybuzzio/keybuzz-website:v0.6.6-tiktok-ttclid-dev -n keybuzz-website-dev
+> **Interdit** : `kubectl set image`, `kubectl patch`, `kubectl edit`, `kubectl set env`.
+> Le rollback DOIT passer par Git.
 
-# PROD
-kubectl set image deployment/keybuzz-website keybuzz-website=ghcr.io/keybuzzio/keybuzz-website:v0.6.6-tiktok-ttclid-prod -n keybuzz-website-prod
-```
+### Rollback DEV
+
+1. Modifier `keybuzz-infra/k8s/website-dev/deployment.yaml` — remettre l'image :
+   `ghcr.io/keybuzzio/keybuzz-website:v0.6.6-tiktok-ttclid-dev`
+2. `git add k8s/website-dev/deployment.yaml && git commit -m "rollback: website DEV → v0.6.6-tiktok-ttclid-dev" && git push origin main`
+3. `kubectl apply -f k8s/website-dev/deployment.yaml`
+4. `kubectl rollout status deployment/keybuzz-website -n keybuzz-website-dev`
+
+### Rollback PROD
+
+1. Modifier `keybuzz-infra/k8s/website-prod/deployment.yaml` — remettre l'image :
+   `ghcr.io/keybuzzio/keybuzz-website:v0.6.6-tiktok-ttclid-prod`
+2. `git add k8s/website-prod/deployment.yaml && git commit -m "rollback: website PROD → v0.6.6-tiktok-ttclid-prod" && git push origin main`
+3. `kubectl apply -f k8s/website-prod/deployment.yaml`
+4. `kubectl rollout status deployment/keybuzz-website -n keybuzz-website-prod`
 
 ---
 
