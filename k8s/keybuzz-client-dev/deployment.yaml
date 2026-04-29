@@ -51,7 +51,10 @@ spec:
           # PH-T8.11P: LinkedIn tracking hardened — default ARG in Dockerfile (KEY-203)
           # WARNING: rebuild MUST include --build-arg NEXT_PUBLIC_LINKEDIN_PARTNER_ID=9969977
           # (Dockerfile now defaults to 9969977 but explicit --build-arg is recommended)
-          image: ghcr.io/keybuzzio/keybuzz-client:v3.5.121-linkedin-tracking-hardened-dev  # rollback: v3.5.120-linkedin-launch-readiness-dev
+          # PH-GA4-CLIENT-ACTIVATION: GA4 activated via --build-arg NEXT_PUBLIC_GA4_MEASUREMENT_ID=G-R3QQDYEBFG
+          # PREVIOUS: v3.5.122-ga4-activation-dev
+          # PH-T8.11Y: fix site.webmanifest invalid JSON (backslash-escaped -> standard JSON)
+          image: ghcr.io/keybuzzio/keybuzz-client:v3.5.125-register-console-cleanup-dev  # rollback: v3.5.122-ga4-activation-dev
           imagePullPolicy: Always
           ports:
             - containerPort: 3000

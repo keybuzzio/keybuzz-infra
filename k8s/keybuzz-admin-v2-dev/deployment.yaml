@@ -23,8 +23,8 @@ spec:
       containers:
       - name: keybuzz-admin-v2
         
-        # PH-ADMIN-T8.11AH: Marketing menu truth cleanup - codex removed, Google spend active, utm_source=meta
-        image: ghcr.io/keybuzzio/keybuzz-admin:v2.11.30-marketing-menu-truth-cleanup-dev  # rollback: v2.11.29-acquisition-playbook-baseline-dev
+        # PH-T8.11AJ: owner-aware playbook — marketing_owner_tenant_id in campaign URLs (KEY-222)
+        image: ghcr.io/keybuzzio/keybuzz-admin:v2.11.31-owner-aware-playbook-dev  # rollback: v2.11.30-marketing-menu-truth-cleanup-dev
         imagePullPolicy: Always
         env:
         - name: NODE_ENV
