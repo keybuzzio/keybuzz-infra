@@ -23,8 +23,8 @@ spec:
       containers:
       - name: keybuzz-admin-v2
         
-        # PH-T8.11AJ: owner-aware playbook — marketing_owner_tenant_id in campaign URLs (KEY-222)
-        image: ghcr.io/keybuzzio/keybuzz-admin:v2.11.31-owner-aware-playbook-dev  # rollback: v2.11.30-marketing-menu-truth-cleanup-dev
+        # PH-ADMIN-T8.11AN: Campaign QA / URL Builder (KEY-221)
+        image: ghcr.io/keybuzzio/keybuzz-admin:v2.11.32-campaign-qa-url-builder-dev  # rollback: v2.11.31-owner-aware-playbook-dev
         imagePullPolicy: Always
         env:
         - name: NODE_ENV
