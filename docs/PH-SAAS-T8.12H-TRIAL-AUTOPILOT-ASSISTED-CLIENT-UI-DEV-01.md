@@ -187,11 +187,16 @@ Le tenant `ecomlg-001` est `billing_exempt = true` avec `billingStatus != 'trial
 ## Rollback GitOps DEV
 
 ```bash
-# Sur le bastion
+# Sur le bastion — rollback strictement GitOps (pas de kubectl set image)
 cd /opt/keybuzz/keybuzz-infra
 sed -i 's|v3.5.128-trial-autopilot-assisted-ui-dev|v3.5.125-register-console-cleanup-dev|' k8s/keybuzz-client-dev/deployment.yaml
-kubectl set image deployment/keybuzz-client keybuzz-client=ghcr.io/keybuzzio/keybuzz-client:v3.5.125-register-console-cleanup-dev -n keybuzz-client-dev
+git add k8s/keybuzz-client-dev/deployment.yaml
+git commit -m 'gitops(client-dev): rollback to v3.5.125-register-console-cleanup-dev'
+git push
+kubectl apply -f k8s/keybuzz-client-dev/deployment.yaml
 kubectl rollout status deployment/keybuzz-client -n keybuzz-client-dev
+# Vérifier : manifest = runtime = annotation
+kubectl get deployment keybuzz-client -n keybuzz-client-dev -o jsonpath='{.spec.template.spec.containers[0].image}'
 ```
 
 ---
