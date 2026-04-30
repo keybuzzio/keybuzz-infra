@@ -174,7 +174,7 @@ Test non réalisé dans cette session — le tenant `test-lambda-k1-sas-molcr3ha
 
 ## 10. Rollback GitOps strict
 
-> Corrigé en L.3.1 — procédure `kubectl set image` supprimée et remplacée par GitOps strict.
+> Corrigé en L.3.1 — ancienne procédure impérative supprimée et remplacée par GitOps strict.
 
 ```bash
 # Rollback vers v3.5.134 (premier build L.3)
