@@ -54,7 +54,9 @@ spec:
           # PH-GA4-CLIENT-ACTIVATION: GA4 activated via --build-arg NEXT_PUBLIC_GA4_MEASUREMENT_ID=G-R3QQDYEBFG
           # PREVIOUS: v3.5.122-ga4-activation-dev
           # PH-T8.11Y: fix site.webmanifest invalid JSON (backslash-escaped -> standard JSON)
-          image: ghcr.io/keybuzzio/keybuzz-client:v3.5.131-trial-effectiveplan-client-dev  # rollback: v3.5.128-trial-autopilot-assisted-ui-dev
+          # PH-SAAS-T8.12L: OnboardingWizard activation — guided trial onboarding
+          # PREVIOUS: v3.5.131-trial-effectiveplan-client-dev  # PH-SAAS-T8.12K
+          image: ghcr.io/keybuzzio/keybuzz-client:v3.5.132-onboarding-wizard-dev  # rollback: v3.5.131-trial-effectiveplan-client-dev
           imagePullPolicy: Always
           ports:
             - containerPort: 3000
