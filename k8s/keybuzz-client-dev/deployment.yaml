@@ -63,7 +63,8 @@ spec:
           # PH-SAAS-T8.12L.3.1: G1 profile mapping fix + G2 mobile 390px responsive
           # PREVIOUS: v3.5.135-onboarding-metronic-fix-dev
           # PREVIOUS: v3.5.136-onboarding-metronic-closure-dev
-          image: ghcr.io/keybuzzio/keybuzz-client:v3.5.139-onboarding-cleanup-dev  # rollback: v3.5.137-onboarding-mobile-fix-dev
+          # PH-SAAS-T8.12N.1: Sample demo foundation — client-side only, zero DB/API
+          image: ghcr.io/keybuzzio/keybuzz-client:v3.5.140-sample-demo-foundation-dev  # rollback: v3.5.139-onboarding-cleanup-dev
           imagePullPolicy: Always
           ports:
             - containerPort: 3000
