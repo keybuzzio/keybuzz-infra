@@ -58,9 +58,9 @@ spec:
           # PREVIOUS: v3.5.131-trial-effectiveplan-client-dev  # PH-SAAS-T8.12K
           # PH-SAAS-T8.12L.2: Onboarding read model + useOnboardingStatus
           # PREVIOUS: v3.5.132-onboarding-wizard-dev
-          # PH-SAAS-T8.12L.3: Metronic data-aware onboarding UI
+          # PH-SAAS-T8.12L.3: Metronic data-aware onboarding UI (trial/plan context fix)
           # PREVIOUS: v3.5.133-onboarding-readmodel-dev
-          image: ghcr.io/keybuzzio/keybuzz-client:v3.5.134-onboarding-metronic-dev  # rollback: v3.5.133-onboarding-readmodel-dev
+          image: ghcr.io/keybuzzio/keybuzz-client:v3.5.135-onboarding-metronic-fix-dev  # rollback: v3.5.134-onboarding-metronic-dev
           imagePullPolicy: Always
           ports:
             - containerPort: 3000
