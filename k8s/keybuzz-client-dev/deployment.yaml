@@ -56,7 +56,11 @@ spec:
           # PH-T8.11Y: fix site.webmanifest invalid JSON (backslash-escaped -> standard JSON)
           # PH-SAAS-T8.12L: OnboardingWizard activation — guided trial onboarding
           # PREVIOUS: v3.5.131-trial-effectiveplan-client-dev  # PH-SAAS-T8.12K
-          image: ghcr.io/keybuzzio/keybuzz-client:v3.5.133-onboarding-readmodel-dev  # rollback: v3.5.132-onboarding-wizard-dev
+          # PH-SAAS-T8.12L.2: Onboarding read model + useOnboardingStatus
+          # PREVIOUS: v3.5.132-onboarding-wizard-dev
+          # PH-SAAS-T8.12L.3: Metronic data-aware onboarding UI
+          # PREVIOUS: v3.5.133-onboarding-readmodel-dev
+          image: ghcr.io/keybuzzio/keybuzz-client:v3.5.134-onboarding-metronic-dev  # rollback: v3.5.133-onboarding-readmodel-dev
           imagePullPolicy: Always
           ports:
             - containerPort: 3000
