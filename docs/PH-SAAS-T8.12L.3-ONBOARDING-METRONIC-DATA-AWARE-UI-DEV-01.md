@@ -174,16 +174,24 @@ Test non réalisé dans cette session — le tenant `test-lambda-k1-sas-molcr3ha
 
 ## 10. Rollback GitOps strict
 
+> Corrigé en L.3.1 — procédure `kubectl set image` supprimée et remplacée par GitOps strict.
+
 ```bash
 # Rollback vers v3.5.134 (premier build L.3)
-kubectl set image deploy/keybuzz-client keybuzz-client=ghcr.io/keybuzzio/keybuzz-client:v3.5.134-onboarding-metronic-dev -n keybuzz-client-dev
+# 1. Modifier keybuzz-infra/k8s/keybuzz-client-dev/deployment.yaml :
+#    image: ghcr.io/keybuzzio/keybuzz-client:v3.5.134-onboarding-metronic-dev
+# 2. git add && git commit -m "Rollback: Client DEV v3.5.134"
+# 3. git push origin main
+# 4. kubectl apply -f k8s/keybuzz-client-dev/deployment.yaml
+# 5. kubectl rollout status deployment/keybuzz-client -n keybuzz-client-dev
 
 # Rollback vers v3.5.133 (L.2 read model)
-kubectl set image deploy/keybuzz-client keybuzz-client=ghcr.io/keybuzzio/keybuzz-client:v3.5.133-onboarding-readmodel-dev -n keybuzz-client-dev
-
-# Rollback complet vers pré-L.3
-# Modifier deployment.yaml : image -> v3.5.133-onboarding-readmodel-dev
-# git commit + push + kubectl apply -f
+# 1. Modifier deployment.yaml :
+#    image: ghcr.io/keybuzzio/keybuzz-client:v3.5.133-onboarding-readmodel-dev
+# 2. git add && git commit -m "Rollback: Client DEV v3.5.133"
+# 3. git push origin main
+# 4. kubectl apply -f k8s/keybuzz-client-dev/deployment.yaml
+# 5. kubectl rollout status deployment/keybuzz-client -n keybuzz-client-dev
 ```
 
 ---
