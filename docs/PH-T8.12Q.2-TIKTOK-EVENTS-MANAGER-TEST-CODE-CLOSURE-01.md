@@ -104,7 +104,8 @@ TikTok signale : `Content ID is missing in your events` — le parametre `conten
 | Client | `v3.5.144-tiktok-browser-pixel-prod` | NON |
 | Website | `v0.6.8-tiktok-browser-pixel-prod` | NON |
 | Admin | `v2.11.35-agency-launch-kit-prod` | NON |
-| API | `v3.5.165-escalation-flow-prod` | NON |
+| API (principal) | `v3.5.128-trial-autopilot-assisted-prod` | NON |
+| API (outbound-worker) | `v3.5.165-escalation-flow-prod` | NON |
 
 ---
 

@@ -50,7 +50,8 @@ Verifier visuellement et consolider la feature acquisition tracking KeyBuzz apre
 | Client | `ghcr.io/keybuzzio/keybuzz-client:v3.5.144-tiktok-browser-pixel-prod` | OUI |
 | Website | `ghcr.io/keybuzzio/keybuzz-website:v0.6.8-tiktok-browser-pixel-prod` | OUI |
 | Admin | `ghcr.io/keybuzzio/keybuzz-admin:v2.11.35-agency-launch-kit-prod` | OUI |
-| API | `ghcr.io/keybuzzio/keybuzz-api:v3.5.165-escalation-flow-prod` | OUI |
+| API (principal) | `ghcr.io/keybuzzio/keybuzz-api:v3.5.128-trial-autopilot-assisted-prod` | OUI |
+| API (outbound-worker) | `ghcr.io/keybuzzio/keybuzz-api:v3.5.165-escalation-flow-prod` | OUI |
 
 ### Rollouts
 
@@ -267,7 +268,8 @@ git push origin main
 | Client PROD | `v3.5.144-tiktok-browser-pixel-prod` (inchange) |
 | Website PROD | `v0.6.8-tiktok-browser-pixel-prod` (inchange) |
 | Admin PROD | `v2.11.35-agency-launch-kit-prod` (inchange) |
-| API PROD | `v3.5.165-escalation-flow-prod` (inchange) |
+| API PROD (principal) | `v3.5.128-trial-autopilot-assisted-prod` (inchange) |
+| API PROD (outbound-worker) | `v3.5.165-escalation-flow-prod` (inchange) |
 | Rapport | `keybuzz-infra/docs/PH-T8.12Q-ACQUISITION-TRACKING-PARITY-VISUAL-QA-AND-CLEANUP-01.md` |
 
 ---
