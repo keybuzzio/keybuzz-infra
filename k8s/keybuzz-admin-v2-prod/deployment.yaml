@@ -22,8 +22,8 @@ spec:
     spec:
       containers:
       - name: keybuzz-admin-v2
-        # PH-ADMIN-T8.11AP: Agency Launch Checklist in Campaign QA (KEY-221)
-        image: ghcr.io/keybuzzio/keybuzz-admin:v2.11.35-agency-launch-kit-prod  # rollback: v2.11.34-campaign-qa-event-lab-prod
+        # PH-ADMIN-T8.12V: Tracking truth docs + admin wording alignment
+        image: ghcr.io/keybuzzio/keybuzz-admin:v2.11.36-tracking-truth-admin-prod  # rollback: v2.11.35-agency-launch-kit-prod
         imagePullPolicy: Always
         env:
         - name: NODE_ENV
