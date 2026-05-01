@@ -165,18 +165,19 @@ Linear unavailable (aucun MCP Linear configure). Tickets recommandes documentes 
 
 ---
 
-## Validation navigateur IDE
+## Validation technique Ludovic
 
-**EN ATTENTE de validation Ludovic.**
+Validation technique confirmee par Ludovic :
 
-Pages a valider :
-1. `/metrics` — baseline 2026-05-01, micro-copy, new_customers=0
-2. `/marketing/funnel` — baseline 2026-05-01, micro-copy, steps=0
-3. `/marketing/ad-accounts` — Google + Meta, bloc TikTok/LinkedIn explicatif
-4. `/marketing/destinations` — TikTok active/inactive, Meta/LinkedIn CAPI
-5. `/marketing/acquisition-playbook` — baseline "1er mai 2026"
-6. `/marketing/campaign-qa` — baseline "1er mai 2026"
-7. Aucun Codex visible
+- Admin PROD runtime = `v2.11.37-acquisition-baseline-truth-prod`
+- Digest runtime = `sha256:f434eed82abf01bdd6d5b5e4d082f569bac2357fe35dcd43e5778bffd6439c0a`
+- TikTok destination cutover active confirmee
+- Ancienne destination TikTok inactive confirmee
+- Meta CAPI / LinkedIn CAPI actifs confirmes
+- Ad Accounts Google + Meta uniquement confirme coherent
+- Post-baseline 2026-05-01 : new_customers=0, funnel=0, spend=0 confirme
+
+Validation navigateur IDE visible des 7 pages : confirmee.
 
 ---
 
@@ -239,6 +240,6 @@ kubectl rollout status deploy/keybuzz-admin-v2 -n keybuzz-admin-v2-prod
 
 ## Verdict
 
-**GO ADMIN ACQUISITION BASELINE AND SPEND TRUTH ALIGNED** (VISUAL QA PENDING)
+**GO ADMIN ACQUISITION BASELINE AND SPEND TRUTH ALIGNED — VISUAL QA DONE**
 
 ADMIN ACQUISITION BASELINE MOVED TO 2026-05-01 EUROPE/PARIS — METRICS AND FUNNEL DEFAULTS NO LONGER COUNT SETUP DATA — TIKTOK DESTINATION CUTOVER VERIFIED — AD ACCOUNTS SPEND TRUTH CLARIFIED — NO FAKE EVENT — NO FAKE SPEND — NO SECRET — GITOPS STRICT
