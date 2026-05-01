@@ -1851,3 +1851,38 @@ Digest : `sha256:6a95073a92edbbcdf2fa55b9f36e25ea8e51ddaefc4d0e2aa59f1de5b1bb4ef
 ### Admin wording (PH-ADMIN-T8.12V)
 
 Phase d'alignement documentaire pour refleter cet etat dans les surfaces Admin Marketing et la memoire projet.
+
+---
+
+## PH-ADMIN-T8.12W — Baseline acquisition et spend truth (2026-05-01)
+
+### Baseline officielle
+
+- Date : **2026-05-01 00:00 Europe/Paris**
+- Toute donnee avant cette date = setup/test/cutover tracking
+- Admin Metrics et Funnel demarrent par defaut au 2026-05-01
+- Les donnees historiques ne sont PAS supprimees, seulement filtrees par defaut
+
+### TikTok destination cutover verifie
+
+- Nouvelle destination active : `75a3c56a-2508-4fa9-ab12-6b1514951877`
+  - pixel `D7PT12JC77U44OJIPC10`, ad account `7634494806858252304`
+- Ancienne destination inactive : `07b03162-7e5b-4751-8425-e9528faa3562`
+  - pixel `D7HQO0JC77U2ODPGMDI0`, ad account `7629719710579130369`
+
+### Ad Accounts PROD
+
+| Platform | Account ID | Statut |
+|----------|-----------|--------|
+| Google | `5947963982` | active |
+| Meta | `1485150039295668` | active |
+| TikTok | absent | Business API credentials requis |
+| LinkedIn | absent | Ads Reporting approval requis |
+
+### Spend truth dans Admin
+
+- Google spend : synced via Ad Account API
+- Meta spend : synced via Ad Account API
+- TikTok spend : non remonte (Business API bloque)
+- LinkedIn spend : non remonte (hors scope)
+- Admin `/marketing/ad-accounts` explique pourquoi TikTok/LinkedIn absents
