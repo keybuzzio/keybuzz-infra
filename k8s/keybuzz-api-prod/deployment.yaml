@@ -93,7 +93,9 @@ spec:
           # PH-T8.10Q: Google sGTM webhook owner-aware PROD (2026-04-25)
           # PH-T8.10X: LinkedIn launch readiness PROD — li_fat_id persist (KEY-188)
           # PH-T8.11Q.1: LinkedIn CAPI native PROD — adapter + dispatch + test (KEY-204)
-          image: ghcr.io/keybuzzio/keybuzz-api:v3.5.128-trial-autopilot-assisted-prod  # rollback: v3.5.123-linkedin-capi-native-prod
+          # PREVIOUS: v3.5.128-trial-autopilot-assisted-prod  # PH-T8.12Q.2 rollback target
+          # PH-API-T8.12Q.2: platform-aware refund protection + response strategy PROD (KEY-235)
+          image: ghcr.io/keybuzzio/keybuzz-api:v3.5.130-platform-aware-refund-strategy-prod
           imagePullPolicy: Always
           ports:
             - containerPort: 3001
