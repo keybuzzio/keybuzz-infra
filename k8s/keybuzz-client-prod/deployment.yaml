@@ -46,8 +46,8 @@ spec:
           # (Dockerfile now defaults to 9969977 but explicit --build-arg is recommended)
           # PH-GA4-CLIENT-ACTIVATION: GA4 activated via --build-arg NEXT_PUBLIC_GA4_MEASUREMENT_ID=G-R3QQDYEBFG
           # PREVIOUS: v3.5.122-ga4-activation-prod
-          # PH-T8.11Y: fix site.webmanifest JSON + middleware .webmanifest + /api/funnel public prefix
-          image: ghcr.io/keybuzzio/keybuzz-client:v3.5.139-onboarding-cleanup-prod  # rollback: v3.5.138-onboarding-metronic-data-aware-prod
+          # PH-SAAS-T8.12N.4: Sample Demo Wow UI PROD — non-polluting guided experience
+          image: ghcr.io/keybuzzio/keybuzz-client:v3.5.142-sample-demo-wow-prod  # rollback: v3.5.139-onboarding-cleanup-prod
           imagePullPolicy: Always
           ports:
             - containerPort: 3000
