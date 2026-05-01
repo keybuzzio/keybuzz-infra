@@ -30,7 +30,9 @@ spec:
       containers:
       - name: keybuzz-website
         # PH-WEBSITE-T8.11AK: forward marketing_owner_tenant_id, li_fat_id, _gl (KEY-223)
-        image: ghcr.io/keybuzzio/keybuzz-website:v0.6.7-pricing-attribution-forwarding-prod  # rollback: v0.6.6-tiktok-ttclid-prod
+        # PH-T8.12P: TikTok browser pixel activated (D7PT12JC77U44OJIPC10)
+        # WARNING: rebuild MUST include --build-arg NEXT_PUBLIC_TIKTOK_PIXEL_ID=D7PT12JC77U44OJIPC10
+        image: ghcr.io/keybuzzio/keybuzz-website:v0.6.8-tiktok-browser-pixel-prod  # rollback: v0.6.7-pricing-attribution-forwarding-prod
         ports:
         - containerPort: 3000
         env:
