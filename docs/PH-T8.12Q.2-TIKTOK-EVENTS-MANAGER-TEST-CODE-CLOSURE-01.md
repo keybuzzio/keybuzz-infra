@@ -3,7 +3,7 @@
 > Date : 2026-05-01
 > Environnement : PROD
 > Type : validation visuelle TikTok Events Manager avec test_event_code
-> Verdict : **GO KEYBUZZ OK / TIKTOK UI PENDING LUDOVIC**
+> Verdict : **GO CLOSED**
 
 ---
 
@@ -57,14 +57,25 @@ Fermer la validation visuelle TikTok Events Manager restee pending apres PH-T8.1
 
 ## Verification TikTok Events Manager
 
-**Statut : PENDING LUDOVIC**
+**Statut : VALIDE PAR LUDOVIC**
 
-Points a verifier par Ludovic dans le TikTok Events Manager :
-- [ ] Onglet Test Events avec code `TEST88534`
-- [ ] Event ViewContent visible avec event_id `test_keybuzz-consulting-mo9zndlk_1777634033523`
-- [ ] Bon Pixel/Data Source `D7PT12JC77U44OJIPC10`
-- [ ] Bon Ad Account `7634494806858252304`
-- [ ] Pas de faux StartTrial/Purchase
+Preuve visuelle (capture TikTok Events Manager) :
+
+- [x] Pixel `Pixel_KeyBuzz` — ID `D7PT12JC77U44OJIPC10`
+- [x] Business Center owner : `KeyBuzz Consulting`
+- [x] Onglet Test Events — Status : Connected
+- [x] Event `View content` (code `ViewContent`) visible
+- [x] Connection method : `Server`
+- [x] Received time : `2026-05-01 11:13:53 UTC+00:00`
+- [x] Setup method : `Custom code`
+- [x] event_id : `test_keybuzz-consulting-mo9zndlk_1777634033523` — confirme
+- [x] contents : `[{"content_category":"subscription","content_name":"KeyBuzz test"}]`
+- [x] hashed_email : present (SHA-256, non recopie)
+- [x] Aucun faux StartTrial / Purchase / CompletePayment
+
+### Avertissement TikTok
+
+TikTok signale : `Content ID is missing in your events` — le parametre `content_id` est absent du payload ViewContent. Cet avertissement est non bloquant pour la livraison mais a auditer pour la qualite du signal.
 
 ---
 
@@ -97,10 +108,16 @@ Points a verifier par Ludovic dans le TikTok Events Manager :
 
 ---
 
+## Gaps
+
+| # | Gap | Severite | Description |
+|---|-----|----------|-------------|
+| G1 | TikTok payload quality — `content_id` manquant | P2 | TikTok Test Events signale `Content ID is missing in your events` sur ViewContent. Non bloquant pour la livraison. A auditer dans une phase separee avant optimisation scale avancee. |
+
+---
+
 ## Verdict
 
-**GO KEYBUZZ OK / TIKTOK UI PENDING LUDOVIC**
+**GO CLOSED**
 
-Le test ViewContent avec `test_event_code=TEST88534` a ete envoye avec succes a TikTok Events API (HTTP 200, tiktok_code 0). Le delivery log confirme la livraison. Aucun faux event business. Aucun build, aucun deploy.
-
-La verification visuelle dans le TikTok Events Manager (onglet Test Events) reste en attente de validation par Ludovic.
+Le test ViewContent avec `test_event_code=TEST88534` a ete envoye avec succes a TikTok Events API (HTTP 200, tiktok_code 0). Le delivery log confirme la livraison. La verification visuelle dans le TikTok Events Manager a ete validee par Ludovic : event recu, bon pixel, bon Business Center, connection method Server, event_id confirme. Aucun faux event business. Aucun build, aucun deploy.
