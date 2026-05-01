@@ -51,7 +51,11 @@ spec:
           # CompletePayment = server-side only (dedup event_id mismatch)
           # Browser events: PageView, SubmitForm, InitiateCheckout
           # WARNING: rebuild MUST include --build-arg NEXT_PUBLIC_TIKTOK_PIXEL_ID=D7PT12JC77U44OJIPC10
-          image: ghcr.io/keybuzzio/keybuzz-client:v3.5.144-tiktok-browser-pixel-prod  # rollback: v3.5.142-sample-demo-wow-prod
+          # PH-T8.12R: GA4 + sGTM restored on Client funnel
+          # --build-arg NEXT_PUBLIC_GA4_MEASUREMENT_ID=G-R3QQDYEBFG
+          # --build-arg NEXT_PUBLIC_SGTM_URL=https://t.keybuzz.pro
+          # Meta Pixel Client NOT activated (STOP DEDUP RISK — Meta CAPI active)
+          image: ghcr.io/keybuzzio/keybuzz-client:v3.5.145-client-ga4-sgtm-parity-prod  # rollback: v3.5.144-tiktok-browser-pixel-prod
           imagePullPolicy: Always
           ports:
             - containerPort: 3000
