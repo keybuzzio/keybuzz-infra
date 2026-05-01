@@ -59,7 +59,13 @@ spec:
           # Browser Meta events: PageView, Lead, CompleteRegistration, InitiateCheckout
           # Purchase = server-side only via Meta CAPI (dedup: no matching event_id browser/server)
           # PH-SAAS-T8.12R.1: Sample Demo platform-aware PROD promotion (KEY-235)
-          image: ghcr.io/keybuzzio/keybuzz-client:v3.5.146-sample-demo-platform-aware-prod  # rollback: v3.5.146-client-meta-pixel-dedup-safe-prod
+          # PH-T8.12U: Combined SaaS Demo + Tracking parity — single unified image
+          # SaaS: platform-aware demo (3 Amazon, 1 Octopia, 1 email, no refund-first)
+          # Tracking: GA4 G-R3QQDYEBFG + sGTM t.keybuzz.pro + TikTok D7PT12JC77U44OJIPC10
+          #   + LinkedIn 9969977 + Meta 1234164602194748
+          # Purchase browser ABSENT (Meta CAPI server-side only)
+          # CompletePayment browser ABSENT (TikTok Events API server-side only)
+          image: ghcr.io/keybuzzio/keybuzz-client:v3.5.147-sample-demo-platform-aware-tracking-parity-prod  # rollback: v3.5.146-sample-demo-platform-aware-prod
           imagePullPolicy: Always
           ports:
             - containerPort: 3000
