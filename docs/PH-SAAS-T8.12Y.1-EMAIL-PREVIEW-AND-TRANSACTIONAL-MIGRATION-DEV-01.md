@@ -188,17 +188,19 @@ Email réel non envoyé volontairement. Aucune adresse de test contrôlée docum
 
 ---
 
-## 12. ROLLBACK GITOPS
+## 12. ROLLBACK GITOPS STRICT
 
-En cas de problème :
+En cas de problème, procédure GitOps stricte :
 
-```bash
-# API DEV rollback
-kubectl set image deployment/keybuzz-api keybuzz-api=ghcr.io/keybuzzio/keybuzz-api:v3.5.130-platform-aware-refund-strategy-dev -n keybuzz-api-dev
-kubectl rollout status deployment/keybuzz-api -n keybuzz-api-dev
-```
+1. Modifier `keybuzz-infra/k8s/keybuzz-api-dev/deployment.yaml` :
+   remplacer l'image par `ghcr.io/keybuzzio/keybuzz-api:v3.5.130-platform-aware-refund-strategy-dev`
+2. Commit infra avec message explicite
+3. Push `main`
+4. `kubectl apply -f keybuzz-infra/k8s/keybuzz-api-dev/deployment.yaml`
+5. `kubectl rollout status deployment/keybuzz-api -n keybuzz-api-dev`
+6. Vérifier : manifest = runtime = annotation
 
-Puis mettre à jour `keybuzz-infra/k8s/keybuzz-api-dev/deployment.yaml` avec le tag précédent.
+**Interdit** : `kubectl set image`, `kubectl patch`, `kubectl edit`.
 
 ---
 
