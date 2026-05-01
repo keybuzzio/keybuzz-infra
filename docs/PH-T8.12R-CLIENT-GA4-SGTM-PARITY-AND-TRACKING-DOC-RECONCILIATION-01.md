@@ -124,22 +124,32 @@ Build Docker `--no-cache` depuis le bastion (`46.62.171.61`) :
 
 ---
 
-## Validation visuelle IDE
+## Validation visuelle IDE — CONFIRMEE PAR HAR
 
-**En attente de confirmation Ludovic.**
+**Validee par Ludovic via HAR exports (2026-05-01).**
 
-A verifier :
+### `/register` (HAR : `client.keybuzz.io(register).har`)
+- [x] GA4 : `t.keybuzz.pro/gtag/js?id=G-R3QQDYEBFG` charge + hits `imtzze` avec `dl=.../register`
+- [x] sGTM : requetes vers `t.keybuzz.pro` (collecteur + service_worker)
+- [x] TikTok : `analytics.tiktok.com/i18n/pixel/events.js?sdkid=D7PT12JC77U44OJIPC10` charge, evenement `EngagedSession`
+- [x] LinkedIn : `snap.licdn.com/li.lms-analytics/insight.min.js` + `px.ads.linkedin.com/collect?pid=9969977`
+- [x] Meta : **aucun** `connect.facebook.net` — absent
+- [x] CompletePayment : aucun evenement reseau
 
-### `/register` et `/login`
-- [ ] GA4 : script `t.keybuzz.pro/gtag/js?id=G-R3QQDYEBFG` charge (Network)
-- [ ] sGTM : requetes vers `t.keybuzz.pro` (Network)
-- [ ] TikTok : script `analytics.tiktok.com` charge (Network)
-- [ ] LinkedIn : script `snap.licdn.com` charge (Network)
-- [ ] Meta : **aucun** `connect.facebook.net` (Network)
-- [ ] CompletePayment : aucun dans Console
+### `/login` (HAR : `client.keybuzz.io(login).har`)
+- [x] GA4 : hits `imtzze` avec `dl=.../login` via `t.keybuzz.pro`
+- [x] sGTM : requetes vers `t.keybuzz.pro`
+- [x] TikTok : `analytics.tiktok.com` charge, pixel `D7PT12JC77U44OJIPC10`
+- [x] LinkedIn : `px.ads.linkedin.com/collect?pid=9969977` + `attribution_trigger`
+- [x] Meta : absent
+- [x] CompletePayment : absent
 
-### Pages protegees (`/inbox`, `/dashboard`)
-- [ ] Aucun tracking publicitaire charge
+### `/dashboard` — page protegee (HAR : `client.keybuzz.io(dashboard).har`)
+- [x] **Aucun tracking publicitaire** apres chargement `page_3` (dashboard)
+- [x] Pas de nouveau `t.keybuzz.pro`, `analytics.tiktok.com`, `snap.licdn.com`, `px.ads.linkedin.com` dans le waterfall `page_3`
+- [x] Les entrees tracking dans le HAR sont exclusivement heritees des pages register/login anterieures
+
+> Note : le HAR dashboard contient l'historique register/login dans les pages precedentes. La fenetre `page_3` (dashboard) est propre.
 
 ---
 
@@ -209,6 +219,6 @@ kubectl rollout status deploy/keybuzz-client -n keybuzz-client-prod
 
 ## Verdict
 
-**GO CLIENT GA4 SGTM RESTORED**
+**GO CLIENT GA4 SGTM RESTORED — VISUAL QA DONE**
 
-**CLIENT FUNNEL GA4 SGTM RESTORED — TIKTOK AND LINKEDIN PRESERVED — META CLIENT STILL BLOCKED BY DEDUP RISK — NO FAKE EVENT — NO FAKE SPEND — GITOPS STRICT — VISUAL QA PENDING**
+**CLIENT FUNNEL GA4 SGTM RESTORED — TIKTOK AND LINKEDIN PRESERVED — META CLIENT STILL BLOCKED BY DEDUP RISK — NO FAKE EVENT — NO FAKE SPEND — GITOPS STRICT — VISUAL QA DONE**
