@@ -184,7 +184,15 @@ Commit : `7a02f5c`
 
 11/11 PASS.
 
-**Note** : Validation HAR navigateur (réseau HTTP réel) en attente de vérification visuelle par Ludovic. Les résultats ci-dessus sont des validations bundle compilé côté serveur.
+**Validation HAR navigateur confirmée par Ludovic (2026-05-01 20:33 UTC+2) — VISUAL QA DONE.**
+
+| Page | GA4 | sGTM | TikTok | LinkedIn | Meta | Purchase absent | Protected clean |
+|---|---|---|---|---|---|---|---|
+| `/register` | OK | OK | OK | OK | OK | OK | — |
+| `/login` | OK | OK | OK | OK | OK | OK | — |
+| `/dashboard` | — | — | — | — | — | — | **OK** (0 tracking pub) |
+
+AW direct absent. Meta Purchase browser absent. TikTok CompletePayment browser absent.
 
 ---
 
