@@ -1804,3 +1804,50 @@ Decision :
 - la prochaine action logique n'est pas un fix, mais soit :
   1. attendre un premier vrai funnel PROD;
   2. ou lancer une validation controlee sur un vrai parcours `/register` en PROD si necessaire.
+
+---
+
+## PH-T8.12U — Etat tracking Client PROD combine (2026-05-01)
+
+Image Client PROD : `v3.5.147-sample-demo-platform-aware-tracking-parity-prod`
+Digest : `sha256:6a95073a92edbbcdf2fa55b9f36e25ea8e51ddaefc4d0e2aa59f1de5b1bb4ef5`
+
+### Tracking actif sur funnel (/register, /login)
+
+| Plateforme | Type | ID/URL | Statut |
+|------------|------|--------|--------|
+| GA4 | Browser | `G-R3QQDYEBFG` | Actif |
+| sGTM | Routing | `https://t.keybuzz.pro` | Actif |
+| TikTok Pixel | Browser | `D7PT12JC77U44OJIPC10` | Actif (PageView, SubmitForm, InitiateCheckout) |
+| LinkedIn Insight Tag | Browser | `9969977` | Actif |
+| Meta Pixel | Browser | `1234164602194748` | Actif (PageView, Lead, CompleteRegistration, InitiateCheckout) |
+
+### Conversions business server-side only
+
+| Event | Plateforme | Transport | event_id format |
+|-------|-----------|-----------|-----------------|
+| Purchase | Meta CAPI | `graph.facebook.com` | `conv_{tenant}_{Purchase}_{sub_id}` |
+| Purchase | TikTok Events API | `business-api.tiktok.com` | `conv_{tenant}_{Purchase}_{sub_id}` |
+| StartTrial | Meta CAPI + TikTok + LinkedIn CAPI | Respectifs | `conv_{tenant}_{StartTrial}_{sub_id}` |
+
+### Events browser retires (dedup)
+
+- **Meta Purchase** : retire du browser (PH-T8.12S) — CAPI server-side only, pas de event_id commun browser/server.
+- **TikTok CompletePayment** : retire du browser (PH-T8.12P) — Events API server-side only, event_id mismatch.
+
+### Pages protegees
+
+`/dashboard`, `/inbox`, `/orders`, `/settings`, `/channels`, `/suppliers`, `/knowledge`, `/playbooks`, `/ai-journal`, `/billing`, `/onboarding`, `/workspace-setup`, `/start`, `/help` — aucun tracking publicitaire.
+
+### Gaps restants
+
+| Priorite | Gap |
+|----------|-----|
+| P2 | TikTok content_id manquant sur ViewContent |
+| P2 | TikTok spend bloque (Business API credentials) |
+| P3 | LinkedIn spend hors scope (Ads Reporting approval) |
+| P3 | Google destination native non implementee (via sGTM/Addingwell) |
+
+### Admin wording (PH-ADMIN-T8.12V)
+
+Phase d'alignement documentaire pour refleter cet etat dans les surfaces Admin Marketing et la memoire projet.
