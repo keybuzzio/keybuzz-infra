@@ -304,7 +304,7 @@ spec:
         # PH-T8.10D: owner-scoped funnel+activation aggregation (2026-04-24)
         # PH-T8.10W: LinkedIn launch readiness — li_fat_id persist in signup_attribution (KEY-188)
         # PH-T8.11Q: LinkedIn CAPI native — adapter + dispatch + test (KEY-204)
-        image: ghcr.io/keybuzzio/keybuzz-api:v3.5.129-marketplace-channel-context-dev  # rollback: ghcr.io/keybuzzio/keybuzz-api:v3.5.127-trial-autopilot-assisted-dev
+        image: ghcr.io/keybuzzio/keybuzz-api:v3.5.130-platform-aware-refund-strategy-dev  # rollback: ghcr.io/keybuzzio/keybuzz-api:v3.5.129-marketplace-channel-context-dev
         livenessProbe:
           httpGet:
             path: /health
