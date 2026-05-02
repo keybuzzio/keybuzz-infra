@@ -277,22 +277,24 @@ L'endpoint controlledSend est inclus dans v3.5.134. Le rollback vers v3.5.133 le
 
 ## 16. INBOX QA LUDOVIC
 
-**STATUT : EN ATTENTE**
+**STATUT : VALIDE** (confirme en Y.9B.1, 2026-05-02)
 
-Ludovic doit confirmer :
-- Email recu en inbox (pas spam)
-- Rendu desktop OK
-- Rendu mobile OK
-- Accents OK
-- Tirets classiques OK (pas d'em dash)
-- Lien unsubscribe visible
-- CTA OK
+| Check | Resultat |
+|---|---|
+| Inbox, pas spam | OK |
+| Rendu desktop | OK |
+| Rendu mobile | OK |
+| Accents / apostrophes | OK |
+| Tirets classiques | OK |
+| Lien "Se desabonner" visible | OK |
+| CTA | OK |
+| Wording | OK |
 
 ---
 
 ## 17. VERDICT
 
-**GO PARTIEL**
+**GO COMPLET**
 
 CONTROLLED LIFECYCLE EMAIL SENT IN PROD
 - ONE RECIPIENT ALLOWLISTED (ludo.gonthier@gmail.com)
@@ -301,4 +303,4 @@ CONTROLLED LIFECYCLE EMAIL SENT IN PROD
 - CRONJOB STILL DRY-RUN
 - NO BULK SEND
 - NO TRACKING/BILLING/CAPI DRIFT
-- WAITING LUDOVIC INBOX QA
+- LUDOVIC INBOX QA VALIDATED (Y.9B.1)
