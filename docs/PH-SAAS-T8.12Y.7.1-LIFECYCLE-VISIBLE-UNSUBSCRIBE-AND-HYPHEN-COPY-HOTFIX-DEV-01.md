@@ -181,6 +181,19 @@ Cela garantit que toutes les entités HTML numériques (`&#39;` → `'`, `&#233;
 
 ---
 
+## Validation QA Ludovic (ajouté PH-SAAS-T8.12Y.7.2)
+
+| Check Ludovic | Résultat |
+|---|---|
+| Inbox, pas spam | **OK** |
+| Accents / apostrophes / caractères spéciaux | **OK** |
+| Rendu mobile | **OK** |
+| Lien unsubscribe visible | **OK** |
+| Tirets classiques (plus de `—`) | **OK** |
+| Rendu global | **OK** |
+
+---
+
 ## Gaps
 
 1. Les `&#39;` restent dans le **code source** des bodyText (template literals). Le nettoyage est fait au runtime par `buildEmailText`. Nettoyage source possible dans une phase future.
@@ -193,10 +206,18 @@ Cela garantit que toutes les entités HTML numériques (`&#39;` → `'`, `&#233;
 ## Rollback GitOps strict
 
 ```bash
-# Rollback API DEV
-kubectl set image deployment/keybuzz-api \
-  keybuzz-api=ghcr.io/keybuzzio/keybuzz-api:v3.5.137-trial-lifecycle-controlled-send-dev \
-  -n keybuzz-api-dev
+# 1. Modifier le manifest
+cd /opt/keybuzz/keybuzz-infra
+sed -i 's|v3.5.138-lifecycle-visible-unsubscribe-copy-dev|v3.5.137-trial-lifecycle-controlled-send-dev|' \
+  k8s/keybuzz-api-dev/deployment.yaml
+
+# 2. Commit + push
+git add k8s/keybuzz-api-dev/deployment.yaml
+git commit -m "rollback(api-dev): revert to v3.5.137-trial-lifecycle-controlled-send-dev"
+git push origin main
+
+# 3. Apply + verify
+kubectl apply -f k8s/keybuzz-api-dev/deployment.yaml
 kubectl rollout status deployment/keybuzz-api -n keybuzz-api-dev
 ```
 
