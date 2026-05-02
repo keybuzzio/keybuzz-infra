@@ -304,7 +304,8 @@ spec:
         # PH-T8.10D: owner-scoped funnel+activation aggregation (2026-04-24)
         # PH-T8.10W: LinkedIn launch readiness — li_fat_id persist in signup_attribution (KEY-188)
         # PH-T8.11Q: LinkedIn CAPI native — adapter + dispatch + test (KEY-204)
-        image: ghcr.io/keybuzzio/keybuzz-api:v3.5.134-email-subject-encoding-hotfix-dev  # rollback: ghcr.io/keybuzzio/keybuzz-api:v3.5.133-email-copy-logo-polish-dev
+        # PH-SAAS-T8.12Y.5: trial lifecycle email foundation — idempotence + optout + dry-run (2026-05-02)
+        image: ghcr.io/keybuzzio/keybuzz-api:v3.5.135-trial-lifecycle-foundation-dev  # rollback: ghcr.io/keybuzzio/keybuzz-api:v3.5.134-email-subject-encoding-hotfix-dev
         livenessProbe:
           httpGet:
             path: /health
