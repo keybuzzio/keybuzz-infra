@@ -99,7 +99,7 @@ spec:
           # PH-SAAS-T8.12Y.4: transactional email design system PROD promotion (2026-05-02)
           # PH-SAAS-T8.12Y.8: trial lifecycle foundation + unsubscribe PROD (2026-05-02)
           # PH-SAAS-T8.12Y.9A: PROD dry-run-only routes + X-Lifecycle-Token auth (2026-05-02)
-          image: ghcr.io/keybuzzio/keybuzz-api:v3.5.134-trial-lifecycle-controlled-send-prod  # rollback: ghcr.io/keybuzzio/keybuzz-api:v3.5.133-trial-lifecycle-cron-dryrun-prod
+          image: ghcr.io/keybuzzio/keybuzz-api:v3.5.135-lifecycle-pilot-safety-gates-prod  # rollback: ghcr.io/keybuzzio/keybuzz-api:v3.5.134-trial-lifecycle-controlled-send-prod
           imagePullPolicy: Always
           ports:
             - containerPort: 3001
