@@ -95,7 +95,9 @@ spec:
           # PH-T8.11Q.1: LinkedIn CAPI native PROD — adapter + dispatch + test (KEY-204)
           # PREVIOUS: v3.5.128-trial-autopilot-assisted-prod  # PH-T8.12Q.2 rollback target
           # PH-API-T8.12Q.2: platform-aware refund protection + response strategy PROD (KEY-235)
-          image: ghcr.io/keybuzzio/keybuzz-api:v3.5.130-platform-aware-refund-strategy-prod
+          # PREVIOUS: v3.5.130-platform-aware-refund-strategy-prod  # PH-API-T8.12Q.2 rollback target
+          # PH-SAAS-T8.12Y.4: transactional email design system PROD promotion (2026-05-02)
+          image: ghcr.io/keybuzzio/keybuzz-api:v3.5.131-transactional-email-design-prod
           imagePullPolicy: Always
           ports:
             - containerPort: 3001
