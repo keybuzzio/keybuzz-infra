@@ -1,0 +1,51 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: trial-lifecycle-dryrun
+  namespace: keybuzz-api-prod
+spec:
+  # Daily at 08:00 UTC (10:00 Paris)
+  schedule: "0 8 * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      ttlSecondsAfterFinished: 86400
+      template:
+        spec:
+          containers:
+          - name: lifecycle-tick
+            image: curlimages/curl:8.7.1
+            command: ["/bin/sh", "-c"]
+            args:
+            - |
+              echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] trial-lifecycle-dryrun starting"
+              RESPONSE=$(curl -sf \
+                -X POST \
+                -H "Content-Type: application/json" \
+                -H "X-Lifecycle-Token: ${LIFECYCLE_TOKEN}" \
+                -d '{"dryRun":true}' \
+                --max-time 30 \
+                "http://keybuzz-api.keybuzz-api-prod.svc.cluster.local:80/internal/trial-lifecycle/tick")
+              EXIT=$?
+              if [ $EXIT -ne 0 ]; then
+                echo "ERROR: curl failed with exit code $EXIT"
+                exit 1
+              fi
+              echo "Response: $RESPONSE"
+              echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] trial-lifecycle-dryrun complete"
+            env:
+            - name: LIFECYCLE_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: keybuzz-api-jwt
+                  key: COOKIE_SECRET
+            resources:
+              requests:
+                cpu: 50m
+                memory: 32Mi
+              limits:
+                cpu: 100m
+                memory: 64Mi
+          restartPolicy: Never
