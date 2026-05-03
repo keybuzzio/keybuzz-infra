@@ -309,7 +309,7 @@ spec:
         # PH-SAAS-T8.12Y.7: recipientOverride DEV-only + controlled send (2026-05-02)
         # PH-SAAS-T8.12Y.7.1: visible unsubscribe + em dash removal + text/plain entity cleanup (2026-05-02)
         # PH-SAAS-T8.12Y.9A: PROD dry-run guard + X-Lifecycle-Token auth
-        image: ghcr.io/keybuzzio/keybuzz-api:v3.5.143b-conversation-order-link-dev  # rollback: ghcr.io/keybuzzio/keybuzz-api:v3.5.142-ai-tracking-context-dev
+        image: ghcr.io/keybuzzio/keybuzz-api:v3.5.144-conversation-tracking-code-fallback-dev  # rollback: ghcr.io/keybuzzio/keybuzz-api:v3.5.143b-conversation-order-link-dev
         livenessProbe:
           httpGet:
             path: /health
