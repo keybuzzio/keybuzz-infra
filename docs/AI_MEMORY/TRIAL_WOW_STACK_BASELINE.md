@@ -117,7 +117,21 @@
 
 ---
 
-## 5. DETTES RESTANTES (non bloquantes)
+## 5. DATA HYGIENE BASELINE — PH-SAAS-T8.12Z
+
+> Cloture : 2026-05-03 | Phase : PH-SAAS-T8.12Z.8
+
+- Cleanup PROD Z.6 termine : 12 tenants test (C1-C12) supprimes
+- Verification post-cleanup Z.7 : baseline confirmee
+- **12 tenants PROD restants**, 12/12 exempts (3 DO_NOT_TOUCH + 5 KEEP_PROOF + 4 KEEP_EXEMPT)
+- 0 orphelin critique, lifecycle Y.9B intacte
+- Backups Z.5 sur bastion (SHA256 verifies, retention 90j)
+- Tout futur test tenant doit etre : soit exempt (`tenant_billing_exempt`) soit nettoye selon la procedure Z (audit → validation Ludovic → backup → transaction → post-verify)
+- Detail complet : `docs/AI_MEMORY/DATA_HYGIENE_BASELINE.md`
+
+---
+
+## 6. DETTES RESTANTES (non bloquantes, mise a jour Z.8)
 
 | Dette | Sévérité | Phase recommandée |
 |---|---|---|
@@ -132,7 +146,7 @@
 
 ---
 
-## 6. PHASES RECOMMANDÉES
+## 7. PHASES RECOMMANDEES
 
 | Phase | Objectif | Priorité | Dépendance |
 |---|---|---|---|
