@@ -1,0 +1,43 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: carrier-tracking-poll
+  namespace: keybuzz-api-dev
+  labels:
+    app: carrier-tracking-poll
+spec:
+  schedule: "0 */2 * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 5
+  jobTemplate:
+    spec:
+      backoffLimit: 1
+      activeDeadlineSeconds: 300
+      template:
+        metadata:
+          labels:
+            app: carrier-tracking-poll
+        spec:
+          restartPolicy: Never
+          containers:
+            - name: poll
+              image: badouralix/curl-jq:latest
+              command: ["/bin/sh", "-c"]
+              args:
+                - |
+                  echo "[$(date -u +%H:%M:%S)] Carrier tracking poll starting..."
+                  RESP=$(curl -sk -X POST \
+                    -H 'Content-Type: application/json' \
+                    -d '{}' \
+                    --max-time 120 \
+                    https://api-dev.keybuzz.io/api/v1/orders/tracking/poll)
+                  echo "Response: $RESP"
+                  echo "[$(date -u +%H:%M:%S)] Carrier tracking poll complete"
+              resources:
+                limits:
+                  cpu: "100m"
+                  memory: "64Mi"
+                requests:
+                  cpu: "50m"
+                  memory: "32Mi"
