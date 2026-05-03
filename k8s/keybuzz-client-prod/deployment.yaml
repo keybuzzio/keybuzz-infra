@@ -65,7 +65,8 @@ spec:
           #   + LinkedIn 9969977 + Meta 1234164602194748
           # Purchase browser ABSENT (Meta CAPI server-side only)
           # CompletePayment browser ABSENT (TikTok Events API server-side only)
-          image: ghcr.io/keybuzzio/keybuzz-client:v3.5.147-sample-demo-platform-aware-tracking-parity-prod  # rollback: v3.5.146-sample-demo-platform-aware-prod
+          # PH-CLIENT-T8.12AJ.1: Shopify official logo PNG (visual only, no connector activation)
+          image: ghcr.io/keybuzzio/keybuzz-client:v3.5.148-shopify-official-logo-tracking-parity-prod  # rollback: v3.5.147-sample-demo-platform-aware-tracking-parity-prod
           imagePullPolicy: Always
           ports:
             - containerPort: 3000
