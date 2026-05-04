@@ -66,7 +66,7 @@ spec:
           # Purchase browser ABSENT (Meta CAPI server-side only)
           # CompletePayment browser ABSENT (TikTok Events API server-side only)
           # PH-CLIENT-T8.12AJ.1: Shopify official logo PNG (visual only, no connector activation)
-          image: ghcr.io/keybuzzio/keybuzz-client:v3.5.149-amazon-connector-status-ux-prod  # rollback: ghcr.io/keybuzzio/keybuzz-client:v3.5.148-shopify-official-logo-tracking-parity-prod
+          image: ghcr.io/keybuzzio/keybuzz-client:v3.5.150-amazon-inbound-status-ux-prod  # PH-SAAS-T8.12AM.8: AM.6+AM.7 honest status + country selection | rollback: v3.5.149-amazon-connector-status-ux-prod
           imagePullPolicy: Always
           ports:
             - containerPort: 3000
