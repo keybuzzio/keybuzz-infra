@@ -309,7 +309,7 @@ spec:
         # PH-SAAS-T8.12Y.7: recipientOverride DEV-only + controlled send (2026-05-02)
         # PH-SAAS-T8.12Y.7.1: visible unsubscribe + em dash removal + text/plain entity cleanup (2026-05-02)
         # PH-SAAS-T8.12Y.9A: PROD dry-run guard + X-Lifecycle-Token auth
-        image: ghcr.io/keybuzzio/keybuzz-api:v3.5.149-amazon-activation-country-dev  # PH-SAAS-T8.12AM.9 | rollback: v3.5.148-amazon-connector-delete-marketplace-fix-dev
+        image: ghcr.io/keybuzzio/keybuzz-api:v3.5.150-amazon-inbound-visible-dev  # PH-SAAS-T8.12AM.9.1 | rollback: v3.5.149-amazon-activation-country-dev
         livenessProbe:
           httpGet:
             path: /health
