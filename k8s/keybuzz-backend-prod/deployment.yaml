@@ -24,7 +24,7 @@ spec:
           # ROLLBACK: v1.0.39-td05-externalmsg-prod
           # PREVIOUS: v1.0.40-pj-fix-prod
           # PH132-D: Updated to match cluster + added API_INTERNAL_URL
-          image: ghcr.io/keybuzzio/keybuzz-backend:v1.0.46-ph-recovery-01-prod  # PH-PROD-PROMOTION-01: autopilot callback + ExternalMessage productDb fix | rollback: v1.0.44-ph150-thread-fix-prod
+          image: ghcr.io/keybuzzio/keybuzz-backend:v1.0.40-amazon-oauth-marketplace-fix-prod  # PH-SAAS-T8.12AM.5: OAuth marketplace routing fix | rollback: v1.0.46-ph-recovery-01-prod
           ports:
             - containerPort: 4000
           envFrom:
