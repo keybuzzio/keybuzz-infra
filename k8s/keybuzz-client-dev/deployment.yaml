@@ -66,7 +66,7 @@ spec:
           # PH-SAAS-T8.12O: Seller-first alignment — refund-first wording removed from demo
           # PREVIOUS: v3.5.143-sample-demo-seller-first-dev  # PH-SAAS-T8.12R rollback target
           # PH-SAAS-T8.12R: platform-aware demo surface alignment (KEY-235)
-          image: ghcr.io/keybuzzio/keybuzz-client:v3.5.152-amazon-inbound-status-ux-dev  # PH-SAAS-T8.12AM.7 | rollback: v3.5.151-amazon-oauth-country-selection-ux-dev
+          image: ghcr.io/keybuzzio/keybuzz-client:v3.5.153-amazon-activation-country-ux-dev  # PH-SAAS-T8.12AM.9 | rollback: v3.5.152-amazon-inbound-status-ux-dev
           imagePullPolicy: Always
           ports:
             - containerPort: 3000
