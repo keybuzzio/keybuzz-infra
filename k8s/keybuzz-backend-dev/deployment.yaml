@@ -29,7 +29,7 @@ spec:
     spec:
       containers:
         - name: keybuzz-backend
-          image: ghcr.io/keybuzzio/keybuzz-backend:v1.0.44-amazon-oauth-env-guard-dev  # PH-SAAS-T8.12AO | rollback: v1.0.43-amazon-oauth-activation-country-dev
+          image: ghcr.io/keybuzzio/keybuzz-backend:v1.0.45-amazon-oauth-returnto-guard-dev  # PH-SAAS-T8.12AO.2 | rollback: v1.0.44-amazon-oauth-env-guard-dev
           imagePullPolicy: Always
           ports:
             - name: http
@@ -53,6 +53,8 @@ spec:
               value: admin@keybuzz.io
             - name: VAULT_ADDR
               value: "http://vault.default.svc.cluster.local:8200"
+            - name: CLIENT_APP_URL
+              value: "https://client-dev.keybuzz.io"
             - name: ADMIN_CALLBACK_URL
               value: https://client-dev.keybuzz.io/inbound-email/amazon/callback
             - name: KEYBUZZ_DEV_MODE
