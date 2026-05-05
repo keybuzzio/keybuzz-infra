@@ -66,7 +66,7 @@ spec:
           # PH-SAAS-T8.12O: Seller-first alignment — refund-first wording removed from demo
           # PREVIOUS: v3.5.143-sample-demo-seller-first-dev  # PH-SAAS-T8.12R rollback target
           # PH-SAAS-T8.12R: platform-aware demo surface alignment (KEY-235)
-          image: ghcr.io/keybuzzio/keybuzz-client:v3.5.156-promo-visible-price-dev
+          image: ghcr.io/keybuzzio/keybuzz-client:v3.5.157-promo-winner-ux-fix-dev
           imagePullPolicy: Always
           ports:
             - containerPort: 3000
