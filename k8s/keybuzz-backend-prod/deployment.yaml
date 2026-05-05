@@ -24,7 +24,7 @@ spec:
           # ROLLBACK: v1.0.39-td05-externalmsg-prod
           # PREVIOUS: v1.0.40-pj-fix-prod
           # PH132-D: Updated to match cluster + added API_INTERNAL_URL
-          image: ghcr.io/keybuzzio/keybuzz-backend:v1.0.45-amazon-oauth-returnto-guard-prod  # PH-SAAS-T8.12AO.3: safe returnTo redirect + CLIENT_APP_URL | rollback: v1.0.44-amazon-oauth-env-guard-prod
+          image: ghcr.io/keybuzzio/keybuzz-backend:v1.0.46-amazon-oauth-activation-bridge-prod  # PH-SAAS-T8.12AO.4: auto-provision tenant in Backend DB | rollback: v1.0.45-amazon-oauth-returnto-guard-prod
           ports:
             - containerPort: 4000
           envFrom:
