@@ -68,7 +68,9 @@ spec:
           # PH-SAAS-T8.12R: platform-aware demo surface alignment (KEY-235)
           # PREVIOUS: v3.5.157-promo-winner-ux-fix-dev
           # PH-SAAS-T8.12AO.6: explicit Amazon country choice in /start before OAuth (KEY-249)
-          image: ghcr.io/keybuzzio/keybuzz-client:v3.5.158-amazon-start-country-choice-dev
+          # PREVIOUS: v3.5.158-amazon-start-country-choice-dev
+          # PH-SAAS-T8.12AO.6.1: EU-only filter + expected_channel in returnUrl
+          image: ghcr.io/keybuzzio/keybuzz-client:v3.5.159-amazon-marketplace-routing-source-dev
           imagePullPolicy: Always
           ports:
             - containerPort: 3000
