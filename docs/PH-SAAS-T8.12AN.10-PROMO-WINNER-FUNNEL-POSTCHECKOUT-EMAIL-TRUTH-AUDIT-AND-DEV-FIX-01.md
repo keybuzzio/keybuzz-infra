@@ -234,7 +234,7 @@ de les activer.
 | Service | Tag | Digest | Commit source | Commit infra |
 |---------|-----|--------|---------------|-------------|
 | API DEV | `v3.5.154-promo-winner-funnel-fix-dev` | `sha256:...` (voir push log) | `d7ad2d86` (ph147.4/source-of-truth) | `0045439` (main) |
-| Client DEV | `v3.5.157-promo-winner-ux-fix-dev` | `sha256:b5d15b74f751...` | `10cec7f` + TS fix commit (ph148/onboarding-activation-replay) | `0045439` (main) |
+| Client DEV | `v3.5.157-promo-winner-ux-fix-dev` | `sha256:b5d15b74f7516eaeb7cbc7539a3edc1313ae5a2db5db1556d6c851b5c7752e5e` | `10cec7f` + `3a813d2` (TS strict fix) (ph148/onboarding-activation-replay) | `0045439` (main) |
 
 Build args Client DEV :
 - `NEXT_PUBLIC_API_URL=https://api-dev.keybuzz.io`
