@@ -287,7 +287,7 @@ spec:
               value: "https://api.keybuzz.io/webhooks/shopify"
             - name: AMAZON_OUTBOUND_ATTACHMENTS_ENABLED
             - name: LEGACY_BACKEND_URL
-              value: "http://keybuzz-backend.keybuzz-backend-dev.svc.cluster.local:4000"
+              value: "http://keybuzz-backend.keybuzz-backend-prod.svc.cluster.local:4000"
             - name: KEYBUZZ_INTERNAL_PROXY_TOKEN
               value: "true"
             # PH-T8.2E: tracking env vars (synced from live PROD)

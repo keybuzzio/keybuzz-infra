@@ -24,7 +24,7 @@ spec:
           # ROLLBACK: v1.0.39-td05-externalmsg-prod
           # PREVIOUS: v1.0.40-pj-fix-prod
           # PH132-D: Updated to match cluster + added API_INTERNAL_URL
-          image: ghcr.io/keybuzzio/keybuzz-backend:v1.0.42-amazon-oauth-inbound-bridge-prod  # PH-SAAS-T8.12AM.10: AM.9 inbound-connection bridge | rollback: v1.0.41-amazon-inbound-activation-prod
+          image: ghcr.io/keybuzzio/keybuzz-backend:v1.0.44-amazon-oauth-env-guard-prod  # PH-SAAS-T8.12AO.1: env var overrides Vault redirect_uri + cross-env guard | rollback: v1.0.42-amazon-oauth-inbound-bridge-prod
           ports:
             - containerPort: 4000
           envFrom:
