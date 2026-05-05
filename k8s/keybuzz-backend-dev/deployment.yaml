@@ -29,7 +29,7 @@ spec:
     spec:
       containers:
         - name: keybuzz-backend
-          image: ghcr.io/keybuzzio/keybuzz-backend:v1.0.45-amazon-oauth-returnto-guard-dev  # PH-SAAS-T8.12AO.2 | rollback: v1.0.44-amazon-oauth-env-guard-dev
+          image: ghcr.io/keybuzzio/keybuzz-backend:v1.0.46-amazon-oauth-activation-bridge-dev  # PH-SAAS-T8.12AO.4 | rollback: v1.0.45-amazon-oauth-returnto-guard-dev
           imagePullPolicy: Always
           ports:
             - name: http
