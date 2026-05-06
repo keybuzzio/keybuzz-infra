@@ -15,10 +15,12 @@
 - Aucun build si la branche, le commit et le repo ne correspondent pas a la source validee de la phase.
 - Pas de `:latest`.
 - Pas de hardcode tenant, URL, credentials.
+- Pas de hardcode tenant, user, seller, marketplace, pays, compte externe, email de test ou comportement client-specifique. KeyBuzz est un SaaS multi-tenant : toute logique doit etre derivee du tenant courant, du channel, de la marketplace, de la config ou de la DB.
 - Pas d'exposition des couts LLM au client, uniquement KBActions.
 - Multi-tenant strict partout.
 - Toujours documenter image avant/apres, commit, rollback, validation.
 - Chaque retour CE doit inclure le chemin complet du rapport final cree, pour lecture locale directe.
+- Toute phase qui touche aux messages, a l'IA, a l'Inbox, aux connecteurs, aux commandes, au tracking colis, aux playbooks, aux escalades ou a l'autopilot doit inclure un audit anti-regression des features IA deja documentees dans les rapports PH. Les prompts doivent rechercher les rapports PH pertinents dans `keybuzz-infra/docs`, verifier que les features annoncees existent encore en source/runtime, et creer ou mettre a jour Linear pour tout ecart. Ne jamais reconstruire une feature "par dessus du vide" sans prouver la source de verite actuelle.
 
 ## Source de verite
 
@@ -104,6 +106,19 @@ Beaucoup de features client dependent de routes BFF Next.js. Verifier :
 - URL interne correcte;
 - mapping de reponse.
 
+### AI / Messaging feature parity
+
+Risque recurrent : une feature IA ou messaging peut rester visible dans l'UI alors que la logique API/runtime a ete perdue lors d'un build depuis une mauvaise branche ou une source non alignee. Avant toute phase IA/message/connecteur, auditer la chaine complete :
+
+- conversation -> commande -> tracking -> contexte IA;
+- ne pas redemander le numero de commande ou de suivi si KeyBuzz le connait deja;
+- generation de brouillon IA, score, garde-fous, seller-first, platform-aware;
+- escalade vers agent client ou Agent KeyBuzz, avec responsable nomme et statut lisible;
+- playbooks, tags, SLA, pieces jointes, preuves, historique client;
+- journal d'audit et trace de decision.
+
+STOP si la source prouvee ne correspond pas aux promesses du dernier rapport PH, du Media Buyer Brief ou de l'UI.
+
 ### K8s service port
 
 Toujours appeler le port service K8s, pas le port container. Exemple documente :
@@ -136,6 +151,7 @@ Arreter et demander validation si :
 
 - Domaine exact identifie.
 - Rapport recent lu.
+- Rapports PH lies a la feature recherches dans `keybuzz-infra/docs` et croises avec le code/runtime.
 - Etat DEV/PROD lu.
 - Branche/source de build imposee si build possible.
 - Risque multi-tenant formule.
