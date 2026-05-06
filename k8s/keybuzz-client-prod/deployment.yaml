@@ -66,7 +66,7 @@ spec:
           # Purchase browser ABSENT (Meta CAPI server-side only)
           # CompletePayment browser ABSENT (TikTok Events API server-side only)
           # PH-CLIENT-T8.12AJ.1: Shopify official logo PNG (visual only, no connector activation)
-          image: ghcr.io/keybuzzio/keybuzz-client:v3.5.159-amazon-marketplace-routing-source-prod  # PH-SAAS-T8.12AO.7: Amazon start marketplace choice PROD | rollback: v3.5.153-promo-visible-price-prod
+          image: ghcr.io/keybuzzio/keybuzz-client:v3.5.160-amazon-start-activation-contract-prod  # PH-SAAS-T8.12AO.9: activation contract fix PROD | rollback: v3.5.159-amazon-marketplace-routing-source-prod
           imagePullPolicy: Always
           ports:
             - containerPort: 3000
