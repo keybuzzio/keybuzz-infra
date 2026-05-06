@@ -70,7 +70,8 @@ spec:
           # PH-SAAS-T8.12AO.6: explicit Amazon country choice in /start before OAuth (KEY-249)
           # PREVIOUS: v3.5.158-amazon-start-country-choice-dev
           # PH-SAAS-T8.12AO.10.1: Inbound guide polish + demo gating
-          image: ghcr.io/keybuzzio/keybuzz-client:v3.5.162-amazon-inbound-guide-demo-gating-dev
+          # PH-SAAS-T8.12AP.1A: AI no-reask fix — orderRef always injected + anti-reask instruction (KEY-256)
+          image: ghcr.io/keybuzzio/keybuzz-client:v3.5.163-ai-no-reask-fix-dev  # rollback: v3.5.162-amazon-inbound-guide-demo-gating-dev
           imagePullPolicy: Always
           ports:
             - containerPort: 3000
