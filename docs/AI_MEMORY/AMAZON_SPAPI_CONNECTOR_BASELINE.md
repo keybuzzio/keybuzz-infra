@@ -1,6 +1,6 @@
 # Amazon SP-API Connector Baseline
 
-> Derniere mise a jour : 2026-05-05 (AO.6.1 reconciliation)
+> Derniere mise a jour : 2026-05-06 (AO.10.3 closure)
 > Scope : Amazon connector, OAuth, marketplaces, inbound email, orders, AI order/tracking context
 > Statut : memoire durable a relire avant toute phase Amazon
 
@@ -245,9 +245,24 @@ STOP si :
 - Client build sans verification tracking
 - rollback/deploy documente avec des commandes runtime directes interdites au lieu de GitOps strict
 
+## Amazon Inbound Setup Guide (AO.10 → AO.10.2)
+
+Depuis AO.10, le Client affiche un guide post-activation pour configurer l'adresse inbound dans Amazon Seller Central.
+
+Invariants :
+
+- `/channels` : variante compact du guide, sans doublon d'adresse email, miniatures Seller Central cliquables avec lightbox
+- `/start` : variante full du guide, affichée après activation OAuth réussie, avec adresse inbound, miniatures, et bouton "J'ai ajouté l'adresse"
+- Les miniatures pointent vers `/images/amazon/notification-retours.jpg` et `/images/amazon/messagerie.jpg`
+- L'URL Seller Central utilise `getSellerCentralNotificationsUrl(countryCode)` avec la table `SELLER_CENTRAL_DOMAINS`
+- Preuves : PH-SAAS-T8.12AO.10, AO.10.1, AO.10.2
+
 ## Phases recentes a relire avant changement Amazon
 
 - `PH-SAAS-T8.12AM.10-AMAZON-OAUTH-INBOUND-BRIDGE-PROD-PROMOTION-01.md`
 - `PH-SAAS-T8.12AO.4-AMAZON-OAUTH-ACTIVATION-BRIDGE-PROD-TRUTH-AUDIT-AND-FIX-01.md`
 - `PH-SAAS-T8.12AO.5-AMAZON-OAUTH-KEY248-CLOSURE-AND-START-COUNTRY-CHOICE-HANDOFF-01.md`
 - `PH-API-T8.12AI-CONVERSATION-ORDER-TRACKING-LINK-PROD-PROMOTION-01.md`
+- `PH-SAAS-T8.12AO.10-AMAZON-INBOUND-SETUP-GUIDE-START-CHANNELS-DEV-01.md`
+- `PH-SAAS-T8.12AO.10.1-AMAZON-INBOUND-GUIDE-POLISH-AND-DEMO-GATING-DEV-01.md`
+- `PH-SAAS-T8.12AO.10.2-AMAZON-INBOUND-GUIDE-POLISH-AND-DEMO-GATING-PROD-PROMOTION-01.md`

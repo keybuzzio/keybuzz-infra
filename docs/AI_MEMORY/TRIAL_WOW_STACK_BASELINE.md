@@ -1,7 +1,7 @@
 # Trial Wow Stack Baseline
 
-> Dernière mise à jour : 2026-05-01
-> Phase de clôture : PH-SAAS-T8.12X
+> Dernière mise à jour : 2026-05-06
+> Phase de clôture : PH-SAAS-T8.12X (étendu AO.10.3)
 > Statut : **LAUNCH-READY**
 
 ---
@@ -29,12 +29,13 @@
 
 ### Sample Demo Wow
 - 5 conversations : 3 Amazon + 1 Octopia/Cdiscount + 1 email/boutique directe
-- Visible uniquement pour tenants avec 0 conversations
+- Visible uniquement pour tenants avec 0 conversations ET aucun canal réel connecté
+- **Demo gating AO.10.1** : `hasRealChannel` param dans `useDemoMode` — si un canal `active` parmi `REAL_PROVIDERS` (amazon, octopia, cdiscount, shopify, fnac) est détecté, la demo est cachée même avec 0 conversations
 - Dismiss tenant-scoped via `kb_demo_dismissed:v1:<tenantId>`
 - Client-side only : 0 API call, 0 DB write, 0 tracking event
 - No refund-first : aucune promesse de remboursement prématurée
 - `onConnect` (pas `onConnectAmazon`) : textes généralisés multi-canal
-- Preuves : PH-SAAS-T8.12N → T8.12N.4, T8.12O, T8.12R, T8.12R.1
+- Preuves : PH-SAAS-T8.12N → T8.12N.4, T8.12O, T8.12R, T8.12R.1, AO.10.1, AO.10.2
 
 ### Tracking Funnel Public
 - GA4 : `G-R3QQDYEBFG`
@@ -58,23 +59,25 @@
 
 ---
 
-## 2. BASELINES RUNTIME (2026-05-01)
+## 2. BASELINES RUNTIME (2026-05-06, AO.10.2 closure)
 
 | Service | Image | Digest | Contenu clé |
 |---|---|---|---|
-| Client PROD | `v3.5.147-sample-demo-platform-aware-tracking-parity-prod` | `sha256:d50740d58338129cb289640e2f69cf21164d33ccd3e754e9a737e9a44b5bbde3` | Demo + tracking complet |
-| API PROD | `v3.5.130-platform-aware-refund-strategy-prod` | `sha256:1c1ccb19c5f56e1262a0d6b681f4ab5fdfa3c2251a991820f371671a7e4df2c7` | IA platform-aware + trial entitlement |
-| Admin PROD | `v2.11.37-acquisition-baseline-truth-prod` | `sha256:f434eed82abf01bdd6d5b5e4d082f569bac2357fe35dcd43e5778bffd6439c0a` | Acquisition baseline truth |
-| Backend PROD | `v1.0.46-ph-recovery-01-prod` | — | Recovery stable |
-| Website PROD | `v0.6.8-tiktok-browser-pixel-prod` | — | TikTok browser pixel |
+| Client PROD | `v3.5.162-amazon-inbound-guide-demo-gating-prod` | `sha256:f76e21f0ebe9f18b182a6307f1ad0d40592aa1d7b9640c2f03a7247b652bc056` | Demo + tracking + Amazon inbound guide + demo gating |
+| API PROD | `v3.5.142-promo-retry-email-prod` | — | Promo retry email |
+| Admin PROD | `v2.12.1-promo-codes-foundation-prod` | — | Promo codes foundation |
+| Backend PROD | `v1.0.47-cross-env-guard-fix-prod` | — | Cross-env guard fix |
+| Website PROD | `v0.6.9-promo-forwarding-prod` | — | Promo forwarding |
 
 ### Règle absolue
 
 **Ne JAMAIS écraser Client PROD sans preuve que le nouveau build inclut :**
-1. Sample Demo platform-aware (5 conv, multi-canal, no refund-first)
+1. Sample Demo platform-aware (5 conv, multi-canal, no refund-first) + demo gating `hasRealChannel`
 2. Tracking complet (8 build args : API_URL, API_BASE_URL, APP_ENV, GA4, sGTM, TikTok, LinkedIn, Meta)
 3. Meta Purchase browser absent
 4. TikTok CompletePayment browser absent
+5. Amazon inbound setup guide (miniatures SC, lightbox, compact sans doublon email, full `/start`)
+6. Amazon OAuth `/start` activation contract (AO.8)
 
 ---
 

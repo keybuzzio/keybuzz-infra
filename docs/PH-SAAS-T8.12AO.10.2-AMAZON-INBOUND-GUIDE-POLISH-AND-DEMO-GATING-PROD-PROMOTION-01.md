@@ -211,9 +211,17 @@ En cas de régression :
 
 ---
 
+## Validation Ludovic post-déploiement
+
+- **Date** : 2026-05-06
+- **Verdict** : GO COMPLET
+- **Commentaire** : Validation visuelle PROD OK — guide Amazon inbound, miniatures Seller Central, callout compact sans doublon email, `/start` préservé, Sample Demo masquée après connexion réelle, état vide honnête.
+
+---
+
 ## Verdict
 
-### GO PROD
+### GO PROD (confirmé GO COMPLET par Ludovic)
 
 - Client PROD live : `v3.5.162-amazon-inbound-guide-demo-gating-prod`
 - Digest : `sha256:f76e21f0ebe9f18b182a6307f1ad0d40592aa1d7b9640c2f03a7247b652bc056`
