@@ -71,7 +71,8 @@ spec:
           # PREVIOUS: v3.5.158-amazon-start-country-choice-dev
           # PH-SAAS-T8.12AO.10.1: Inbound guide polish + demo gating
           # PH-SAAS-T8.12AP.1A: AI no-reask fix — orderRef always injected + anti-reask instruction (KEY-256)
-          image: ghcr.io/keybuzzio/keybuzz-client:v3.5.163-ai-no-reask-fix-dev  # rollback: v3.5.162-amazon-inbound-guide-demo-gating-dev
+          # PH-SAAS-T8.12AP.2: escalation UX — show target + action-needed (KEY-255)
+          image: ghcr.io/keybuzzio/keybuzz-client:v3.5.165-escalation-assignment-ux-dev  # rollback: v3.5.163-ai-no-reask-fix-dev
           imagePullPolicy: Always
           ports:
             - containerPort: 3000
