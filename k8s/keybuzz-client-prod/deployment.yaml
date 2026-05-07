@@ -73,7 +73,7 @@ spec:
           # - Sample Demo hidden after real channel connection
           # PH-SAAS-T8.12AP.1B: AI no-reask fix — orderRef always injected + anti-reask instruction (KEY-256)
           # PH-SAAS-T8.12AP.2.3: outbound author_name — X-User-Email in sendReply PROD (KEY-266)
-          image: ghcr.io/keybuzzio/keybuzz-client:v3.5.169-shopify-disabled-until-approval-prod
+          image: ghcr.io/keybuzzio/keybuzz-client:v3.5.170-shopify-visible-disabled-channels-prod
           imagePullPolicy: Always
           ports:
             - containerPort: 3000
