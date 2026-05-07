@@ -1,6 +1,6 @@
 # Regles et risques KeyBuzz
 
-> Derniere mise a jour : 2026-04-21
+> Derniere mise a jour : 2026-05-07
 
 ## Regles absolues
 
@@ -20,6 +20,8 @@
 - Multi-tenant strict partout.
 - Toujours documenter image avant/apres, commit, rollback, validation.
 - Chaque retour CE doit inclure le chemin complet du rapport final cree, pour lecture locale directe.
+- Chaque prompt CE KeyBuzz doit etre fourni directement en version longue complete. Interdit de donner un prompt raccourci puis un bloc "a ajouter" ou "optionnel" ensuite. Toutes les regles obligatoires, sources a relire, branches, interdits, GitOps, baselines, STOP conditions, Linear, rapport final et verdicts doivent etre dans le prompt principal.
+- Ne jamais "economiser" un prompt KeyBuzz sensible. Si la phase touche au code, build, deploy, DB, GitOps, tracking, billing, SaaS, Admin, Website, Client, API, PROD, IA, messages, connecteurs, commandes, tracking colis, playbooks, escalades ou source de verite, le format long est obligatoire.
 - Toute phase qui touche aux messages, a l'IA, a l'Inbox, aux connecteurs, aux commandes, au tracking colis, aux playbooks, aux escalades ou a l'autopilot doit inclure un audit anti-regression des features IA deja documentees dans les rapports PH. Les prompts doivent rechercher les rapports PH pertinents dans `keybuzz-infra/docs`, verifier que les features annoncees existent encore en source/runtime, et creer ou mettre a jour Linear pour tout ecart. Ne jamais reconstruire une feature "par dessus du vide" sans prouver la source de verite actuelle.
 
 ## Source de verite
@@ -160,3 +162,4 @@ Arreter et demander validation si :
 - Tests et rollback cites.
 - STOP avant PROD explicite si necessaire.
 - Chemin complet du rapport final demande explicitement dans le retour CE.
+- Prompt final fourni en version longue complete, sans addendum optionnel separe.

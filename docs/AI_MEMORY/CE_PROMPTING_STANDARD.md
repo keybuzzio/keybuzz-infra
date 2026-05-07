@@ -1,6 +1,6 @@
 # Standard prompts CE KeyBuzz
 
-> Derniere mise a jour : 2026-04-29
+> Derniere mise a jour : 2026-05-07
 > Source modele obligatoire : `C:\DEV\KeyBuzz\PH-T8.10J-MARKETING-OWNER-STACK-PROD-PROMOTION-01`
 
 ## Regle centrale
@@ -10,6 +10,23 @@ Tous les prompts destines a Cursor Executor (CE) doivent suivre le format long K
 Ce standard est obligatoire des qu'une phase touche au code, build, deploy, DB, GitOps, tracking, billing, SaaS, Admin, Website, Client, API, PROD, ou a une source de verite.
 
 Ne pas envoyer de prompt CE court dans ces cas.
+
+Regle de forme non negociable : le prompt livre a Ludovic doit deja etre la version finale complete. Ne jamais fournir un prompt "presque conforme" avec un bloc optionnel a ajouter ensuite. Si un bloc est obligatoire ou utile pour respecter le standard KeyBuzz, il doit etre integre directement dans le prompt principal avant livraison. Ne pas s'economiser sur les prompts : mieux vaut un prompt long, explicite et repetitif qu'un prompt ambigu qui laisse CE deviner les regles.
+
+Tout prompt CE KeyBuzz sensible doit donc inclure directement, et non en addendum separe :
+
+- le standard de prompting a respecter;
+- les fichiers de regles a relire;
+- les branches/verrous source par repo;
+- les interdits;
+- le build-from-git;
+- GitOps strict;
+- les baselines a preserver;
+- les STOP conditions;
+- Linear;
+- le chemin du rapport final;
+- les verdicts autorises;
+- `STOP`.
 
 Pour les phases IA, Inbox, messaging, connecteurs, commandes, tracking colis, playbooks, escalades, Agent KeyBuzz ou autopilot, le prompt doit obligatoirement inclure une section "AI feature parity / anti-regression". Cette section force CE a rechercher les rapports PH pertinents dans `keybuzz-infra/docs`, a comparer les promesses documentees avec la source/runtime actuelle, et a noter dans Linear tout ecart confirme. Cette regle reste obligatoire apres resume/summarize de conversation : ne pas repartir d'une memoire courte sans relire les sources de verite.
 
@@ -179,3 +196,5 @@ Pour les phases acquisition, trial, signup, billing ou SaaS :
 5. Identifier le bon agent CE : SaaS, Admin, Website, API, Studio, Infra.
 6. Ecrire le prompt en format long, avec STOP conditions.
 7. Ne pas livrer de prompt court par confort.
+8. Ne pas livrer de bloc "a ajouter" apres le prompt : integrer directement toutes les regles obligatoires dans le prompt final.
+9. Si le prompt parait court, le considerer comme suspect et le renforcer avant de le donner a Ludovic.
