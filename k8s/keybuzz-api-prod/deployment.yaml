@@ -99,7 +99,8 @@ spec:
           # PH-SAAS-T8.12Y.4: transactional email design system PROD promotion (2026-05-02)
           # PH-SAAS-T8.12Y.8: trial lifecycle foundation + unsubscribe PROD (2026-05-02)
           # PH-SAAS-T8.12Y.9A: PROD dry-run-only routes + X-Lifecycle-Token auth (2026-05-02)
-          image: ghcr.io/keybuzzio/keybuzz-api:v3.5.144-ai-stored-drafts-no-reask-prod  # PH-SAAS-T8.12AP.1F: stale draft invalidation at read time (KEY-256) | rollback: v3.5.143-ai-auto-draft-no-reask-prod
+          # PH-SAAS-T8.12AP.2.3: outbound author_name — real agent display name in PROD (KEY-266)
+          image: ghcr.io/keybuzzio/keybuzz-api:v3.5.145-outbound-author-name-prod  # rollback: v3.5.144-ai-stored-drafts-no-reask-prod
           imagePullPolicy: Always
           ports:
             - containerPort: 3001

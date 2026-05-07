@@ -72,7 +72,8 @@ spec:
           # - /start guide preserved with thumbnails
           # - Sample Demo hidden after real channel connection
           # PH-SAAS-T8.12AP.1B: AI no-reask fix — orderRef always injected + anti-reask instruction (KEY-256)
-          image: ghcr.io/keybuzzio/keybuzz-client:v3.5.163-ai-no-reask-fix-prod  # rollback: v3.5.162-amazon-inbound-guide-demo-gating-prod
+          # PH-SAAS-T8.12AP.2.3: outbound author_name — X-User-Email in sendReply PROD (KEY-266)
+          image: ghcr.io/keybuzzio/keybuzz-client:v3.5.168-outbound-author-name-ux-prod  # rollback: v3.5.163-ai-no-reask-fix-prod
           imagePullPolicy: Always
           ports:
             - containerPort: 3000
