@@ -73,7 +73,8 @@ spec:
           # PH-SAAS-T8.12AP.1A: AI no-reask fix — orderRef always injected + anti-reask instruction (KEY-256)
           # PH-SAAS-T8.12AP.2: escalation UX — show target + action-needed (KEY-255)
           # PH-SAAS-T8.12AP.2.1: conversation lifecycle — handler Prenom.N + last handler label (KEY-265)
-          image: ghcr.io/keybuzzio/keybuzz-client:v3.5.166-conversation-lifecycle-status-ux-dev  # rollback: v3.5.165-escalation-assignment-ux-dev
+          # PH-SAAS-T8.12AP.2.2: outbound author_name — inject X-User-Email in sendReply (KEY-266)
+          image: ghcr.io/keybuzzio/keybuzz-client:v3.5.167-outbound-author-name-ux-dev  # rollback: v3.5.166-conversation-lifecycle-status-ux-dev
           imagePullPolicy: Always
           ports:
             - containerPort: 3000
