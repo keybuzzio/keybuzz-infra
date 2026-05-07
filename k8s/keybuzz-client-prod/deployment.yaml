@@ -71,7 +71,8 @@ spec:
           # - Compact channel callout no longer duplicates email
           # - /start guide preserved with thumbnails
           # - Sample Demo hidden after real channel connection
-          image: ghcr.io/keybuzzio/keybuzz-client:v3.5.162-amazon-inbound-guide-demo-gating-prod  # PH-SAAS-T8.12AO.10.2 | rollback: v3.5.160-amazon-start-activation-contract-prod
+          # PH-SAAS-T8.12AP.1B: AI no-reask fix — orderRef always injected + anti-reask instruction (KEY-256)
+          image: ghcr.io/keybuzzio/keybuzz-client:v3.5.163-ai-no-reask-fix-prod  # rollback: v3.5.162-amazon-inbound-guide-demo-gating-prod
           imagePullPolicy: Always
           ports:
             - containerPort: 3000
