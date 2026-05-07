@@ -309,8 +309,8 @@ spec:
         # PH-SAAS-T8.12Y.7: recipientOverride DEV-only + controlled send (2026-05-02)
         # PH-SAAS-T8.12Y.7.1: visible unsubscribe + em dash removal + text/plain entity cleanup (2026-05-02)
         # PH-SAAS-T8.12Y.9A: PROD dry-run guard + X-Lifecycle-Token auth
-        # PH-SAAS-T8.12AP.1C: anti-reask order number in autopilot engine (KEY-256)
-        image: ghcr.io/keybuzzio/keybuzz-api:v3.5.156-ai-auto-draft-no-reask-dev
+        # PH-SAAS-T8.12AP.1E: stale draft invalidation — reask patterns blocked when order known (KEY-256)
+        image: ghcr.io/keybuzzio/keybuzz-api:v3.5.157-ai-stored-drafts-no-reask-dev
         livenessProbe:
           httpGet:
             path: /health
