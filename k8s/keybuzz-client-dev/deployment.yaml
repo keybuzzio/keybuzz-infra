@@ -72,7 +72,8 @@ spec:
           # PH-SAAS-T8.12AO.10.1: Inbound guide polish + demo gating
           # PH-SAAS-T8.12AP.1A: AI no-reask fix — orderRef always injected + anti-reask instruction (KEY-256)
           # PH-SAAS-T8.12AP.2: escalation UX — show target + action-needed (KEY-255)
-          image: ghcr.io/keybuzzio/keybuzz-client:v3.5.165-escalation-assignment-ux-dev  # rollback: v3.5.163-ai-no-reask-fix-dev
+          # PH-SAAS-T8.12AP.2.1: conversation lifecycle — handler Prenom.N + last handler label (KEY-265)
+          image: ghcr.io/keybuzzio/keybuzz-client:v3.5.166-conversation-lifecycle-status-ux-dev  # rollback: v3.5.165-escalation-assignment-ux-dev
           imagePullPolicy: Always
           ports:
             - containerPort: 3000
