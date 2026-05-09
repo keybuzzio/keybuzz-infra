@@ -23,7 +23,7 @@ spec:
       containers:
       - name: keybuzz-admin-v2
         # PH-SAAS-T8.12AN.6: Promo Codes foundation — admin UI + RBAC + audit log
-        image: ghcr.io/keybuzzio/keybuzz-admin:v2.12.1-promo-codes-foundation-prod  # rollback: v2.11.37-acquisition-baseline-truth-prod
+        image: ghcr.io/keybuzzio/keybuzz-admin:v2.12.2-media-buyer-lp-domain-qa-prod  # rollback: v2.12.1-promo-codes-foundation-prod
         imagePullPolicy: Always
         env:
         - name: NODE_ENV
