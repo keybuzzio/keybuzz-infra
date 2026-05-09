@@ -198,3 +198,32 @@ Pour les phases acquisition, trial, signup, billing ou SaaS :
 7. Ne pas livrer de prompt court par confort.
 8. Ne pas livrer de bloc "a ajouter" apres le prompt : integrer directement toutes les regles obligatoires dans le prompt final.
 9. Si le prompt parait court, le considerer comme suspect et le renforcer avant de le donner a Ludovic.
+
+## Controle bloquant avant livraison a Ludovic
+
+Avant de donner un prompt CE a Ludovic, faire mentalement ce controle. Si une seule ligne echoue, ne pas livrer le prompt : le reecrire directement en version complete.
+
+Le prompt doit contenir explicitement :
+
+- l'en-tete complet `Prompt CE - <PHASE>` avec role, projet, phase, environnement, type, priorite et ticket Linear quand il existe ;
+- un objectif, un resultat attendu observable et un hors scope precis ;
+- les sources de verite a relire, incluant ce fichier, le modele `PH-T8.10J`, les rapports PH recents et les tickets Linear utiles ;
+- le contexte impose avec images DEV/PROD actuelles, branches source et baselines a preserver ;
+- les branches obligatoires par repo et les STOP conditions de branche/source/dirty tree ;
+- les regles `commit + push avant build`, `pre-build-check`, `build-from-git`, tag immuable, digest, rollback ;
+- GitOps strict avec interdiction de `kubectl set image`, `kubectl set env`, `kubectl patch`, `kubectl edit` dans les actions ET dans les procedures de rollback/deploy documentees ;
+- bastion obligatoire `install-v3`, IP `46.62.171.61`, interdiction `51.159.99.247` si SSH est possible ;
+- tous les interdits : `git reset --hard`, `git clean`, build depuis pod/runtime/dist/SCP, secret dans logs/rapport, PII, hardcoding tenant/user/email/seller/marketplace/pays, faux events, checkout/paiement fake, mutation hors scope ;
+- des etapes numerotees type PH-T8.10J : preflight, source audit, patch ou design, tests, build si necessaire, GitOps si necessaire, validation, non-regression, Linear, rollback, rapport final ;
+- des tableaux attendus pour preflight, source, changements, images, tests, non-regression ;
+- une section "AI feature parity / anti-regression" si la phase touche IA, Inbox, messages, commandes, tracking colis, playbooks, escalades, Agent KeyBuzz, autopilot, dashboard ou metriques derivees de ces surfaces ;
+- une section "No fake metrics / no fake events" si la phase touche dashboard, KPI, tracking, billing, acquisition ou reporting ;
+- un rapport final avec chemin exact `keybuzz-infra/docs/<PHASE>.md` et resume attendu ;
+- des verdicts autorises et une phrase cible finale ;
+- `STOP` en fin de prompt.
+
+Regle de severite : un prompt qui dit seulement "verifier les bonnes pratiques", "GitOps strict", ou "ne pas casser les baselines" sans detailler les obligations concretes ci-dessus est non conforme.
+
+Regle de dashboard / KPI : si une phase touche des metriques, un dashboard, des courbes, l'attribution, l'IA ou les messages, le prompt doit forcer CE a distinguer donnees fiables, donnees partielles, donnees absentes, et doit interdire explicitement tout KPI invente ou approximation non libellee.
+
+Regle d'auto-correction : si Ludovic demande "est-ce conforme au modele ?", la reponse par defaut doit etre de comparer au modele, identifier les manques, puis fournir immediatement le prompt corrige complet. Ne pas defendre un prompt partiel.
