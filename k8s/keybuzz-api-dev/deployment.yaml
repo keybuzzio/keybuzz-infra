@@ -311,7 +311,7 @@ spec:
         # PH-SAAS-T8.12Y.9A: PROD dry-run guard + X-Lifecycle-Token auth
         # PH-SAAS-T8.12AP.1E: stale draft invalidation — reask patterns blocked when order known (KEY-256)
         # PH-SAAS-T8.12AP.2.2: outbound author_name — resolve real agent display name (KEY-266)
-        image: ghcr.io/keybuzzio/keybuzz-api:v3.5.162-performance-sav-metrics-dev  # rollback: v3.5.160-conversation-lifecycle-status-dev
+        image: ghcr.io/keybuzzio/keybuzz-api:v3.5.163-message-source-enrichment-dev  # rollback: v3.5.162-performance-sav-metrics-dev
         livenessProbe:
           httpGet:
             path: /health
