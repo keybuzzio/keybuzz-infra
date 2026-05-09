@@ -100,7 +100,7 @@ spec:
           # PH-SAAS-T8.12Y.8: trial lifecycle foundation + unsubscribe PROD (2026-05-02)
           # PH-SAAS-T8.12Y.9A: PROD dry-run-only routes + X-Lifecycle-Token auth (2026-05-02)
           # PH-SAAS-T8.12AP.2.3: outbound author_name — real agent display name in PROD (KEY-266)
-          image: ghcr.io/keybuzzio/keybuzz-api:v3.5.148-performance-sav-metrics-prod  # rollback: v3.5.147-auto-assignment-after-reply-prod
+          image: ghcr.io/keybuzzio/keybuzz-api:v3.5.149-message-source-enrichment-prod  # rollback: v3.5.148-performance-sav-metrics-prod
           imagePullPolicy: Always
           ports:
             - containerPort: 3001
