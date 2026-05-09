@@ -23,8 +23,8 @@ spec:
       containers:
       - name: keybuzz-admin-v2
         
-        # PH-SAAS-T8.12AN.2: Promo Codes Admin Foundation DEV
-        image: ghcr.io/keybuzzio/keybuzz-admin:v2.12.0-promo-codes-foundation-dev  # rollback: v2.11.35-agency-launch-kit-dev
+        # AQ.4.1: Media Buyer LP Domain QA DEV
+        image: ghcr.io/keybuzzio/keybuzz-admin:v2.12.2-media-buyer-lp-domain-qa-dev  # rollback: v2.12.0-promo-codes-foundation-dev
         imagePullPolicy: Always
         env:
         - name: NODE_ENV
