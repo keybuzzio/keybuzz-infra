@@ -74,7 +74,7 @@ spec:
           # PH-SAAS-T8.12AP.2: escalation UX — show target + action-needed (KEY-255)
           # PH-SAAS-T8.12AP.2.1: conversation lifecycle — handler Prenom.N + last handler label (KEY-265)
           # PH-SAAS-T8.12AP.2.2: outbound author_name — inject X-User-Email in sendReply (KEY-266)
-          image: ghcr.io/keybuzzio/keybuzz-client:v3.5.182-tenant-guard-bff-compat-fix2-dev  # PH-SAAS-T8.12AS.4.1 KEY-304 (2026-05-11): + proxy drops tenantRequired (API guard handles body extraction)
+          image: ghcr.io/keybuzzio/keybuzz-client:v3.5.179-as1-1-build-args-fix-dev  # ROLLBACK PH-SAAS-T8.12AS.4.1 KEY-304 (2026-05-11): retour version fonctionnelle pre-securite
           imagePullPolicy: Always
           ports:
             - containerPort: 3000

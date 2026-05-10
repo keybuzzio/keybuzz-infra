@@ -311,7 +311,7 @@ spec:
         # PH-SAAS-T8.12Y.9A: PROD dry-run guard + X-Lifecycle-Token auth
         # PH-SAAS-T8.12AP.1E: stale draft invalidation — reask patterns blocked when order known (KEY-256)
         # PH-SAAS-T8.12AP.2.2: outbound author_name — resolve real agent display name (KEY-266)
-        image: ghcr.io/keybuzzio/keybuzz-api:v3.5.169-tenant-guard-scope-fix-dev  # PH-SAAS-T8.12AS.4.1 KEY-304 (2026-05-11): tenantGuardPreHandler attached to parent app via app.addHook ; /tenants exempt with handler-level user check
+        image: ghcr.io/keybuzzio/keybuzz-api:v3.5.168-escalation-notifications-dev  # ROLLBACK PH-SAAS-T8.12AS.4.1 KEY-304 (2026-05-11): nouvelles regressions Client (canaux/catalogue) ; security gap reouvert temporairement, KEY-301 reste open
         livenessProbe:
           httpGet:
             path: /health
