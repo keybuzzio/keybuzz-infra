@@ -26,18 +26,10 @@ spec:
         - name: ghcr-cred
       containers:
       - name: worker
-        image: ghcr.io/keybuzzio/keybuzz-backend:v1.0.41-ph263b-scheduler-dev
+        image: ghcr.io/keybuzzio/keybuzz-backend:v1.0.40-amz-tracking-visibility-backfill-dev
         command:
           - node
-          - -e
-          - |
-            const { runItemsFillLoop } = require('./dist/modules/marketplaces/amazon/amazonOrderItemsFill.service');
-            console.log('[ItemsWorker] Starting ITEMS ASYNC BACKGROUND worker...');
-            console.log('[ItemsWorker] Worker ID:', process.env.HOSTNAME);
-            console.log('[ItemsWorker] NOTE: This worker is NON-BLOCKING - orders continue without items');
-            runItemsFillLoop({ maxIterations: Infinity })
-              .then(() => console.log('[ItemsWorker] Loop ended'))
-              .catch(err => { console.error('[ItemsWorker] Fatal error:', err); process.exit(1); });
+          - dist/workers/itemsWorkerResilient.js
         env:
           - name: DATABASE_URL
             valueFrom:

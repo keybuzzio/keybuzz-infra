@@ -26,17 +26,10 @@ spec:
         - name: ghcr-cred
       containers:
       - name: worker
-        image: ghcr.io/keybuzzio/keybuzz-backend:v1.0.41-ph263b-scheduler-dev
+        image: ghcr.io/keybuzzio/keybuzz-backend:v1.0.40-amz-tracking-visibility-backfill-dev
         command:
           - node
-          - -e
-          - |
-            const { runWorkerLoop } = require('./dist/modules/marketplaces/amazon/amazonOrdersBackfillFast.service');
-            console.log('[OrdersWorker] Starting ORDERS FAST PATH worker...');
-            console.log('[OrdersWorker] Worker ID:', process.env.HOSTNAME);
-            runWorkerLoop({ maxIterations: Infinity, delayBetweenMs: 1000 })
-              .then(() => console.log('[OrdersWorker] Loop ended'))
-              .catch(err => { console.error('[OrdersWorker] Fatal error:', err); process.exit(1); });
+          - dist/workers/ordersWorkerResilient.js
         env:
           - name: DATABASE_URL
             valueFrom:

@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: scheduler
-          image: ghcr.io/keybuzzio/keybuzz-backend:v1.0.41-ph263b-scheduler-prod
+          image: ghcr.io/keybuzzio/keybuzz-backend:v1.0.42-td02-worker-resilience-prod  # rollback: v1.0.41-ph263b-scheduler-prod
           command:
             - node
             - -e
