@@ -120,6 +120,14 @@ OCI image labels (AS.9 KEY-308) :
 - Verification : `docker image inspect <image> --format '{{json .Config.Labels}}'` MUST show a non-"unknown" revision before any tag is pushed to GHCR.
 - AS.9 status : labels added to 5 service Dockerfiles (api, client, admin-v2, backend, website). Defaults remain "unknown" for backward compatibility ; KEY-309 will later make non-"unknown" mandatory.
 
+Tag discipline (AS.10 KEY-309) :
+- One tag = one source = one digest. No tag reuse.
+- Before any `docker push`, run `scripts/registry/check-image-tag-available.sh ghcr.io/keybuzzio/<repo>:<tag>`. Exit 0 = available, exit 1 = TAKEN (STOP), exit 2 = error (auth/network/usage, STOP).
+- Tag naming convention : `v<major>.<minor>.<patch>-<scope-slug>-<env>` with `<env>` in {`dev`, `prod`}. No `:latest`. No numeric-base reuse with different `<scope-slug>` (cf the v3.5.169 dette in AS.5.5).
+- Phase reports MUST capture : tag, digest, `org.opencontainers.image.revision`, build args used.
+- Exceptions to tag reuse require explicit Ludovic GO + documented old/new digests.
+- Full discipline reference : `keybuzz-infra/docs/DOCKER-TAG-DISCIPLINE.md`.
+
 API and Backend Dockerfiles are self-contained ; build args constraints are simpler and documented in their respective READMEs.
 
 ## 9. Smoke harness rules (V1, AS.6 + AS.6.1)
