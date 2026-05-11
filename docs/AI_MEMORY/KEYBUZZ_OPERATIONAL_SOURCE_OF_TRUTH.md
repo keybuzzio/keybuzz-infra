@@ -110,6 +110,16 @@ Client-specific (KEY-302) :
 - `docker build` of `keybuzz-client` MUST pass `--build-arg NEXT_PUBLIC_APP_ENV`, `NEXT_PUBLIC_API_URL`, `NEXT_PUBLIC_API_BASE_URL` for the target environment. The Dockerfile sentinel `__MUST_BE_SET_BY_BUILD_ARG__` makes any missing build arg fail before `npm run build`.
 - After build, `scripts/verify-client-bundle-api-url.sh <image> <development|production>` must pass.
 
+OCI image labels (AS.9 KEY-308) :
+- Every Docker build SHOULD pass three build args :
+  - `IMAGE_REVISION=$(git rev-parse HEAD)`
+  - `IMAGE_CREATED=$(date -u +%Y-%m-%dT%H:%M:%SZ)`
+  - `IMAGE_VERSION=<immutable-tag-from-release-prompt>`
+- Dockerfiles inject these into 5 standard OCI labels :
+  `org.opencontainers.image.revision`, `.created`, `.version`, `.source`, `.title`.
+- Verification : `docker image inspect <image> --format '{{json .Config.Labels}}'` MUST show a non-"unknown" revision before any tag is pushed to GHCR.
+- AS.9 status : labels added to 5 service Dockerfiles (api, client, admin-v2, backend, website). Defaults remain "unknown" for backward compatibility ; KEY-309 will later make non-"unknown" mandatory.
+
 API and Backend Dockerfiles are self-contained ; build args constraints are simpler and documented in their respective READMEs.
 
 ## 9. Smoke harness rules (V1, AS.6 + AS.6.1)
