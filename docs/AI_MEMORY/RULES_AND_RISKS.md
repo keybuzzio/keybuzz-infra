@@ -2,6 +2,10 @@
 
 > Derniere mise a jour : 2026-05-07
 
+## Operational source of truth
+
+Before any KeyBuzz operational phase, read `keybuzz-infra/docs/AI_MEMORY/KEYBUZZ_OPERATIONAL_SOURCE_OF_TRUTH.md` first.
+
 ## Regles absolues
 
 - Repondre et documenter en francais.

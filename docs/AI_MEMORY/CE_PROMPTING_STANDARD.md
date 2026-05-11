@@ -3,6 +3,10 @@
 > Derniere mise a jour : 2026-05-07
 > Source modele obligatoire : `C:\DEV\KeyBuzz\PH-T8.10J-MARKETING-OWNER-STACK-PROD-PROMOTION-01`
 
+## Operational source of truth
+
+Before any KeyBuzz operational phase, read `keybuzz-infra/docs/AI_MEMORY/KEYBUZZ_OPERATIONAL_SOURCE_OF_TRUTH.md` first.
+
 ## Regle centrale
 
 Tous les prompts destines a Cursor Executor (CE) doivent suivre le format long KeyBuzz du modele `PH-T8.10J-MARKETING-OWNER-STACK-PROD-PROMOTION-01`.

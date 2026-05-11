@@ -3,6 +3,10 @@
 > Date : 2026-04-21
 > Contexte : reprise fiable apres analyse des docs locales KeyBuzz.
 
+## Operational source of truth
+
+Before any KeyBuzz operational phase, read `keybuzz-infra/docs/AI_MEMORY/KEYBUZZ_OPERATIONAL_SOURCE_OF_TRUTH.md` first.
+
 ## Projet
 
 KeyBuzz est un SaaS B2B de support client et automatisation SAV pour vendeurs e-commerce. Le produit combine :
