@@ -178,40 +178,59 @@ PROD intacte. Aucune annotation kubectl rollout. Aucun secret touche. Aucune mut
 
 ## 12. Linear / Gaps / Phrase cible
 
-### 12.1 Linear (textes prepares, NON postes - en attente GO Ludovic)
+### 12.1 Linear (textes prepares disclosure-controlled, POSTING ON HOLD)
 
-KEY-305 (principal) : commentaire propose
-```
-AS.5.4 closeout : source / runtime alignment apres AS.5.3 rollback.
-- keybuzz-api HEAD ph147.4/source-of-truth = b8613f0f (revert eae84b58) ; diff vs 070707a1 src/ empty ; sync 0/0.
-- keybuzz-client HEAD ph148/onboarding-activation-replay = 8cdc04a (revert 57766ea + d468991 revert 8d8121f) ; diff vs f244a58 empty ; sync 0/0.
-- Runtime DEV inchange (API v3.5.168, Client v3.5.179). Runtime PROD inchange.
-- Branches archive pushees : archive/key-304-api-as5-messages-guard-eae84b58, archive/key-304-client-as5-messages-bff-57766ea, archive/key-305-client-as51-ai-autotrigger-8d8121f.
-- AS.5.2 conclusion (plan-gated not-a-bug sur ecomlg-001) invalidee : KEY-305 reproduit reellement sur SWITAA AUTOPILOT, root cause source statique non isolee. Rollback runtime AS.5.3 demeure la mesure corrective effective.
-- Reprise endpoint-par-endpoint differee : a relancer apres analyse runtime DevTools / network trace ulterieure.
-Status propose : Done pour AS.5.4 alignment ; KEY-305 root cause -> a investiguer ulterieurement.
-```
+POSTING ON HOLD : aucun commentaire ne sera poste sur Linear tant que AS.5.5 audit verite complet n est pas livre et valide par Ludovic. Les textes ci-dessous sont prepares mais non publies. Decision Ludovic 2026-05-11.
 
-KEY-304 : commentaire propose
-```
-AS.5 messages tenant guard / BFF conversations revert applique cote source.
-- API : revert eae84b58 par b8613f0f. tenantGuard.ts retabli sans fastify-plugin wrapper et sans PROTECTED_PREFIXES.
-- Client : revert 57766ea par 8cdc04a. Routes BFF app/api/messages/conversations supprimees, retour aux URLs directes API.
-- Branche archive origin/archive/key-304-api-as5-messages-guard-eae84b58 + origin/archive/key-304-client-as5-messages-bff-57766ea preservent l implementation pour reprise.
-- Faille runtime tenant guard /messages reste OUVERTE en DEV et PROD jusqu a une reprise endpoint-par-endpoint propre (AS.6 ou plus tard).
-Status propose : Reopen ou tag "regression-rollback".
-```
+Principes de disclosure :
+- Pas de detail technique des mecanismes d implementation (wrappers Fastify, prefixes proteges, BFF mirror, etc.) susceptible d aider une reproduction.
+- Pas de commandes git / revert / kubectl publiees.
+- Hashes de commit autorises (audit interne) mais pas de noms de fichiers sources sensibles.
+- Existence de la faille et son perimetre runtime sont declares ; trajectoire d exploit non detaillee.
 
-KEY-301 : commentaire propose
+KEY-305 (principal) : commentaire prepare
 ```
-Faille runtime tenant guard reste ouverte cote /messages apres AS.5.4. AS.5 (tenant guard runtime sur /messages) a casse le flux Brouillon IA SWITAA AUTOPILOT et a ete rollback en AS.5.3 puis aligne en source en AS.5.4. Reprise prevue endpoint-par-endpoint apres analyse runtime ulterieure. Workaround actuel : aucun, faille connue documentee.
-Status : reste ouvert.
+AS.5.4 closeout : Brouillon IA restaure en DEV apres rollback pre-AS.5 + reconciliation source/runtime.
+
+- Runtime DEV stable : API v3.5.168 + Client v3.5.179. QA Ludovic : Brouillon IA visible auto sur SWITAA AUTOPILOT.
+- Source keybuzz-api et keybuzz-client HEAD realignes byte-equivalents au runtime stable (perimetre code applicatif). Risque rebuild de regression eteint cote source.
+- AS.5.2 invalidee : diagnostic fait sur le mauvais tenant (PRO au lieu d AUTOPILOT). KEY-305 reproduit reellement sur SWITAA en AS.5.3.
+- Root cause exacte AS.5 -> Brouillon IA absent NON isolee par analyse statique. A investiguer en runtime (DevTools / network trace) AVANT toute nouvelle tentative security touchant Inbox / AI.
+
+Statut suggere : Done (alignment AS.5.4) ou In Review selon workflow.
+Rapport interne : keybuzz-infra/docs/PH-SAAS-T8.12AS.5.4-...-01.md
 ```
 
-KEY-263 (AS.1 PROD) : commentaire propose
+KEY-304 : commentaire prepare
 ```
-PROMOTION PROD AS.1 reste BLOQUEE. La faille runtime tenant guard /messages (KEY-301 / KEY-304) doit etre adressee en DEV par une reprise endpoint-par-endpoint avant promotion PROD. AS.5.4 a aligne la source DEV sur le runtime stable v3.5.168 / v3.5.179 sans reactiver le guard. Pas de GO PROD a ce stade.
-Status : reste bloque, en attente reprise.
+Tentative AS.5 (durcissement endpoint /messages) rollbackee en AS.5.3, source revertee en AS.5.4.
+
+- Endpoint-by-endpoint security reste a refaire : la trajectoire AS.5 unifiee a casse le flux Brouillon IA SWITAA AUTOPILOT.
+- Branches archive preservees sur origin pour reference future (non listees publiquement).
+- Ne pas relancer la reprise avant une phase de design qui integre EXPLICITEMENT la QA Brouillon IA / Inbox messages / channels actifs / catalogue. AS.5 avait casse plusieurs flux successivement avant rollback complet.
+
+Statut : reste Open.
+```
+
+KEY-301 : commentaire prepare
+```
+Faille tenantGuardPlugin non corrigee en runtime DEV et PROD apres rollback AS.5.
+
+- AS.5 a tente une mitigation runtime sur /messages : effets de bord inacceptables (Brouillon IA SWITAA cassee), rollback complet.
+- Faille initiale documentee internement reste ouverte. Pas de detail public de la trajectoire d exploit.
+- AS.1 PROD reste bloquee tant que tenantGuard n est pas repris proprement.
+
+Statut : reste Open.
+```
+
+KEY-263 (AS.1 PROD) : commentaire prepare
+```
+AS.1 notifications escalation : code DEV existe et fonctionne (runtime v3.5.168), promotion PROD reste BLOQUEE.
+
+- Blockers : KEY-301 (faille tenantGuard runtime ouverte) + KEY-304 (security messages a refaire endpoint-by-endpoint).
+- Aucun GO PROD tant que tenantGuard non corrige et QA Inbox / Brouillon IA non revalidee.
+
+Statut suggere : Blocked (ou In Review selon workflow Linear).
 ```
 
 ### 12.2 Gaps restants
@@ -221,7 +240,20 @@ Status : reste bloque, en attente reprise.
 3. AS.1 PROD reste bloquee (KEY-263). Pas de GO PROD avant reprise endpoint-par-endpoint de la security messages.
 4. tsconfig.tsbuildinfo dirty cote keybuzz-client : artefact de build, non commit, non bloquant. A nettoyer si genant.
 
-### 12.3 Phrase cible finale
+### 12.3 Prochaine etape : AS.5.5 audit verite complet (PRIORITE)
+
+Ludovic 2026-05-11 : avant toute communication Linear additionnelle (statuts, commentaires, fermetures), livrer AS.5.5 = audit verite complet.
+
+Perimetre attendu (a confirmer en kickoff AS.5.5) :
+- Croisement exhaustif source HEAD / runtime DEV / runtime PROD / manifestes infra / images registry / annotations rollout.
+- Etat tenant guard runtime DEV et PROD endpoint par endpoint (audit propagation Fastify scope sans publier la mecanique).
+- Etat Brouillon IA / Suggestion IA / Autopilot draft worker / playbooks / escalades : parite DEV vs PROD au bundle pres + au comportement pres.
+- Audit dette : AS.5.2 invalidee, KEY-305 root cause non isolee, KEY-304 security non reprise, KEY-301 faille ouverte, KEY-263 PROD bloque, archives non listees.
+- Sortie : carte verite source <-> runtime <-> Linear, et liste ordonnee des actions de reprise (security messages, root cause Brouillon IA, AS.1 PROD).
+
+AS.5.5 doit etre une phase audit-only : lecture exhaustive, zero ecriture code applicatif, zero deploy, zero apply. Rapport AS.5.5 conditionne ensuite : (i) la publication des 4 commentaires Linear de AS.5.4, (ii) la prochaine phase de reprise security.
+
+### 12.4 Phrase cible finale
 
 Source keybuzz-api HEAD ph147.4/source-of-truth = b8613f0f et keybuzz-client HEAD ph148/onboarding-activation-replay = 8cdc04a sont byte-equivalents aux anchors safe (070707a1 / f244a58) ; runtime DEV inchange ; runtime PROD inchange ; trois branches archive preservent l experimentation AS.5 / AS.5.1 sur origin ; aucun build ; aucun deploy ; aucun apply ; aucune mutation DB ; AS.5.4 GO SOURCE RUNTIME ALIGNED READY.
 
