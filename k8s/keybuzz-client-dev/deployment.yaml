@@ -74,7 +74,7 @@ spec:
           # PH-SAAS-T8.12AP.2: escalation UX — show target + action-needed (KEY-255)
           # PH-SAAS-T8.12AP.2.1: conversation lifecycle — handler Prenom.N + last handler label (KEY-265)
           # PH-SAAS-T8.12AP.2.2: outbound author_name — inject X-User-Email in sendReply (KEY-266)
-          image: ghcr.io/keybuzzio/keybuzz-client:v3.5.181-inbox-ai-auto-suggestion-dev  # PH-SAAS-T8.12AS.5.1 KEY-305 (2026-05-11): + auto-trigger AI suggestion on conversation change
+          image: ghcr.io/keybuzzio/keybuzz-client:v3.5.180-messages-bff-tenant-guard-dev  # ROLLBACK PH-SAAS-T8.12AS.5.1 KEY-305 (2026-05-11) : mauvaise approche -- attendu = Brouillon IA via autopilot draft worker, pas Suggestion IA auto via slide-over useEffect
           imagePullPolicy: Always
           ports:
             - containerPort: 3000
