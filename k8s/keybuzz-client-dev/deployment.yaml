@@ -74,7 +74,7 @@ spec:
           # PH-SAAS-T8.12AP.2: escalation UX — show target + action-needed (KEY-255)
           # PH-SAAS-T8.12AP.2.1: conversation lifecycle — handler Prenom.N + last handler label (KEY-265)
           # PH-SAAS-T8.12AP.2.2: outbound author_name — inject X-User-Email in sendReply (KEY-266)
-          image: ghcr.io/keybuzzio/keybuzz-client:v3.5.189-messages-sav-status-bff-dev  # PH-SAAS-T8.12AS.11.1F-2 KEY-304 (2026-05-12): route PATCH conversationSavStatus via authenticated BFF
+          image: ghcr.io/keybuzzio/keybuzz-client:v3.5.192-ai-settings-wallet-bff-dev  # PH-SAAS-T8.12AS.12.2D KEY-301 (2026-05-12): fix 4 BFF AI settings/wallet inject X-User-Email + ai.service.ts route via BFF
           imagePullPolicy: Always
           ports:
             - containerPort: 3000
