@@ -311,7 +311,7 @@ spec:
         # PH-SAAS-T8.12Y.9A: PROD dry-run guard + X-Lifecycle-Token auth
         # PH-SAAS-T8.12AP.1E: stale draft invalidation — reask patterns blocked when order known (KEY-256)
         # PH-SAAS-T8.12AP.2.2: outbound author_name — resolve real agent display name (KEY-266)
-        image: ghcr.io/keybuzzio/keybuzz-api:v3.5.172-messages-reply-tenantguard-dev  # PH-SAAS-T8.12AS.11.1D KEY-304 (2026-05-11): protect POST /messages/conversations/:id/reply with tenantGuard
+        image: ghcr.io/keybuzzio/keybuzz-api:v3.5.173-messages-status-tenantguard-dev  # PH-SAAS-T8.12AS.11.1E KEY-304 (2026-05-12): protect PATCH /messages/conversations/:id/status with tenantGuard
         livenessProbe:
           httpGet:
             path: /health
