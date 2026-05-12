@@ -100,7 +100,7 @@ spec:
           # PH-SAAS-T8.12Y.8: trial lifecycle foundation + unsubscribe PROD (2026-05-02)
           # PH-SAAS-T8.12Y.9A: PROD dry-run-only routes + X-Lifecycle-Token auth (2026-05-02)
           # PH-SAAS-T8.12AP.2.3: outbound author_name — real agent display name in PROD (KEY-266)
-          image: ghcr.io/keybuzzio/keybuzz-api:v3.5.181-ai-assist-tenantguard-prod  # PH-SAAS-T8.12AS.12.2C-1-PROD KEY-301 (2026-05-12): extend tenantGuard to /ai/assist LLM mutation ; rollback: v3.5.180-ai-settings-wallet-tenantguard-prod
+          image: ghcr.io/keybuzzio/keybuzz-api:v3.5.182-ai-guard-check-tenantguard-prod  # PH-SAAS-T8.12AS.12.2C-2-PROD KEY-301 (2026-05-12): extend tenantGuard to /ai/guard/check (read-only) ; rollback: v3.5.181-ai-assist-tenantguard-prod
           imagePullPolicy: Always
           ports:
             - containerPort: 3001
