@@ -74,7 +74,7 @@ spec:
           # PH-SAAS-T8.12AP.2: escalation UX — show target + action-needed (KEY-255)
           # PH-SAAS-T8.12AP.2.1: conversation lifecycle — handler Prenom.N + last handler label (KEY-265)
           # PH-SAAS-T8.12AP.2.2: outbound author_name — inject X-User-Email in sendReply (KEY-266)
-          image: ghcr.io/keybuzzio/keybuzz-client:v3.5.193-ai-guard-check-bff-dev  # PH-SAAS-T8.12AS.12.2C-2 KEY-301 (2026-05-12): new BFF /api/ai/guard/check + ai.service.ts route checkAIGuard via BFF
+          image: ghcr.io/keybuzzio/keybuzz-client:v3.5.194-ai-evaluate-bff-dev  # PH-SAAS-T8.12AS.12.2C-3 KEY-301 (2026-05-12): new BFF /api/ai/evaluate + ai.service.ts route evaluateAI via BFF
           imagePullPolicy: Always
           ports:
             - containerPort: 3000
