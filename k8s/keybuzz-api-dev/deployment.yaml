@@ -311,7 +311,7 @@ spec:
         # PH-SAAS-T8.12Y.9A: PROD dry-run guard + X-Lifecycle-Token auth
         # PH-SAAS-T8.12AP.1E: stale draft invalidation — reask patterns blocked when order known (KEY-256)
         # PH-SAAS-T8.12AP.2.2: outbound author_name — resolve real agent display name (KEY-266)
-        image: ghcr.io/keybuzzio/keybuzz-api:v3.5.185-ai-rules-read-tenantguard-dev  # PH-SAAS-T8.12AS.12.2C-5A KEY-301 (2026-05-13): extend tenantGuard to AI rules + playbooks READ (4 GET endpoints) ; rollback: v3.5.184-ai-execute-tenantguard-dev
+        image: ghcr.io/keybuzzio/keybuzz-api:v3.5.186-ai-rules-mut-tenantguard-dev  # PH-SAAS-T8.12AS.12.2C-5B KEY-301 (2026-05-13): extend tenantGuard to AI rules + playbooks MUTATIONS (7 endpoints) ; rollback: v3.5.185-ai-rules-read-tenantguard-dev
         livenessProbe:
           httpGet:
             path: /health
