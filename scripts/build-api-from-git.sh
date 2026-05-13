@@ -50,6 +50,7 @@ git clone --depth 1 --branch "$BRANCH" \
   https://github.com/keybuzzio/keybuzz-api.git "$BUILD_DIR" 2>&1
 cd "$BUILD_DIR"
 GIT_SHA=$(git rev-parse --short HEAD)
+GIT_SHA_FULL=$(git rev-parse HEAD)
 echo "PASS: Cloned at $GIT_SHA"
 
 # STEP 2: Verify clean
@@ -74,6 +75,9 @@ echo ""
 docker build --no-cache \
   --build-arg GIT_COMMIT_SHA="$GIT_SHA" \
   --build-arg BUILD_TIME="$BUILD_TIME" \
+  --build-arg IMAGE_REVISION="$GIT_SHA_FULL" \
+  --build-arg IMAGE_CREATED="$BUILD_TIME" \
+  --build-arg IMAGE_VERSION="$TAG" \
   -t "$IMAGE" .
 
 BUILD_EXIT=$?

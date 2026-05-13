@@ -56,6 +56,7 @@ git clone --depth 1 --branch "$BRANCH" \
 
 cd "$BUILD_DIR"
 GIT_SHA=$(git rev-parse --short HEAD)
+GIT_SHA_FULL=$(git rev-parse HEAD)
 echo "PASS: Cloned at $GIT_SHA"
 
 # ============================================================
@@ -78,7 +79,7 @@ BUILD_TIME=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 
 if [ "$ENV" = "dev" ]; then
   API_URL="https://api-dev.keybuzz.io"
-  APP_ENV=""
+  APP_ENV="development"
 else
   API_URL="https://api.keybuzz.io"
   APP_ENV="production"
@@ -95,6 +96,9 @@ BUILD_CMD="$BUILD_CMD --build-arg NEXT_PUBLIC_API_URL=$API_URL"
 BUILD_CMD="$BUILD_CMD --build-arg NEXT_PUBLIC_API_BASE_URL=$API_URL"
 BUILD_CMD="$BUILD_CMD --build-arg GIT_COMMIT_SHA=$GIT_SHA"
 BUILD_CMD="$BUILD_CMD --build-arg BUILD_TIME=$BUILD_TIME"
+BUILD_CMD="$BUILD_CMD --build-arg IMAGE_REVISION=$GIT_SHA_FULL"
+BUILD_CMD="$BUILD_CMD --build-arg IMAGE_CREATED=$BUILD_TIME"
+BUILD_CMD="$BUILD_CMD --build-arg IMAGE_VERSION=$TAG"
 
 if [ -n "$APP_ENV" ]; then
   BUILD_CMD="$BUILD_CMD --build-arg NEXT_PUBLIC_APP_ENV=$APP_ENV"
