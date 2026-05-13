@@ -73,7 +73,7 @@ spec:
           # - Sample Demo hidden after real channel connection
           # PH-SAAS-T8.12AP.1B: AI no-reask fix — orderRef always injected + anti-reask instruction (KEY-256)
           # PH-SAAS-T8.12AP.2.3: outbound author_name — X-User-Email in sendReply PROD (KEY-266)
-          image: ghcr.io/keybuzzio/keybuzz-client:v3.5.194-ai-evaluate-bff-prod  # PH-SAAS-T8.12AS.12.2C-3-PROD KEY-301 (2026-05-13): new BFF /api/ai/evaluate + ai.service.ts evaluateAI via BFF ; rollback: v3.5.193-ai-guard-check-bff-prod
+          image: ghcr.io/keybuzzio/keybuzz-client:v3.5.195-ai-execute-bff-prod  # PH-SAAS-T8.12AS.12.2C-4-PROD KEY-301 (2026-05-13): new BFF /api/ai/execute + ai.service.ts executeAI via BFF ; rollback: v3.5.194-ai-evaluate-bff-prod
           imagePullPolicy: Always
           ports:
             - containerPort: 3000
