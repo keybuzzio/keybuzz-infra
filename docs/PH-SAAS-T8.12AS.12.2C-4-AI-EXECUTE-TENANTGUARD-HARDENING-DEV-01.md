@@ -429,7 +429,7 @@ Triggers rollback (non utilises ici) :
 
 | # | Gap | Severite | Description | Plan |
 |---|---|---|---|---|
-| GP1 | Brouillon IA auto bloque pour certaines conversations sans alternative UX | Medium | Certains messages clients (agressifs, demande remboursement explicite, commande non liee, contexte 17Track absent, score risque eleve) declenchent les garde-fous `PRE_LLM_BLOCKED:HIGH` ou `ESCALATION_DRAFT:0.75` cote autopilot worker -> aucun draft genere -> `/autopilot/draft` retourne `hasDraft=false` -> Brouillon IA UX silencieux. L utilisateur ne voit pas de message explicatif "Cette conversation necessite un traitement humain car risque eleve detecte". Comportement preserve mais UX silencieuse. Probleme PRE-EXISTANT confirme en PROD pre AS.12.2C-4 (idem en DEV). | Decision produit a prendre : (a) maintenir blocage silencieux (UX actuel) ; (b) afficher message UX explicite "Risque eleve detecte, traitement humain recommande" ; (c) produire un brouillon prudent generic ("Bonjour, votre message a bien ete recu, un conseiller vous repondra...") au lieu de bloquer. Ticket produit dedie a creer apres validation Ludovic. Hors scope KEY-301. |
+| GP1 | Brouillon IA auto bloque pour certaines conversations sans alternative UX | Medium | Certains messages clients (agressifs, demande remboursement explicite, commande non liee, contexte 17Track absent, score risque eleve) declenchent les garde-fous `PRE_LLM_BLOCKED:HIGH` ou `ESCALATION_DRAFT:0.75` cote autopilot worker -> aucun draft genere -> `/autopilot/draft` retourne `hasDraft=false` -> Brouillon IA UX silencieux. L utilisateur ne voit pas de message explicatif "Cette conversation necessite un traitement humain car risque eleve detecte". Comportement preserve mais UX silencieuse. Probleme PRE-EXISTANT confirme en PROD pre AS.12.2C-4 (idem en DEV). | Ticket produit Linear **KEY-312** cree (https://linear.app/keybuzz/issue/KEY-312/brouillon-ia-expliciter-ou-traiter-les-conversations-bloquees-par-les). Hors scope KEY-301. Decision produit a prendre parmi : (a) maintenir blocage silencieux (UX actuel) ; (b) afficher message UX explicite "Risque eleve detecte, traitement humain recommande" ; (c) produire un brouillon prudent generic ("Bonjour, votre message a bien ete recu, un conseiller vous repondra...") au lieu de bloquer. |
 
 ---
 
@@ -461,7 +461,7 @@ QA Ludovic browser DEV (https://client-dev.keybuzz.io) : conversation 0709040500
 
 Verdict : **GO AI EXECUTE TENANTGUARD DEV READY**. No rollback triggered.
 
-Note product gap GP1 (separate from KEY-301) : some incoming messages trigger PRE_LLM_BLOCKED:HIGH / ESCALATION_DRAFT silently -> UX silent failure. Product decision pending : keep silent block / show explicit message / generate prudent fallback draft.
+Note product gap GP1 (separate from KEY-301) : some incoming messages trigger PRE_LLM_BLOCKED:HIGH / ESCALATION_DRAFT silently -> UX silent failure. Tracked as Linear KEY-312 (https://linear.app/keybuzz/issue/KEY-312/brouillon-ia-expliciter-ou-traiter-les-conversations-bloquees-par-les). Product decision pending : keep silent block / show explicit message / generate prudent fallback draft.
 
 KEY-301 stays Open. AS.12.2C-4-PROD eligible after Ludovic GO. Remaining KEY-301 sub-phase : AS.12.2C-5 `/ai/rules` (admin CRUD).
 
@@ -510,7 +510,7 @@ Internal report : keybuzz-infra/docs/PH-SAAS-T8.12AS.12.2C-4-AI-EXECUTE-TENANTGU
 | G2 | AS.12.2C-5 `/ai/rules` (admin CRUD) reste a livrer | Medium | Phase suivante apres AS.12.2C-4-PROD |
 | G3 | Plan gating manquant sur `/ai/execute` (requirePlan non applique) | Medium | Ticket housekeeping separe ; hors scope KEY-301 |
 | G4 | AIDecisionPanel non monte (composant orphelin) | Low | A documenter dans BUILD_NOTES ; patch AS.12.2C-4 prepare le terrain pour future re-integration |
-| GP1 | Brouillon IA auto silent failure sur conversations PRE_LLM_BLOCKED:HIGH / ESCALATION_DRAFT:0.75 | Medium | Ticket produit dedie a creer apres decision Ludovic |
+| GP1 | Brouillon IA auto silent failure sur conversations PRE_LLM_BLOCKED:HIGH / ESCALATION_DRAFT:0.75 | Medium | Ticket produit Linear KEY-312 (https://linear.app/keybuzz/issue/KEY-312/brouillon-ia-expliciter-ou-traiter-les-conversations-bloquees-par-les) -- decision parmi 3 options |
 | G5 | Backlog 30 jeux de commentaires Linear KEY-* accumules | Low | Resoudre methode token hors-chat |
 
 ---

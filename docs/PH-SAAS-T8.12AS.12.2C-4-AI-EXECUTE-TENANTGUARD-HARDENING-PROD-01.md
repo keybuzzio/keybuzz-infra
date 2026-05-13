@@ -28,7 +28,7 @@ QA Ludovic navigateur :
 - Conversation `commande 07090405006` : Brouillon IA OK DEV ET PROD.
 - Conversation `Commande 0808080808` : Brouillon IA KO DEV ET PROD (pattern PRE-EXISTANT, garde-fous metier `PRE_LLM_BLOCKED:HIGH` / `ESCALATION_DRAFT:0.75`).
 
-Gap produit **GP1** maintenu et explicitement documente : certains messages declenchent les garde-fous IA et ne produisent pas de draft -> Brouillon IA UX silencieux. **Pre-existant, hors scope AS.12.2C-4 et hors scope KEY-301**. Ticket produit dedie a creer (section 15).
+Gap produit **GP1** maintenu et explicitement documente : certains messages declenchent les garde-fous IA et ne produisent pas de draft -> Brouillon IA UX silencieux. **Pre-existant, hors scope AS.12.2C-4 et hors scope KEY-301**. Ticket produit Linear **KEY-312** cree (https://linear.app/keybuzz/issue/KEY-312/brouillon-ia-expliciter-ou-traiter-les-conversations-bloquees-par-les). Voir section 15.
 
 11 autres services PROD strictement inchanges (outbound-worker, admin-v2, backend, amazon-items-worker, amazon-orders-worker, backfill-scheduler, studio, studio-api, website, seller-api, seller-client). Aucune mutation source `keybuzz-api` ni `keybuzz-client` durant cette phase PROD (sources committees pendant AS.12.2C-4-DEV, identiques HEAD).
 
@@ -58,7 +58,7 @@ Hors scope :
 - Aucun draftText publie.
 - Aucune PII publiee.
 - AS.12.2C-5 `/ai/rules`.
-- Resolution gap produit GP1 (ticket dedie).
+- Resolution gap produit GP1 (suivi sur Linear KEY-312).
 - Plan gating `/ai/execute` (gap operationnel separe).
 
 ---
@@ -388,7 +388,7 @@ Triggers NON rollback (cas observes ici) :
 | G1 | AS.12.2C-5 `/ai/rules` (admin CRUD) reste a livrer | Medium | Phase suivante apres validation Ludovic |
 | G2 | Plan gating manquant sur `/ai/execute` (requirePlan non applique) | Medium | Ticket housekeeping separe ; hors scope KEY-301 |
 | G3 | AIDecisionPanel non monte (composant orphelin) | Low | A documenter dans BUILD_NOTES ; ce patch prepare le terrain pour future re-integration |
-| GP1 | Brouillon IA auto silent failure (PRE_LLM_BLOCKED:HIGH / ESCALATION_DRAFT) | Medium | Section 15 (ticket produit dedie a creer) |
+| GP1 | Brouillon IA auto silent failure (PRE_LLM_BLOCKED:HIGH / ESCALATION_DRAFT) | Medium | Linear KEY-312 (https://linear.app/keybuzz/issue/KEY-312/brouillon-ia-expliciter-ou-traiter-les-conversations-bloquees-par-les) ; voir section 15 |
 | G4 | Backlog 31 jeux de commentaires Linear KEY-* accumules | Low | Resoudre methode token hors-chat |
 
 ---
@@ -426,7 +426,7 @@ Trois options :
 | Dependances | Necessite alignement produit + design. |
 | Hors scope | KEY-301 (security tenantGuard). |
 
-Ticket a creer apres validation Ludovic. Pas de creation automatique cette phase.
+Ticket cree post-promotion : Linear **KEY-312** (https://linear.app/keybuzz/issue/KEY-312/brouillon-ia-expliciter-ou-traiter-les-conversations-bloquees-par-les). Decision produit a arbitrer parmi les 3 options ci-dessus.
 
 ---
 
@@ -459,7 +459,7 @@ Verdict : **GO AI EXECUTE TENANTGUARD PROD READY**. No rollback triggered.
 
 Remaining KEY-301 sub-phase : AS.12.2C-5 `/ai/rules` (admin CRUD).
 
-Separate product gap GP1 (silent failure of Brouillon IA on PRE_LLM_BLOCKED:HIGH / ESCALATION_DRAFT) tracked in internal report for product decision (status quo / explicit message / prudent fallback draft). Dedicated product ticket to create after Ludovic alignment.
+Separate product gap GP1 (silent failure of Brouillon IA on PRE_LLM_BLOCKED:HIGH / ESCALATION_DRAFT) now tracked as Linear **KEY-312** (https://linear.app/keybuzz/issue/KEY-312/brouillon-ia-expliciter-ou-traiter-les-conversations-bloquees-par-les), priority High, related to KEY-301 (not a blocker). Three product options to arbitrate : status quo silent / explicit UX message / prudent fallback draft.
 
 KEY-301 stays Open. NOT marked Done.
 
@@ -500,6 +500,6 @@ Internal report : keybuzz-infra/docs/PH-SAAS-T8.12AS.12.2C-4-AI-EXECUTE-TENANTGU
 
 ## 18. Phrase cible finale
 
-AS.12.2C-4-PROD livre : promotion PROD coordonnee API v3.5.183 -> v3.5.184-ai-execute-tenantguard-prod (digest GHCR `sha256:6946dcbac9d90c1752070dea41be11219085599760315139a3e1b0da7aa51e56`, OCI revision `d7f2a8fd120c73d1b532940263f94ed2de2e5dc7`, created `2026-05-13T10:20:23Z`) et Client v3.5.194 -> v3.5.195-ai-execute-bff-prod (digest GHCR `sha256:9972ba7e541725367df78c3e0e18de70292d2bd9ab40fadb255ff2c4b999ceb3`, OCI revision `14a4ea66d4b8dc67093b9061488f7307669b791c`, created `2026-05-13T10:20:19Z`) ; build PROD via scripts patches AS.12.2C-3.1 avec OCI labels KEY-308 complets ; bundle Client PROD verifie (sentinel x0, api.keybuzz.io x2, api-dev x0, Brouillon IA x2, Valider et envoyer x1, BFF route `app/api/ai/execute/route.js` compile, verify-image-clean 17 PASS / 0 FAIL / 0 WARN) ; manifest infra commit `4321375` push origin/main 0-0 ; 2 kubectl apply -f PROD sequentiels + rollouts successful ; spec = last-applied = pod imageID = digest pushe pour API + Client ; preserve 10/10 (POST /ai/execute NEW 401 + 9 preserve tous 401 no-auth avec payloads valides) ; 0 5xx API PROD 5min + 0 JWT spike Client PROD 5min ; DB `ai_action_log` execute_count 0 -> 0 (aucun POST positif emis) ; QA Ludovic navigateur PROD sur URL **correcte** `https://client.keybuzz.io` (DEV correspondant `https://client-dev.keybuzz.io`, ingress + NEXTAUTH_URL alignes) ; conversation 07090405006 Brouillon IA OK DEV+PROD ; conversation 0808080808 Brouillon IA KO DEV+PROD (pattern PRE-EXISTANT confirme), classe garde-fous metier `PRE_LLM_BLOCKED:HIGH` / `ESCALATION_DRAFT:0.75` -> gap produit GP1 documente section 15 (ticket dedie a creer) ; patch AS.12.2C-4 **NON IMPLIQUE** (`/autopilot/draft` 200, `/ai/execute` 0 calls, AIDecisionPanel non monte confirme design audit) ; PROD strictement inchange 11 autres services ; aucune mutation source / build dirty / push tag reuse / mutation DB / generation IA / KBActions / wallet artificiel / draftText / PII ; KEY-301 reste Open epic ; AS.12.2C-4 ferme en PROD ; AS.12.2C-5 (`/ai/rules` admin CRUD) reste a livrer ; gaps G1-G4 + GP1 documentes ; verdict AS.12.2C-4-PROD GO AI EXECUTE TENANTGUARD PROD READY.
+AS.12.2C-4-PROD livre : promotion PROD coordonnee API v3.5.183 -> v3.5.184-ai-execute-tenantguard-prod (digest GHCR `sha256:6946dcbac9d90c1752070dea41be11219085599760315139a3e1b0da7aa51e56`, OCI revision `d7f2a8fd120c73d1b532940263f94ed2de2e5dc7`, created `2026-05-13T10:20:23Z`) et Client v3.5.194 -> v3.5.195-ai-execute-bff-prod (digest GHCR `sha256:9972ba7e541725367df78c3e0e18de70292d2bd9ab40fadb255ff2c4b999ceb3`, OCI revision `14a4ea66d4b8dc67093b9061488f7307669b791c`, created `2026-05-13T10:20:19Z`) ; build PROD via scripts patches AS.12.2C-3.1 avec OCI labels KEY-308 complets ; bundle Client PROD verifie (sentinel x0, api.keybuzz.io x2, api-dev x0, Brouillon IA x2, Valider et envoyer x1, BFF route `app/api/ai/execute/route.js` compile, verify-image-clean 17 PASS / 0 FAIL / 0 WARN) ; manifest infra commit `4321375` push origin/main 0-0 ; 2 kubectl apply -f PROD sequentiels + rollouts successful ; spec = last-applied = pod imageID = digest pushe pour API + Client ; preserve 10/10 (POST /ai/execute NEW 401 + 9 preserve tous 401 no-auth avec payloads valides) ; 0 5xx API PROD 5min + 0 JWT spike Client PROD 5min ; DB `ai_action_log` execute_count 0 -> 0 (aucun POST positif emis) ; QA Ludovic navigateur PROD sur URL **correcte** `https://client.keybuzz.io` (DEV correspondant `https://client-dev.keybuzz.io`, ingress + NEXTAUTH_URL alignes) ; conversation 07090405006 Brouillon IA OK DEV+PROD ; conversation 0808080808 Brouillon IA KO DEV+PROD (pattern PRE-EXISTANT confirme), classe garde-fous metier `PRE_LLM_BLOCKED:HIGH` / `ESCALATION_DRAFT:0.75` -> gap produit GP1 documente section 15 (ticket Linear KEY-312 cree https://linear.app/keybuzz/issue/KEY-312/brouillon-ia-expliciter-ou-traiter-les-conversations-bloquees-par-les) ; patch AS.12.2C-4 **NON IMPLIQUE** (`/autopilot/draft` 200, `/ai/execute` 0 calls, AIDecisionPanel non monte confirme design audit) ; PROD strictement inchange 11 autres services ; aucune mutation source / build dirty / push tag reuse / mutation DB / generation IA / KBActions / wallet artificiel / draftText / PII ; KEY-301 reste Open epic ; AS.12.2C-4 ferme en PROD ; AS.12.2C-5 (`/ai/rules` admin CRUD) reste a livrer ; gaps G1-G4 + GP1 documentes ; verdict AS.12.2C-4-PROD GO AI EXECUTE TENANTGUARD PROD READY.
 
 STOP
