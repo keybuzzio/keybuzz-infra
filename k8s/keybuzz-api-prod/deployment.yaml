@@ -102,7 +102,8 @@ spec:
           # PH-SAAS-T8.12AP.2.3: outbound author_name — real agent display name in PROD (KEY-266)
           # PREVIOUS: v3.5.186-ai-rules-mut-tenantguard-prod  # PH-SAAS-T8.12AS.12.2C-5B-PROD KEY-301 (2026-05-13)
           # PREVIOUS: v3.5.187-google-observability-tenantguard-prod  # PH-SAAS-T8.12AS.13.1-PROD KEY-313 (2026-05-14)
-          image: ghcr.io/keybuzzio/keybuzz-api:v3.5.188-outbound-deliveries-tenantguard-prod  # PH-SAAS-T8.12AS.13.2A-PROD KEY-313 (2026-05-14): extend tenantGuard to outbound/deliveries (5 endpoints, API-only, no positive mutations) ; rollback: v3.5.187-google-observability-tenantguard-prod ; digest: sha256:d7a25ce81598211f433ad0ba945a2176d60e0d20ac2aea7d893189ca744d4c1b
+          # PREVIOUS: v3.5.188-outbound-deliveries-tenantguard-prod  # PH-SAAS-T8.12AS.13.2A-PROD KEY-313 (2026-05-14)
+          image: ghcr.io/keybuzzio/keybuzz-api:v3.5.189-compat-amazon-tenantguard-prod  # PH-SAAS-T8.12AS.13.3A-PROD KEY-313 (2026-05-14): extend tenantGuard to compat Amazon legacy proxy (6 fixed endpoints, API-only, no positive mutations) ; rollback: v3.5.188-outbound-deliveries-tenantguard-prod ; digest: sha256:3a6661f7394cd887a4f85c71d1b1ec658621a37d62cc8071e2ac499919eefcfe
           imagePullPolicy: Always
           ports:
             - containerPort: 3001
