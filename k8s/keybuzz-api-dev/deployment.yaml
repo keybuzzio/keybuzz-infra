@@ -313,7 +313,7 @@ spec:
         # PH-SAAS-T8.12AP.2.2: outbound author_name — resolve real agent display name (KEY-266)
         # PREVIOUS: v3.5.187-google-observability-tenantguard-dev  # PH-SAAS-T8.12AS.13.1 KEY-313 (2026-05-14)
         # PREVIOUS: v3.5.188-outbound-deliveries-tenantguard-dev  # PH-SAAS-T8.12AS.13.2A KEY-313 (2026-05-14)
-        image: ghcr.io/keybuzzio/keybuzz-api:v3.5.189-compat-amazon-tenantguard-dev  # PH-SAAS-T8.12AS.13.3A KEY-313 (2026-05-14): extend tenantGuard to compat Amazon legacy proxy (6 fixed endpoints, API-only, no positive mutations) ; rollback: v3.5.188-outbound-deliveries-tenantguard-dev ; digest: sha256:214d53ea1ee82305c4dccce977d7c61e27ab03c49efec303c85fa6a2d5747848
+        image: ghcr.io/keybuzzio/keybuzz-api:v3.5.190-channels-tenantguard-dev  # PH-SAAS-T8.12AS.14.1 KEY-314 (2026-05-14): extend tenantGuard to channels module (8 endpoints + trailing-slash variant, API-only, no positive mutations) ; rollback: v3.5.189-compat-amazon-tenantguard-dev ; digest: sha256:2003338078704fac96c141bc63b89c29d7dbdc1e178a504cb8fc8c54012b25f7
         livenessProbe:
           httpGet:
             path: /health
