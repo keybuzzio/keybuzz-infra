@@ -312,7 +312,8 @@ spec:
         # PH-SAAS-T8.12AP.1E: stale draft invalidation — reask patterns blocked when order known (KEY-256)
         # PH-SAAS-T8.12AP.2.2: outbound author_name — resolve real agent display name (KEY-266)
         # PREVIOUS: v3.5.187-google-observability-tenantguard-dev  # PH-SAAS-T8.12AS.13.1 KEY-313 (2026-05-14)
-        image: ghcr.io/keybuzzio/keybuzz-api:v3.5.188-outbound-deliveries-tenantguard-dev  # PH-SAAS-T8.12AS.13.2A KEY-313 (2026-05-14): extend tenantGuard to outbound/deliveries (5 endpoints, API-only, no positive mutations) ; rollback: v3.5.187-google-observability-tenantguard-dev ; digest: sha256:3f7d7629d4b613b5a79d0d7f6145113db3405d3009863dc2b6bf3795f4581a20
+        # PREVIOUS: v3.5.188-outbound-deliveries-tenantguard-dev  # PH-SAAS-T8.12AS.13.2A KEY-313 (2026-05-14)
+        image: ghcr.io/keybuzzio/keybuzz-api:v3.5.189-compat-amazon-tenantguard-dev  # PH-SAAS-T8.12AS.13.3A KEY-313 (2026-05-14): extend tenantGuard to compat Amazon legacy proxy (6 fixed endpoints, API-only, no positive mutations) ; rollback: v3.5.188-outbound-deliveries-tenantguard-dev ; digest: sha256:214d53ea1ee82305c4dccce977d7c61e27ab03c49efec303c85fa6a2d5747848
         livenessProbe:
           httpGet:
             path: /health
