@@ -100,7 +100,8 @@ spec:
           # PH-SAAS-T8.12Y.8: trial lifecycle foundation + unsubscribe PROD (2026-05-02)
           # PH-SAAS-T8.12Y.9A: PROD dry-run-only routes + X-Lifecycle-Token auth (2026-05-02)
           # PH-SAAS-T8.12AP.2.3: outbound author_name — real agent display name in PROD (KEY-266)
-          image: ghcr.io/keybuzzio/keybuzz-api:v3.5.186-ai-rules-mut-tenantguard-prod  # PH-SAAS-T8.12AS.12.2C-5B-PROD KEY-301 (2026-05-13): extend tenantGuard to AI rules + playbooks MUTATIONS (7 endpoints, API-only) ; rollback: v3.5.185-ai-rules-read-tenantguard-prod
+          # PREVIOUS: v3.5.186-ai-rules-mut-tenantguard-prod  # PH-SAAS-T8.12AS.12.2C-5B-PROD KEY-301 (2026-05-13)
+          image: ghcr.io/keybuzzio/keybuzz-api:v3.5.187-google-observability-tenantguard-prod  # PH-SAAS-T8.12AS.13.1-PROD KEY-313 (2026-05-14): extend tenantGuard to google-observability endpoint (1 endpoint, API-only, marketing observability leak fix) ; rollback: v3.5.186-ai-rules-mut-tenantguard-prod ; digest: sha256:93a8f7758f340da4807a5e008daf85728dbb04a3d62a71ae920fb39f2e83b619
           imagePullPolicy: Always
           ports:
             - containerPort: 3001
