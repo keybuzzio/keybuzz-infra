@@ -20,7 +20,7 @@ spec:
       containers:
       - name: keybuzz-website
         # PH-WEBSITE-T8.11AK: forward marketing_owner_tenant_id, li_fat_id, _gl (KEY-223)
-        image: ghcr.io/keybuzzio/keybuzz-website:v0.6.12-linkedin-insight-seo-dev
+        image: ghcr.io/keybuzzio/keybuzz-website:v0.6.13-clarity-website-dev  # PH-ADMIN-T8.12AS.16.1 KEY-322 (2026-05-15): Microsoft Clarity website opt-in DEV no-op (NEXT_PUBLIC_CLARITY_PROJECT_ID volontairement absent en DEV, fallback no-op cote ClarityProvider) ; rollback: v0.6.12-linkedin-insight-seo-dev ; digest: sha256:57318f5dec7590faa45ec782d1981f51953d7b9f8be24794bb6482a1d2d0acd7
         ports:
         - containerPort: 3000
           name: http
