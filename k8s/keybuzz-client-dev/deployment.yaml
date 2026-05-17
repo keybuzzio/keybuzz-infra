@@ -74,7 +74,7 @@ spec:
           # PH-SAAS-T8.12AP.2: escalation UX — show target + action-needed (KEY-255)
           # PH-SAAS-T8.12AP.2.1: conversation lifecycle — handler Prenom.N + last handler label (KEY-265)
           # PH-SAAS-T8.12AP.2.2: outbound author_name — inject X-User-Email in sendReply (KEY-266)
-          image: ghcr.io/keybuzzio/keybuzz-client:v3.5.197-channels-bff-userauth-dev  # PH-SAAS-T8.12AS.14.1-FIX KEY-314 (2026-05-15): channels BFFs (list/catalog/billing/billing-compute/add/remove) inject x-user-email from NextAuth session so API tenantGuard membership check applies cleanly ; rollback: v3.5.196-ai-rules-bff-dev ; digest: sha256:ed86032d55a27907556d44f475873d6b0f487472922bdc1cab3b755b69458ecc
+          image: ghcr.io/keybuzzio/keybuzz-client:v3.5.198-debug-env-disabled-dev  # PH-AS17-1Q-1B-2A-bis KEY-323 (2026-05-17): debug-env disclosure fix (route deleted) ; rollback: v3.5.197-channels-bff-userauth-dev ; digest: sha256:8a2df6278b730e791e148a7d2c22af0fc8295bc847e893c17823d38e938426eb
           imagePullPolicy: Always
           ports:
             - containerPort: 3000
