@@ -73,7 +73,7 @@ spec:
           # - Sample Demo hidden after real channel connection
           # PH-SAAS-T8.12AP.1B: AI no-reask fix — orderRef always injected + anti-reask instruction (KEY-256)
           # PH-SAAS-T8.12AP.2.3: outbound author_name — X-User-Email in sendReply PROD (KEY-266)
-          image: ghcr.io/keybuzzio/keybuzz-client:v3.5.197-channels-bff-userauth-prod  # PH-SAAS-T8.12AS.14.1-FIX-PROD KEY-314 (2026-05-15): channels BFFs (list/catalog/billing/billing-compute/add/remove) inject x-user-email from NextAuth session so API tenantGuard membership check applies cleanly ; rollback: v3.5.196-ai-rules-bff-prod ; digest: sha256:8a06fa3ad8e5c52b7d66e6631ae818af8de211a1cf221967a9d8fdf495c467b0
+          image: ghcr.io/keybuzzio/keybuzz-client:v3.5.198-debug-env-disabled-prod  # PH-AS17-1Q-1B-2A-bis-PROD KEY-323 (2026-05-17): debug-env disclosure fix (route deleted) ; rollback: v3.5.197-channels-bff-userauth-prod ; digest: sha256:0b96435cdc2b5d56e42c3fbce8da65901956d09275688885b4bf9c72e70c2faa
           imagePullPolicy: Always
           ports:
             - containerPort: 3000
