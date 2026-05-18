@@ -103,7 +103,7 @@ spec:
           # PREVIOUS: v3.5.186-ai-rules-mut-tenantguard-prod  # PH-SAAS-T8.12AS.12.2C-5B-PROD KEY-301 (2026-05-13)
           # PREVIOUS: v3.5.187-google-observability-tenantguard-prod  # PH-SAAS-T8.12AS.13.1-PROD KEY-313 (2026-05-14)
           # PREVIOUS: v3.5.188-outbound-deliveries-tenantguard-prod  # PH-SAAS-T8.12AS.13.2A-PROD KEY-313 (2026-05-14)
-          image: ghcr.io/keybuzzio/keybuzz-api:v3.5.190-channels-tenantguard-prod  # PH-SAAS-T8.12AS.14.1-PROD KEY-314 (2026-05-15): extend tenantGuard to channels module (8 endpoints + trailing-slash variant, API-only, no positive mutations) ; rollback: v3.5.189-compat-amazon-tenantguard-prod ; digest: sha256:71f0ddc5fe5ad1ffffbd2ae030d89e9e364ff684effff545b181ec8a8db2f9cd
+          image: ghcr.io/keybuzzio/keybuzz-api:v3.5.250-ad-spend-sync-all-prod  # PH-WEBSITE-T8.12AS.17.1T-4-B-EXEC-DEPLOY-PROD (2026-05-18): deploy ad_spend sync-all API ; rollback: v3.5.190-channels-tenantguard-prod ; digest: sha256:93cc663d9005338b3028808c359230df9c22f18104e650a6c48ac17df45bfe4d
           imagePullPolicy: Always
           ports:
             - containerPort: 3001
@@ -341,6 +341,11 @@ spec:
                 secretKeyRef:
                   name: keybuzz-google-ads
                   key: GOOGLE_ADS_REFRESH_TOKEN
+            - name: AD_SPEND_SYNC_INTERNAL_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: keybuzz-internal-tokens
+                  key: AD_SPEND_SYNC_INTERNAL_TOKEN
           resources:
             requests:
               cpu: "200m"
