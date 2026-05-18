@@ -294,9 +294,6 @@ spec:
               value: "http://keybuzz-backend.keybuzz-backend-prod.svc.cluster.local:4000"
             - name: KEYBUZZ_INTERNAL_PROXY_TOKEN
               value: "true"
-            # PH-T8.2E: tracking env vars (synced from live PROD)
-            - name: STAKATER_VAULT_ROOT_TOKEN_SECRET
-              value: "a2c303d949e14506edf96bcee10056a374ef1a1f"
             - name: CONVERSION_WEBHOOK_ENABLED
               value: "true"
             - name: CONVERSION_WEBHOOK_URL
