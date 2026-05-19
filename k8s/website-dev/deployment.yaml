@@ -20,7 +20,7 @@ spec:
       containers:
       - name: keybuzz-website
         # PH-WEBSITE-T8.11AK: forward marketing_owner_tenant_id, li_fat_id, _gl (KEY-223)
-        image: ghcr.io/keybuzzio/keybuzz-website:v0.6.15-google-ads-oauth-page-dev  # PH-WEBSITE-T8.12AS.17.1T-4-B Q-1T-4-B-EXEC-GOOGLE-OAUTH-PUBLIC-INTEGRATION-PAGE (2026-05-19): page publique /integrations/google-ads pour verification Google OAuth (FR + section EN, lecture-seule, no menu, no footer, no tracking) ; rollback: v0.6.14-cta-tracking-pass-dev (digest sha256:cd70934e102377cd2d7eb0bfb6b9d1db6910280b027befa9c36b8e991e42e088) ; digest: sha256:9183f409a4f5348973c8c9ebaaca382918646de89cce29a54c7382851a6dc177
+        image: ghcr.io/keybuzzio/keybuzz-website:v0.6.16-cta-granular-tracking-dev  # PH-WEBSITE-T8.12AS.18.1-CTA-GRANULAR-TRACKING (2026-05-19): tracking CTA granulaire homepage + pricing (marketing_cta_click avec plan/cycle/cta_section/attribution_flags), retrait faux events Meta Lead/InitiateCheckout et TikTok SubmitForm/InitiateCheckout des clics CTA, forwarding UTM navbar signup (KEY-322 follow-up) ; rollback: v0.6.15-google-ads-oauth-page-dev (digest sha256:9183f409a4f5348973c8c9ebaaca382918646de89cce29a54c7382851a6dc177) ; digest: sha256:dd17a79156a363a301679826436bcb5278b54de7f03479c453c2b33d31a3253f
         ports:
         - containerPort: 3000
           name: http
