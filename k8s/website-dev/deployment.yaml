@@ -20,7 +20,7 @@ spec:
       containers:
       - name: keybuzz-website
         # PH-WEBSITE-T8.11AK: forward marketing_owner_tenant_id, li_fat_id, _gl (KEY-223)
-        image: ghcr.io/keybuzzio/keybuzz-website:v0.6.14-cta-tracking-pass-dev  # PH-WEBSITE-T8.12AS.17.0 + AS.17.0.1 KEY-322 (2026-05-15): marketing CTA tracking pass (homepage + Navbar) + contact form NEXT_PUBLIC_CONTACT_API_URL env-driven (DEV bake https://api-dev.keybuzz.io/api/public/contact, no PROD fallback hardcode) ; Clarity DEV no-op preserve ; rollback: v0.6.13-clarity-website-dev (digest sha256:57318f5dec7590faa45ec782d1981f51953d7b9f8be24794bb6482a1d2d0acd7) ; digest: sha256:cd70934e102377cd2d7eb0bfb6b9d1db6910280b027befa9c36b8e991e42e088
+        image: ghcr.io/keybuzzio/keybuzz-website:v0.6.15-google-ads-oauth-page-dev  # PH-WEBSITE-T8.12AS.17.1T-4-B Q-1T-4-B-EXEC-GOOGLE-OAUTH-PUBLIC-INTEGRATION-PAGE (2026-05-19): page publique /integrations/google-ads pour verification Google OAuth (FR + section EN, lecture-seule, no menu, no footer, no tracking) ; rollback: v0.6.14-cta-tracking-pass-dev (digest sha256:cd70934e102377cd2d7eb0bfb6b9d1db6910280b027befa9c36b8e991e42e088) ; digest: sha256:9183f409a4f5348973c8c9ebaaca382918646de89cce29a54c7382851a6dc177
         ports:
         - containerPort: 3000
           name: http
