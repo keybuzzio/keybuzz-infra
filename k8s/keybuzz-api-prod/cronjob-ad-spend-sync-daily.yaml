@@ -1,16 +1,19 @@
-# Q-1T-4-B-EXEC-CRONJOB-DRYRUN PROD
-# Daily call POST /admin/internal/ad-accounts/sync-all in dryRun=true mode.
+# Q-1T-4-B-EXEC-CRONJOB-FLIP-META-LIVE PROD
+# Calls POST /admin/internal/ad-accounts/sync-all in LIVE mode, Meta platform only.
+# Schedule: 4x/day at 06:00, 10:00, 14:00, 18:00 UTC (08/12/16/20 Paris CEST, 07/11/15/19 CET).
 # Source: Q-1T-4-B-EXEC-CODE 01b163e4, Q-1T-4-B-EXEC-DEPLOY-API-PROD ed3ed69.
 # Token: keybuzz-internal-tokens / AD_SPEND_SYNC_INTERNAL_TOKEN (Q-1T-4-B-EXEC-SECRET-PROD 8d40f36).
-# NO sync live in this phase. Flip dryRun:false requires GO Ludovic separate (Q-1T-4-B-EXEC-VALIDATE-LIVE).
+# Body: {"dryRun":false,"platform":"meta"} - Google jamais charge cote SQL (WHERE platform = 'meta').
+# Validated bout-en-bout par Q-1T-4-B-EXEC-VALIDATE-LIVE-DEV-PROD-META (rapport b230d00).
+# Google OAuth handling: hors phase, attend validation Google OAuth app + remediation refresh tokens.
 apiVersion: batch/v1
 kind: CronJob
 metadata:
   name: ad-spend-sync-daily
   namespace: keybuzz-api-prod
 spec:
-  # Daily at 06:00 UTC (08:00 Paris)
-  schedule: "0 6 * * *"
+  # 4x/day at 06:00, 10:00, 14:00, 18:00 UTC (08/12/16/20 Paris CEST).
+  schedule: "0 6,10,14,18 * * *"
   concurrencyPolicy: Forbid
   successfulJobsHistoryLimit: 3
   failedJobsHistoryLimit: 3
@@ -29,7 +32,7 @@ spec:
               command: ["/bin/sh", "-c"]
               args:
                 - |
-                  echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] ad-spend-sync-daily PROD dryRun starting"
+                  echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] ad-spend-sync-daily PROD live meta-only starting"
                   if [ -z "${INTERNAL_TOKEN}" ]; then
                     echo "ERROR: INTERNAL_TOKEN missing"
                     exit 1
@@ -38,9 +41,9 @@ spec:
                     -X POST \
                     -H "Content-Type: application/json" \
                     -H "X-Internal-Token: ${INTERNAL_TOKEN}" \
-                    -d '{"dryRun":true}' \
+                    -d '{"dryRun":false,"platform":"meta"}' \
                     --connect-timeout 5 \
-                    --max-time 60 \
+                    --max-time 120 \
                     "http://keybuzz-api.keybuzz-api-prod.svc.cluster.local:80/admin/internal/ad-accounts/sync-all")
                   EXIT=$?
                   if [ $EXIT -ne 0 ]; then
@@ -48,7 +51,7 @@ spec:
                     exit 1
                   fi
                   echo "Response: ${RESPONSE}"
-                  echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] ad-spend-sync-daily PROD dryRun complete"
+                  echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] ad-spend-sync-daily PROD live meta-only complete"
               env:
                 - name: INTERNAL_TOKEN
                   valueFrom:
