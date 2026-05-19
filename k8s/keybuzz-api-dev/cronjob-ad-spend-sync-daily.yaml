@@ -1,11 +1,11 @@
-# Q-1T-4-B-EXEC-CRONJOB-FLIP-META-LIVE DEV
-# Calls POST /admin/internal/ad-accounts/sync-all in LIVE mode, Meta platform only.
+# Q-1T-4-B-EXEC-CRONJOB-FLIP-ALL-PLATFORMS DEV
+# Calls POST /admin/internal/ad-accounts/sync-all in LIVE mode, all platforms (Meta + Google).
 # Schedule: 4x/day at 06:00, 10:00, 14:00, 18:00 UTC (08/12/16/20 Paris CEST, 07/11/15/19 CET).
 # Source: Q-1T-4-B-EXEC-CODE 01b163e4, Q-1T-4-B-EXEC-DEPLOY-API-DEV 5125a51.
 # Token: keybuzz-internal-tokens / AD_SPEND_SYNC_INTERNAL_TOKEN (Q-1T-4-B-EXEC-SECRET 0526349).
-# Body: {"dryRun":false,"platform":"meta"} - Google jamais charge cote SQL (WHERE platform = 'meta').
+# Body: {"dryRun":false,"platform":"all"} - charge tous comptes actifs (Meta + Google) cote SQL (platformFilter=null endpoint internal-routes.ts L58).
 # Validated bout-en-bout par Q-1T-4-B-EXEC-VALIDATE-LIVE-DEV-PROD-META (rapport b230d00).
-# Google OAuth handling: hors phase, attend validation Google OAuth app + remediation refresh tokens.
+# Google OAuth handling: refresh token rote 2026-05-19 (Q-1T-4-B-EXEC-GOOGLE-REFRESH-TOKEN-ROTATE), hash8 a10b3c0e DEV+PROD, smoke Google DEV+PROD status:"ok" 2 rows 0.0628 GBP.
 apiVersion: batch/v1
 kind: CronJob
 metadata:
@@ -32,7 +32,7 @@ spec:
               command: ["/bin/sh", "-c"]
               args:
                 - |
-                  echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] ad-spend-sync-daily DEV live meta-only starting"
+                  echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] ad-spend-sync-daily DEV live all-platforms starting"
                   if [ -z "${INTERNAL_TOKEN}" ]; then
                     echo "ERROR: INTERNAL_TOKEN missing"
                     exit 1
@@ -41,7 +41,7 @@ spec:
                     -X POST \
                     -H "Content-Type: application/json" \
                     -H "X-Internal-Token: ${INTERNAL_TOKEN}" \
-                    -d '{"dryRun":false,"platform":"meta"}' \
+                    -d '{"dryRun":false,"platform":"all"}' \
                     --connect-timeout 5 \
                     --max-time 120 \
                     "http://keybuzz-api.keybuzz-api-dev.svc.cluster.local:3001/admin/internal/ad-accounts/sync-all")
@@ -51,7 +51,7 @@ spec:
                     exit 1
                   fi
                   echo "Response: ${RESPONSE}"
-                  echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] ad-spend-sync-daily DEV live meta-only complete"
+                  echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] ad-spend-sync-daily DEV live all-platforms complete"
               env:
                 - name: INTERNAL_TOKEN
                   valueFrom:
