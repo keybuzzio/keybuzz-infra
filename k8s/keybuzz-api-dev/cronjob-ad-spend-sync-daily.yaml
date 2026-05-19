@@ -41,7 +41,7 @@ spec:
                     -d '{"dryRun":true}' \
                     --connect-timeout 5 \
                     --max-time 60 \
-                    "http://keybuzz-api.keybuzz-api-dev.svc.cluster.local:80/admin/internal/ad-accounts/sync-all")
+                    "http://keybuzz-api.keybuzz-api-dev.svc.cluster.local:3001/admin/internal/ad-accounts/sync-all")
                   EXIT=$?
                   if [ $EXIT -ne 0 ]; then
                     echo "ERROR: curl failed with exit code $EXIT"
