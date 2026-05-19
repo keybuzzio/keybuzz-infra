@@ -20,7 +20,7 @@ spec:
       containers:
       - name: keybuzz-website
         # PH-WEBSITE-T8.11AK: forward marketing_owner_tenant_id, li_fat_id, _gl (KEY-223)
-        image: ghcr.io/keybuzzio/keybuzz-website:v0.6.16-cta-granular-tracking-dev  # PH-WEBSITE-T8.12AS.18.1-CTA-GRANULAR-TRACKING (2026-05-19): tracking CTA granulaire homepage + pricing (marketing_cta_click avec plan/cycle/cta_section/attribution_flags), retrait faux events Meta Lead/InitiateCheckout et TikTok SubmitForm/InitiateCheckout des clics CTA, forwarding UTM navbar signup (KEY-322 follow-up) ; rollback: v0.6.15-google-ads-oauth-page-dev (digest sha256:9183f409a4f5348973c8c9ebaaca382918646de89cce29a54c7382851a6dc177) ; digest: sha256:dd17a79156a363a301679826436bcb5278b54de7f03479c453c2b33d31a3253f
+        image: ghcr.io/keybuzzio/keybuzz-website:v0.6.17-cta-density-dev  # PH-WEBSITE-T8.12AS.18.2-CTA-DENSITY-HOMEPAGE-FEATURES (2026-05-19): commit website 844c739 ; relais CTA homepage entre reassurance/securite (homepage_after_reassurance_*) + features instrumente MarketingCTA + 2 nouveaux relais features (after_change_*, after_marketplaces_*) ; KEY-324 ; rollback: v0.6.16-cta-granular-tracking-dev (digest sha256:dd17a79156a363a301679826436bcb5278b54de7f03479c453c2b33d31a3253f) ; digest: sha256:56accd8047371b73340cc860ed7804777105d599be7714ece7194d1681e28173
         ports:
         - containerPort: 3000
           name: http
