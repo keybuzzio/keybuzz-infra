@@ -1,0 +1,64 @@
+# Q-1T-4-B-EXEC-CRONJOB-DRYRUN PROD
+# Daily call POST /admin/internal/ad-accounts/sync-all in dryRun=true mode.
+# Source: Q-1T-4-B-EXEC-CODE 01b163e4, Q-1T-4-B-EXEC-DEPLOY-API-PROD ed3ed69.
+# Token: keybuzz-internal-tokens / AD_SPEND_SYNC_INTERNAL_TOKEN (Q-1T-4-B-EXEC-SECRET-PROD 8d40f36).
+# NO sync live in this phase. Flip dryRun:false requires GO Ludovic separate (Q-1T-4-B-EXEC-VALIDATE-LIVE).
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: ad-spend-sync-daily
+  namespace: keybuzz-api-prod
+spec:
+  # Daily at 06:00 UTC (08:00 Paris)
+  schedule: "0 6 * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  suspend: false
+  jobTemplate:
+    spec:
+      backoffLimit: 1
+      activeDeadlineSeconds: 300
+      ttlSecondsAfterFinished: 86400
+      template:
+        spec:
+          restartPolicy: Never
+          containers:
+            - name: sync
+              image: curlimages/curl:8.7.1
+              command: ["/bin/sh", "-c"]
+              args:
+                - |
+                  echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] ad-spend-sync-daily PROD dryRun starting"
+                  if [ -z "${INTERNAL_TOKEN}" ]; then
+                    echo "ERROR: INTERNAL_TOKEN missing"
+                    exit 1
+                  fi
+                  RESPONSE=$(curl -sf \
+                    -X POST \
+                    -H "Content-Type: application/json" \
+                    -H "X-Internal-Token: ${INTERNAL_TOKEN}" \
+                    -d '{"dryRun":true}' \
+                    --connect-timeout 5 \
+                    --max-time 60 \
+                    "http://keybuzz-api.keybuzz-api-prod.svc.cluster.local:80/admin/internal/ad-accounts/sync-all")
+                  EXIT=$?
+                  if [ $EXIT -ne 0 ]; then
+                    echo "ERROR: curl failed with exit code $EXIT"
+                    exit 1
+                  fi
+                  echo "Response: ${RESPONSE}"
+                  echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] ad-spend-sync-daily PROD dryRun complete"
+              env:
+                - name: INTERNAL_TOKEN
+                  valueFrom:
+                    secretKeyRef:
+                      name: keybuzz-internal-tokens
+                      key: AD_SPEND_SYNC_INTERNAL_TOKEN
+              resources:
+                requests:
+                  cpu: 50m
+                  memory: 32Mi
+                limits:
+                  cpu: 100m
+                  memory: 64Mi
