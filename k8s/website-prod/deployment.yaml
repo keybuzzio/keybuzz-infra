@@ -33,7 +33,7 @@ spec:
         # PH-T8.12P: TikTok browser pixel activated (D7PT12JC77U44OJIPC10)
         # WARNING: rebuild MUST include --build-arg NEXT_PUBLIC_TIKTOK_PIXEL_ID=D7PT12JC77U44OJIPC10
         # PH-SAAS-T8.12AN.6: promo forwarding from /pricing to /register
-        image: ghcr.io/keybuzzio/keybuzz-website:v0.6.13-clarity-website-prod  # PH-ADMIN-T8.12AS.16.1-PROD KEY-322 (2026-05-15): Microsoft Clarity activation website PROD (Project ID wrff07upjx inline at build time via Dockerfile ARG/ENV pattern, opt-in strict via CookieConsent banner) ; rollback: v0.6.12-linkedin-insight-seo-prod ; digest: sha256:b8daaf3a916a809138bf50f3df5d751f82da2c3125130a3118d876337076dda7
+        image: ghcr.io/keybuzzio/keybuzz-website:v0.6.15-google-ads-oauth-page-prod  # PH-WEBSITE-T8.12AS.17.1T-4-B Q-1T-4-B-EXEC-GOOGLE-OAUTH-PUBLIC-INTEGRATION-PAGE-PROD (2026-05-19): page publique /integrations/google-ads pour verification Google OAuth (FR + section EN, lecture-seule, no menu, no footer, no tracking, indexable PROD car SITE_MODE=production) ; Clarity wrff07upjx preserve ; rollback: v0.6.13-clarity-website-prod (digest sha256:b8daaf3a916a809138bf50f3df5d751f82da2c3125130a3118d876337076dda7) ; digest: sha256:c182f7e6a271dd2ae1eae78d9328467cfd5816f1723510bd8dfe6e64b0988aad
         ports:
         - containerPort: 3000
         env:
