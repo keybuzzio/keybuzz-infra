@@ -74,7 +74,7 @@ spec:
           # PH-SAAS-T8.12AP.2: escalation UX — show target + action-needed (KEY-255)
           # PH-SAAS-T8.12AP.2.1: conversation lifecycle — handler Prenom.N + last handler label (KEY-265)
           # PH-SAAS-T8.12AP.2.2: outbound author_name — inject X-User-Email in sendReply (KEY-266)
-          image: ghcr.io/keybuzzio/keybuzz-client:v3.5.198-debug-env-disabled-dev  # PH-AS17-1Q-1B-2A-bis KEY-323 (2026-05-17): debug-env disclosure fix (route deleted) ; rollback: v3.5.197-channels-bff-userauth-dev ; digest: sha256:8a2df6278b730e791e148a7d2c22af0fc8295bc847e893c17823d38e938426eb
+          image: ghcr.io/keybuzzio/keybuzz-client:v3.5.199-register-cro-dev  # PH-SAAS-T8.12AS.19.1-REGISTER-CRO-APPLY-DEV (2026-05-20): commit Client 1b29903 ; KEY-329 PlanRecapCard CRO email/company/user/payment_cancelled steps + KEY-331 plan_selected emis dans handleSelectPlan (retire bouton Utiliser un autre email) + KEY-325 data-clarity-mask=true sur 13 inputs PII (Clarity client.keybuzz.io NON activee, aucun script clarity.ms, aucun NEXT_PUBLIC_CLARITY_PROJECT_ID) ; attribution complete preservee (UTM/click IDs/_gl/marketing_owner_tenant_id/promo) ; rollback: v3.5.198-debug-env-disabled-dev (digest sha256:8a2df6278b730e791e148a7d2c22af0fc8295bc847e893c17823d38e938426eb) ; digest: sha256:969558287b908ab4ecb9060b0fdb42fff344ac5a372105396d0efaa5a22e199c
           imagePullPolicy: Always
           ports:
             - containerPort: 3000

@@ -318,7 +318,7 @@ spec:
         # PH-SAAS-T8.12AP.2.2: outbound author_name — resolve real agent display name (KEY-266)
         # PREVIOUS: v3.5.187-google-observability-tenantguard-dev  # PH-SAAS-T8.12AS.13.1 KEY-313 (2026-05-14)
         # PREVIOUS: v3.5.188-outbound-deliveries-tenantguard-dev  # PH-SAAS-T8.12AS.13.2A KEY-313 (2026-05-14)
-        image: ghcr.io/keybuzzio/keybuzz-api:v3.5.250-ad-spend-sync-all-dev  # PH-WEBSITE-T8.12AS.17.1T-4-B-EXEC-DEPLOY-DEV (2026-05-18): deploy ad_spend sync-all API ; rollback: v3.5.190-channels-tenantguard-dev ; digest: sha256:8ee7ebad8a52625e41f6e34528c1444a05f906152320bebb520a32aff1bc239b
+        image: ghcr.io/keybuzzio/keybuzz-api:v3.5.251-register-cro-dev  # PH-SAAS-T8.12AS.19.1-REGISTER-CRO-APPLY-DEV (2026-05-20): commit API 39e332ea ; KEY-332 fix tenant_created emit deplace du catch attribution vers chemin succes post-COMMIT (non-bloquant) ; rollback: v3.5.250-ad-spend-sync-all-dev (digest sha256:8ee7ebad8a52625e41f6e34528c1444a05f906152320bebb520a32aff1bc239b) ; digest: sha256:a05e9b83d3d7a48fd261b37eaa4533ea4d55c96eadfd1fca31fb0e6f28b8706a
         livenessProbe:
           httpGet:
             path: /health
