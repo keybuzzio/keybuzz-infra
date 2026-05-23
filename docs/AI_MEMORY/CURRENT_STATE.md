@@ -21,9 +21,13 @@ Comportement :
 - Aucun draft IA genere pour PRE_LLM_BLOCKED (doctrine seller-first preserve a 100%).
 - KEY-305 race UI fix preserve. KEY-263 isolation strict PROD/DEV. KEY-302 sentinel = 0.
 
-QA PROD prouvee read-only sur conv reelle SWITAA `cmmph7bhmgcb...` (PH-SAAS-T8.12AS.20.11C-GUARDRAIL-GUIDANCE-CLIENT-QA-PROD-01.md). Validation visuelle navigateur Ludovic en attente avant de passer KEY-312 Done.
+QA PROD prouvee read-only sur conv reelle SWITAA `cmmph7bhmgcb...` (PH-SAAS-T8.12AS.20.11C-GUARDRAIL-GUIDANCE-CLIENT-QA-PROD-01.md).
 
-KEY-312 : Backlog (en attente validation visuelle Ludovic).
+Validation visuelle Ludovic PROD : OK confirmee 2026-05-23.
+
+PH-20.11C : COMPLETE end-to-end (technique + visuelle).
+
+KEY-312 : Done (cloture 2026-05-23 post validation visuelle Ludovic, ref PH-SAAS-T8.12AS.20.11C-GUARDRAIL-GUIDANCE-LINEAR-DONE-01.md).
 
 ---
 
