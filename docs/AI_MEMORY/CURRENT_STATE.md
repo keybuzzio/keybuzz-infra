@@ -3,6 +3,30 @@
 > Date : 2026-04-21
 > Contexte : reprise fiable apres analyse des docs locales KeyBuzz.
 
+## PH-20.11B + PH-20.11C live PROD (2026-05-23)
+
+Stack live finale apres validation technique end-to-end :
+- API PROD : `ghcr.io/keybuzzio/keybuzz-api:v3.5.255-ai-draft-blocked-reason-prod`
+- Client PROD : `ghcr.io/keybuzzio/keybuzz-client:v3.5.215-ai-draft-blocked-reason-prod`
+- API DEV : `v3.5.254-ai-draft-blocked-reason-dev`
+- Client DEV : `v3.5.214-ai-draft-blocked-reason-dev`
+
+Sources :
+- API commit `5070e6a6` (fix autopilot expose blocked draft reason read-only, branche `ph147.4/source-of-truth`)
+- Client commits `beabcd81` (parent wire blockedInfo) + `d132cc4f` (auto-open blocked drawer) + `1a30ad9` (guidance statique) sur `ph148/onboarding-activation-replay`
+
+Comportement :
+- GET `/autopilot/draft` retourne `blocked:true, blockedStatus:PRE_LLM_BLOCKED, blockedNotes:[COMBINED_RISK_HIGH, PRE_LLM_BLOCKED]` quand l'autopilot a bloque la conversation.
+- Client : drawer s'auto-ouvre, carte amber `Brouillon IA bloque par securite` + badge `Garde-fou actif`, sous-bloc `Trame de reponse securisee` statique (non-LLM, no KBActions) avec bouton `Copier la trame` (clipboard local).
+- Aucun draft IA genere pour PRE_LLM_BLOCKED (doctrine seller-first preserve a 100%).
+- KEY-305 race UI fix preserve. KEY-263 isolation strict PROD/DEV. KEY-302 sentinel = 0.
+
+QA PROD prouvee read-only sur conv reelle SWITAA `cmmph7bhmgcb...` (PH-SAAS-T8.12AS.20.11C-GUARDRAIL-GUIDANCE-CLIENT-QA-PROD-01.md). Validation visuelle navigateur Ludovic en attente avant de passer KEY-312 Done.
+
+KEY-312 : Backlog (en attente validation visuelle Ludovic).
+
+---
+
 ## Operational source of truth
 
 Before any KeyBuzz operational phase, read `keybuzz-infra/docs/AI_MEMORY/KEYBUZZ_OPERATIONAL_SOURCE_OF_TRUTH.md` first.
