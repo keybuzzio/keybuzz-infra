@@ -1,6 +1,6 @@
 # KEYBUZZ -- Operational source of truth
 
-> Last updated : 2026-05-11 (AS.6.2 KEY-311)
+> Last updated : 2026-05-24 (PH-20.12B autopilot no-reply KBActions closeout)
 > Status : canonical, vivant. Must be read before any operational phase (CE / Codex / human).
 
 ## 1. Purpose
@@ -40,33 +40,42 @@ Local Windows path `C:\DEV\KeyBuzz` contains partial copies but is typically sta
 
 If the resolved IP differs from `46.62.171.61` : STOP.
 
-## 4. Current safe runtime baseline (verified 2026-05-11)
+## 4. Current safe runtime baseline (verified 2026-05-24)
 
 | Env | Service | Image |
 |---|---|---|
-| DEV | keybuzz-api | v3.5.168-escalation-notifications-dev |
-| DEV | keybuzz-client | v3.5.179-as1-1-build-args-fix-dev |
-| DEV | keybuzz-backend | v1.0.47-cross-env-guard-fix-dev |
-| DEV | keybuzz-outbound-worker | v3.5.165-escalation-flow-dev |
-| DEV | keybuzz-website | v0.6.12-linkedin-insight-seo-dev |
-| DEV | keybuzz-admin-v2 | v2.12.2-media-buyer-lp-domain-qa-dev |
-| PROD | keybuzz-api | v3.5.151-conversation-tone-metric-prod |
-| PROD | keybuzz-client | v3.5.174-conversation-tone-metric-ux-prod |
-| PROD | keybuzz-backend | v1.0.47-cross-env-guard-fix-prod |
-| PROD | keybuzz-outbound-worker | v3.5.165-escalation-flow-prod |
-| PROD | keybuzz-website | v0.6.12-linkedin-insight-seo-prod |
-| PROD | keybuzz-admin-v2 | v2.12.2-media-buyer-lp-domain-qa-prod |
+| DEV | keybuzz-api | v3.5.256-autopilot-no-reply-kbactions-dev |
+| DEV | keybuzz-client | v3.5.214-ai-draft-blocked-reason-dev |
+| DEV | keybuzz-backend | v1.0.47-cross-env-guard-fix-dev (not revalidated in this docs-only phase) |
+| DEV | keybuzz-outbound-worker | v3.5.165-escalation-flow-dev (not revalidated in this docs-only phase) |
+| DEV | keybuzz-website | v0.6.12-linkedin-insight-seo-dev (not revalidated in this docs-only phase) |
+| DEV | keybuzz-admin-v2 | v2.12.2-media-buyer-lp-domain-qa-dev (not revalidated in this docs-only phase) |
+| PROD | keybuzz-api | v3.5.257-autopilot-no-reply-kbactions-prod |
+| PROD | keybuzz-client | v3.5.215-ai-draft-blocked-reason-prod |
+| PROD | keybuzz-backend | v1.0.47-cross-env-guard-fix-prod (not revalidated in this docs-only phase) |
+| PROD | keybuzz-outbound-worker | v3.5.165-escalation-flow-prod (not revalidated in this docs-only phase) |
+| PROD | keybuzz-website | v0.6.12-linkedin-insight-seo-prod (not revalidated in this docs-only phase) |
+| PROD | keybuzz-admin-v2 | v2.12.2-media-buyer-lp-domain-qa-prod (not revalidated in this docs-only phase) |
+
+API DEV/PROD and Client DEV/PROD runtimes verified by `kubectl get deploy` on 2026-05-24 during PH-20.12B closeout. Other services marked `(not revalidated in this docs-only phase)` are inherited from the 2026-05-11 baseline and must be re-verified at the next phase that touches them.
 
 Always re-verify the runtime values before any action by running the smoke harness (section 9) or `kubectl -n <ns> get deploy <app> -o jsonpath='{.spec.template.spec.containers[0].image}'`. The table above is authoritative at the timestamp shown ; do not trust it blindly after several days.
+
+### 4b. Recent PH milestones live
+
+| PH | Status | Live since | Summary |
+|---|---|---|---|
+| PH-20.11C | COMPLETE end-to-end (technical + visual Ludovic) | 2026-05-23 | API expose blockedInfo (PRE_LLM_BLOCKED / blockedStatus / blockedNotes) via GET /autopilot/draft. Client auto-open drawer + carte amber "Brouillon IA bloque par securite" + sous-bloc "Trame de reponse securisee" statique + bouton "Copier la trame" (clipboard local, no LLM, no KBActions). Doctrine seller-first/refund preserve 100%. KEY-312 Done. |
+| PH-20.12B | COMPLETE end-to-end (DEV+PROD live, observation real traffic deferred) | 2026-05-24 | Autopilot Step 6.5 dans engine.ts entre Step 6 (Context) et Step 6b (Order) skippe les notifications plateforme/no-reply AVANT wallet, AVANT guardrails, AVANT LLM, AVANT draft. Classifier sender-driven 5 subtypes (AMAZON_SELLER_CENTRAL_NOTIFICATION, AMAZON_ATOZ_NOREPLY, AMAZON_BUSINESS_NOREPLY, AMAZON_REGIONAL_NOREPLY, GENERIC_PLATFORM_NOREPLY). KBActions skip = 0 exact. ai_action_log entry : `action_type=autopilot_none status=skipped reason=NO_REPLY_PLATFORM_NOTIFICATION:<subtype> blocked=true kbaCost=0`. QA DEV+PROD : 25/25 PASS each (fixtures pures + markers runtime + parite bit-for-bit DEV/PROD sur 5 fichiers critiques dist sha256). Observation 24-48h trafic reel differee = KEY-348. PH-20.11C blockedInfo + guardrails seller-first preserves 100%. Cible baseline audit PH-20.12 : ~30 KBA/30j PROD economisees (~12% trafic autopilot). |
 
 ## 5. Current source truth anchors
 
 | Repo | Safe anchor commit | What it represents |
 |---|---|---|
-| keybuzz-api | 070707a1 | feat(notifications): internal escalation notifications + tenant-scoped routes (PH-SAAS-T8.12AS.1, KEY-263). Equivalent to runtime DEV v3.5.168. |
-| keybuzz-client | f244a58 | fix(client-build): require explicit API build args for safe bundles (KEY-302). Equivalent to runtime DEV v3.5.179. |
+| keybuzz-api | 38c048c0 | feat(autopilot): skip no-reply platform notifications before KBActions (PH-SAAS-T8.12AS.20.12B). Step 6.5 dans engine.ts + noReplyClassifier.ts + autopilot_skipped_no_reply=0.0 + nullish-coalescing fix. Equivalent to runtime DEV v3.5.256 / PROD v3.5.257. Includes prior 5070e6a6 (PH-20.11C blockedInfo expose). |
+| keybuzz-client | 1a30ad9 | PH-20.11C guidance statique "Trame de reponse securisee" + bouton "Copier la trame" + auto-open blocked drawer (commits chain : beabcd81 parent-wire blockedInfo + d132cc4f auto-open + 1a30ad9 guidance). Equivalent to runtime DEV v3.5.214 / PROD v3.5.215. KEY-302 build args sentinel preserve. KEY-305 race UI fix preserve. |
 
-AS.5.4 confirmed `git diff <anchor>..HEAD` is empty on the build perimeter for both repos. KEY-302 hardening on the Client must remain conserved : no Client build should ever happen without the sentinel guard active.
+PH-20.12B confirmed parite bit-for-bit DEV/PROD via sha256 IDENTIQUES sur 5 fichiers critiques dist (noReplyClassifier.js, engine.js, kbactions.js, ph119-tests.js, autopilotGuardrails.js). KEY-302 hardening on the Client must remain conserved : no Client build should ever happen without the sentinel guard active. autopilotGuardrails.ts source hash `3b85a276` INCHANGE depuis PH-20.11C - doctrine seller-first/refund preserve 100%.
 
 Any future change that moves the HEAD beyond these anchors must explicitly update this section and the smoke harness `SMOKE_EXPECTED_*_IMAGE`.
 
@@ -184,19 +193,25 @@ Tag dette : `v3.5.169` was used for two distinct API builds (AS.4.1 and AS.5). K
 
 ## 13. Current blockers and active tickets
 
-| Linear | Topic | Status (2026-05-11) |
+| Linear | Topic | Status (2026-05-24) |
 |---|---|---|
-| KEY-263 | AS.1 escalation notifications PROD promotion | In Review (blocked by KEY-301 + KEY-304) |
-| KEY-301 | tenantGuardPlugin runtime audit / fix | Open. Risk remains in DEV+PROD post AS.5 rollback. |
-| KEY-302 | Client build args hardening | Done. KEY-302 guard must be preserved on any Client rebuild. |
-| KEY-304 | TenantGuard /messages endpoint-by-endpoint redesign | Open (Todo). Requires design + QA matrix before resumption. |
-| KEY-305 | Inbox auto-suggestion IA regression | In Review (post AS.5.4 source/runtime alignment + AS.5.3 rollback). |
-| KEY-306 | JWT_SESSION_ERROR PROD investigation | Open (Todo). 31 occurrences observed Client PROD. |
-| KEY-307 | Admin-v2 build args hardening | Open (Todo). Apply KEY-302 pattern to admin-v2. |
-| KEY-308 | OCI image revision labels | Open (Todo). Add `org.opencontainers.image.revision` labels. |
-| KEY-309 | Tag discipline / no tag reuse | Open (Todo). Prevent `v3.5.169` style ambiguity. |
+| KEY-263 | AS.1 escalation notifications PROD promotion + DEV/PROD isolation | Done. Preserve : strict isolation tag DEV/PROD verifiee a chaque phase PH-20.11C + PH-20.12B. |
+| KEY-301 | tenantGuardPlugin runtime audit / fix | Done. Resolved through AS.12 sub-phases (refer to PH-SAAS-T8.12AS.12.x reports). |
+| KEY-302 | Client build args hardening | Done. KEY-302 guard preserved on every Client rebuild (sentinel `__MUST_BE_SET_BY_BUILD_ARG__`). |
+| KEY-304 | TenantGuard /messages endpoint-by-endpoint redesign | Done. Resolved through AS.12.2C-x sub-phases. |
+| KEY-305 | Inbox auto-suggestion IA regression | Done. PRE_LLM_BLOCKED path PH-20.11C preserve la fix race UI Client. |
+| KEY-306 | JWT_SESSION_ERROR PROD investigation | Todo. 31 occurrences observed Client PROD pre-2026-05-11. Not addressed in PH-20.11C / PH-20.12B. |
+| KEY-307 | Admin-v2 build args hardening | Todo. Apply KEY-302 pattern to admin-v2. Not addressed. |
+| KEY-308 | OCI image revision labels | Done. Verified 6/6 labels on API DEV v3.5.256 + API PROD v3.5.257 (PH-20.12B). |
+| KEY-309 | Tag discipline / no tag reuse | Done. PH-20.12B respected (v3.5.256-...-dev / v3.5.257-...-prod uniques, jamais :latest). |
 | KEY-310 | Smoke harness read-only | V1 delivered AS.6 + AS.6.1. Status In Review / Done pending Ludovic confirm. |
-| KEY-311 | Operational source of truth docs | This document (AS.6.2). |
+| KEY-311 | Operational source of truth docs | Done. This document is the canonical source, updated 2026-05-24 PH-20.12B. |
+| KEY-312 | Brouillon IA blockedInfo PRE_LLM_BLOCKED guidance | Done (2026-05-23). PH-20.11C end-to-end COMPLETE post visual validation Ludovic PROD. |
+| KEY-337 | PH-20 Acquisition tracking and GO agence (parent) | Backlog. Parent ticket of PH-20 family. PH-20.11C + PH-20.12B closed underneath. Other PH-20.x sub-phases pending. |
+| KEY-231 | KBActions trial : montrer la valeur sans creer d anxiete | Todo. PH-20.12B addresses the no-reply notification side (KBActions skip = 0 on notifications, ~30 KBA/30j PROD economisees baseline). Broader UX value/anxiety angle remains open. |
+| KEY-270 | AP.3 cloture finale memoire apres audits IA/messaging/connecteurs | Backlog. PH-20.12B commented as nouveau lot. Final cloture pending consolidation des autres PH-20.x sous-phases avec GO Ludovic. |
+| KEY-348 | PH-20.12C observation differee : economies KBActions no-reply PROD sur trafic reel | Backlog. Created 2026-05-24. Observation 24-48h read-only post-PH-20.12B close : logs PROD + SQL ai_action_log read-only pour mesurer economie reelle vs baseline ~30 KBA/30j attendus (~12% trafic autopilot PROD). Defer until trafic reel client disponible. |
+| KEY-349 | Rotation controlee PGPASSWORD DEV keybuzz_api_dev apres exposition terminal | Backlog. Created 2026-05-24. PGPASSWORD DEV brievement exposee dans sortie terminal (`kubectl exec env`) durant audit PH-20.12. Recommandation : rotation via track Q-1B-2A si necessaire. PROD non impacte. |
 
 ## 14. Prompting standard
 
