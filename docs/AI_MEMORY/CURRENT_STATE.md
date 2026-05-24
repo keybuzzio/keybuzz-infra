@@ -29,6 +29,57 @@ PH-20.11C : COMPLETE end-to-end (technique + visuelle).
 
 KEY-312 : Done (cloture 2026-05-23 post validation visuelle Ludovic, ref PH-SAAS-T8.12AS.20.11C-GUARDRAIL-GUIDANCE-LINEAR-DONE-01.md).
 
+## PH-20.12B Autopilot no-reply KBActions live DEV+PROD (2026-05-24)
+
+Stack live finale apres source patch + build/push/apply/QA DEV + build/push/apply/QA PROD :
+- API PROD : `ghcr.io/keybuzzio/keybuzz-api:v3.5.257-autopilot-no-reply-kbactions-prod` (manifest digest GHCR `sha256:52ec1bcf01de49803d56f17badd25ae558f7777eb59016824706f6f7d72d3ba3`, config digest `sha256:6a426a52780a490d0682a8bd7a0ad5d0149cee0ebed381147335e5fed86bc477`)
+- API DEV : `ghcr.io/keybuzzio/keybuzz-api:v3.5.256-autopilot-no-reply-kbactions-dev` (manifest digest GHCR `sha256:5f50cc82ce6452bb2de35c129020348c6ea8d2dd47522f1d6061e81188116b92`)
+- Client DEV : `v3.5.214-ai-draft-blocked-reason-dev` (INCHANGE PH-20.11C)
+- Client PROD : `v3.5.215-ai-draft-blocked-reason-prod` (INCHANGE PH-20.11C)
+
+Source :
+- API commit `38c048c0` (feat autopilot: skip no-reply platform notifications before KBActions, branche `ph147.4/source-of-truth`)
+- Fichiers : `src/services/noReplyClassifier.ts` NEW + `src/tests/ph119-tests.ts` NEW + `src/modules/autopilot/engine.ts` MOD (Step 6.5) + `src/modules/ai/shared-ai-context.ts` MOD (last_message_author_name) + `src/config/kbactions.ts` MOD (`'autopilot_skipped_no_reply': 0.0` + fix nullish-coalescing)
+- Parite bit-for-bit DEV vs PROD prouvee sur 5 fichiers critiques dist sha256 IDENTIQUES (noReplyClassifier.js, engine.js, kbactions.js, ph119-tests.js, autopilotGuardrails.js)
+
+Comportement :
+- Step 6.5 dans `evaluateAndExecute()` entre Step 6 (Context) et Step 6b (Order context) skippe les notifications plateforme/no-reply AVANT wallet, guardrails, LLM, draft
+- Classifier sender-driven 5 subtypes : `AMAZON_SELLER_CENTRAL_NOTIFICATION`, `AMAZON_ATOZ_NOREPLY`, `AMAZON_BUSINESS_NOREPLY`, `AMAZON_REGIONAL_NOREPLY`, `GENERIC_PLATFORM_NOREPLY`
+- ai_action_log entry pour skip : `action_type=autopilot_none status=skipped reason=NO_REPLY_PLATFORM_NOTIFICATION:<subtype> blocked=true kbaCost=0`
+- KBActions skip = 0 exact (sentinel `KBACTIONS_WEIGHTS['autopilot_skipped_no_reply']=0.0` + fix `||` -> `??` pour honorer 0.0)
+- Cout KBActions vrais drafts INCHANGE (inbox_suggestion 6.0 +/-15%, inbox_contextualized 10.0 +/-15%)
+
+QA :
+- DEV : 25/25 PASS (commit infra `baf7254`) - 16 fixtures no-reply Amazon + 4 controle clients reels marketplace + 1 controle PH-20.11C HIGH risk + 4 KBActions
+- PROD : 25/25 PASS (commit infra `0aaae7d`) - memes fixtures, runtime PROD pod `keybuzz-api-b7f57bccd-tlwgp`, KBActions skip=0 + inbox_suggestion=6.78 + inbox_contextualized=9.20 dans fourchette +/-15%
+- Logs delta runner DEV+PROD : 0 appel /ai/assist + 0 /ai/execute + 0 /autopilot/draft/consume + 0 erreur tail 1000
+
+Preserve :
+- PH-20.11C blockedInfo / blockedStatus / blockedNotes / PRE_LLM_BLOCKED (6 markers dist) - doctrine `KEY-312` PRESERVE
+- autopilotGuardrails.ts source hash `3b85a276` + dist sha256 `74e4da5b6d37` INCHANGE - doctrine seller-first/refund preserve 100%
+- refundProtectionLayer.js + 15 refund refs PRESERVE
+- ai-assist-routes.js / autopilot/routes.js PRESERVE
+- KEY-305 race UI Client preserve (Client non touche)
+- KEY-263 DEV/PROD isolation strict, KEY-302 sentinel = 0, KEY-308 OCI 6/6, KEY-309 tag immuable
+
+Impact attendu PROD :
+- Cible baseline audit PH-20.12 : ~30 KBActions / 30j PROD economisees (~12% du trafic autopilot)
+- ~42% du flux inbound HUMAN (149/356 messages 30j) sera skippe pour les conv notification Amazon
+- Compteur KBActions trial baisse uniquement sur vrais messages clients (KEY-231 angle value/anxiety addressed)
+
+Limite :
+- QA DEV+PROD via fixtures pures + markers runtime, PAS via trafic reel DB/marketplace (eviter side effects KBActions/LLM/DB)
+- Validation comportement REEL sur trafic notif Amazon entrant : observation 24-48h post-close recommandee
+
+Observation recommandee 24-48h :
+- Surveiller logs PROD pour reason=NO_REPLY_PLATFORM_NOTIFICATION:<subtype>
+- Query SQL read-only `ai_action_log` pour confirmer KBActions delta nul sur notifications no-reply
+- Mesurer economie reelle vs baseline ~30 KBA/30j
+
+Linear : KEY-337 (parent PH-20), KEY-231 (KBActions trial value/anxiety), KEY-270 (cloture audits IA) commentes a chaque etape (audit/source/build/push/apply/QA DEV+PROD/close), statuts INCHANGES (Backlog/Todo/Backlog). Aucun ticket cree. KEY-235/305/263/302/308/309/312 preserves non commentes.
+
+Rapport closeout : `keybuzz-infra/docs/PH-SAAS-T8.12AS.20.12B-AUTOPILOT-NO-REPLY-KBACTIONS-CLOSE-01.md`.
+
 ---
 
 ## Operational source of truth
