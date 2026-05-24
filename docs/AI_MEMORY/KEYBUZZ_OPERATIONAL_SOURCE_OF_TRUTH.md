@@ -179,7 +179,12 @@ STOP conditions (any of these aborts the build phase) :
 
 Cleanup of the build worktree (post-build) :
 
-- `git worktree remove --force <path>` after successful push + apply.
+- Default cleanup command : `git worktree remove <path>` only.
+- Before cleanup, verify the resolved absolute path is under `/opt/keybuzz/build-worktrees/<phase>/`.
+- If `git worktree remove <path>` fails : STOP and report the reason.
+- Do NOT use `git worktree remove --force` as a default build/deploy cleanup.
+- `--force` is allowed only in a dedicated cleanup phase with explicit Ludovic GO, path verification, and a report explaining why normal removal failed.
+- Never clean the canonical repo `/opt/keybuzz/keybuzz-api` as a side effect of a build/deploy/patch phase.
 - Never leave stale build worktrees that could be reused with a different HEAD.
 
 ## 9. Smoke harness rules (V1, AS.6 + AS.6.1)
