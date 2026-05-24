@@ -86,7 +86,10 @@ Run these checks before any code/build/deploy phase :
 1. `git rev-parse --abbrev-ref HEAD` for each touched repo : must equal the branch in section 2.
 2. `git rev-parse --short HEAD` : record in the phase prompt and final report.
 3. `git fetch origin -q && git rev-list --left-right --count origin/<branch>...HEAD` : must be `0	0` before any build.
-4. `git status --porcelain` : must be clean OR only contain documented artifact dirty (e.g. keybuzz-client `tsconfig.tsbuildinfo`, keybuzz-api `D dist/*.js`). If anything else is dirty : STOP and investigate.
+4. `git status --porcelain` :
+   - For audit / read-only phases : canonical repo may show documented artifact dirty (e.g. keybuzz-client `tsconfig.tsbuildinfo`, keybuzz-api `D dist/*.js`). Document it, do not clean.
+   - For ANY build phase (docker build, npm build, source patch + commit) : the build worktree must be FULLY clean (`git status --porcelain` returns 0 lines). Documented artifact dirty is NEVER acceptable as a build base. Build from a fresh `git worktree add --detach` checked out from `origin/<branch>` or from the explicit target commit, NOT from the canonical repo if it shows any dirty file. See section 8b for the PH147 hard guardrail.
+   - If anything else is dirty : STOP and investigate.
 5. Runtime image = manifest spec image = `kubectl.kubernetes.io/last-applied-configuration` annotation (GitOps no drift).
 6. All pods Ready.
 7. For phases that touch DEV runtime : run the smoke harness V1 (section 9). PASS required.
@@ -109,7 +112,7 @@ Absolute :
 ## 8. Build rules
 
 Per build :
-- Working tree clean (or only documented artifact dirty).
+- Build worktree FULLY clean (`git status --porcelain` empty). Documented artifact dirty in the canonical repo is NOT acceptable for build : create a fresh `git worktree add --detach` from `origin/<branch>` or from the target commit. See section 8b for PH147 specifics.
 - `commit + push` before `docker build`. Build from a Git checkout, never from a pod/runtime/dist/SCP.
 - Immutable tag (no `:latest`, no tag reuse, KEY-309).
 - Document digest in the phase report.
@@ -138,6 +141,46 @@ Tag discipline (AS.10 KEY-309) :
 - Full discipline reference : `keybuzz-infra/docs/DOCKER-TAG-DISCIPLINE.md`.
 
 API and Backend Dockerfiles are self-contained ; build args constraints are simpler and documented in their respective READMEs.
+
+### 8b. PH147 API source-of-truth hard guardrail (2026-05-24)
+
+Established after PH-20.12B closeout when reviewer detected that the canonical `/opt/keybuzz/keybuzz-api` repo had 223 `D dist/*.js` dirty artifacts while source files (`src/`, `package.json`, `package-lock.json`, `tsconfig.json`, `Dockerfile`) remained CLEAN at commit `38c048c07fb98543437228657564ef4de388bdfb` on branch `ph147.4/source-of-truth`.
+
+Canonical repo dirty observation (read-only debt) :
+
+- `/opt/keybuzz/keybuzz-api` may show `D dist/*.js` dirty artifacts.
+- This is a documented read-only debt only.
+- It must NOT be cleaned implicitly (no `git reset --hard`, no `git clean`, no `git checkout -- dist`).
+- Removal of this debt requires its own dedicated GO Ludovic phase, never as a side effect of another phase.
+
+Build rule (HARD) :
+
+- No API build may start from a dirty worktree, even if the dirty files are only `dist/*.js`.
+- For every API build, create a fresh detached worktree :
+  ```
+  git worktree add --detach /opt/keybuzz/build-worktrees/<phase>/keybuzz-api <target-commit>
+  ```
+  where `<target-commit>` is either `origin/ph147.4/source-of-truth` or the explicit target SHA.
+- Before `docker build`, verify in the build worktree :
+  - `git rev-parse HEAD` matches the requested commit exactly.
+  - `git status --porcelain` returns 0 lines (FULLY clean).
+  - the source commit has already been pushed to origin (audit `git log -1 origin/<branch>`).
+- After `docker build`, verify on the image :
+  - `org.opencontainers.image.revision` label equals the source commit SHA.
+  - `org.opencontainers.image.version` label equals the immutable tag.
+
+STOP conditions (any of these aborts the build phase) :
+
+- Canonical repo `/opt/keybuzz/keybuzz-api` is dirty AND someone proposes building from it.
+- Fresh build worktree is dirty after creation.
+- Branch, HEAD, origin, or requested commit mismatch.
+- OCI `revision` label resolves to `unknown` instead of the source commit SHA.
+- Attempt to clean the canonical repo as a side effect of a build/deploy/patch phase.
+
+Cleanup of the build worktree (post-build) :
+
+- `git worktree remove --force <path>` after successful push + apply.
+- Never leave stale build worktrees that could be reused with a different HEAD.
 
 ## 9. Smoke harness rules (V1, AS.6 + AS.6.1)
 
