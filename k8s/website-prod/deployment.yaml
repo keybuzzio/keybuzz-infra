@@ -33,7 +33,7 @@ spec:
         # PH-T8.12P: TikTok browser pixel activated (D7PT12JC77U44OJIPC10)
         # WARNING: rebuild MUST include --build-arg NEXT_PUBLIC_TIKTOK_PIXEL_ID=D7PT12JC77U44OJIPC10
         # PH-SAAS-T8.12AN.6: promo forwarding from /pricing to /register
-        image: ghcr.io/keybuzzio/keybuzz-website:v0.6.21-pricing-action-recover-prod  # PH-SAAS-T8.12AS.20.10B-WEBSITE-PRICING-SERVER-ACTION-APPLY-PROD (2026-05-22): commit website 907689b ; KEY-346 : fix defensif error boundary auto-reload single-shot sur Failed to find Server Action (guard sessionStorage kb_pricing_server_action_reload_v1) ; src/app/error.tsx + src/app/global-error.tsx +44 lignes ; tracking baseline preserve (GA G-R3QQDYEBFG, SGTM t.keybuzz.pro, LinkedIn 9969977, marketing_cta_click, trackMarketingClick) ; CMP PH-20.8 preserve ; KEY-263 isolation PROD OK (api.keybuzz.io contact present, api-dev absent, client.keybuzz.io) ; manifest digest GHCR : sha256:8fefca2e6384d35c2309c02c70c829e756f72b99001c71d8db68d5c78abe009b ; rollback v0.6.20-cmp-mobile-polish-prod
+        image: ghcr.io/keybuzzio/keybuzz-website:v0.6.22-clarity-restore-prod  # PH-SAAS-T8.12AS.20.15D (2026-05-26) KEY-322/KEY-337 : restore Clarity wrff07upjx + Meta 1234164602194748 + TikTok D7PT12JC77U44OJIPC10 (v0.6.21 build PH-20.10B avait droppe ces 3 build-args NEXT_PUBLIC) ; commit website 907689b ; manifest digest GHCR sha256:974350d524ba80df77fcece54dc92156a9a3cc578d862e8cd1b2ffe21cee87ac ; config sha256:619afbd95b82 ; GA G-R3QQDYEBFG/SGTM t.keybuzz.pro/LinkedIn 9969977 preserves ; rollback v0.6.21-pricing-action-recover-prod
         ports:
         - containerPort: 3000
         env:
