@@ -30,7 +30,7 @@ spec:
         - name: ghcr-cred
       containers:
         - name: worker
-          image: ghcr.io/keybuzzio/keybuzz-backend:v1.0.53-amazon-validation-pipeline-prod  # PH-SAAS-T8.12AS.20.14U-PROD-APPLY | new resource
+          image: ghcr.io/keybuzzio/keybuzz-backend:v1.0.54-amazon-validation-pipeline-prod  # PH-SAAS-T8.12AS.20.14AC | rollback: v1.0.53-amazon-validation-pipeline-prod
           command:
             - node
             - dist/workers/jobsWorker.js

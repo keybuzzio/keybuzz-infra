@@ -24,7 +24,7 @@ spec:
           # ROLLBACK: v1.0.39-td05-externalmsg-prod
           # PREVIOUS: v1.0.40-pj-fix-prod
           # PH132-D: Updated to match cluster + added API_INTERNAL_URL
-          image: ghcr.io/keybuzzio/keybuzz-backend:v1.0.53-amazon-validation-pipeline-prod  # PH-SAAS-T8.12AS.20.14U-PROD-APPLY | rollback: v1.0.47-cross-env-guard-fix-prod
+          image: ghcr.io/keybuzzio/keybuzz-backend:v1.0.54-amazon-validation-pipeline-prod  # PH-SAAS-T8.12AS.20.14AC | rollback: v1.0.53-amazon-validation-pipeline-prod
           ports:
             - containerPort: 4000
           envFrom:
