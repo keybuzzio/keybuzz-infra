@@ -29,7 +29,7 @@ spec:
     spec:
       containers:
         - name: keybuzz-backend
-          image: ghcr.io/keybuzzio/keybuzz-backend:v1.0.52-amazon-validation-pipeline-dev  # PH-SAAS-T8.12AS.20.14R | rollback: v1.0.51-amazon-validation-pipeline-dev
+          image: ghcr.io/keybuzzio/keybuzz-backend:v1.0.53-amazon-validation-pipeline-dev  # PH-SAAS-T8.12AS.20.14X | rollback: v1.0.52-amazon-validation-pipeline-dev
           imagePullPolicy: Always
           ports:
             - name: http
