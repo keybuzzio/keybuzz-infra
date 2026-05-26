@@ -1,0 +1,80 @@
+# PH-SAAS-T8.12AS.20.14U-PROD-APPLY: scoped jobs worker PROD (Amazon validation pipeline)
+# Consumes ONLY OUTBOUND_EMAIL_SEND jobs (JOB_TYPES) via dist/workers/jobsWorker.js;
+#   never claims AMAZON_POLL (handled by the dedicated amazon-orders/items pollers).
+# Image v1.0.53-amazon-validation-pipeline-prod (PROD-dedicated, from-git 1179c15, same code as DEV v1.0.53 validated).
+# env/secrets mirror the keybuzz-backend PROD API deployment (DB + backend secrets + vault + spapi).
+# SMTP: mail-core-01 :25, unauthenticated (no SMTP_USER/SMTP_PASS), shared inbound relay.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jobs-worker
+  namespace: keybuzz-backend-prod
+  labels:
+    app: jobs-worker
+    component: worker
+    tier: worker
+    env: production
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: jobs-worker
+  template:
+    metadata:
+      labels:
+        app: jobs-worker
+        component: worker
+        env: production
+    spec:
+      imagePullSecrets:
+        - name: ghcr-cred
+      containers:
+        - name: worker
+          image: ghcr.io/keybuzzio/keybuzz-backend:v1.0.53-amazon-validation-pipeline-prod  # PH-SAAS-T8.12AS.20.14U-PROD-APPLY | new resource
+          command:
+            - node
+            - dist/workers/jobsWorker.js
+          envFrom:
+            - secretRef:
+                name: keybuzz-backend-db
+            - secretRef:
+                name: keybuzz-backend-secrets
+            - secretRef:
+                name: vault-token
+                optional: true
+            - secretRef:
+                name: amazon-spapi-creds
+          env:
+            - name: NODE_ENV
+              value: production
+            - name: VAULT_ADDR
+              value: "http://vault.default.svc.cluster.local:8200"
+            - name: NODE_TLS_REJECT_UNAUTHORIZED
+              value: "0"
+            # PH-SAAS-T8.12AS.20.14C-BIS: scope this worker to validation email jobs only.
+            - name: JOB_TYPES
+              value: "OUTBOUND_EMAIL_SEND"
+            # PH-SAAS-T8.12AS.20.14F-SMTP: shared SMTP relay (mail-core-01 :25, unauthenticated)
+            - name: SMTP_HOST
+              value: "49.13.35.167"
+            - name: SMTP_PORT
+              value: "25"
+            - name: SMTP_SECURE
+              value: "false"
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "100m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+          livenessProbe:
+            exec:
+              command:
+                - sh
+                - -c
+                - "ps aux | grep jobsWorker | grep -v grep"
+            initialDelaySeconds: 30
+            periodSeconds: 60
+            failureThreshold: 3
+      restartPolicy: Always
