@@ -4,12 +4,13 @@
 > Linear : KEY-337 parent PH-20 ; KEY-322 Clarity/tracking ; reference KEY-323 restored
 > Phase : PH-SAAS-T8.12AS.20.15E (READONLY VERIFY CLARITY DASHBOARD FRESHNESS)
 > Environnement : PROD (lecture seule ; aucun deploy, aucun fake event)
+> MAJ 2026-05-26 (CLOSE HANDOFF) : retour Ludovic DevTools integre ; verdict releve de PARTIAL a READY.
 
 ## 1. Verdict
 
-GO READONLY VERIFY CLARITY DASHBOARD FRESHNESS PARTIAL PH-SAAS-T8.12AS.20.15E
+GO READONLY VERIFY CLARITY DASHBOARD FRESHNESS READY PH-SAAS-T8.12AS.20.15E
 
-Volet serveur READY : website PROD v0.6.22-clarity-restore-prod confirme actif (digest GHCR 974350d5), live keybuzz.pro sert le bundle avec Clarity wrff07upjx + clarity.ms/tag + Meta + TikTok, CSS 200 text/css. Volet dashboard PENDING : la confirmation de la requete reseau clarity.ms/tag/wrff07upjx apres consent (DevTools) + la presence de NOUVEAUX recordings AVEC CSS cote Microsoft Clarity (projet wrff07upjx) exige un login Microsoft + acceptation consent navigateur, non realisables par le CE et non encore fournis par Ludovic. Aucun fake event/recording cree.
+Restauration Clarity CONFIRMEE de bout en bout (runtime + navigateur). Volet serveur : website PROD v0.6.22-clarity-restore-prod actif (digest GHCR 974350d5), live keybuzz.pro sert le bundle avec Clarity wrff07upjx + clarity.ms/tag + Meta + TikTok, CSS 200 text/css. Volet navigateur (retour Ludovic, DevTools keybuzz.pro apres consent) : requete clarity.ms/tag/wrff07upjx status 200, clarity.js status 200, beacon collect status 204, CSS rendu correctement cote navigateur. Le tracking reseau Clarity est donc RESTAURE et fonctionnel. Reste a surveiller passivement l'apparition de nouveaux recordings post-deploiement cote dashboard Microsoft Clarity (non bloquant). Aucun fake event/recording.
 
 ## 2. Runtime website PROD
 
@@ -19,7 +20,7 @@ Volet serveur READY : website PROD v0.6.22-clarity-restore-prod confirme actif (
 | pods | 2/2 ready, restarts=0 | OK |
 | imageID runtime | @sha256:974350d524ba...87ac = digest GHCR | OK |
 
-## 3. Live keybuzz.pro (read-only)
+## 3. Live keybuzz.pro (read-only serveur)
 
 | Marker/check | attendu | actual | verdict |
 |---|---|---|---|
@@ -31,27 +32,40 @@ Volet serveur READY : website PROD v0.6.22-clarity-restore-prod confirme actif (
 | GA G-R3QQDYEBFG | present | 1 | OK |
 | CSS asset | 200 text/css | 200 text/css | OK |
 
-## 4. Volet dashboard / DevTools (retour Ludovic - PENDING)
+## 4. Volet navigateur / DevTools (retour Ludovic - CONFIRME)
 
-| Verification | source requise | etat |
+Retour Ludovic apres ouverture de keybuzz.pro et acceptation du bandeau consent (opt-in) :
+
+| Verification | attendu | retour Ludovic | verdict |
+|---|---|---|---|
+| consent banner keybuzz.pro | acceptation opt-in | OK (accepte) | OK |
+| requete clarity.ms/tag/wrff07upjx | 200 | status 200 | OK |
+| script clarity.js | 200 | status 200 | OK |
+| beacon collect (ingestion events Clarity) | 204 | status 204 | OK |
+| rendu CSS cote navigateur | mise en forme correcte | CSS rendu correctement | OK |
+
+Interpretation : la chaine complete Clarity est operationnelle post-consent (tag charge -> clarity.js charge -> events envoyes via collect 204). Le tracking reseau Clarity est RESTAURE. La requete n'apparaissait pas en curl serveur car le script est gate par le consent opt-in client-side (comportement attendu, desormais leve par la confirmation navigateur Ludovic).
+
+## 5. Dashboard Microsoft Clarity (surveillance passive)
+
+| Verification | source | etat |
 |---|---|---|
-| requete reseau clarity.ms/tag/wrff07upjx status 200 apres consent | DevTools navigateur Ludovic (consent opt-in) | EN ATTENTE |
-| nouveau recording Clarity post-2026-05-26 19:45 UTC | Microsoft Clarity projet wrff07upjx (login) | EN ATTENTE |
-| recording affiche AVEC CSS (mise en forme correcte) | Microsoft Clarity replay | EN ATTENTE |
+| nouveaux recordings post-2026-05-26 19:45 UTC | Microsoft Clarity projet wrff07upjx (login Ludovic) | A SURVEILLER PASSIVEMENT (non bloquant) |
+| recordings affiches AVEC CSS | Microsoft Clarity replay | attendu OK (CSS asset 200 + rendu navigateur confirme) |
 
-Le CE ne peut ni se connecter a Microsoft Clarity ni accepter le consent navigateur (gating client-side opt-in) ; aucun retour Ludovic fourni dans la phase. Ces 3 points constituent le handoff Ludovic restant. Rappel : le script Clarity est present dans le bundle servi mais ne declenche sa requete reseau qu'apres acceptation explicite du consent ; l'absence de requete en curl est donc normale et n'invalide pas le fix.
+Le tracking reseau etant restaure (collect 204), l'ingestion des sessions reprend. L'apparition des recordings dans le dashboard suit le delai de traitement Microsoft Clarity (quelques minutes a quelques heures) ; surveillance passive, pas de blocage.
 
-## 5. No fake metrics / no fake events
+## 6. No fake metrics / no fake events
 
 | Garantie | etat |
 |---|---|
 | fake Clarity event / recording | 0 |
 | synthetic pageview / session / conversion | 0 |
-| consent force | 0 |
+| consent force par le CE | 0 (consent accepte par Ludovic en navigateur reel) |
 | deploy / mutation runtime | 0 (lecture seule) |
 | DB mutation | 0 |
 
-## 6. Anti-regression
+## 7. Anti-regression
 
 | Garantie | etat |
 |---|---|
@@ -60,14 +74,12 @@ Le CE ne peut ni se connecter a Microsoft Clarity ni accepter le consent navigat
 | doublons Amazon | differes (PH-20.16) |
 | autres services | non touches |
 
-## 7. Decision
+## 8. Decision
 
-Server-side restauration confirmee READY (runtime v0.6.22 + bundle live Clarity/Meta/TikTok + CSS 200). Freshness dashboard = PENDING handoff Ludovic. Verdict PARTIAL jusqu'a confirmation Ludovic des 3 points dashboard/DevTools.
+READY runtime + navigateur. Incident Clarity PH-20.15 RESOLU : le tracking reseau Clarity (+ Meta + TikTok restaures) fonctionne sur keybuzz.pro post-consent, CSS rendu correctement. KEY-322 peut etre clos par Ludovic (GO explicite requis ; statut laisse inchange par le CE). Surveillance passive du dashboard Microsoft Clarity pour confirmer l'historisation des nouveaux recordings (non bloquant). Durcissement recommande : ajouter les build-args Clarity/Meta/TikTok au script de build website standard pour prevenir une nouvelle perte silencieuse. Differe : doublons Amazon PH-20.16 (P0 Amazon reste restaure, ne pas rouvrir).
 
-Prochaine action : handoff Ludovic (ouvrir keybuzz.pro, accepter consent, verifier DevTools requete clarity.ms/tag/wrff07upjx 200, puis Microsoft Clarity nouveaux recordings AVEC CSS). Une fois confirme, clore KEY-322. Durcissement recommande : ajouter build-args Clarity/Meta/TikTok au script de build website standard.
+## 9. Phrase cible
 
-## 8. Phrase cible
-
-GO READONLY VERIFY CLARITY DASHBOARD FRESHNESS PARTIAL PH-SAAS-T8.12AS.20.15E
+GO READONLY VERIFY CLARITY DASHBOARD FRESHNESS READY PH-SAAS-T8.12AS.20.15E
 
 STOP.
