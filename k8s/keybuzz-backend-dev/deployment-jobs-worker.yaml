@@ -29,7 +29,7 @@ spec:
         - name: ghcr-cred
       containers:
         - name: worker
-          image: ghcr.io/keybuzzio/keybuzz-backend:v1.0.54-amazon-validation-pipeline-dev  # PH-SAAS-T8.12AS.20.14Z | rollback: v1.0.53-amazon-validation-pipeline-dev
+          image: ghcr.io/keybuzzio/keybuzz-backend:v1.0.55-amazon-inbound-dedup-dev  # PH-SAAS-T8.12AS.20.20 (2026-05-27) KEY-323 : dedup inbound Amazon (idempotence tenant-scopee metadata.amazonIds.messageId avant fallback SES, PH-20.17) ; manifest digest sha256:b314826112725790130c5849b26bbd4e7c1b82b40a6e29d55bb835245a9a9702 ; config sha256:8e2b4d0399be ; rollback: v1.0.54-amazon-validation-pipeline-dev
           command:
             - node
             - dist/workers/jobsWorker.js
