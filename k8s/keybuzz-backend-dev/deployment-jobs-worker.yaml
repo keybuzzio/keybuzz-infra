@@ -29,7 +29,7 @@ spec:
         - name: ghcr-cred
       containers:
         - name: worker
-          image: ghcr.io/keybuzzio/keybuzz-backend:v1.0.56-amazon-inbound-dedup-dev  # PH-SAAS-T8.12AS.20.29 (2026-05-27) KEY-323 atomic dedup (advisory lock pg_advisory_xact_lock, PH-20.26) ; manifest digest sha256:ed3d6c1a7f322166635ec87ece6c804c7a689a6611c8eebea3d326a8fe66f81b ; config sha256:e3b5d2b30542 ; rollback: v1.0.55-amazon-inbound-dedup-dev
+          image: ghcr.io/keybuzzio/keybuzz-backend:v1.0.57-amazon-notification-classification-dev  # PH-SAAS-T8.12AS.20.41 (2026-05-27) KEY-323 notification classification DEV (PH-20.38 src c38583a) ; manifest digest sha256:ab583b9c57bb47bddb35be594ffb8938bf7bd57d6f79b6f8906c341083c5d806 ; config sha256:5d965707a087 ; rollback: v1.0.56-amazon-inbound-dedup-dev
           command:
             - node
             - dist/workers/jobsWorker.js
