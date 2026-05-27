@@ -24,7 +24,7 @@ spec:
           # ROLLBACK: v1.0.39-td05-externalmsg-prod
           # PREVIOUS: v1.0.40-pj-fix-prod
           # PH132-D: Updated to match cluster + added API_INTERNAL_URL
-          image: ghcr.io/keybuzzio/keybuzz-backend:v1.0.55-amazon-inbound-dedup-prod  # PH-SAAS-T8.12AS.20.24 (2026-05-27) KEY-323 dedup amazonIds.messageId ; manifest digest sha256:b21e524a ; config sha256:7e2f123673ed ; rollback: v1.0.54-amazon-validation-pipeline-prod
+          image: ghcr.io/keybuzzio/keybuzz-backend:v1.0.56-amazon-inbound-dedup-prod  # PH-SAAS-T8.12AS.20.33 (2026-05-27) KEY-323 atomic dedup (advisory lock pg_advisory_xact_lock, PH-20.26) ; manifest digest sha256:9689875c ; config sha256:179af6fb0632 ; rollback: v1.0.55-amazon-inbound-dedup-prod
           ports:
             - containerPort: 4000
           envFrom:
