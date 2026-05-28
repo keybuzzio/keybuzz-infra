@@ -73,7 +73,7 @@ spec:
           # - Sample Demo hidden after real channel connection
           # PH-SAAS-T8.12AP.1B: AI no-reask fix — orderRef always injected + anti-reask instruction (KEY-256)
           # PH-SAAS-T8.12AP.2.3: outbound author_name — X-User-Email in sendReply PROD (KEY-266)
-          image: ghcr.io/keybuzzio/keybuzz-client:v3.5.217-clarity-client-restore-prod  # PH-SAAS-T8.12AS.20.15I (2026-05-26) KEY-322/KEY-325/KEY-337 : restore Microsoft Clarity funnel client.keybuzz.io (project ID client wuk12h9i33) perdu depuis v3.5.201 (build-arg NEXT_PUBLIC_CLARITY_PROJECT_ID omis, regression PH-20.15F) ; commit client ef239e8 ; build-args iso v3.5.200 + Clarity ; KEY-263 isolation PROD STRICT (api.keybuzz.io=87, api-dev=0 bundle prouve) ; KEY-302 build args explicites (MUST_BE_SET_BY_BUILD_ARG=0) ; website wrff07upjx absent du bundle client ; manifest digest GHCR sha256:e75ac3ad37ed6643ea5a69b2546c286f0646d1ed719e9022fcbd1b677e45030a ; config sha256:6a20d9b79bf6 ; rollback v3.5.215-ai-draft-blocked-reason-prod
+          image: ghcr.io/keybuzzio/keybuzz-client:v3.5.259-ai-assist-notification-scope-prod  # PH-SAAS-T8.12AS.20.49 (2026-05-28) KEY-323/KEY-337 : Client AI Assist skipped:true rendu etat neutre (commit client ad4e862) ; bundle PROD api.keybuzz.io present, api-dev absent, Clarity wuk12h9i33 present (KEY-302/KEY-325 OK) ; manifest digest GHCR sha256:e63494dbe83368a300df4d199b6443ccef6442b5428edeca6cf94433b5abf791 ; config sha256:9f46a7a88f83 ; rollback v3.5.217-clarity-client-restore-prod
           imagePullPolicy: Always
           ports:
             - containerPort: 3000
