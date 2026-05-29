@@ -103,7 +103,7 @@ spec:
           # PREVIOUS: v3.5.186-ai-rules-mut-tenantguard-prod  # PH-SAAS-T8.12AS.12.2C-5B-PROD KEY-301 (2026-05-13)
           # PREVIOUS: v3.5.187-google-observability-tenantguard-prod  # PH-SAAS-T8.12AS.13.1-PROD KEY-313 (2026-05-14)
           # PREVIOUS: v3.5.188-outbound-deliveries-tenantguard-prod  # PH-SAAS-T8.12AS.13.2A-PROD KEY-313 (2026-05-14)
-          image: ghcr.io/keybuzzio/keybuzz-api:v3.5.260-amazon-inbound-address-sync-prod  # PH-SAAS-T8.12AS.20.60 (2026-05-28) KEY-323/KEY-337 : Amazon inbound address validation sync (commit api 798db37c, normalizeInboundValidationStatus + bridge sync Backend->Product/API ON CONFLICT promote-only jamais downgrade ; gates worker/messages validationStatus=VALIDATED intacts) ; manifest digest GHCR sha256:778f7556c5aa187be21b8a72a5246594c83e561c68abfaa053600fa7cbda43b8 ; config sha256:ac854f025cdf ; rollback v3.5.259-ai-assist-notification-scope-prod
+          image: ghcr.io/keybuzzio/keybuzz-api:v3.5.261-capi-platform-token-encryption-prod  # PH-SAAS-T8.12AS.21.12 (2026-05-29) CAPI platform token encryption PROD GitOps (src 9797bedf, manifest sha256:947c1902ba15, config sha256:20e857ec5815) ; rollback: v3.5.260-amazon-inbound-address-sync-prod
           imagePullPolicy: Always
           ports:
             - containerPort: 3001
