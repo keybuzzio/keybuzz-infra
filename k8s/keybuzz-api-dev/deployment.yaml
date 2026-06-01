@@ -318,7 +318,7 @@ spec:
         # PH-SAAS-T8.12AP.2.2: outbound author_name — resolve real agent display name (KEY-266)
         # PREVIOUS: v3.5.187-google-observability-tenantguard-dev  # PH-SAAS-T8.12AS.13.1 KEY-313 (2026-05-14)
         # PREVIOUS: v3.5.188-outbound-deliveries-tenantguard-dev  # PH-SAAS-T8.12AS.13.2A KEY-313 (2026-05-14)
-        image: ghcr.io/keybuzzio/keybuzz-api:v3.5.262-llm-provider-credit-alerting-dev  # PH-SAAS-T8.12AS.21.20 (2026-05-31) LLM provider credit alerting DEV GitOps (src fee1a1a6, manifest sha256:f6be25608e76, config sha256:d473f9e4b748) ; rollback: v3.5.261-capi-platform-token-encryption-dev
+        image: ghcr.io/keybuzzio/keybuzz-api:v3.5.263-llm-provider-credit-watcher-dev  # PH-SAAS-T8.12AS.21.31 (2026-06-01) LLM provider credit watcher DEV GitOps (src 76483e3a, manifest sha256:93914a6861a2, config sha256:4f9af83f1293) ; rollback: v3.5.262-llm-provider-credit-alerting-dev
         livenessProbe:
           httpGet:
             path: /health
