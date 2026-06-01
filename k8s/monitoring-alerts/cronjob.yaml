@@ -42,6 +42,40 @@ spec:
                   value: "3"
                 - name: ERROR_RATE_THRESHOLD
                   value: "5"
+                - name: LLM_PROVIDER_CREDIT_ENABLED
+                  value: "true"
+                - name: LLM_PROVIDER_CREDIT_TARGET_ENV
+                  value: "dev"
+                - name: LLM_PROVIDER_CREDIT_DRY_RUN
+                  value: "true"
+                - name: LLM_PROVIDER_CREDIT_LOG_ONLY
+                  value: "true"
+                - name: LLM_PROVIDER_CREDIT_STATE_CONFIGMAP
+                  value: "monitoring-alert-state"
+                - name: LLM_PROVIDER_CREDIT_STATE_NAMESPACE
+                  value: "vault-management"
+                - name: LLM_PROVIDER_CREDIT_DEV_URL
+                  value: "http://keybuzz-api.keybuzz-api-dev.svc.cluster.local:3001/internal/monitoring/llm-provider-credit"
+                - name: LLM_PROVIDER_CREDIT_PROD_URL
+                  value: "http://keybuzz-api.keybuzz-api-prod.svc.cluster.local/internal/monitoring/llm-provider-credit"
+                - name: LLM_PROVIDER_CREDIT_DEV_WINDOW_SECONDS
+                  value: "3600"
+                - name: LLM_PROVIDER_CREDIT_PROD_WINDOW_SECONDS
+                  value: "900"
+                - name: LLM_PROVIDER_CREDIT_DEV_THRESHOLD
+                  value: "1"
+                - name: LLM_PROVIDER_CREDIT_PROD_THRESHOLD
+                  value: "1"
+                - name: LLM_PROVIDER_CREDIT_DEV_DEBOUNCE_SECONDS
+                  value: "21600"
+                - name: LLM_PROVIDER_CREDIT_PROD_DEBOUNCE_SECONDS
+                  value: "3600"
+                - name: LLM_PROVIDER_CREDIT_TOKEN
+                  valueFrom:
+                    secretKeyRef:
+                      name: monitoring-llm-provider-credit-token
+                      key: token
+                      optional: true
                 - name: SMTP_HOST
                   value: "10.0.0.160"
                 - name: SMTP_PORT

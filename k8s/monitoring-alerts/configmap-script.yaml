@@ -18,9 +18,27 @@ data:
     SMTP_PORT="${SMTP_PORT:-25}"
     SMTP_FROM="${SMTP_FROM:-alerts@keybuzz.io}"
     SMTP_TO="${SMTP_TO:-sre@keybuzz.io}"
+    LLM_PROVIDER_CREDIT_ENABLED="${LLM_PROVIDER_CREDIT_ENABLED:-true}"
+    LLM_PROVIDER_CREDIT_TARGET_ENV="${LLM_PROVIDER_CREDIT_TARGET_ENV:-dev}"
+    LLM_PROVIDER_CREDIT_DRY_RUN="${LLM_PROVIDER_CREDIT_DRY_RUN:-true}"
+    LLM_PROVIDER_CREDIT_LOG_ONLY="${LLM_PROVIDER_CREDIT_LOG_ONLY:-true}"
+    LLM_PROVIDER_CREDIT_TOKEN="${LLM_PROVIDER_CREDIT_TOKEN:-}"
+    LLM_PROVIDER_CREDIT_STATE_CONFIGMAP="${LLM_PROVIDER_CREDIT_STATE_CONFIGMAP:-monitoring-alert-state}"
+    LLM_PROVIDER_CREDIT_STATE_NAMESPACE="${LLM_PROVIDER_CREDIT_STATE_NAMESPACE:-vault-management}"
+    LLM_PROVIDER_CREDIT_STATE_DRY_RUN="${LLM_PROVIDER_CREDIT_STATE_DRY_RUN:-${LLM_PROVIDER_CREDIT_DRY_RUN}}"
+    LLM_PROVIDER_CREDIT_DEV_URL="${LLM_PROVIDER_CREDIT_DEV_URL:-http://keybuzz-api.keybuzz-api-dev.svc.cluster.local:3001/internal/monitoring/llm-provider-credit}"
+    LLM_PROVIDER_CREDIT_PROD_URL="${LLM_PROVIDER_CREDIT_PROD_URL:-http://keybuzz-api.keybuzz-api-prod.svc.cluster.local/internal/monitoring/llm-provider-credit}"
+    LLM_PROVIDER_CREDIT_DEV_WINDOW_SECONDS="${LLM_PROVIDER_CREDIT_DEV_WINDOW_SECONDS:-3600}"
+    LLM_PROVIDER_CREDIT_PROD_WINDOW_SECONDS="${LLM_PROVIDER_CREDIT_PROD_WINDOW_SECONDS:-900}"
+    LLM_PROVIDER_CREDIT_DEV_THRESHOLD="${LLM_PROVIDER_CREDIT_DEV_THRESHOLD:-1}"
+    LLM_PROVIDER_CREDIT_PROD_THRESHOLD="${LLM_PROVIDER_CREDIT_PROD_THRESHOLD:-1}"
+    LLM_PROVIDER_CREDIT_DEV_DEBOUNCE_SECONDS="${LLM_PROVIDER_CREDIT_DEV_DEBOUNCE_SECONDS:-21600}"
+    LLM_PROVIDER_CREDIT_PROD_DEBOUNCE_SECONDS="${LLM_PROVIDER_CREDIT_PROD_DEBOUNCE_SECONDS:-3600}"
+    LLM_PROVIDER_CREDIT_TEST_STATE_FILE="${LLM_PROVIDER_CREDIT_TEST_STATE_FILE:-}"
+    LLM_PROVIDER_CREDIT_FIXTURE_BODY="${LLM_PROVIDER_CREDIT_FIXTURE_BODY:-}"
 
     K8S_API="https://kubernetes.default.svc"
-    SA_TOKEN=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)
+    SA_TOKEN=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token 2>/dev/null || true)
     CA="/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
     ALERTS=""
     ALERT_COUNT=0
@@ -29,6 +47,20 @@ data:
 
     k8s_get() {
       curl -sf --cacert "$CA" -H "Authorization: Bearer $SA_TOKEN" "${K8S_API}$1" 2>/dev/null || true
+    }
+
+    k8s_patch() {
+      curl -sf --cacert "$CA" -X PATCH \
+        -H "Authorization: Bearer $SA_TOKEN" \
+        -H "Content-Type: application/merge-patch+json" \
+        --data "$2" "${K8S_API}$1" 2>/dev/null || true
+    }
+
+    k8s_post() {
+      curl -sf --cacert "$CA" -X POST \
+        -H "Authorization: Bearer $SA_TOKEN" \
+        -H "Content-Type: application/json" \
+        --data "$2" "${K8S_API}$1" 2>/dev/null || true
     }
 
     k8s_get_logs() {
@@ -54,6 +86,128 @@ data:
 
     resolve_ns() {
       if [ "$ALERT_ENV" = "prod" ]; then echo "$1-prod"; else echo "$1-dev"; fi
+    }
+
+    is_true() {
+      case "${1:-}" in
+        true|TRUE|1|yes|YES) return 0 ;;
+        *) return 1 ;;
+      esac
+    }
+
+    numeric_or_zero() {
+      case "${1:-}" in
+        ''|*[!0-9]*) echo "0" ;;
+        *) echo "$1" ;;
+      esac
+    }
+
+    llm_provider_credit_endpoint() {
+      case "${1:-dev}" in
+        prod) echo "$LLM_PROVIDER_CREDIT_PROD_URL" ;;
+        *) echo "$LLM_PROVIDER_CREDIT_DEV_URL" ;;
+      esac
+    }
+
+    llm_provider_credit_window() {
+      case "${1:-dev}" in
+        prod) echo "$(numeric_or_zero "$LLM_PROVIDER_CREDIT_PROD_WINDOW_SECONDS")" ;;
+        *) echo "$(numeric_or_zero "$LLM_PROVIDER_CREDIT_DEV_WINDOW_SECONDS")" ;;
+      esac
+    }
+
+    llm_provider_credit_threshold() {
+      case "${1:-dev}" in
+        prod) echo "$(numeric_or_zero "$LLM_PROVIDER_CREDIT_PROD_THRESHOLD")" ;;
+        *) echo "$(numeric_or_zero "$LLM_PROVIDER_CREDIT_DEV_THRESHOLD")" ;;
+      esac
+    }
+
+    llm_provider_credit_debounce() {
+      case "${1:-dev}" in
+        prod) echo "$(numeric_or_zero "$LLM_PROVIDER_CREDIT_PROD_DEBOUNCE_SECONDS")" ;;
+        *) echo "$(numeric_or_zero "$LLM_PROVIDER_CREDIT_DEV_DEBOUNCE_SECONDS")" ;;
+      esac
+    }
+
+    json_number() {
+      _KEY="$1"
+      printf "%s" "$2" | tr -d '\n ' | sed -n "s/.*\"${_KEY}\":\([0-9][0-9]*\).*/\1/p" | head -1
+    }
+
+    json_string() {
+      _KEY="$1"
+      printf "%s" "$2" | tr -d '\n' | sed -n "s/.*\"${_KEY}\":\"\([^\"]*\)\".*/\1/p" | head -1
+    }
+
+    safe_state_part() {
+      _VAL=$(printf "%s" "${1:-unknown}" | tr -c 'A-Za-z0-9_' '_' | cut -c1-80)
+      if [ -z "$_VAL" ]; then echo "unknown"; else echo "$_VAL"; fi
+    }
+
+    llm_provider_credit_state_key() {
+      printf "llm_provider_credit_%s_%s_%s" \
+        "$(safe_state_part "$1")" "$(safe_state_part "$2")" "$(safe_state_part "$3")" | cut -c1-180
+    }
+
+    llm_provider_credit_state_get() {
+      _KEY="$1"
+      if [ -n "$LLM_PROVIDER_CREDIT_TEST_STATE_FILE" ]; then
+        if [ -f "$LLM_PROVIDER_CREDIT_TEST_STATE_FILE" ]; then
+          grep "^${_KEY}=" "$LLM_PROVIDER_CREDIT_TEST_STATE_FILE" | tail -1 | cut -d= -f2
+        fi
+        return
+      fi
+
+      if is_true "$LLM_PROVIDER_CREDIT_STATE_DRY_RUN"; then
+        echo "0"
+        return
+      fi
+
+      _STATE=$(k8s_get "/api/v1/namespaces/${LLM_PROVIDER_CREDIT_STATE_NAMESPACE}/configmaps/${LLM_PROVIDER_CREDIT_STATE_CONFIGMAP}")
+      echo "$_STATE" | tr -d '\n ' | sed -n "s/.*\"${_KEY}\":\"\([0-9][0-9]*\)\".*/\1/p" | head -1
+    }
+
+    llm_provider_credit_state_set() {
+      _KEY="$1"
+      _TS="$2"
+      if [ -n "$LLM_PROVIDER_CREDIT_TEST_STATE_FILE" ]; then
+        _TMP="${LLM_PROVIDER_CREDIT_TEST_STATE_FILE}.tmp"
+        if [ -f "$LLM_PROVIDER_CREDIT_TEST_STATE_FILE" ]; then
+          grep -v "^${_KEY}=" "$LLM_PROVIDER_CREDIT_TEST_STATE_FILE" > "$_TMP" || true
+        else
+          : > "$_TMP"
+        fi
+        printf "%s=%s\n" "$_KEY" "$_TS" >> "$_TMP"
+        mv "$_TMP" "$LLM_PROVIDER_CREDIT_TEST_STATE_FILE"
+        return
+      fi
+
+      if is_true "$LLM_PROVIDER_CREDIT_STATE_DRY_RUN"; then
+        log "  DRY-RUN debounce state not written (${_KEY})"
+        return
+      fi
+
+      _PATCH="{\"data\":{\"${_KEY}\":\"${_TS}\"}}"
+      _CREATE="{\"apiVersion\":\"v1\",\"kind\":\"ConfigMap\",\"metadata\":{\"name\":\"${LLM_PROVIDER_CREDIT_STATE_CONFIGMAP}\",\"namespace\":\"${LLM_PROVIDER_CREDIT_STATE_NAMESPACE}\"},\"data\":{\"${_KEY}\":\"${_TS}\"}}"
+      k8s_patch "/api/v1/namespaces/${LLM_PROVIDER_CREDIT_STATE_NAMESPACE}/configmaps/${LLM_PROVIDER_CREDIT_STATE_CONFIGMAP}" "$_PATCH" >/dev/null
+      _AFTER=$(llm_provider_credit_state_get "$_KEY")
+      if [ -z "$_AFTER" ] || [ "$_AFTER" = "0" ]; then
+        k8s_post "/api/v1/namespaces/${LLM_PROVIDER_CREDIT_STATE_NAMESPACE}/configmaps" "$_CREATE" >/dev/null
+      fi
+    }
+
+    llm_provider_credit_should_emit() {
+      _KEY="$1"
+      _DEBOUNCE=$(numeric_or_zero "$2")
+      _NOW=$(date -u +%s)
+      _LAST=$(numeric_or_zero "$(llm_provider_credit_state_get "$_KEY")")
+      if [ "$_DEBOUNCE" -gt 0 ] && [ "$_LAST" -gt 0 ] && [ $((_NOW - _LAST)) -lt "$_DEBOUNCE" ]; then
+        log "  Debounced LLM provider credit alert (${_KEY}, age=$((_NOW - _LAST))s, debounce=${_DEBOUNCE}s)"
+        return 1
+      fi
+      llm_provider_credit_state_set "$_KEY" "$_NOW"
+      return 0
     }
 
     # ─── CHECK 1: VAULT ACCESSIBLE ─────────────────────────────
@@ -175,6 +329,61 @@ data:
       log "  OK"
     }
 
+    # ─── CHECK 9: LLM PROVIDER CREDIT EXHAUSTION ──────────────
+    check_llm_provider_credit() {
+      log "CHECK 9: LLM provider credit"
+      if ! is_true "$LLM_PROVIDER_CREDIT_ENABLED"; then
+        log "  SKIP disabled"
+        return
+      fi
+
+      _TARGET_ENV="${LLM_PROVIDER_CREDIT_TARGET_ENV:-$ALERT_ENV}"
+      _WINDOW=$(llm_provider_credit_window "$_TARGET_ENV")
+      _THRESHOLD=$(llm_provider_credit_threshold "$_TARGET_ENV")
+      _DEBOUNCE=$(llm_provider_credit_debounce "$_TARGET_ENV")
+      _ENDPOINT=$(llm_provider_credit_endpoint "$_TARGET_ENV")
+
+      if [ -n "$LLM_PROVIDER_CREDIT_FIXTURE_BODY" ]; then
+        _BODY="$LLM_PROVIDER_CREDIT_FIXTURE_BODY"
+      else
+        if [ -z "$LLM_PROVIDER_CREDIT_TOKEN" ]; then
+          log "  SKIP token missing for internal endpoint"
+          return
+        fi
+        _BODY=$(curl -sf --max-time 10 \
+          -H "X-KeyBuzz-Monitor-Token: ${LLM_PROVIDER_CREDIT_TOKEN}" \
+          "${_ENDPOINT}?windowSeconds=${_WINDOW}" 2>/dev/null) || {
+          log "  WARNING endpoint unavailable for ${_TARGET_ENV}"
+          return
+        }
+      fi
+
+      _COUNT=$(numeric_or_zero "$(json_number count "$_BODY")")
+      _REQUEST_FAILED=$(numeric_or_zero "$(json_number requestFailedCount "$_BODY")")
+      _DISTINCT_TENANTS=$(numeric_or_zero "$(json_number distinctTenantCount "$_BODY")")
+      _FIRST_SEEN=$(json_string firstSeen "$_BODY")
+      _LAST_SEEN=$(json_string lastSeen "$_BODY")
+      _PROVIDER=$(json_string provider "$_BODY")
+      _MODEL=$(json_string model "$_BODY")
+      if [ -z "$_PROVIDER" ]; then _PROVIDER="aggregate"; fi
+      if [ -z "$_MODEL" ]; then _MODEL="aggregate"; fi
+
+      if [ "$_COUNT" -ge "$_THRESHOLD" ] 2>/dev/null; then
+        _STATE_KEY=$(llm_provider_credit_state_key "$_TARGET_ENV" "$_PROVIDER" "$_MODEL")
+        if ! llm_provider_credit_should_emit "$_STATE_KEY" "$_DEBOUNCE"; then
+          return
+        fi
+        _DETAIL="env=${_TARGET_ENV} count=${_COUNT} threshold=${_THRESHOLD} window=${_WINDOW}s first_seen=${_FIRST_SEEN:-none} last_seen=${_LAST_SEEN:-none} distinct_tenants=${_DISTINCT_TENANTS} request_failed=${_REQUEST_FAILED} provider=${_PROVIDER} model=${_MODEL}"
+        if is_true "$LLM_PROVIDER_CREDIT_DRY_RUN" || is_true "$LLM_PROVIDER_CREDIT_LOG_ONLY"; then
+          log "  DRY-RUN/LOG-ONLY LLM provider credit alert: ${_DETAIL}"
+          return
+        fi
+        add_alert "CRITICAL" "llm-provider-credit" "Provider credit exhausted (${_COUNT})" "$_DETAIL"
+      else
+        log "  OK (provider_credit_count=${_COUNT}, request_failed=${_REQUEST_FAILED})"
+      fi
+    }
+
     # ─── ALERT DELIVERY ───────────────────────────────────────
     deliver_alerts() {
       if [ "$ALERT_COUNT" -eq 0 ]; then
@@ -212,14 +421,24 @@ data:
     }
 
     # ─── MAIN ────────────────────────────────────────────────────
-    log "=== KEYBUZZ MONITORING START (${ALERT_ENV}) ==="
-    check_vault
-    check_vault_token_renew
-    check_amazon_import
-    check_amazon_sync
-    check_shopify
-    check_autopilot
-    check_api_500
-    check_worker_restarts
-    deliver_alerts
-    log "=== COMPLETE: ${ALERT_COUNT} alerts ==="
+    run_all_checks() {
+      log "=== KEYBUZZ MONITORING START (${ALERT_ENV}) ==="
+      check_vault
+      check_vault_token_renew
+      check_amazon_import
+      check_amazon_sync
+      check_shopify
+      check_autopilot
+      check_api_500
+      check_worker_restarts
+      check_llm_provider_credit
+      deliver_alerts
+      log "=== COMPLETE: ${ALERT_COUNT} alerts ==="
+    }
+
+    if [ "${MONITORING_ALERTS_SELF_TEST:-}" = "llm-provider-credit" ]; then
+      check_llm_provider_credit
+      exit 0
+    fi
+
+    run_all_checks
