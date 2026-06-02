@@ -1,0 +1,10 @@
+# PH-SAAS-T8.12AS.21.34: empty debounce state holder for monitoring-alerts.
+# Runtime values are timestamps only; no token or secret data belongs here.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: monitoring-alert-state
+  namespace: vault-management
+  labels:
+    app.kubernetes.io/component: monitoring-alerts
+data: {}
