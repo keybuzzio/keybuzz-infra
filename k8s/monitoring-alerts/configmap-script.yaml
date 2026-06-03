@@ -18,6 +18,8 @@ data:
     SMTP_PORT="${SMTP_PORT:-25}"
     SMTP_FROM="${SMTP_FROM:-alerts@keybuzz.io}"
     SMTP_TO="${SMTP_TO:-sre@keybuzz.io}"
+    MONITORING_ALERTS_LOG_ONLY="${MONITORING_ALERTS_LOG_ONLY:-false}"
+    ALERT_DELIVERY_MODE="${ALERT_DELIVERY_MODE:-send}"
     LLM_PROVIDER_CREDIT_ENABLED="${LLM_PROVIDER_CREDIT_ENABLED:-true}"
     LLM_PROVIDER_CREDIT_TARGET_ENV="${LLM_PROVIDER_CREDIT_TARGET_ENV:-dev}"
     LLM_PROVIDER_CREDIT_DRY_RUN="${LLM_PROVIDER_CREDIT_DRY_RUN:-true}"
@@ -404,6 +406,10 @@ data:
       IFS="$OLD_IFS"
       _TITLE="[KeyBuzz ${ALERT_ENV}] ${_CRIT} critical, ${_WARN} warning"
       if [ "$_CRIT" -gt 0 ]; then _COLOR=16711680; else _COLOR=16776960; fi
+      if is_true "$MONITORING_ALERTS_LOG_ONLY" || [ "${ALERT_DELIVERY_MODE:-send}" = "log-only" ]; then
+        log "Alert delivery log-only: suppressed delivery for ${ALERT_COUNT} alert(s)"
+        return
+      fi
       log "Sending ${ALERT_COUNT} alerts"
       if [ -n "$WEBHOOK_URL" ]; then
         _WH_BODY=$(echo -e "$_BODY" | head -c 1800 | sed 's/"/\\"/g' | tr '\n' ' ')
@@ -438,6 +444,12 @@ data:
 
     if [ "${MONITORING_ALERTS_SELF_TEST:-}" = "llm-provider-credit" ]; then
       check_llm_provider_credit
+      exit 0
+    fi
+
+    if [ "${MONITORING_ALERTS_SELF_TEST:-}" = "delivery-safety" ]; then
+      add_alert "CRITICAL" "delivery-safety" "Self-test alert" "Offline delivery safety fixture"
+      deliver_alerts
       exit 0
     fi
 

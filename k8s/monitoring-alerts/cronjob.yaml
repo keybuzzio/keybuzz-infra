@@ -42,6 +42,10 @@ spec:
                   value: "3"
                 - name: ERROR_RATE_THRESHOLD
                   value: "5"
+                - name: MONITORING_ALERTS_LOG_ONLY
+                  value: "true"
+                - name: ALERT_DELIVERY_MODE
+                  value: "log-only"
                 - name: LLM_PROVIDER_CREDIT_ENABLED
                   value: "true"
                 - name: LLM_PROVIDER_CREDIT_TARGET_ENV
