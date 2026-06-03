@@ -640,7 +640,15 @@ AHEAD_BEHIND_BEFORE_REPORT=0/0
 DIRTY_BEFORE_REPORT=0
 ```
 
-Post-commit/push sera ajoute dans le retour terminal et dans le commit local apres ecriture de ce rapport.
+Commit docs-only final:
+
+```text
+DOC_COMMIT=e2aca28e
+HEAD=e2aca28e
+ORIGIN=e2aca28e
+AHEAD_BEHIND=0/0
+DIRTY=0
+```
 
 ## Prochain GO recommande
 
