@@ -47,7 +47,7 @@ Apply GitOps DEV uniquement du watcher monitoring-alerts LLM provider credit en 
 | PH-21.34 manifest tests | PASS | PH21.34 manifest tests PASS | PASS |
 | YAML parse monitoring-alerts | PASS | YAML_PARSE=PASS | PASS |
 | git diff --check cible | PASS | DIFF_CHECK=PASS | PASS |
-| dry-run client/server | PASS | voir section dry-run | PASS |
+| dry-run client/server | non execute | stop pre-apply apres detection SMTP/email active | ACTION_REQUIRED_ALERT_RISK |
 
 ## Manifest Audit
 
@@ -71,13 +71,17 @@ Apply GitOps DEV uniquement du watcher monitoring-alerts LLM provider credit en 
 
 | Manifest | Action | Sortie |
 | --- | --- | --- |
-| k8s/monitoring-alerts/configmap-state.yaml | kubectl apply -f |  |
-| k8s/monitoring-alerts/configmap-script.yaml | kubectl apply -f |  |
-| k8s/monitoring-alerts/cronjob.yaml | kubectl apply -f |  |
+| k8s/monitoring-alerts/configmap-state.yaml | not applied | blocked before Etape 6/7 by active SMTP/email delivery markers |
+| k8s/monitoring-alerts/configmap-script.yaml | not applied | blocked before Etape 6/7 by active SMTP/email delivery markers |
+| k8s/monitoring-alerts/cronjob.yaml | not applied | blocked before Etape 6/7 by active SMTP/email delivery markers |
 
 ## Dry-run Kubernetes
 
 ```text
+Not executed. CE stopped before dry-run/apply because recent natural monitoring-alerts jobs already sent emails:
+- 2026-06-03T09:08:00Z Sending 2 alerts / Email OK
+- 2026-06-03T09:10:00Z Sending 2 alerts / Email OK
+- 2026-06-03T09:12:00Z Sending 2 alerts / Email OK
 ```
 
 ## Runtime monitoring-alerts before
@@ -118,6 +122,7 @@ LIVE_SCRIPT_HAS_DELIVER_ALERTS=true
 ## Runtime monitoring-alerts after
 
 ```text
+Not captured. No manifest was applied because ACTION_REQUIRED_ALERT_RISK was reached before mutation.
 ```
 
 ## Observation execution naturelle CronJob
@@ -126,9 +131,22 @@ LIVE_SCRIPT_HAS_DELIVER_ALERTS=true
 | --- | --- | --- | --- | --- | --- |
 | none | n/a | pre-apply SMTP/email markers already active in recent natural jobs | see before logs | 0 | ACTION_REQUIRED_ALERT_RISK |
 
+Blocage exact:
+
+- `monitoring-alerts-29674628` a logge `Sending 2 alerts` puis `Email OK` a 2026-06-03 09:08:11 UTC.
+- `monitoring-alerts-29674630` a logge `Sending 2 alerts` puis `Email OK` a 2026-06-03 09:10:09 UTC.
+- `monitoring-alerts-29674632` a logge `Sending 2 alerts` puis `Email OK` a 2026-06-03 09:12:10 UTC.
+- Ces envois etaient deja actifs avant tout apply PH-21.38; CE a donc stoppe sans mutation.
+
 Safe log excerpts:
 
 ```text
+[2026-06-03 09:08:11 UTC] Sending 2 alerts
+[2026-06-03 09:08:11 UTC]   Email OK
+[2026-06-03 09:10:09 UTC] Sending 2 alerts
+[2026-06-03 09:10:09 UTC]   Email OK
+[2026-06-03 09:12:10 UTC] Sending 2 alerts
+[2026-06-03 09:12:10 UTC]   Email OK
 ```
 
 ## No fake metrics / no fake events
@@ -139,7 +157,7 @@ Safe log excerpts:
 | fake tracking/conversion/KBActions | non effectue |
 | LLM call | non effectue |
 | manual CronJob trigger | non effectue |
-| Slack/email/webhook volontaire | non effectue |
+| Slack/email/webhook volontaire | non effectue par CE; risque actif preexistant detecte avant apply |
 | Natural provider credit incident | TRAFFIC_REQUIRED / NO_NATURAL_PROVIDER_CREDIT_INCIDENT si count=0 |
 
 ## AI feature parity / anti-regression
@@ -159,21 +177,21 @@ Safe log excerpts:
 
 | Signal | Before | After | Delta | Verdict |
 | --- | --- | --- | --- | --- |
-| ai_usage | 637 | n/a | changed | CHECK |
-| ai_actions_ledger | 556 | n/a | changed | CHECK |
-| ai_suggestion_events | 2736 | n/a | changed | CHECK |
-| conversion_events | 0 | n/a | changed | CHECK |
-| outbound_delivery_logs | ABSENT | n/a | changed | CHECK |
-| monitoring-alerts delivery markers before | 3 | 0 | see logs | OK |
+| ai_usage | 637 | not captured | n/a | OK_NO_MUTATION_BEFORE_STOP |
+| ai_actions_ledger | 556 | not captured | n/a | OK_NO_MUTATION_BEFORE_STOP |
+| ai_suggestion_events | 2736 | not captured | n/a | OK_NO_MUTATION_BEFORE_STOP |
+| conversion_events | 0 | not captured | n/a | OK_NO_MUTATION_BEFORE_STOP |
+| outbound_delivery_logs | ABSENT | not captured | n/a | OK_NO_MUTATION_BEFORE_STOP |
+| monitoring-alerts delivery markers before | 3 | not captured | n/a | ACTION_REQUIRED_ALERT_RISK |
 | token-like markers after | n/a | 0 | n/a | OK |
 
 ## Non-regression DEV/PROD
 
 | Service | Namespace | Image avant | Image apres | Ready | Restarts | Verdict |
 | --- | --- | --- | --- | --- | --- | --- |
-| keybuzz-api | keybuzz-api-dev | ghcr.io/keybuzzio/keybuzz-api:v3.5.263-llm-provider-credit-watcher-dev 1/1 generation=502 observed=502 | n/a | n/a | n/a | CHECK |
-| keybuzz-api | keybuzz-api-prod | ghcr.io/keybuzzio/keybuzz-api:v3.5.262-llm-provider-credit-alerting-prod 1/1 generation=422 observed=422 | n/a | n/a | n/a | CHECK |
-| monitoring-alerts | vault-management | curlimages/curl:8.7.1 | n/a | cron | n/a | CHECK |
+| keybuzz-api | keybuzz-api-dev | ghcr.io/keybuzzio/keybuzz-api:v3.5.263-llm-provider-credit-watcher-dev 1/1 generation=502 observed=502 | unchanged by CE; no apply executed | 1/1 before stop | 0 before stop | OK_NO_MUTATION |
+| keybuzz-api | keybuzz-api-prod | ghcr.io/keybuzzio/keybuzz-api:v3.5.262-llm-provider-credit-alerting-prod 1/1 generation=422 observed=422 | unchanged by CE; no apply executed | 1/1 before stop | 0 before stop | OK_NO_MUTATION |
+| monitoring-alerts | vault-management | curlimages/curl:8.7.1 | unchanged by CE; no apply executed | cron active before stop | n/a | OK_NO_MUTATION |
 
 ## Interdits respectes
 
@@ -205,8 +223,10 @@ Rollback non execute. Si GO explicite: revert du commit source/config monitoring
 
 ## Prochain GO recommande
 
-GO READONLY VERIFY LLM PROVIDER CREDIT WATCHER DRY RUN DEV PH-SAAS-T8.12AS.21.39
+ACTION REQUIRED before retrying PH-21.38: resolve or isolate the preexisting monitoring-alerts SMTP/email delivery risk. Recommended next GO:
+
+GO READONLY DESIGN MONITORING-ALERTS EMAIL DELIVERY SAFETY DEV PH-SAAS-T8.12AS.21.38-BIS
 
 ## LINEAR_PREPARED_TEXT
 
-PH-21.38 a applique monitoring-alerts DEV en dry-run/log-only pour le watcher LLM provider credit. Aucun build, Docker push, DB mutation, LLM call, fake event, trigger manuel, Slack/email/webhook volontaire, Linear ou PROD. Prochaine phase: verification read-only PH-21.39.
+PH-21.38 s'est arretee avant apply: les jobs naturels monitoring-alerts envoyaient deja des emails (Sending 2 alerts / Email OK) avant mutation. Aucun manifest n'a ete applique, aucun build, Docker push, DB mutation, LLM call, fake event, trigger manuel, Linear ou PROD. Action requise: traiter/isoler le risque SMTP/email avant de relancer l'apply watcher dry-run/log-only.
