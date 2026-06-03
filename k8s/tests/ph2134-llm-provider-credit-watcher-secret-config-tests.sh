@@ -99,7 +99,7 @@ require_secret_env(api_envs, "LLM_PROVIDER_CREDIT_MONITOR_TOKEN", True)
 monitoring_envs = env_map(cron_containers(monitoring_cronjob))
 require_secret_env(monitoring_envs, "LLM_PROVIDER_CREDIT_TOKEN", True)
 assert monitoring_envs["LLM_PROVIDER_CREDIT_TARGET_ENV"]["value"] == "dev"
-assert monitoring_envs["LLM_PROVIDER_CREDIT_DRY_RUN"]["value"] == "true"
+assert monitoring_envs["LLM_PROVIDER_CREDIT_DRY_RUN"]["value"] == "false"
 assert monitoring_envs["LLM_PROVIDER_CREDIT_LOG_ONLY"]["value"] == "true"
 assert monitoring_envs["LLM_PROVIDER_CREDIT_DEV_URL"]["value"].endswith("/internal/monitoring/llm-provider-credit")
 

@@ -38,6 +38,8 @@ out_first=$(MONITORING_ALERTS_SELF_TEST=llm-provider-credit \
   LLM_PROVIDER_CREDIT_FIXTURE_BODY="$one_body" \
   LLM_PROVIDER_CREDIT_DRY_RUN=false \
   LLM_PROVIDER_CREDIT_LOG_ONLY=true \
+  MONITORING_ALERTS_LOG_ONLY=true \
+  ALERT_DELIVERY_MODE=log-only \
   LLM_PROVIDER_CREDIT_TEST_STATE_FILE="$STATE_FILE" \
   sh "$SCRIPT_PATH")
 out_second=$(MONITORING_ALERTS_SELF_TEST=llm-provider-credit \
@@ -46,7 +48,11 @@ out_second=$(MONITORING_ALERTS_SELF_TEST=llm-provider-credit \
   LLM_PROVIDER_CREDIT_LOG_ONLY=true \
   LLM_PROVIDER_CREDIT_TEST_STATE_FILE="$STATE_FILE" \
   sh "$SCRIPT_PATH")
-echo "$out_first" | grep -q 'DRY-RUN/LOG-ONLY LLM provider credit alert'
+echo "$out_first" | grep -q 'ACTIVE LOG-ONLY LLM provider credit alert'
+if echo "$out_first" | grep -q 'Email OK\|Email FAILED\|Webhook OK\|Webhook FAILED\|Sending [0-9][0-9]* alerts'; then
+  echo "PH21.28 FAIL: active log-only attempted external delivery"
+  exit 1
+fi
 echo "$out_second" | grep -q 'Debounced LLM provider credit alert'
 
 grep -q 'LLM_PROVIDER_CREDIT_DRY_RUN' "$ROOT/k8s/monitoring-alerts/cronjob.yaml"

@@ -51,7 +51,7 @@ spec:
                 - name: LLM_PROVIDER_CREDIT_TARGET_ENV
                   value: "dev"
                 - name: LLM_PROVIDER_CREDIT_DRY_RUN
-                  value: "true"
+                  value: "false"
                 - name: LLM_PROVIDER_CREDIT_LOG_ONLY
                   value: "true"
                 - name: LLM_PROVIDER_CREDIT_STATE_CONFIGMAP

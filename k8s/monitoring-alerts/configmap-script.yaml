@@ -376,8 +376,12 @@ data:
           return
         fi
         _DETAIL="env=${_TARGET_ENV} count=${_COUNT} threshold=${_THRESHOLD} window=${_WINDOW}s first_seen=${_FIRST_SEEN:-none} last_seen=${_LAST_SEEN:-none} distinct_tenants=${_DISTINCT_TENANTS} request_failed=${_REQUEST_FAILED} provider=${_PROVIDER} model=${_MODEL}"
-        if is_true "$LLM_PROVIDER_CREDIT_DRY_RUN" || is_true "$LLM_PROVIDER_CREDIT_LOG_ONLY"; then
+        if is_true "$LLM_PROVIDER_CREDIT_DRY_RUN"; then
           log "  DRY-RUN/LOG-ONLY LLM provider credit alert: ${_DETAIL}"
+          return
+        fi
+        if is_true "$LLM_PROVIDER_CREDIT_LOG_ONLY"; then
+          log "  ACTIVE LOG-ONLY LLM provider credit alert: ${_DETAIL}"
           return
         fi
         add_alert "CRITICAL" "llm-provider-credit" "Provider credit exhausted (${_COUNT})" "$_DETAIL"
