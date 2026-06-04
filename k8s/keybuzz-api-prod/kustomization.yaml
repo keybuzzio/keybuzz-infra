@@ -13,6 +13,7 @@ resources:
   - externalsecret-stripe.yaml
   - externalsecret-minio.yaml
   - externalsecret-ses.yaml
+  - externalsecret-llm-provider-credit-monitor-token.yaml
 
 # GOLDEN VERSIONS - DO NOT CHANGE WITHOUT RELEASE LEDGER UPDATE
 images:

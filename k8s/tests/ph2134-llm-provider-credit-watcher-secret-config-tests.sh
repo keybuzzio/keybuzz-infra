@@ -14,13 +14,18 @@ except Exception as exc:
     raise SystemExit(f"PyYAML required for PH-21.34 manifest tests: {type(exc).__name__}") from exc
 
 root = Path(sys.argv[1])
-secret_name = "monitoring-llm-provider-credit-token"
+dev_secret_name = "monitoring-llm-provider-credit-token"
+prod_secret_name = "monitoring-llm-provider-credit-token-prod"
 secret_key = "token"
-remote_key = "secret/keybuzz/llm_provider_credit/dev/monitor_token"
+dev_remote_key = "secret/keybuzz/llm_provider_credit/dev/monitor_token"
+prod_remote_key = "secret/keybuzz/llm_provider_credit/prod/monitor_token"
 
-api_external_secret = root / "k8s/keybuzz-api-dev/externalsecret-llm-provider-credit-monitor-token.yaml"
-monitoring_external_secret = root / "k8s/monitoring-alerts/externalsecret-llm-provider-credit-token.yaml"
-api_deployment = root / "k8s/keybuzz-api-dev/deployment.yaml"
+api_dev_external_secret = root / "k8s/keybuzz-api-dev/externalsecret-llm-provider-credit-monitor-token.yaml"
+api_prod_external_secret = root / "k8s/keybuzz-api-prod/externalsecret-llm-provider-credit-monitor-token.yaml"
+monitoring_dev_external_secret = root / "k8s/monitoring-alerts/externalsecret-llm-provider-credit-token.yaml"
+monitoring_prod_external_secret = root / "k8s/monitoring-alerts/externalsecret-llm-provider-credit-token-prod.yaml"
+api_dev_deployment = root / "k8s/keybuzz-api-dev/deployment.yaml"
+api_prod_deployment = root / "k8s/keybuzz-api-prod/deployment.yaml"
 monitoring_cronjob = root / "k8s/monitoring-alerts/cronjob.yaml"
 state_configmap = root / "k8s/monitoring-alerts/configmap-state.yaml"
 
@@ -33,7 +38,7 @@ def load_single(path):
     return docs[0]
 
 
-def assert_external_secret(path, namespace):
+def assert_external_secret(path, namespace, secret_name, remote_key):
     doc = load_single(path)
     assert doc["apiVersion"] == "external-secrets.io/v1", path
     assert doc["kind"] == "ExternalSecret", path
@@ -80,7 +85,7 @@ def env_map(containers):
     return envs
 
 
-def require_secret_env(envs, name, optional):
+def require_secret_env(envs, name, secret_name, optional):
     env = envs.get(name)
     assert env is not None, name
     ref = env["valueFrom"]["secretKeyRef"]
@@ -89,32 +94,36 @@ def require_secret_env(envs, name, optional):
     assert ref.get("optional", False) is optional, name
 
 
-assert_external_secret(api_external_secret, "keybuzz-api-dev")
-assert_external_secret(monitoring_external_secret, "vault-management")
+assert_external_secret(api_dev_external_secret, "keybuzz-api-dev", dev_secret_name, dev_remote_key)
+assert_external_secret(monitoring_dev_external_secret, "vault-management", dev_secret_name, dev_remote_key)
+assert_external_secret(api_prod_external_secret, "keybuzz-api-prod", prod_secret_name, prod_remote_key)
+assert_external_secret(monitoring_prod_external_secret, "vault-management", prod_secret_name, prod_remote_key)
 assert_state_configmap(state_configmap)
 
-api_envs = env_map(containers_from_workload(api_deployment))
-require_secret_env(api_envs, "LLM_PROVIDER_CREDIT_MONITOR_TOKEN", True)
+api_dev_envs = env_map(containers_from_workload(api_dev_deployment))
+api_prod_envs = env_map(containers_from_workload(api_prod_deployment))
+require_secret_env(api_dev_envs, "LLM_PROVIDER_CREDIT_MONITOR_TOKEN", dev_secret_name, True)
+require_secret_env(api_prod_envs, "LLM_PROVIDER_CREDIT_MONITOR_TOKEN", prod_secret_name, True)
 
 monitoring_envs = env_map(cron_containers(monitoring_cronjob))
-require_secret_env(monitoring_envs, "LLM_PROVIDER_CREDIT_TOKEN", True)
-assert monitoring_envs["LLM_PROVIDER_CREDIT_TARGET_ENV"]["value"] == "dev"
+require_secret_env(monitoring_envs, "LLM_PROVIDER_CREDIT_TOKEN", prod_secret_name, True)
+assert monitoring_envs["LLM_PROVIDER_CREDIT_TARGET_ENV"]["value"] == "prod"
 assert monitoring_envs["LLM_PROVIDER_CREDIT_DRY_RUN"]["value"] == "false"
 assert monitoring_envs["LLM_PROVIDER_CREDIT_LOG_ONLY"]["value"] == "true"
 assert monitoring_envs["LLM_PROVIDER_CREDIT_DEV_URL"]["value"].endswith("/internal/monitoring/llm-provider-credit")
 
-for path in (api_external_secret, monitoring_external_secret):
+for path in (
+    api_dev_external_secret,
+    monitoring_dev_external_secret,
+    api_prod_external_secret,
+    monitoring_prod_external_secret,
+):
     text = path.read_text(encoding="utf-8")
     assert "kind: Secret" not in text
     assert "stringData:" not in text
     assert re.search(r"^[ \t]*data:[ \t]*$", text, re.MULTILINE)
     assert "sk-" not in text.lower()
     assert "REPLACEME" not in text
-
-for path in root.glob("k8s/keybuzz-api-prod/**/*.yaml"):
-    text = path.read_text(encoding="utf-8")
-    assert "LLM_PROVIDER_CREDIT_MONITOR_TOKEN" not in text
-    assert secret_name not in text
 
 print("PH21.34 manifest tests PASS")
 PY

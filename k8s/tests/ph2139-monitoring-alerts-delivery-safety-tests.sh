@@ -57,7 +57,7 @@ env = {
 }
 assert env["MONITORING_ALERTS_LOG_ONLY"]["value"] == "true"
 assert env["ALERT_DELIVERY_MODE"]["value"] == "log-only"
-assert env["LLM_PROVIDER_CREDIT_TARGET_ENV"]["value"] == "dev"
+assert env["LLM_PROVIDER_CREDIT_TARGET_ENV"]["value"] == "prod"
 assert env["LLM_PROVIDER_CREDIT_DRY_RUN"]["value"] == "false"
 assert env["LLM_PROVIDER_CREDIT_LOG_ONLY"]["value"] == "true"
 PY
