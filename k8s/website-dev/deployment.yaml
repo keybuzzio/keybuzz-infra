@@ -20,15 +20,20 @@ spec:
       containers:
       - name: keybuzz-website
         # PH-WEBSITE-T8.11AK: forward marketing_owner_tenant_id, li_fat_id, _gl (KEY-223)
-        image: ghcr.io/keybuzzio/keybuzz-website:v0.6.21-pricing-action-recover-dev  # PH-SAAS-T8.12AS.20.10B-WEBSITE-PRICING-SERVER-ACTION-APPLY-DEV (2026-05-22): commit website 907689b ; KEY-346 : fix defensif error boundary auto-reload single-shot sur Failed to find Server Action (guard sessionStorage kb_pricing_server_action_reload_v1) ; src/app/error.tsx + src/app/global-error.tsx +44 lignes ; tracking baseline preserve (GA G-R3QQDYEBFG, SGTM t.keybuzz.pro, LinkedIn 9969977, marketing_cta_click, trackMarketingClick) ; CMP PH-20.8 preserve ; KEY-263 isolation DEV OK ; manifest digest GHCR : sha256:8bdfb7a7479fed9de0b62106ca13077a75df19ad067ea11825adc7f8a51ab5ca ; rollback v0.6.20-cmp-mobile-polish-dev
+        # redesign passe 1 (light-business / KeyBuzz Prototype Claude Design) : branche redesign/light-business commit 020794b ;
+        # build SITE_MODE=preview SANS build-args tracking (pas de pollution analytics PROD sur la preview) ;
+        # digest GHCR sha256:71be73f2b25579ed2cf4fe1e9c0375caebd6894dbc20b06da897e0597a77ffff ;
+        # rollback v0.6.21-pricing-action-recover-dev (sha256:8bdfb7a7479fed9de0b62106ca13077a75df19ad067ea11825adc7f8a51ab5ca) ;
+        # FIX manifest : bloc env corrige (cle YAML value dupliquee + NEXT_PUBLIC_SITE_MODE sans valeur) ; sans effet runtime (NEXT_PUBLIC fige au build)
+        image: ghcr.io/keybuzzio/keybuzz-website:v0.7.0-redesign-light-dev
         ports:
         - containerPort: 3000
           name: http
         env:
         - name: NEXT_PUBLIC_SITE_MODE
+          value: "preview"
         - name: NEXT_PUBLIC_CLIENT_APP_URL
           value: "https://client-dev.keybuzz.io"
-          value: "preview"
         - name: NODE_ENV
           value: "production"
         resources:
