@@ -25,7 +25,7 @@ spec:
         # digest GHCR sha256:71be73f2b25579ed2cf4fe1e9c0375caebd6894dbc20b06da897e0597a77ffff ;
         # rollback v0.6.21-pricing-action-recover-dev (sha256:8bdfb7a7479fed9de0b62106ca13077a75df19ad067ea11825adc7f8a51ab5ca) ;
         # FIX manifest : bloc env corrige (cle YAML value dupliquee + NEXT_PUBLIC_SITE_MODE sans valeur) ; sans effet runtime (NEXT_PUBLIC fige au build)
-        image: ghcr.io/keybuzzio/keybuzz-website:v0.7.0-redesign-light-dev
+        image: ghcr.io/keybuzzio/keybuzz-website:v0.7.1-hero-copy-prod-body-parity-dev
         ports:
         - containerPort: 3000
           name: http
