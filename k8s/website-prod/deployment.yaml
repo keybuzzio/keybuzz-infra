@@ -33,7 +33,7 @@ spec:
         # PH-T8.12P: TikTok browser pixel activated (D7PT12JC77U44OJIPC10)
         # WARNING: rebuild MUST include --build-arg NEXT_PUBLIC_TIKTOK_PIXEL_ID=D7PT12JC77U44OJIPC10
         # PH-SAAS-T8.12AN.6: promo forwarding from /pricing to /register
-        image: ghcr.io/keybuzzio/keybuzz-website:v0.7.1-hero-copy-prod-body-parity-prod  # PH-SAAS-T8.12AS.20.15D (2026-05-26) KEY-322/KEY-337 : restore Clarity wrff07upjx + Meta 1234164602194748 + TikTok D7PT12JC77U44OJIPC10 (v0.6.21 build PH-20.10B avait droppe ces 3 build-args NEXT_PUBLIC) ; commit website 907689b ; manifest digest GHCR sha256:974350d524ba80df77fcece54dc92156a9a3cc578d862e8cd1b2ffe21cee87ac ; config sha256:619afbd95b82 ; GA G-R3QQDYEBFG/SGTM t.keybuzz.pro/LinkedIn 9969977 preserves ; rollback v0.6.21-pricing-action-recover-prod
+        image: ghcr.io/keybuzzio/keybuzz-website:v0.7.2-visual-hero-parity-prod  # PH-SAAS-T8.12AS.20.15D (2026-05-26) KEY-322/KEY-337 : restore Clarity wrff07upjx + Meta 1234164602194748 + TikTok D7PT12JC77U44OJIPC10 (v0.6.21 build PH-20.10B avait droppe ces 3 build-args NEXT_PUBLIC) ; commit website 907689b ; manifest digest GHCR sha256:974350d524ba80df77fcece54dc92156a9a3cc578d862e8cd1b2ffe21cee87ac ; config sha256:619afbd95b82 ; GA G-R3QQDYEBFG/SGTM t.keybuzz.pro/LinkedIn 9969977 preserves ; rollback v0.6.21-pricing-action-recover-prod
         ports:
         - containerPort: 3000
         env:
