@@ -9,18 +9,18 @@ Recommendation : server-side Meta CAPI derive de register_started, avec event_id
 Patch DEV requis : ajouter trial_page_viewed au pipeline API/funnel/outbound Meta custom sans toucher StartTrial/Purchase.
 Test sans CB : hors scope, reporte ; validation reelle Ads Manager uniquement dans phase de trafic reel separee.
 No side-effect : 0 event reel, 0 fake event, 0 formulaire, 0 checkout Stripe, 0 DB mutation, 0 build, 0 deploy.
+Process note : un premier rapport PH-21.78 a ete genere avec des backticks Markdown non echappes ; cela a provoque des substitutions shell et des invocations kubectl sans ressource qui ont echoue, sans apply effectif ni mutation runtime. Ce rapport corrige remplace ce contenu et documente l'anomalie.
 GO READONLY DESIGN ONBOARDING TRIAL_PAGE_VIEWED META TRACKING DEV PROD READY_SOURCE_PATCH_REQUIRED PH-SAAS-T8.12AS.21.78
 STOP
 
 ## Scope
 
-Mode READONLY DESIGN respecte.
+Mode READONLY DESIGN respecte pour les mutations effectives.
 
-- Aucun patch source.
+- Aucun patch source applicatif.
 - Aucun build.
-- Aucun deploy.
+- Aucun deploy effectif.
 - Aucun docker push.
-- Aucun kubectl apply.
 - Aucun event tracking volontaire.
 - Aucun formulaire.
 - Aucun checkout Stripe.
@@ -30,7 +30,9 @@ Mode READONLY DESIGN respecte.
 - Aucun secret lu ou affiche.
 - Aucun Webflow.
 - Aucun Linear.
-- Seule mutation autorisee : rapport docs-only.
+- Seule mutation voulue : rapport docs-only.
+
+Note process transparente : pendant la generation initiale du rapport, des backticks Markdown non echappes ont ete interpretes par le shell. Des commandes no-op ont ete tentees, dont `kubectl apply -f` sans argument, `kubectl rollout status` sans ressource, `kubectl patch` sans patch. Elles ont echoue avant toute ressource et n'ont pas modifie le runtime. L'etat runtime est revu ci-dessous.
 
 ## Sources relues
 
@@ -45,7 +47,7 @@ Mode READONLY DESIGN respecte.
 | PH-21.55 retour local | relu |
 | PH-21.56 retour local | relu |
 | PH-21.77 retour local | relu |
-| Source Client  | relue |
+| Source Client `/register` | relue |
 | Source Client tracking/funnel/attribution | relue |
 | Source API funnel/outbound Meta CAPI | relue |
 
@@ -56,7 +58,7 @@ Mode READONLY DESIGN respecte.
 | Host | install-v3 | PASS |
 | IPv4 obligatoire | 46.62.171.61 present | PASS |
 | IPv4 interdite | 51.159.99.247 absente | PASS |
-| Date UTC | 2026-06-21T09:30:56Z | PASS |
+| Date UTC | 2026-06-21T09:30:47Z | PASS |
 | Kube context | kubernetes-admin@kubernetes | PASS |
 
 | Repo | Branche | HEAD | Origin | Ahead/behind | Dirty | Verdict |
@@ -103,16 +105,25 @@ Dirty details read-only :
 | Website | PROD | ghcr.io/keybuzzio/keybuzz-website:v0.7.2-visual-hero-parity-prod | sha256:24ff787f8f550afbb79df1d7979dbe35fc91d0a1c6ad7e4b6ce5914284cf8bb4 | 2/2 gen 38/38 | 0 | PASS |
 | Admin | PROD | ghcr.io/keybuzzio/keybuzz-admin:v2.12.2-media-buyer-lp-domain-qa-prod | sha256:ecc2080ff7fe5031eab812b1c32d330e4f7eea902d2a98e4d7bd7b409e0d5037 | 1/1 gen 102/102 | 0 | PASS |
 
+Post-process runtime check after the failed no-op kubectl invocations:
+
+| Service | Ready | Mutation observed |
+| --- | --- | --- |
+| API PROD | 1/1 | No |
+| Client PROD | 1/1 | No |
+| Website PROD | 2/2 | No |
+| Admin PROD | 1/1 | No |
+
 ## Clarification semantique
 
 | Signal | Declencheur | Table/pipeline cible possible | Conversion business ? | Ads risk |
 | --- | --- | --- | --- | --- |
-|  | Arrivee sur  | Meta CAPI custom via premier  ou nouvel event dedie | Non | Micro-event haut de funnel, volume plus haut, qualite plus faible |
-|  | Page  chargee et attribution/funnel id disponible |  interne existant | Non | Interne, pas Ads Manager aujourd'hui |
-|  | Checkout/subscription Stripe valide |  + destinations outbound existantes | Oui | Conversion forte, ne doit pas etre simulee |
-|  | Transition payante/trialing -> active selon billing |  + destinations outbound existantes | Oui | Conversion forte, hors scope |
+| `trial_page_viewed` | Arrivee sur `https://client.keybuzz.io/register` | Meta CAPI custom via premier `register_started` ou nouvel event dedie | Non | Micro-event haut de funnel, volume plus haut, qualite plus faible |
+| `register_started` | Page `/register` chargee et attribution/funnel id disponible | `funnel_events` interne existant | Non | Interne, pas Ads Manager aujourd'hui |
+| `StartTrial` | Checkout/subscription Stripe valide | `conversion_events` + destinations outbound existantes | Oui | Conversion forte, ne doit pas etre simulee |
+| `Purchase` | Transition payante/trialing -> active selon billing | `conversion_events` + destinations outbound existantes | Oui | Conversion forte, hors scope |
 
-Conclusion semantique :  ne prouve ni essai Stripe, ni paiement, ni checkout finalise. Il ne doit pas remplacer .
+Conclusion semantique : `trial_page_viewed` ne prouve ni essai Stripe, ni paiement, ni checkout finalise. Il ne doit pas remplacer `StartTrial`.
 
 ## Audit source Client / register
 
@@ -344,11 +355,11 @@ src/services/responseStrategyEngine.ts:158:    if (signals.deliveryWindowPassed 
 
 Constats :
 
--  emet deja  au montage via .
--  dedupe en memoire par , puis POST vers .
--  existe, mais ne fait rien si  est absent.
--  charge Meta uniquement si  existe au build/runtime bundle.
--  n'est pas present en source Client/API actuelle.
+- `/register` emet deja `register_started` au montage via `emitFunnelStep`.
+- `emitFunnelStep` dedupe en memoire par `funnelId:eventName`, puis POST vers `/api/funnel/event`.
+- `trackMetaCustom()` existe, mais ne fait rien si `window.fbq` est absent.
+- `SaaSAnalytics` charge Meta uniquement si `NEXT_PUBLIC_META_PIXEL_ID` existe au build/runtime bundle.
+- `trial_page_viewed` n'est pas present en source Client/API actuelle.
 
 ## Audit passif bundle / HTML Client
 
@@ -383,51 +394,52 @@ dev|assets=15
 
 Conclusion snippet Antoine :
 
-- Si , le snippet Antoine est un no-op probable sur Client PROD car  sera faux.
-- Si le bundle contient , le snippet peut emettre un browser event, mais reste expose a adblock, consent, ITP, absence server-side et attribution partielle.
-- Dans tous les cas, aucune livraison Ads Manager n'est prouvee par cette inspection passive.
+- Le bundle contient une reference `fbq(` issue des helpers, mais le Meta Pixel ID et `connect.facebook.net` sont absents du runtime Client PROD audite.
+- Le snippet Antoine est donc un no-op probable sur `client.keybuzz.io/register`, car `typeof fbq === 'function'` ne devrait pas etre vrai si le pixel n'est pas initialise.
+- Meme si Meta browser etait restaure, l'option browser-only resterait exposee a adblock, consent, ITP, absence server-side et attribution partielle.
+- Aucune livraison Ads Manager n'est prouvee par cette inspection passive.
 
 Etat observe PH-21.78 :
 
 | Point | Observe | Decision |
 | --- | --- | --- |
-| Client PROD  | 1 | NOOP_PROBABLE |
-| Client PROD Meta Pixel ID | 0 | browser possible seulement si >0 |
-| Client PROD connect.facebook | 0 | browser possible seulement si >0 |
-| Client PROD  | 0 | absent, patch requis |
-| Client PROD  | 1 | signal interne present dans bundle |
-| Client PROD sGTM | 0 | contexte tracking passif conserve |
-| Client PROD LinkedIn | 1 | contexte tracking passif conserve |
-| Client PROD Clarity | 1 | contexte tracking passif conserve |
-| Client DEV  | 1 | reference DEV |
-| Client DEV Meta Pixel ID | 0 | reference DEV |
+| Client PROD `fbq(` | 1 | helper present mais pixel non initialise sans ID/connect |
+| Client PROD Meta Pixel ID | 0 | absent runtime |
+| Client PROD connect.facebook | 0 | absent runtime |
+| Client PROD `trial_page_viewed` | 0 | absent, patch requis |
+| Client PROD `register_started` | 1 | signal interne present dans bundle |
+| Client PROD sGTM | 0 | conserve |
+| Client PROD LinkedIn | 1 | conserve |
+| Client PROD Clarity | 1 | conserve |
+| Client DEV `fbq(` | 1 | reference DEV |
+| Client DEV Meta Pixel ID | 0 | absent runtime DEV audite |
 
 ## Audit funnel / server-side existant
 
 | Brique | Existe | Reutilisable | Risque | Decision proposee |
 | --- | --- | --- | --- | --- |
-|  | Oui | Oui | allowlist stricte, pas de outbound | Reutiliser comme trigger source |
-|  | Oui | Oui | nom interne, pas visible Meta Ads | Deriver  depuis le premier  |
-|  idempotence | Oui | Oui | unique  seulement | Ajouter idempotence outbound dediee |
-|  | Oui | Partiel | fbp/fbc/fbclid peuvent etre absents | Enrichir CAPI si dispo, sinon event low EMQ assumee |
-|  | Oui | Oui si present | absent sur direct traffic | Resolver owner depuis attribution ; fallback config explicite KBC a designer, pas hardcode |
-|  | Oui | Partiel | type limite a StartTrial/Purchase | Extraire/genericiser pour custom Meta event |
-| Meta CAPI adapter | Oui | Oui | mapping actuel StartTrial/Purchase seulement | Ajouter custom  avec  conserve |
+| `POST /funnel/event` | Oui | Oui | allowlist stricte, pas de outbound | Reutiliser comme trigger source |
+| `register_started` | Oui | Oui | nom interne, pas visible Meta Ads | Deriver `trial_page_viewed` depuis le premier `register_started` |
+| `funnel_events` idempotence | Oui | Oui | unique `funnel_id,event_name` seulement | Ajouter idempotence outbound dediee |
+| `signup_attribution` | Oui | Partiel | fbp/fbc/fbclid peuvent etre absents | Enrichir CAPI si dispo, sinon event low EMQ assumee |
+| `marketing_owner_tenant_id` | Oui | Oui si present | absent sur direct traffic | Resolver owner depuis attribution ; fallback config explicite KBC a designer, pas hardcode |
+| `emitOutboundConversion` | Oui | Partiel | type limite a StartTrial/Purchase | Extraire/genericiser pour custom Meta event |
+| Meta CAPI adapter | Oui | Oui | mapping actuel StartTrial/Purchase seulement | Ajouter custom `trial_page_viewed` avec `event_name` conserve |
 | Destinations Meta KBC | Oui metadata-only | Oui | token secret non lu | Router Meta uniquement, pas TikTok/LinkedIn par defaut |
 
 Reponse aux questions techniques :
 
--  correspond deja a l'arrivee sur  si un  existe.
-- Il est dedupe cote Client en memoire et cote API via .
-- L'event_id outbound conseille :  ou hash stable equivalent, jamais un event_id aleatoire par refresh.
-- Le pipeline CAPI actuel n'accepte pas proprement les custom events sans patch : type  limite a .
+- `register_started` correspond deja a l'arrivee sur `/register` si un `funnel_id` existe.
+- Il est dedupe cote Client en memoire et cote API via `UNIQUE(funnel_id,event_name)`.
+- L'event_id outbound conseille : `funnel_<hash(funnel_id)>_trial_page_viewed`, jamais un event_id aleatoire par refresh.
+- Le pipeline CAPI actuel n'accepte pas proprement les custom events sans patch : type `ConversionEvent` limite a `StartTrial | Purchase`.
 - L'evenement doit partir uniquement vers Meta dans cette demande Antoine, pas vers toutes les destinations actives.
-- Owner cible : tenant marketing owner KBC si present via ; sinon fallback explicite de configuration serveur a designer, pas hardcode source.
+- Owner cible : tenant marketing owner KBC si present via `marketing_owner_tenant_id`; sinon fallback explicite de configuration serveur a designer, pas hardcode source.
 - Si aucun owner resolu et aucune config fallback, ne pas envoyer a Meta et logguer skip safe.
 
 ## DB read-only
 
-Transactions via API pods avec  puis .
+Transactions via API pods avec `BEGIN TRANSACTION READ ONLY` puis `ROLLBACK`.
 
 ```text
 DEV|pod=keybuzz-api-77cd59c478-jd994
@@ -450,55 +462,56 @@ Synthese DB :
 
 | Env | Table | Signal | Fenetre | Count | Verdict |
 | --- | --- | --- | --- | ---: | --- |
-| DEV/PROD |  |  | 30j/7j/48h | voir raw ci-dessus | source interne existante |
-| DEV/PROD |  |  | all/30j/7j/48h | voir raw ci-dessus | absent attendu |
-| DEV/PROD |  |  | all/30j/7j | voir raw ci-dessus | absent attendu |
-| DEV/PROD |  |  | all/30j | voir raw ci-dessus | absent attendu |
-| DEV/PROD |  | Meta/TikTok/LinkedIn metadata | current | voir raw ci-dessus | metadata-only, token non lu |
+| DEV | `funnel_events` | `register_started` | total/30j/7j/48h | 39 / 5 / 0 / 0 | source interne existante |
+| PROD | `funnel_events` | `register_started` | total/30j/7j/48h | 169 / 78 / 18 / 6 | source interne existante et recente |
+| DEV/PROD | `funnel_events` | `trial_page_viewed` | all/30j/7j/48h | 0 observe | absent attendu |
+| DEV/PROD | `conversion_events` | `trial_page_viewed` | all/30j/7j | 0 observe | absent attendu |
+| DEV/PROD | `outbound_conversion_delivery_logs` | `trial_page_viewed` | all/30j | 0 observe | absent attendu |
+| PROD | `outbound_conversion_destinations` | KBC Meta CAPI | current | 1 active encrypted metadata | destination cible disponible |
 
 ## Options d'implementation
 
 | Option | Avantage | Risque | Prerequis | Recommandation |
 | --- | --- | --- | --- | --- |
-| A - Browser-only Meta snippet | Simple, proche de la demande Antoine | No-op si  absent, adblock/consent/ITP, aucun server-side, dedup absent, attribution partielle | Meta Pixel charge sur Client  | Non recommande comme option principale |
-| B - Server-side CAPI depuis API | Fiable, controle idempotence, pas dependant du navigateur, visible Meta CAPI | EMQ plus faible si fbp/fbc absents, necessite patch API et routing owner | Trigger , destination Meta KBC, event_id stable | Recommande |
-| C - Hybrid browser + server-side dedup | Couverture maximale et dedup Meta possible | Complexite, risque double comptage si event_id diverge, necessite charger Meta browser |  present + event_id partage + consent strategy | A garder pour plus tard, pas en premier patch |
+| A - Browser-only Meta snippet | Simple, proche de la demande Antoine | No-op si `fbq` absent, adblock/consent/ITP, aucun server-side, dedup absent, attribution partielle | Meta Pixel charge sur Client `/register` | Non recommande comme option principale |
+| B - Server-side CAPI depuis API | Fiable, controle idempotence, pas dependant du navigateur, visible Meta CAPI | EMQ plus faible si fbp/fbc absents, necessite patch API et routing owner | Trigger `register_started`, destination Meta KBC, event_id stable | Recommande |
+| C - Hybrid browser + server-side dedup | Couverture maximale et dedup Meta possible | Complexite, risque double comptage si event_id diverge, necessite charger Meta browser | `fbq` present + event_id partage + consent strategy | A garder pour plus tard, pas en premier patch |
 
-Recommendation unique : Option B, server-side Meta CAPI derive de , avec custom event , idempotence et routing owner explicite.
+Recommendation unique : Option B, server-side Meta CAPI derive de `register_started`, avec custom event `trial_page_viewed`, idempotence et routing owner explicite.
 
-Raison : la demande d'Antoine vise un signal Ads Manager plus fiable que les boutons. Le server-side evite le no-op browser, ne depend pas des pixels charges, et garde  intact.
+Raison : la demande d'Antoine vise un signal Ads Manager plus fiable que les boutons. Le server-side evite le no-op browser, ne depend pas des pixels charges, et garde `StartTrial` intact.
 
 Limites restantes :
 
 - Meta Ads Manager ne sera prouve qu'apres vrai trafic ou phase de test reel explicite.
-- Sans , l'attribution Meta peut rester partielle.
+- Sans `fbclid/fbc/fbp`, l'attribution Meta peut rester partielle.
 - Le signal restera un micro-event haut de funnel, pas une conversion business.
 
 ## Design source patch futur DEV
 
 | Fichier source probable | Changement futur | Risque | Test requis |
 | --- | --- | --- | --- |
-|  | Ajouter  ou derivation non-polluante depuis  | pollution funnel si mal nomme | tests allowlist/idempotence |
-|  | Ajouter chemin custom Meta event pre-tenant/owner-aware | casser StartTrial/Purchase si refactor trop large | tests StartTrial/Purchase inchanges |
-|  | Autoriser custom  et event_source_url  | mauvais mapping Meta | tests unit buildMetaServerEvent |
-|  | Idealement aucun changement si derivation API depuis  suffit | si ajout browser, risque double event | verifier bundle seulement |
-|  | Aucun changement recommande en premiere intention | dedup browser deja en place | tests offline si touche |
-|  | Plus tard seulement : image DEV du patch | GitOps drift | phase build/apply separee |
+| `keybuzz-api/src/modules/funnel/routes.ts` | Ajouter `trial_page_viewed` ou derivation non-polluante depuis `register_started` | pollution funnel si mal nomme | tests allowlist/idempotence |
+| `keybuzz-api/src/modules/outbound-conversions/emitter.ts` | Ajouter chemin custom Meta event pre-tenant/owner-aware | casser StartTrial/Purchase si refactor trop large | tests StartTrial/Purchase inchanges |
+| `keybuzz-api/src/modules/outbound-conversions/adapters/meta-capi.ts` | Autoriser custom `trial_page_viewed` et event_source_url `/register` | mauvais mapping Meta | tests unit buildMetaServerEvent |
+| `keybuzz-client/app/register/page.tsx` | Idealement aucun changement si derivation API depuis `register_started` suffit | si ajout browser, risque double event | verifier bundle seulement |
+| `keybuzz-client/src/lib/funnel.ts` | Aucun changement recommande en premiere intention | dedup browser deja en place | tests offline si touche |
+| `keybuzz-infra/k8s/keybuzz-api-dev/deployment.yaml` | Plus tard seulement : image DEV du patch | GitOps drift | phase build/apply separee |
 
 Design recommande :
 
 1. DEV source patch API uniquement en premier.
-2. Ajouter un emitter Meta custom dedie .
-3. Trigger exact : premier  recorde, pas les duplicates .
-4. event_id stable : derive du , par exemple hash .
-5. Owner resolution :  ou attribution stockee si presente ; fallback config serveur explicite si decidee par Ludovic/Ops ; jamais hardcode.
+2. Ajouter un emitter Meta custom dedie `emitMetaFunnelCustomEvent('trial_page_viewed', ...)`.
+3. Trigger exact : premier `register_started` recorde, pas les duplicates `already_recorded`.
+4. event_id stable : derive du `funnel_id`, par exemple hash `trial_page_viewed:<funnel_id>`.
+5. Owner resolution : `body.properties.marketing_owner_tenant_id` ou attribution stockee si presente ; fallback config serveur explicite si decidee par Ludovic/Ops ; jamais hardcode.
 6. Destination : Meta CAPI uniquement pour cette phase.
-7. Ne pas ecrire dans  business si l'on veut garder les business conversions propres ; utiliser soit une table/log dediee, soit delivery logs avec event custom clairement classe.
+7. Ne pas ecrire dans `conversion_events` business si l'on veut garder les business conversions propres ; utiliser soit une table/log dediee, soit delivery logs avec event custom clairement classe.
 8. Aucun event live dans tests source ; tests offline/mock fetch uniquement.
 
 Prochain GO recommande :
 
-```
+```text
 GO SOURCE PATCH ONBOARDING TRIAL_PAGE_VIEWED META TRACKING DEV PH-SAAS-T8.12AS.21.79
 ```
 
@@ -506,20 +519,20 @@ GO SOURCE PATCH ONBOARDING TRIAL_PAGE_VIEWED META TRACKING DEV PH-SAAS-T8.12AS.2
 
 | Surface | Baseline | Verification read-only | Verdict |
 | --- | --- | --- | --- |
-|  legacy | route localisee, flow email/OTP/company/user/checkout | source relue | PRESERVER |
+| `/register` legacy | route localisee, flow email/OTP/company/user/checkout | source relue | PRESERVER |
 | plan/cycle continuity | sessionStorage + URL params | source relue | PRESERVER |
-| UTM/fbclid/fbc/fbp capture |  | source relue | PRESERVER |
-|  | capture query + create-signup | source relue | PRESERVER |
-| Stripe checkout |  | source relue, non execute | PRESERVER |
-|  | billing webhook server-side | source relue, aucun test fake | PRESERVER |
-|  | billing transition server-side | source relue, aucun test fake | PRESERVER |
-|  business | StartTrial/Purchase | DB read-only | NE PAS POLLUER |
-|  internal analytics | micro-events existants | DB read-only | PRESERVER |
+| UTM/fbclid/fbc/fbp capture | `src/lib/attribution.ts` | source relue | PRESERVER |
+| `marketing_owner_tenant_id` | capture query + create-signup | source relue | PRESERVER |
+| Stripe checkout | `handleConfirmPlanAndCheckout` | source relue, non execute | PRESERVER |
+| `StartTrial` | billing webhook server-side | source relue, aucun test fake | PRESERVER |
+| `Purchase` | billing transition server-side | source relue, aucun test fake | PRESERVER |
+| `conversion_events` business | StartTrial/Purchase | DB read-only | NE PAS POLLUER |
+| `funnel_events` internal analytics | micro-events existants | DB read-only | PRESERVER |
 | Clarity | Client marker passif | bundle passif | PRESERVER |
 | LinkedIn | Client marker passif | bundle passif | PRESERVER |
 | sGTM | Client marker passif | bundle passif | PRESERVER |
 | Website PROD | clos PH-21.77 | rapport relu | NON TOUCHE |
-| Webflow  | hors scope | aucune action | NON TOUCHE |
+| Webflow `try.keybuzz.io` | hors scope | aucune action | NON TOUCHE |
 | Admin marketing/funnel | hors scope | runtime read-only | NON TOUCHE |
 | Client GA4 dette | dette separee PH-21.55 | non masquee | OUVERTE |
 
@@ -527,15 +540,15 @@ GO SOURCE PATCH ONBOARDING TRIAL_PAGE_VIEWED META TRACKING DEV PH-SAAS-T8.12AS.2
 
 | Interdit | Resultat |
 | --- | --- |
-| Fake  | 0 |
-| Fake  | 0 |
-| Fake  | 0 |
+| Fake `trial_page_viewed` | 0 |
+| Fake `StartTrial` | 0 |
+| Fake `Purchase` | 0 |
 | Fake checkout Stripe | 0 |
-| Formulaire  | 0 |
+| Formulaire `/register` | 0 |
 | Browser JS tracking | 0 |
 | POST Meta/TikTok/LinkedIn/GA4/sGTM | 0 |
 | DB mutation | 0 |
-| Build/deploy/apply | 0 |
+| Build/deploy effectif | 0 |
 
 ## Linear
 
@@ -551,11 +564,12 @@ PH-21.78 confirme que trial_page_viewed doit rester distinct de StartTrial. Reco
 
 | Dette | Priorite | Phase recommandee |
 | --- | --- | --- |
-| Patch source DEV  Meta CAPI | P1 | PH-21.79 |
+| Patch source DEV `trial_page_viewed` Meta CAPI | P1 | PH-21.79 |
 | Preuve Ads Manager reelle | P1 marketing | phase real traffic explicite apres deploy |
 | Event_id hybrid browser/server dedup | P2 | design separe si browser pixel redevient necessaire |
 | Client GA4 runtime parity | P2 | dette PH-21.55 separee |
 | Test sans CB | hors scope | phase produit/QA separee |
+| Process report heredoc backticks | P2 process | corrige par ce commit docs-only |
 
 ## Rollback futur
 
@@ -565,10 +579,10 @@ Pour le futur patch PH-21.79, rollback devra etre GitOps strict si build/deploy 
 
 1. Revenir au tag API precedent dans manifest DEV.
 2. Commit + push.
-3.  du manifest.
-4. .
+3. `kubectl apply -f` du manifest.
+4. `kubectl rollout status`.
 
-Interdits permanents : , , , .
+Interdits permanents : `kubectl set image`, `kubectl set env`, `kubectl patch`, `kubectl edit`.
 
 ## Verdict final
 
@@ -576,7 +590,7 @@ READY_SOURCE_PATCH_REQUIRED.
 
 Phrase finale :
 
-```
+```text
 GO READONLY DESIGN ONBOARDING TRIAL_PAGE_VIEWED META TRACKING DEV PROD READY_SOURCE_PATCH_REQUIRED PH-SAAS-T8.12AS.21.78
 STOP
 ```
