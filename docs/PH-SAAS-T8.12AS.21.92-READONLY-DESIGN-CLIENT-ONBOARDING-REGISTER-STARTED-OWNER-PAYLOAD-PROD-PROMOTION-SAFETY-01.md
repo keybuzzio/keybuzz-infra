@@ -14,7 +14,7 @@
 | --- | --- |
 | Host | install-v3 |
 | IP | 46.62.171.61 |
-| UTC | 2026-06-22T20:11:31Z |
+| UTC | 2026-06-22T20:12:27Z |
 | Kube context | kubernetes-admin@kubernetes |
 
 ## Repository Snapshot
@@ -23,7 +23,7 @@
 | --- | --- | --- | --- | --- | ---: | --- |
 | keybuzz-api | ph147.4/source-of-truth | 35673e3b16f4 | 35673e3b16f4 | 0/0 | 223 |  223 D; |
 | keybuzz-client | ph148/onboarding-activation-replay | d9631ca087f1 | d9631ca087f1 | 0/0 | 1 |  1 M; |
-| keybuzz-infra before report | main | 59cb3853fd2b | 59cb3853fd2b | 0/0 | 0 | clean |
+| keybuzz-infra before report | main | e4f4e1889af9 | e4f4e1889af9 | 0/0 | 0 | clean |
 
 Notes:
 
@@ -35,10 +35,10 @@ Notes:
 
 | Environment | Service | Image | Pod imageID / digest | Ready | Restarts |
 | --- | --- | --- | --- | --- | ---: |
-| DEV | API |  | ghcr.io/keybuzzio/keybuzz-api@sha256:bc2892c9d2c93634c35d09144f74e822b4dea3db4dcd3b13b93f7519978ba669 | true | 0 |
-| DEV | Client |  | ghcr.io/keybuzzio/keybuzz-client@sha256:0e8675faa5071d66991c43b3e340d0fb4167c9cb453d254365eec3043d5af3b9 | true | 0 |
-| PROD | API |  | ghcr.io/keybuzzio/keybuzz-api@sha256:668bcff0b2ac3f5651ca1dc100ebcfe056996f131a200754fda1985ae0ceabe6 | true | 0 |
-| PROD | Client |  | ghcr.io/keybuzzio/keybuzz-client@sha256:e63494dbe83368a300df4d199b6443ccef6442b5428edeca6cf94433b5abf791 | true | 0 |
+| DEV | API | ghcr.io/keybuzzio/keybuzz-api:v3.5.264-onboarding-trial-page-viewed-meta-dev | ghcr.io/keybuzzio/keybuzz-api@sha256:bc2892c9d2c93634c35d09144f74e822b4dea3db4dcd3b13b93f7519978ba669 | true | 0 |
+| DEV | Client | ghcr.io/keybuzzio/keybuzz-client:v3.5.260-onboarding-register-started-owner-payload-dev | ghcr.io/keybuzzio/keybuzz-client@sha256:0e8675faa5071d66991c43b3e340d0fb4167c9cb453d254365eec3043d5af3b9 | true | 0 |
+| PROD | API | ghcr.io/keybuzzio/keybuzz-api:v3.5.262-llm-provider-credit-alerting-prod | ghcr.io/keybuzzio/keybuzz-api@sha256:668bcff0b2ac3f5651ca1dc100ebcfe056996f131a200754fda1985ae0ceabe6 | true | 0 |
+| PROD | Client | ghcr.io/keybuzzio/keybuzz-client:v3.5.259-ai-assist-notification-scope-prod | ghcr.io/keybuzzio/keybuzz-client@sha256:e63494dbe83368a300df4d199b6443ccef6442b5428edeca6cf94433b5abf791 | true | 0 |
 
 ## DEV State Confirmed From Prior Chain
 
@@ -108,7 +108,7 @@ Rationale:
 | Build args | PROD explicit; bundle must contain https://api.keybuzz.io and must not contain https://api-dev.keybuzz.io. |
 | Audit | register_started preserved; marketing_owner_tenant_id, UTM fields and click IDs present; StartTrial/Purchase not touched by this Client patch. |
 | GitOps | Client PROD manifest only; commit + push before kubectl apply -f. |
-| Rollback reference | Current Client PROD image before any later promotion:  / ghcr.io/keybuzzio/keybuzz-client@sha256:e63494dbe83368a300df4d199b6443ccef6442b5428edeca6cf94433b5abf791. |
+| Rollback reference | Current Client PROD image before any later promotion: ghcr.io/keybuzzio/keybuzz-client:v3.5.259-ai-assist-notification-scope-prod / ghcr.io/keybuzzio/keybuzz-client@sha256:e63494dbe83368a300df4d199b6443ccef6442b5428edeca6cf94433b5abf791. |
 
 ## No Fake Metrics / No Fake Events
 
