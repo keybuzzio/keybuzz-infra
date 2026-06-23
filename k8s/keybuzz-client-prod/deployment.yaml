@@ -73,7 +73,7 @@ spec:
           # - Sample Demo hidden after real channel connection
           # PH-SAAS-T8.12AP.1B: AI no-reask fix — orderRef always injected + anti-reask instruction (KEY-256)
           # PH-SAAS-T8.12AP.2.3: outbound author_name — X-User-Email in sendReply PROD (KEY-266)
-          image: ghcr.io/keybuzzio/keybuzz-client:v3.5.259-ai-assist-notification-scope-prod  # PH-SAAS-T8.12AS.20.49 (2026-05-28) KEY-323/KEY-337 : Client AI Assist skipped:true rendu etat neutre (commit client ad4e862) ; bundle PROD api.keybuzz.io present, api-dev absent, Clarity wuk12h9i33 present (KEY-302/KEY-325 OK) ; manifest digest GHCR sha256:e63494dbe83368a300df4d199b6443ccef6442b5428edeca6cf94433b5abf791 ; config sha256:9f46a7a88f83 ; rollback v3.5.217-clarity-client-restore-prod
+          image: ghcr.io/keybuzzio/keybuzz-client:v3.5.260-onboarding-register-started-owner-payload-prod  # PH-SAAS-T8.12AS.21.100 register_started owner payload PROD; digest sha256:c244570f6000e94559094f2009df8792775ba8739b83d4bb17aa3bd4152f7115; config sha256:a2e1fe3a9fbe31b50e915b76a82b3cca86c29af8679c38d9933ef2adf3feadca; rollback v3.5.259-ai-assist-notification-scope-prod
           imagePullPolicy: Always
           ports:
             - containerPort: 3000
