@@ -103,7 +103,7 @@ spec:
           # PREVIOUS: v3.5.186-ai-rules-mut-tenantguard-prod  # PH-SAAS-T8.12AS.12.2C-5B-PROD KEY-301 (2026-05-13)
           # PREVIOUS: v3.5.187-google-observability-tenantguard-prod  # PH-SAAS-T8.12AS.13.1-PROD KEY-313 (2026-05-14)
           # PREVIOUS: v3.5.188-outbound-deliveries-tenantguard-prod  # PH-SAAS-T8.12AS.13.2A-PROD KEY-313 (2026-05-14)
-          image: ghcr.io/keybuzzio/keybuzz-api:v3.5.265-meta-capi-error-observability-prod  # PH-SAAS-T8.12AS.21.116 (2026-06-25) Meta CAPI trial_page_viewed delivery error observability PROD GitOps (src 547648fd, manifest sha256:ca11a4e7477f8ee1ddeca2ec64d8cd469402344060fedac5f412be413a5bd384, config sha256:1e85e6a19fb2dd6a9db6ec50e600abd2c6e94323e218ddd869752eb918b230f9) ; rollback: v3.5.264-onboarding-trial-page-viewed-meta-prod sha256:1a682256a2f870f84236d80ca0c52510657288ab9516237a1ac7972b85a000ad
+          image: ghcr.io/keybuzzio/keybuzz-api:v3.5.268-no-card-trial-runtime-endpoint-prod  # PH-SAAS-T8.12AS.21.158 no-card trial runtime endpoint PROD; digest sha256:8b5a70ae779c564e48aa6d93aedce75c07e5ad14747430aca347840189c22fef; config sha256:6f04e5246aaaf131d9de1742d8300b8b9ddcecc1e094408bcb8119107a9b7810; source 3ded430d1925a41eee4d35a84d64533bd97b40e4; rollback v3.5.265-meta-capi-error-observability-prod
           imagePullPolicy: Always
           ports:
             - containerPort: 3001
