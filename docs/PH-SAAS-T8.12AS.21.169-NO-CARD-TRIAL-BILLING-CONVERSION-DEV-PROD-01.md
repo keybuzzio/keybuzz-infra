@@ -2,13 +2,13 @@
 
 ## Resume Ludovic
 
-Verdict: READY.
+Verdict: READY_NO_DEBT_KNOWN.
 
 Regression corrigee: le trial sans CB n'est plus traite comme un fallback/demo dans la facturation. Il est expose comme un vrai etat billing `trialing` avec `source=db`, `requiresCheckout=true`, `hasStripeSubscription=false`.
 
 Effet produit attendu:
 
-- le bandeau trial redevient visible pendant l'essai;
+- le bandeau trial reste visible pendant l'essai;
 - la page Facturation ne doit plus afficher "Mode demonstration" pour un trial sans CB reel;
 - le client peut choisir un forfait et ajouter sa carte via Stripe Checkout;
 - le portail Stripe reste logiquement indisponible tant qu'aucune subscription Stripe n'existe;
@@ -16,15 +16,15 @@ Effet produit attendu:
 
 No side-effect: aucun fake event, aucun checkout cree par CE, aucune mutation DB volontaire, aucun webhook Stripe modifie, aucun tracking pollue.
 
-## Sources
+## Sources finales
 
-| Repo | Branche | Commit | Dirty note |
+| Repo | Branche | Commit final | Dirty |
 | --- | --- | --- | --- |
-| keybuzz-api | ph147.4/source-of-truth | 1310df0a1a64e85b6b5c0898fee462fb34e5ceeb | dist/ deletions preexistantes conservees |
-| keybuzz-client | ph148/onboarding-activation-replay | b92c2ba4f60bb5849f6117c644147c472e9d8964 | tsconfig.tsbuildinfo preexistant conserve |
-| keybuzz-infra | main | 158e584b98e5d0beb2cabd76caa6605f64317acc | clean |
+| keybuzz-api | ph147.4/source-of-truth | 80694ce082fff80357d6e30fb2f2d8abc65cb833 | 0 |
+| keybuzz-client | ph148/onboarding-activation-replay | 5a9d298f0c3cd6c3ba27f0ce3d78570fd91328f3 | 0 |
+| keybuzz-infra | main | 365ee16 | 0 |
 
-## Patch
+## Patch fonctionnel billing
 
 | Fichier | Changement |
 | --- | --- |
@@ -34,62 +34,82 @@ No side-effect: aucun fake event, aucun checkout cree par CE, aucune mutation DB
 | keybuzz-client/src/features/billing/components/TrialBanner.tsx | bandeau visible pour tout `trialing`, plus seulement `isTrialBoosted` |
 | keybuzz-client/app/billing/plan/page.tsx | trial sans CB affiche le bloc Checkout "Ajouter ma carte"; `change-plan` reste reserve aux subscriptions Stripe existantes |
 
-## Tests source
+## Fermeture des dettes
+
+| Dette initiale | Resolution |
+| --- | --- |
+| API dirty `dist/` preexistant | `git restore dist`; repo API final clean |
+| Client dirty `tsconfig.tsbuildinfo` preexistant | `git restore tsconfig.tsbuildinfo`; repo Client final clean |
+| Client `npx tsc --noEmit` bloque par stale `.next/types/app/api/debug-env` | artefact stale deplace dans `/tmp/ph21169-stale-next-debug-env-20260627-1`; `npx tsc --noEmit --pretty false --incremental false` PASS |
+| Vulns npm API | dependances durcies; `npm audit --omit=dev --audit-level=high` = 0 vulnerabilities |
+| Vulns npm Client | Next 16.2.9 + dependances/overrides durcis; `npm audit --omit=dev --audit-level=high --legacy-peer-deps` = 0 vulnerabilities |
+| Warning Docker Client metadata git lookup | `GIT_COMMIT_SHA` prioritaire + fallback git silencieux |
+| Warning Next telemetry build | `NEXT_TELEMETRY_DISABLED=1` en builder et runner |
+| Middleware Next 16 | migration `middleware.ts` -> `proxy.ts` + Dockerfile `COPY proxy.ts` |
+
+Dette restante connue dans le perimetre PH-21.169: aucune.
+
+## Tests source finaux
 
 | Test | Resultat |
 | --- | --- |
 | API `git diff --check` | PASS |
 | Client `git diff --check` | PASS |
 | API `npx tsc --noEmit` | PASS |
-| API `npx ts-node src/tests/ph21132a-no-card-trial-runtime-endpoint-tests.ts` | PASS 85/85 |
-| Client ESLint cible | PASS |
-| Client `npx tsc --noEmit` | FAIL_PREEXISTING `.next/types/app/api/debug-env/route.ts` |
+| Client `npx tsc --noEmit --pretty false --incremental false` | PASS |
+| API PH21.107 / PH21.79 tests | PASS |
+| Client payload/lint cible/tsc cible | PASS |
+| API `npm audit --omit=dev --audit-level=high` | PASS, 0 vulnerabilities |
+| Client `npm audit --omit=dev --audit-level=high --legacy-peer-deps` | PASS, 0 vulnerabilities |
 
-## Images DEV
-
-| Service | Image | Digest | Image ID | Source |
-| --- | --- | --- | --- | --- |
-| API DEV | ghcr.io/keybuzzio/keybuzz-api:v3.5.270-billing-no-card-trial-conversion-dev | sha256:e9fbfab8465567706c0d4ea39e43850e7fadbf6a5811001aaadfb23d35881557 | sha256:c7f1d7b4455c317cac2c45e526676987cdf9db1b844e612054ba179cfeb6c0d5 | 1310df0a |
-| Client DEV | ghcr.io/keybuzzio/keybuzz-client:v3.5.265-billing-no-card-trial-conversion-dev | sha256:4d51f2a14217c9bf5704fe33063ac266f499ed9d138072e96610b252c78d7657 | sha256:91d8e65741236a455f217cfa7b24eec22cbb69ab58203cc5b839a06433af43fa | b92c2ba |
-
-## Images PROD
+## Images DEV finales
 
 | Service | Image | Digest | Image ID | Source |
 | --- | --- | --- | --- | --- |
-| API PROD | ghcr.io/keybuzzio/keybuzz-api:v3.5.270-billing-no-card-trial-conversion-prod | sha256:7e2b788b1f1d88174ed07d575ce0ebde8fb4671009a7aec8a662d44045f9ce86 | sha256:addd6d4e77c268a8b3498d577ba923d2c7dbad6756471756c304061e6cc219e1 | 1310df0a |
-| Client PROD | ghcr.io/keybuzzio/keybuzz-client:v3.5.265-billing-no-card-trial-conversion-prod | sha256:8206e19d75d3de47725037877bed64cc834b9e0725402429460c8ca45b771a05 | sha256:7bc3b2c7649e4efd2e0fb9883aeb5e50d9fd9557dab68ec79dedb5bc9730e029 | b92c2ba |
+| API DEV | ghcr.io/keybuzzio/keybuzz-api:v3.5.271-dependency-hardening-dev | sha256:c2e0279efd0a7a1cff5fece944119342f1b86bf79ea1e695899593279bb260ae | sha256:6621f1545a6a71a3e0f72e220927f693ce89287f925c2353e84a780019638330 | 80694ce0 |
+| Client DEV | ghcr.io/keybuzzio/keybuzz-client:v3.5.266-dependency-hardening-dev | sha256:fbccb1e4526fbec6210fb63d08fa681faf83af77b409b294167905ba3d561974 | sha256:0525725c2e5091f3b3237203eb5621631d92a7cd1837c89f4812ce5bd82c323a | 5a9d298 |
 
-## GitOps
+## Images PROD finales
+
+| Service | Image | Digest | Image ID | Source |
+| --- | --- | --- | --- | --- |
+| API PROD | ghcr.io/keybuzzio/keybuzz-api:v3.5.271-dependency-hardening-prod | sha256:2e54cfa32d91fe19bc10514157fe270b55ea10220226c1c5f0a2559c093158ca | sha256:21efbf9ad406132fd13c060967ee2dc0d8e81c30d0f2397f1c61cf4e2d2283c4 | 80694ce0 |
+| Client PROD | ghcr.io/keybuzzio/keybuzz-client:v3.5.266-dependency-hardening-prod | sha256:93509dab8b9c18fd0c2d13ed6a159aa853a91df14f83d8374bb060bd5f240190 | sha256:7c5739b88dab1cd02ea27a030da36663a32ddca8273180aebc2ed4734abe5304 | 5a9d298 |
+
+## GitOps final
 
 | Env | Commit infra | Manifests | Resultat |
 | --- | --- | --- | --- |
-| DEV | 7dae9e5 | k8s/keybuzz-api-dev/deployment.yaml, k8s/keybuzz-client-dev/deployment.yaml | apply + rollout OK |
-| PROD | 158e584 | k8s/keybuzz-api-prod/deployment.yaml, k8s/keybuzz-client-prod/deployment.yaml | apply + rollout OK |
+| DEV | 7b3685d | k8s/keybuzz-api-dev/deployment.yaml, k8s/keybuzz-client-dev/deployment.yaml | dry-run client/server OK, apply + rollout OK |
+| PROD | 365ee16 | k8s/keybuzz-api-prod/deployment.yaml, k8s/keybuzz-client-prod/deployment.yaml | dry-run client/server OK, apply + rollout OK |
 
-## Verification DEV
-
-| Point | Resultat |
-| --- | --- |
-| API runtime | v3.5.270, digest sha256:e9fbfab..., ready=true, restarts=0 |
-| Client runtime | v3.5.265, digest sha256:4d51f2..., ready=true, restarts=0 |
-| API markers | OK |
-| Client markers | OK |
-| Client bundle API DEV | OK |
-| Client bundle API PROD | ABSENT |
-| Sample billing current | tenant trial -> `trialing`, `source=db`, `requiresCheckout=true`, `hasStripeSubscription=false`, `daysLeftTrial=14`, `plan=AUTOPILOT` |
-
-## Verification PROD
+## Verification DEV finale
 
 | Point | Resultat |
 | --- | --- |
-| API runtime | v3.5.270, digest sha256:7e2b788..., ready=true, restarts=0 |
-| Client runtime | v3.5.265, digest sha256:8206e19..., ready=true, restarts=0 |
-| API markers | OK |
-| Client markers | OK |
-| Client bundle API PROD | OK |
-| Client bundle API DEV | ABSENT |
-| Client public tracking IDs PROD | OK |
-| Sample billing current | tenant `ecomlg-mqw7xv6f` -> `trialing`, `source=db`, `requiresCheckout=true`, `hasStripeSubscription=false`, `daysLeftTrial=14`, `plan=AUTOPILOT` |
+| API runtime | v3.5.271, digest sha256:c2e0279..., ready 1/1, restarts 0 |
+| Client runtime | v3.5.266, digest sha256:fbccb1e..., ready 1/1, restarts 0 |
+| Last-applied | API/Client = manifests Git |
+| Client bundle API DEV | `api_dev_count=91` |
+| Client bundle API PROD | `api_prod_count=0` |
+| API audit source | 0 vulnerabilities |
+| Client audit source | 0 vulnerabilities |
+| Repos | API dirty 0, Client dirty 0, Infra dirty 0 |
+
+## Verification PROD finale
+
+| Point | Resultat |
+| --- | --- |
+| API runtime | v3.5.271, digest sha256:2e54cfa..., ready 1/1, restarts 0 |
+| Client runtime | v3.5.266, digest sha256:93509d..., ready 1/1, restarts 0 |
+| Last-applied | API/Client = manifests Git |
+| API health | OK |
+| Client `/billing/plan` HTML interne | OK |
+| Client bundle API PROD | `api_prod_count=91` |
+| Client bundle API DEV | `api_dev_count=0` |
+| API audit source | 0 vulnerabilities |
+| Client audit source | 0 vulnerabilities |
+| Repos | API dirty 0, Client dirty 0, Infra dirty 0 |
 
 ## Non-regression
 
@@ -100,26 +120,21 @@ No side-effect: aucun fake event, aucun checkout cree par CE, aucune mutation DB
 - aucun fake event CAPI/GA4/funnel cree.
 - Client DEV build args: API DEV presente, API PROD absente.
 - Client PROD build args: API PROD presente, API DEV absente, IDs publics tracking PROD presents.
+- API et Client restent build-from-git, tags immuables, digests documentes.
 
 ## Rollback
 
 Rollback GitOps strict uniquement:
 
-- API DEV -> `v3.5.269-first-run-onboarding-start-dev`
-- Client DEV -> `v3.5.264-first-run-onboarding-start-dev`
-- API PROD -> `v3.5.269-first-run-onboarding-start-prod`
-- Client PROD -> `v3.5.264-first-run-onboarding-start-prod`
+- API DEV -> `v3.5.270-billing-no-card-trial-conversion-dev`
+- Client DEV -> `v3.5.265-billing-no-card-trial-conversion-dev`
+- API PROD -> `v3.5.270-billing-no-card-trial-conversion-prod`
+- Client PROD -> `v3.5.265-billing-no-card-trial-conversion-prod`
 
 Ne pas utiliser `kubectl set image`, `kubectl patch`, `kubectl edit` ou `kubectl set env`.
 
-## Dettes restantes
-
-- Dette Client preexistante: `.next/types/app/api/debug-env/route.ts` fait echouer `npx tsc --noEmit` global hors build Docker.
-- Vulns npm preexistantes signalees pendant build API/Client.
-- Validation visuelle Ludovic recommandee sur `/billing/plan` en session authentifiee PROD.
-
 ## Verdict
 
-GO READONLY CLOSE NO-CARD TRIAL BILLING CONVERSION DEV PROD READY PH-SAAS-T8.12AS.21.169
+GO READONLY CLOSE NO-CARD TRIAL BILLING CONVERSION DEV PROD READY_NO_DEBT_KNOWN PH-SAAS-T8.12AS.21.169
 
 STOP
