@@ -103,7 +103,7 @@ spec:
           # PREVIOUS: v3.5.186-ai-rules-mut-tenantguard-prod  # PH-SAAS-T8.12AS.12.2C-5B-PROD KEY-301 (2026-05-13)
           # PREVIOUS: v3.5.187-google-observability-tenantguard-prod  # PH-SAAS-T8.12AS.13.1-PROD KEY-313 (2026-05-14)
           # PREVIOUS: v3.5.188-outbound-deliveries-tenantguard-prod  # PH-SAAS-T8.12AS.13.2A-PROD KEY-313 (2026-05-14)
-          image: ghcr.io/keybuzzio/keybuzz-api:v3.5.271-dependency-hardening-prod  # PH-SAAS-T8.12AS.21.169 no-debt dependency hardening PROD; digest sha256:2e54cfa32d91fe19bc10514157fe270b55ea10220226c1c5f0a2559c093158ca; source 80694ce082fff80357d6e30fb2f2d8abc65cb833; rollback: v3.5.270-billing-no-card-trial-conversion-prod
+          image: ghcr.io/keybuzzio/keybuzz-api:v3.5.273-start-onboarding-latency-prod  # PH-SAAS-T8.12AS.21.176 first-run /start latency PROD; digest sha256:424612fe036d604f95c0d843b02a0ca3b9035c0c5f07d122615b5bf1ea03a9c7; source b60f506fe677af82563e77f2a1ad27110bf74593; rollback: v3.5.271-dependency-hardening-prod
           imagePullPolicy: Always
           ports:
             - containerPort: 3001
