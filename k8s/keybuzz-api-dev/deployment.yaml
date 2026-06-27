@@ -326,7 +326,7 @@ spec:
         # PH-SAAS-T8.12AP.2.2: outbound author_name — resolve real agent display name (KEY-266)
         # PREVIOUS: v3.5.187-google-observability-tenantguard-dev  # PH-SAAS-T8.12AS.13.1 KEY-313 (2026-05-14)
         # PREVIOUS: v3.5.188-outbound-deliveries-tenantguard-dev  # PH-SAAS-T8.12AS.13.2A KEY-313 (2026-05-14)
-        image: ghcr.io/keybuzzio/keybuzz-api:v3.5.267-no-card-trial-runtime-endpoint-dev  # PH-SAAS-T8.12AS.21.135 (2026-06-26) no-card trial runtime endpoint DEV GitOps (src 3ded430d, manifest sha256:508054e5cb15, config sha256:55bf23b7a327) ; rollback: v3.5.266-no-card-trial-launch-pricing-dev
+        image: ghcr.io/keybuzzio/keybuzz-api:v3.5.269-first-run-onboarding-start-dev  # PH-SAAS-T8.12AS.21.168 first-run onboarding start DEV; digest sha256:e39a32d94a45f95bb2d4ce30786d34fa323a7908e521a77bc2d9cfed6f3cb404; source 2345b39c529439fcbf56f5558701d6c0d4be91b4; rollback: v3.5.267-no-card-trial-runtime-endpoint-dev
         livenessProbe:
           httpGet:
             path: /health
