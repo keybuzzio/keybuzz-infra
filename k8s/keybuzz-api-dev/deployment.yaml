@@ -326,7 +326,7 @@ spec:
         # PH-SAAS-T8.12AP.2.2: outbound author_name — resolve real agent display name (KEY-266)
         # PREVIOUS: v3.5.187-google-observability-tenantguard-dev  # PH-SAAS-T8.12AS.13.1 KEY-313 (2026-05-14)
         # PREVIOUS: v3.5.188-outbound-deliveries-tenantguard-dev  # PH-SAAS-T8.12AS.13.2A KEY-313 (2026-05-14)
-        image: ghcr.io/keybuzzio/keybuzz-api:v3.5.273-start-onboarding-latency-dev  # PH-SAAS-T8.12AS.21.172 first-run /start latency DEV; digest sha256:64ec8fcdb1dc73d01cc478d539a89536f3dc287d28db11267e50f2ac2fcf3de7; source b60f506fe677af82563e77f2a1ad27110bf74593; rollback: v3.5.272-billing-events-octopia-route-dev
+        image: ghcr.io/keybuzzio/keybuzz-api:v3.5.274-amazon-channel-activation-idempotent-dev  # PH-SAAS-T8.12AS.21.177 Amazon activate-amazon idempotent DEV; digest sha256:88761a9dbed5deae0e033a081a2d552aaa5c2224fc26434539ef03b161ca453d; source dc80c8a7740ac805d2deb66e2fdf37074a9b02bc; rollback: v3.5.273-start-onboarding-latency-dev
         livenessProbe:
           httpGet:
             path: /health
