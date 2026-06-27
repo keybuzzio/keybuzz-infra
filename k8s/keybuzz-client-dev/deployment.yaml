@@ -74,7 +74,7 @@ spec:
           # PH-SAAS-T8.12AP.2: escalation UX — show target + action-needed (KEY-255)
           # PH-SAAS-T8.12AP.2.1: conversation lifecycle — handler Prenom.N + last handler label (KEY-265)
           # PH-SAAS-T8.12AP.2.2: outbound author_name — inject X-User-Email in sendReply (KEY-266)
-          image: ghcr.io/keybuzzio/keybuzz-client:v3.5.265-billing-no-card-trial-conversion-dev  # PH-SAAS-T8.12AS.21.169 no-card trial billing conversion DEV; digest sha256:4d51f2a14217c9bf5704fe33063ac266f499ed9d138072e96610b252c78d7657; source b92c2ba4f60bb5849f6117c644147c472e9d8964; rollback: v3.5.264-first-run-onboarding-start-dev
+          image: ghcr.io/keybuzzio/keybuzz-client:v3.5.266-dependency-hardening-dev  # PH-SAAS-T8.12AS.21.169 no-debt dependency hardening DEV; digest sha256:fbccb1e4526fbec6210fb63d08fa681faf83af77b409b294167905ba3d561974; source 5a9d298f0c3cd6c3ba27f0ce3d78570fd91328f3; rollback: v3.5.265-billing-no-card-trial-conversion-dev
           imagePullPolicy: Always
           ports:
             - containerPort: 3000
