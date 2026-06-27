@@ -41,8 +41,8 @@ No side-effect: aucun fake event, aucun checkout cree par CE, aucune mutation DB
 | API dirty `dist/` preexistant | `git restore dist`; repo API final clean |
 | Client dirty `tsconfig.tsbuildinfo` preexistant | `git restore tsconfig.tsbuildinfo`; repo Client final clean |
 | Client `npx tsc --noEmit` bloque par stale `.next/types/app/api/debug-env` | artefact stale deplace dans `/tmp/ph21169-stale-next-debug-env-20260627-1`; `npx tsc --noEmit --pretty false --incremental false` PASS |
-| Vulns npm API | dependances durcies; `npm audit --omit=dev --audit-level=high` = 0 vulnerabilities |
-| Vulns npm Client | Next 16.2.9 + dependances/overrides durcis; `npm audit --omit=dev --audit-level=high --legacy-peer-deps` = 0 vulnerabilities |
+| Vulns npm API | dependances durcies; `npm audit` complet = 0 vulnerabilities |
+| Vulns npm Client | Next 16.2.9 + dependances/overrides durcis; `npm audit --legacy-peer-deps` complet = 0 vulnerabilities |
 | Warning Docker Client metadata git lookup | `GIT_COMMIT_SHA` prioritaire + fallback git silencieux |
 | Warning Next telemetry build | `NEXT_TELEMETRY_DISABLED=1` en builder et runner |
 | Middleware Next 16 | migration `middleware.ts` -> `proxy.ts` + Dockerfile `COPY proxy.ts` |
@@ -59,8 +59,8 @@ Dette restante connue dans le perimetre PH-21.169: aucune.
 | Client `npx tsc --noEmit --pretty false --incremental false` | PASS |
 | API PH21.107 / PH21.79 tests | PASS |
 | Client payload/lint cible/tsc cible | PASS |
-| API `npm audit --omit=dev --audit-level=high` | PASS, 0 vulnerabilities |
-| Client `npm audit --omit=dev --audit-level=high --legacy-peer-deps` | PASS, 0 vulnerabilities |
+| API `npm audit` | PASS, 0 vulnerabilities |
+| Client `npm audit --legacy-peer-deps` | PASS, 0 vulnerabilities |
 
 ## Images DEV finales
 
