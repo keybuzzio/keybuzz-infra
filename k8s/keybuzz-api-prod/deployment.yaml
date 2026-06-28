@@ -103,7 +103,7 @@ spec:
           # PREVIOUS: v3.5.186-ai-rules-mut-tenantguard-prod  # PH-SAAS-T8.12AS.12.2C-5B-PROD KEY-301 (2026-05-13)
           # PREVIOUS: v3.5.187-google-observability-tenantguard-prod  # PH-SAAS-T8.12AS.13.1-PROD KEY-313 (2026-05-14)
           # PREVIOUS: v3.5.188-outbound-deliveries-tenantguard-prod  # PH-SAAS-T8.12AS.13.2A-PROD KEY-313 (2026-05-14)
-          image: ghcr.io/keybuzzio/keybuzz-api:v3.5.278-playbook-trial-metadata-repair-prod  # PH-SAAS-T8.12AS.21.190 metadata trial playbook repair PROD; digest sha256:83b9d2388b2e350c4c41bd647bb1104eaf12bac95e06755cad97b671c56b700f; source 5656987a09b3b38e8dc5025d1d2d4de255e46406; rollback: v3.5.277-playbooks-read-repair-prod
+          image: ghcr.io/keybuzzio/keybuzz-api:v3.5.279-ai-response-humanness-prod  # PH-SAAS-T8.12AS.21.202 AI response humanness PROD; digest sha256:8656180394f447c61ca5bed6175948d305c7a2d9d4323df10e2f40c945e7d4b7; source f030088d9132d85d955558d1850b2ec8085f7da0; rollback: v3.5.278-playbook-trial-metadata-repair-prod
           imagePullPolicy: Always
           ports:
             - containerPort: 3001
