@@ -74,7 +74,7 @@ spec:
           # PH-SAAS-T8.12AP.2: escalation UX — show target + action-needed (KEY-255)
           # PH-SAAS-T8.12AP.2.1: conversation lifecycle — handler Prenom.N + last handler label (KEY-265)
           # PH-SAAS-T8.12AP.2.2: outbound author_name — inject X-User-Email in sendReply (KEY-266)
-          image: ghcr.io/keybuzzio/keybuzz-client:v3.5.267-start-onboarding-latency-dev  # PH-SAAS-T8.12AS.21.172 first-run /start latency DEV; digest sha256:1c228dd4d044c503e0a863941e431354513188ad34d12820aa739155dd115f09; source 48147dc572b3b4444f3b85d2277867e15a1c3e5d; rollback: v3.5.266-dependency-hardening-dev
+          image: ghcr.io/keybuzzio/keybuzz-client:v3.5.268-post-oauth-trial-readiness-dev  # PH-SAAS-T8.12AS.21.182 post-OAuth trial readiness DEV; digest sha256:c6a6c43c8b4a20c082eb2974a8024a7631e139e302f1ce334e248c84bb512a0b; source f349118c09db2228847575322669fae3c7577000; rollback: v3.5.267-start-onboarding-latency-dev
           imagePullPolicy: Always
           ports:
             - containerPort: 3000
