@@ -103,7 +103,7 @@ spec:
           # PREVIOUS: v3.5.186-ai-rules-mut-tenantguard-prod  # PH-SAAS-T8.12AS.12.2C-5B-PROD KEY-301 (2026-05-13)
           # PREVIOUS: v3.5.187-google-observability-tenantguard-prod  # PH-SAAS-T8.12AS.13.1-PROD KEY-313 (2026-05-14)
           # PREVIOUS: v3.5.188-outbound-deliveries-tenantguard-prod  # PH-SAAS-T8.12AS.13.2A-PROD KEY-313 (2026-05-14)
-          image: ghcr.io/keybuzzio/keybuzz-api:v3.5.274-amazon-channel-activation-idempotent-prod  # PH-SAAS-T8.12AS.21.178 Amazon activate-amazon idempotent PROD; digest sha256:7bec821136ff8d77056a2a3ce7050f923bb26240ec1bd4cca880eee14a3cbf1a; source dc80c8a7740ac805d2deb66e2fdf37074a9b02bc; rollback: v3.5.273-start-onboarding-latency-prod
+          image: ghcr.io/keybuzzio/keybuzz-api:v3.5.275-ai-journal-startup-ddl-prod  # PH-SAAS-T8.12AS.21.179 AIJournal startup DDL guard PROD; digest sha256:ad5950ee3bf86b7980fde0005a778565956ff1f6c931b2b8d6877f94b39157f8; source b1b06a87b8b43c004f873ba9cdad01fba686e2e6; rollback: v3.5.274-amazon-channel-activation-idempotent-prod
           imagePullPolicy: Always
           ports:
             - containerPort: 3001
