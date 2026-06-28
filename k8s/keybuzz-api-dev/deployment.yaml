@@ -326,7 +326,7 @@ spec:
         # PH-SAAS-T8.12AP.2.2: outbound author_name — resolve real agent display name (KEY-266)
         # PREVIOUS: v3.5.187-google-observability-tenantguard-dev  # PH-SAAS-T8.12AS.13.1 KEY-313 (2026-05-14)
         # PREVIOUS: v3.5.188-outbound-deliveries-tenantguard-dev  # PH-SAAS-T8.12AS.13.2A KEY-313 (2026-05-14)
-        image: ghcr.io/keybuzzio/keybuzz-api:v3.5.277-playbooks-read-repair-dev  # PH-SAAS-T8.12AS.21.182 playbooks read repair DEV; digest sha256:2786b32176cf9727050e7b69117a2685da77b75eaded1f68af825d72d8fbf45a; source 485a3f5a4f33daa006a03e02a4d1d15d10e767f6; rollback: v3.5.276-post-oauth-trial-readiness-dev
+        image: ghcr.io/keybuzzio/keybuzz-api:v3.5.278-playbook-trial-metadata-repair-dev  # PH-SAAS-T8.12AS.21.190 metadata trial playbook repair DEV; digest sha256:cdae6d425d435af93c9fe38eb99fcfd65e8a3af0f198be5334cf54b5d786d673; source 5656987a09b3b38e8dc5025d1d2d4de255e46406; rollback: v3.5.277-playbooks-read-repair-dev
         livenessProbe:
           httpGet:
             path: /health
