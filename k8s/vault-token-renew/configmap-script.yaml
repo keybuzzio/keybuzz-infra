@@ -68,9 +68,9 @@ data:
     }
 
     vault_token_renew() {
-      _ROOT="$1"; _TOKEN="$2"
+      _ADMIN="$1"; _TOKEN="$2"
       _RESP=$(curl -sf -X POST \
-        -H "X-Vault-Token: $_ROOT" \
+        -H "X-Vault-Token: $_ADMIN" \
         -H "Content-Type: application/json" \
         -d "{\"token\":\"${_TOKEN}\"}" \
         "${VAULT_ADDR}/v1/auth/token/renew" 2>/dev/null) || true
@@ -79,7 +79,7 @@ data:
     }
 
     vault_token_create() {
-      _ROOT="$1"; _DISPLAY="$2"
+      _ADMIN="$1"; _DISPLAY="$2"
       _POLICY_JSON=""
       _OLD_IFS="$IFS"; IFS=","
       for _P in $POLICIES; do
@@ -88,7 +88,7 @@ data:
       done
       IFS="$_OLD_IFS"
       _RESP=$(curl -sf -X POST \
-        -H "X-Vault-Token: $_ROOT" \
+        -H "X-Vault-Token: $_ADMIN" \
         -H "Content-Type: application/json" \
         -d "{\"policies\":[${_POLICY_JSON}],\"period\":\"${TOKEN_PERIOD}\",\"display_name\":\"${_DISPLAY}\",\"renewable\":true}" \
         "${VAULT_ADDR}/v1/auth/token/create" 2>/dev/null) || true
@@ -100,19 +100,19 @@ data:
     log "VAULT_ADDR: $VAULT_ADDR"
     log "THRESHOLD: ${RENEW_THRESHOLD_SECONDS}s ($(( RENEW_THRESHOLD_SECONDS / 86400 ))d)"
 
-    ROOT_TOKEN=$(k8s_get_secret_key "vault-management" "vault-admin-token" "token")
-    if [ -z "$ROOT_TOKEN" ]; then
-      log "ERROR: Cannot read root token"
+    ADMIN_TOKEN=$(k8s_get_secret_key "vault-management" "vault-admin-token" "token")
+    if [ -z "$ADMIN_TOKEN" ]; then
+      log "ERROR: Cannot read admin token"
       exit 1
     fi
-    log "OK: Root token read (${#ROOT_TOKEN} chars)"
+    log "OK: Admin token read (${#ADMIN_TOKEN} chars)"
 
-    ROOT_TTL=$(vault_token_ttl "$ROOT_TOKEN")
-    if [ "$ROOT_TTL" = "-1" ] || [ -z "$ROOT_TTL" ]; then
-      log "ERROR: Root token INVALID"
+    ADMIN_TTL=$(vault_token_ttl "$ADMIN_TOKEN")
+    if [ "$ADMIN_TTL" = "-1" ] || [ -z "$ADMIN_TTL" ]; then
+      log "ERROR: Admin token INVALID"
       exit 1
     fi
-    log "OK: Root token valid (ttl=$ROOT_TTL, 0=never)"
+    log "OK: Admin token valid (ttl=$ADMIN_TTL)"
 
     log ""
     log "--- GROUP 1: API + Amazon workers ---"
@@ -128,7 +128,7 @@ data:
         log "WARN: TOKEN1 INVALID"; NEED_RECREATE_1=true
       elif [ "$TTL1" -lt "$RENEW_THRESHOLD_SECONDS" ]; then
         log "Below threshold — renewing"
-        if vault_token_renew "$ROOT_TOKEN" "$TOKEN1"; then
+        if vault_token_renew "$ADMIN_TOKEN" "$TOKEN1"; then
           NEW_TTL=$(vault_token_ttl "$TOKEN1")
           log "OK: Renewed (ttl=${NEW_TTL}s)"; RENEWED=$((RENEWED + 1))
         else
@@ -138,7 +138,7 @@ data:
         log "OK: Healthy"
       fi
       if [ "$NEED_RECREATE_1" = "true" ]; then
-        NEW_TOKEN1=$(vault_token_create "$ROOT_TOKEN" "keybuzz-k8s-api-auto")
+        NEW_TOKEN1=$(vault_token_create "$ADMIN_TOKEN" "keybuzz-k8s-api-auto")
         if [ -z "$NEW_TOKEN1" ]; then
           log "ERROR: Create failed"; ERRORS=$((ERRORS + 1))
         else
@@ -170,7 +170,7 @@ data:
         log "WARN: TOKEN2 INVALID"; NEED_RECREATE_2=true
       elif [ "$TTL2" -lt "$RENEW_THRESHOLD_SECONDS" ]; then
         log "Below threshold — renewing"
-        if vault_token_renew "$ROOT_TOKEN" "$TOKEN2"; then
+        if vault_token_renew "$ADMIN_TOKEN" "$TOKEN2"; then
           NEW_TTL=$(vault_token_ttl "$TOKEN2")
           log "OK: Renewed (ttl=${NEW_TTL}s)"; RENEWED=$((RENEWED + 1))
         else
@@ -180,7 +180,7 @@ data:
         log "OK: Healthy"
       fi
       if [ "$NEED_RECREATE_2" = "true" ]; then
-        NEW_TOKEN2=$(vault_token_create "$ROOT_TOKEN" "keybuzz-k8s-backend-auto")
+        NEW_TOKEN2=$(vault_token_create "$ADMIN_TOKEN" "keybuzz-k8s-backend-auto")
         if [ -z "$NEW_TOKEN2" ]; then
           log "ERROR: Create failed"; ERRORS=$((ERRORS + 1))
         else
