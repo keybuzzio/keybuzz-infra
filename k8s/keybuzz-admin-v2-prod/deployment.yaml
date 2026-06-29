@@ -22,8 +22,8 @@ spec:
     spec:
       containers:
       - name: keybuzz-admin-v2
-        # PH-SAAS-T8.12AS.21.219 support impersonation PROD; digest sha256:cea9f0a29f9e5347c53e9e456dea35cce7381bc2c63418e487446cbc574cdf76; source fb7fc1590890afd8e3bc5478a366b559f22eae0c; rollback: v2.12.2-media-buyer-lp-domain-qa-prod
-        image: ghcr.io/keybuzzio/keybuzz-admin:v2.12.3-support-impersonation-prod
+        # PH-SAAS-T8.12AS.21.223 tenant column filters PROD; digest sha256:67935abe5df86e3215c48a98eb66ec9239fad7af2edc6a1e1b6ff781626fbdec; source af5eaaaf1d87de2c42839db7afe98e204be724f1; rollback: v2.12.3-support-impersonation-prod
+        image: ghcr.io/keybuzzio/keybuzz-admin:v2.12.4-tenant-column-filters-prod
         imagePullPolicy: Always
         env:
         - name: NODE_ENV
