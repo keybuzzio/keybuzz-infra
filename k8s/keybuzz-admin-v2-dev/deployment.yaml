@@ -24,7 +24,7 @@ spec:
       - name: keybuzz-admin-v2
         
         # AQ.4.1: Media Buyer LP Domain QA DEV
-        image: ghcr.io/keybuzzio/keybuzz-admin:v2.12.3-support-impersonation-dev  # PH-SAAS-T8.12AS.21.209 support impersonation DEV; digest sha256:5fdc6f8b9b9015d62e65b3c69f398e48ba32cef7bcdf02ece5e9cbe72d9b2540; source fb7fc15; rollback: v2.12.2-media-buyer-lp-domain-qa-dev
+        image: ghcr.io/keybuzzio/keybuzz-admin:v2.12.4-tenant-column-filters-dev  # PH-SAAS-T8.12AS.21.222 tenants column filters DEV; source af5eaaaf1d87de2c42839db7afe98e204be724f1; rollback: v2.12.3-support-impersonation-dev
         imagePullPolicy: Always
         env:
         - name: NODE_ENV
