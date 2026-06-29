@@ -73,7 +73,7 @@ spec:
           # - Sample Demo hidden after real channel connection
           # PH-SAAS-T8.12AP.1B: AI no-reask fix — orderRef always injected + anti-reask instruction (KEY-256)
           # PH-SAAS-T8.12AP.2.3: outbound author_name — X-User-Email in sendReply PROD (KEY-266)
-          image: ghcr.io/keybuzzio/keybuzz-client:v3.5.270-remove-dev-advanced-banner-prod  # PH-SAAS-T8.12AS.21.205 remove DEV-only advanced settings banner PROD; digest sha256:2cb977762a14766ec78bfca25bee7ebbf60e596d4defad6abbb448269fd4bfc8; source 462287a1eea61a0ae5095805e8a78bead7578f41; rollback: v3.5.269-eslint-toolchain-post-oauth-trial-readiness-prod
+          image: ghcr.io/keybuzzio/keybuzz-client:v3.5.276-shell-route-entitlement-bypass-prod  # PH-SAAS-T8.12AS.21.219 support impersonation + logout/session shell-route fixes PROD; digest sha256:29f7316e93ab993d61f4253a527aa5416bf06d1da52d62cf23ff73e01041b75e; source 405f54fb081dad1d884abfe551e4b6a4b73278ff; rollback: v3.5.270-remove-dev-advanced-banner-prod
           imagePullPolicy: Always
           ports:
             - containerPort: 3000
