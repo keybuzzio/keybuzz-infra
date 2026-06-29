@@ -74,7 +74,7 @@ spec:
           # PH-SAAS-T8.12AP.2: escalation UX — show target + action-needed (KEY-255)
           # PH-SAAS-T8.12AP.2.1: conversation lifecycle — handler Prenom.N + last handler label (KEY-265)
           # PH-SAAS-T8.12AP.2.2: outbound author_name — inject X-User-Email in sendReply (KEY-266)
-          image: ghcr.io/keybuzzio/keybuzz-client:v3.5.272-support-logout-cookie-purge-dev  # PH-SAAS-T8.12AS.21.214 support logout cookie purge DEV; digest sha256:e3a2a113c3e76e462f13d6e407ac1009d8d681cf7b3e48baaaf90dcc2d9aafb3; source f063287; rollback: v3.5.271-support-impersonation-dev
+          image: ghcr.io/keybuzzio/keybuzz-client:v3.5.273-support-auth-cookie-purge-dev  # PH-SAAS-T8.12AS.21.215 support auth cookie purge DEV; digest sha256:f482173997c90533668c09ea2c02f6e3fa95adc5c9a5fe9cd01bc8c42cf7ba31; source 1400bda; rollback: v3.5.272-support-logout-cookie-purge-dev
           imagePullPolicy: Always
           ports:
             - containerPort: 3000
