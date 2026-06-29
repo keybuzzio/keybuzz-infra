@@ -4,7 +4,7 @@ Date UTC: 2026-06-29
 
 ## Verdict
 
-READY_FOR_APPLY.
+READY_FIXED.
 
 La page pricing PROD n'est pas cassee cote code Website ni par divergence de pods.
 La root cause observee est un rate-limit NGINX live trop bas et hors GitOps sur les
@@ -115,24 +115,62 @@ Raison:
 - Aucun build Website.
 - Aucun docker push.
 
-## Plan apply
+## Apply GitOps
 
-GitOps strict:
+Commit infra pousse avant apply:
 
-1. commit + push infra;
-2. `kubectl apply -f k8s/website-dev/ingress.yaml`;
-3. verifier annotations DEV;
-4. `kubectl apply -f k8s/website-prod/ingress.yaml`;
-5. verifier annotations PROD;
-6. reproduire rafales `/pricing?_rsc=...` sans 503;
-7. verifier runtime Website inchange.
+- `af3768df3d70240274df5fddb9ec079a491706eb`
 
-Rollback:
+Apply effectue:
+
+- `kubectl apply -f k8s/website-dev/ingress.yaml`
+- `kubectl apply -f k8s/website-prod/ingress.yaml`
+
+Verification live:
+
+- DEV last-applied contient `limit-rps=100`, `limit-burst-multiplier=5`,
+  `limit-connections=200`.
+- PROD last-applied contient `limit-rps=100`, `limit-burst-multiplier=5`,
+  `limit-connections=200`.
+
+## Validation post-apply
+
+Rafale RSC simulee:
+
+- 120 GET concurrents sur `/pricing?_rsc=...`, `/?_rsc=...`, `/cookies?_rsc=...`,
+  `/privacy?_rsc=...`
+- Resultat: `{'200': 120}`
+- `slow_or_errors=[]`
+
+Smoke public:
+
+- `https://www.keybuzz.pro/pricing`: HTTP 200, error markers 0, copy pricing OK.
+- `https://keybuzz.pro/pricing`: HTTP 200, error markers 0, copy pricing OK.
+- `https://www.keybuzz.pro/`: HTTP 200, error markers 0.
+
+Runtime Website PROD post-fix:
+
+- Image inchangee: `ghcr.io/keybuzzio/keybuzz-website:v0.7.3-no-card-launch-pricing-prod`
+- Digest inchange: `sha256:81adb5e2325953692c86fed3d15eae84882b5b4c78fd4fda0e666d3b1a856c35`
+- Pods: 2/2 Ready, restarts 0.
+
+Logs ingress post-fix:
+
+- Les requetes `/pricing?_rsc=ph21207...` observees apres apply sont en HTTP 200.
+- Aucun nouveau `limiting requests`/503 observe dans la fenetre post-apply.
+
+Repo infra final:
+
+- HEAD = origin/main = `af3768df3d70240274df5fddb9ec079a491706eb`
+- ahead/behind = `0/0`
+- dirty = `0`
+
+## Rollback
 
 - revenir les annotations rate-limit dans les manifests GitOps au commit precedent;
 - commit + push;
 - `kubectl apply -f` DEV puis PROD.
 
-## Verdict final attendu
+## Verdict final
 
-GO APPLY WEBSITE PRICING INGRESS RATE LIMIT FIX READY_FOR_APPLY PH-SAAS-T8.12AS.21.207.
+GO APPLY WEBSITE PRICING INGRESS RATE LIMIT FIX READY_FIXED PH-SAAS-T8.12AS.21.207.
