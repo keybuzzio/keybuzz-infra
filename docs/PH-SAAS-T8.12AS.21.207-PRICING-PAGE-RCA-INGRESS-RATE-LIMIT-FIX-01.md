@@ -159,11 +159,13 @@ Logs ingress post-fix:
 - Les requetes `/pricing?_rsc=ph21207...` observees apres apply sont en HTTP 200.
 - Aucun nouveau `limiting requests`/503 observe dans la fenetre post-apply.
 
-Repo infra final:
+Repo infra apres apply:
 
 - HEAD = origin/main = `af3768df3d70240274df5fddb9ec079a491706eb`
 - ahead/behind = `0/0`
 - dirty = `0`
+
+Note: un commit docs-only de cloture peut suivre cet apply commit sans mutation runtime.
 
 ## Rollback
 
