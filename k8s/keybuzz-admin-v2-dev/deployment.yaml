@@ -24,7 +24,7 @@ spec:
       - name: keybuzz-admin-v2
         
         # AQ.4.1: Media Buyer LP Domain QA DEV
-        image: ghcr.io/keybuzzio/keybuzz-admin:v2.12.2-media-buyer-lp-domain-qa-dev  # rollback: v2.12.0-promo-codes-foundation-dev
+        image: ghcr.io/keybuzzio/keybuzz-admin:v2.12.3-support-impersonation-dev  # PH-SAAS-T8.12AS.21.209 support impersonation DEV; digest sha256:5fdc6f8b9b9015d62e65b3c69f398e48ba32cef7bcdf02ece5e9cbe72d9b2540; source fb7fc15; rollback: v2.12.2-media-buyer-lp-domain-qa-dev
         imagePullPolicy: Always
         env:
         - name: NODE_ENV
