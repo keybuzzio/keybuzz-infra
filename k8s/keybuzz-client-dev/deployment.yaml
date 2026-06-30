@@ -74,7 +74,7 @@ spec:
           # PH-SAAS-T8.12AP.2: escalation UX — show target + action-needed (KEY-255)
           # PH-SAAS-T8.12AP.2.1: conversation lifecycle — handler Prenom.N + last handler label (KEY-265)
           # PH-SAAS-T8.12AP.2.2: outbound author_name — inject X-User-Email in sendReply (KEY-266)
-          image: ghcr.io/keybuzzio/keybuzz-client:v3.5.280-shopify-readiness-dev  # PH-SAAS-T8.12AS.21.226 Shopify readiness DEV; digest sha256:242c62a14e9d31e6518fdddca6026c9acd6714158c0aef642fb609f18bb1f328; source b14710f5757cea55a24d1785bd64b0eb7c4d088c; rollback: v3.5.279-shopify-catalog-hardening-dev
+          image: ghcr.io/keybuzzio/keybuzz-client:v3.5.281-onboarding-french-accents-dev  # PH-SAAS-T8.12AS.21.227 onboarding French accents DEV; digest sha256:c335d708d7b140b9f03cb5ef78dd938f2d1fa92027dee42984afa36bfea1e76c; source 8646ee6e54fe0f656b10bd5071f38253b7007cbd; rollback: v3.5.280-shopify-readiness-dev
           imagePullPolicy: Always
           ports:
             - containerPort: 3000

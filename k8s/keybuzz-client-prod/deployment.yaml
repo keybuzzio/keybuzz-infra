@@ -73,7 +73,7 @@ spec:
           # - Sample Demo hidden after real channel connection
           # PH-SAAS-T8.12AP.1B: AI no-reask fix — orderRef always injected + anti-reask instruction (KEY-256)
           # PH-SAAS-T8.12AP.2.3: outbound author_name — X-User-Email in sendReply PROD (KEY-266)
-          image: ghcr.io/keybuzzio/keybuzz-client:v3.5.278-auth-shell-bypass-prod  # PH-SAAS-T8.12AS.21.221 auth routes shell bypass + auth error suspense PROD; digest sha256:82803dde2788ca5f8941a823e66f751cd24d646619c56e6c86f8613b8e3dc26a; source e7aefa15ee2ce9f2d5a43f359dd31c12ae3b8d5f; rollback: v3.5.276-shell-route-entitlement-bypass-prod
+          image: ghcr.io/keybuzzio/keybuzz-client:v3.5.279-onboarding-french-accents-prod  # PH-SAAS-T8.12AS.21.227 onboarding French accents PROD, accent-only from current PROD source; digest sha256:a9388533256d64b3f023f51a745e29c6583ea52435a8ba8baafc6c055ff6d219; source 8ef61e8e611acad53a997995f3aa939e112da6a2; rollback: v3.5.278-auth-shell-bypass-prod
           imagePullPolicy: Always
           ports:
             - containerPort: 3000
